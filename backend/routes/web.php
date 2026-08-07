@@ -11,7 +11,7 @@ Route::get('/register', function () {
 });
 
 Route::get('/documents', function () {
-    return view('index');
+    return view('documents');
 });
 
 Route::get('/chat', function () {

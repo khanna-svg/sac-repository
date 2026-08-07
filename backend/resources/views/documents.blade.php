@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SAC Thesis System - Document Search</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
+
+  <!-- Navigation Bar -->
+  <header class="border-b border-gray-800 bg-gray-950 px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white">S</div>
+      <h1 class="text-xl font-bold tracking-tight">SAC Thesis System</h1>
+    </div>
+    <nav class="flex gap-4 items-center">
+      <a href="/documents" class="text-sm font-medium text-indigo-400 border-b-2 border-indigo-500 pb-1">Documents & Search</a>
+      <a href="/chat" class="text-sm font-medium text-gray-400 hover:text-gray-200 transition">AI Assistant</a>
+      <button id="logoutBtn" class="text-xs bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-1.5 rounded-lg ml-4 text-gray-300">Sign Out</button>
+    </nav>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-5xl w-full mx-auto p-6 space-y-8">
+    
+    <!-- Upload Section -->
+    <section class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-lg">
+      <h2 class="text-lg font-semibold text-gray-200 mb-2">Upload Thesis Document</h2>
+      <p class="text-sm text-gray-400 mb-6">Enter metadata and select your thesis PDF file to publish to the repository.</p>
+      
+      <form id="uploadForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-1">Thesis Title</label>
+          <input type="text" id="titleInput" required placeholder="e.g., A Mobile-Based Medication Adherence System" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-1">Author(s)</label>
+          <input type="text" id="authorInput" required placeholder="e.g., Juan Dela Cruz, Maria Santos" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500">
+        </div>
+
+        <div items-center justify-center>
+          <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-1">Abstract</label>
+          <textarea id="abstractInput" rows="4" required placeholder="Paste thesis abstract here..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-1">Upload PDF File</label>
+          <input type="file" id="pdfInput" accept=".pdf" required class="block w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer bg-gray-900 border border-gray-700 rounded-lg">
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-lg text-sm transition mt-2">
+          Submit & Upload Thesis
+        </button>
+      </form>
+
+      <div id="uploadStatus" class="mt-4 text-sm hidden"></div>
+    </section>
+
+    <!-- Search Section -->
+    <section class="space-y-4">
+      <div>
+        <h2 class="text-lg font-semibold text-gray-200">Repository Search</h2>
+        <p class="text-sm text-gray-400">Search stored theses by title, author, or content keywords.</p>
+      </div>
+
+      <div class="flex gap-3">
+        <input 
+          type="text" 
+          id="searchQuery" 
+          placeholder="Search topics, authors, or keywords..." 
+          class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-sm text-gray-100 focus:outline-none focus:border-indigo-500"
+        />
+        <button id="searchBtn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 py-3 rounded-lg text-sm transition">
+          Search
+        </button>
+      </div>
+
+      <!-- Search Results Area -->
+      <div id="searchResults" class="space-y-4 pt-2">
+        <div class="text-gray-400 text-sm text-center py-4">Loading documents...</div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const searchResults = document.getElementById('searchResults');
+    const searchQuery = document.getElementById('searchQuery');
+    const searchBtn = document.getElementById('searchBtn');
+
+    // Handle Form Submission
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('titleInput').value.trim();
+      const author = document.getElementById('authorInput').value.trim();
+      const abstract = document.getElementById('abstractInput').value.trim();
+      const pdfFile = document.getElementById('pdfInput').files[0];
+
+      if (!pdfFile) {
+        showStatus('Please select a PDF file.', 'text-red-400');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('author', author);
+      formData.append('abstract', abstract);
+      formData.append('pdf', pdfFile);
+
+      showStatus('Uploading document and saving metadata...', 'text-indigo-400');
+
+      try {
+        const response = await fetch('/api/documents/upload', {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          showStatus('Thesis published successfully!', 'text-green-400');
+          uploadForm.reset();
+          fetchDocuments();
+        } else {
+          showStatus(result.message || 'Upload failed. Check input values.', 'text-red-400');
+        }
+      } catch (error) {
+        console.error(error);
+        showStatus('An error occurred during submission.', 'text-red-400');
+      }
+    });
+
+    // Fetch and display documents
+    async function fetchDocuments(query = '') {
+      try {
+        const url = query ? `/api/documents?query=${encodeURIComponent(query)}` : '/api/documents';
+        const response = await fetch(url);
+        const documents = await response.json();
+
+        if (!Array.isArray(documents) || documents.length === 0) {
+          searchResults.innerHTML = `
+            <div class="bg-gray-800/60 border border-gray-700 p-6 rounded-lg text-gray-400 text-sm text-center">
+              ${query ? 'No matching research papers found.' : 'No documents in repository yet.'}
+            </div>`;
+          return;
+        }
+
+        searchResults.innerHTML = documents.map(doc => `
+          <div class="bg-gray-800/60 border border-gray-700 p-5 rounded-xl space-y-3">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-semibold text-lg text-indigo-400">${escapeHtml(doc.title)}</h3>
+                <p class="text-xs text-indigo-300/80 mt-1">Author(s): <span class="text-gray-300 font-medium">${escapeHtml(doc.author)}</span></p>
+              </div>
+              <a href="${doc.file_url}" target="_blank" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg transition whitespace-nowrap">
+                View PDF
+              </a>
+            </div>
+            <div>
+              <p class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-1">Abstract</p>
+              <p class="text-sm text-gray-300 leading-relaxed">${escapeHtml(doc.abstract)}</p>
+            </div>
+            <p class="text-[11px] text-gray-500 pt-1 border-t border-gray-700/50">
+              Uploaded on: ${new Date(doc.created_at).toLocaleDateString()}
+            </p>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error('Error loading documents:', error);
+      }
+    }
+
+    // Search Triggering
+    searchBtn.addEventListener('click', () => fetchDocuments(searchQuery.value.trim()));
+    searchQuery.addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') fetchDocuments(searchQuery.value.trim());
+    });
+
+    function showStatus(message, colorClass) {
+      uploadStatus.className = `mt-4 text-sm ${colorClass}`;
+      uploadStatus.textContent = message;
+      uploadStatus.classList.remove('hidden');
+    }
+
+    function escapeHtml(text) {
+      return text ? text.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m])) : '';
+    }
+
+    // Load documents on startup
+    document.addEventListener('DOMContentLoaded', () => fetchDocuments());
+  </script>
+</body>
+</html>
