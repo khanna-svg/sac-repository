@@ -25,23 +25,11 @@ putenv("APP_STORAGE_PATH={$tmpStorage}");
 // 3. Load Composer Autoloader
 require __DIR__ . '/../vendor/autoload.php';
 
-// 4. Load application and customize storage/bootstrap paths
+// 4. Load Application
 $app = require_once __DIR__ . '/../bootstrap/app.php';
 
+// 5. Override storage path for Vercel
 $app->useStoragePath($tmpStorage);
 
-// Force bootstrap cache path redirect if supported
-if (method_exists($app, 'useBootstrapPath')) {
-    $app->useBootstrapPath($tmpCache);
-}
-
-// 5. Handle incoming request
-$kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-
-$response = $kernel->handle(
-    $request = Illuminate\Http\Request::capture()
-);
-
-$response->send();
-
-$kernel->terminate($request, $response);
+// 6. Handle request using Laravel 11/12 request handler
+$app->handleRequest(Illuminate\Http\Request::capture());
