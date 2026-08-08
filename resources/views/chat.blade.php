@@ -463,7 +463,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
 
             const response = await fetch(
-                '/api/chat',
+                '/backend/chat',
                 {
                     method: 'POST',
 

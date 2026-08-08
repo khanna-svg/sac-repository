@@ -138,7 +138,7 @@
       showStatus('Uploading document and vectorizing chunks...', 'text-indigo-400');
 
       try {
-        const response = await fetch('/api/documents/upload', {
+        const response = await fetch('/backend/documents/upload', {
           method: 'POST',
           headers: { 'Accept': 'application/json' },
           body: formData
@@ -164,8 +164,8 @@
     async function fetchDocuments(query = '') {
   try {
     const url = query
-      ? `/api/documents?query=${encodeURIComponent(query)}`
-      : '/api/documents';
+      ? `/backend/documents?query=${encodeURIComponent(query)}`
+      : '/backend/documents';
 
     const response = await fetch(url, {
       headers: { Accept: 'application/json' }
