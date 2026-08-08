@@ -177,6 +177,14 @@
       throw new Error(`Request failed (${response.status}): ${responseText.slice(0, 250)}`);
     }
 
+    const contentType = response.headers.get('content-type') || '';
+
+      if (!contentType.includes('application/json')) {
+        throw new Error(
+          `Expected JSON but received ${contentType}: ${responseText.slice(0, 300)}`
+        );
+      }
+
     const documents = JSON.parse(responseText);
 
     if (!Array.isArray(documents) || documents.length === 0) {
