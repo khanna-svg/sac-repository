@@ -162,42 +162,60 @@
 
     // Fetch and display documents
     async function fetchDocuments(query = '') {
-      try {
-        const url = query ? `/api/documents?query=${encodeURIComponent(query)}` : '/api/documents';
-        const response = await fetch(url);
-        const documents = await response.json();
+  try {
+    const url = query
+      ? `/api/documents?query=${encodeURIComponent(query)}`
+      : '/api/documents';
 
-        if (!Array.isArray(documents) || documents.length === 0) {
-          searchResults.innerHTML = `
-            <div class="bg-gray-800/60 border border-gray-700 p-6 rounded-lg text-gray-400 text-sm text-center">
-              ${query ? 'No matching research papers found.' : 'No documents in repository yet.'}
-            </div>`;
-          return;
-        }
+    const response = await fetch(url, {
+      headers: { Accept: 'application/json' }
+    });
 
-        searchResults.innerHTML = documents.map(doc => `
-          <div class="bg-gray-800/60 border border-gray-700 p-5 rounded-xl space-y-3">
-            <div class="flex justify-between items-start">
-              <div>
-                <h3 class="font-semibold text-lg text-indigo-400">${escapeHtml(doc.title)}</h3>
-                <p class="text-xs text-indigo-300/80 mt-1">Author(s): <span class="text-gray-300 font-medium">${escapeHtml(doc.author)}</span></p>
-              </div>
-              <a href="${doc.file_url}" target="_blank" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg transition whitespace-nowrap">
-                View PDF
-              </a>
-            </div>
-            <div>
-              <p class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-1">Abstract</p>
-              <p class="text-sm text-gray-300 leading-relaxed">${escapeHtml(doc.abstract)}</p>
-            </div>
-            <p class="text-[11px] text-gray-500 pt-1 border-t border-gray-700/50">
-              Uploaded on: ${new Date(doc.created_at).toLocaleDateString()}
+    const responseText = await response.text();
+
+    if (!response.ok) {
+      throw new Error(`Request failed (${response.status}): ${responseText.slice(0, 250)}`);
+    }
+
+    const documents = JSON.parse(responseText);
+
+    if (!Array.isArray(documents) || documents.length === 0) {
+      searchResults.innerHTML = `
+        <div class="bg-gray-800/60 border border-gray-700 p-6 rounded-lg text-gray-400 text-sm text-center">
+          ${query ? 'No matching research papers found.' : 'No documents in repository yet.'}
+        </div>`;
+      return;
+    }
+
+    searchResults.innerHTML = documents.map(doc => `
+      <div class="bg-gray-800/60 border border-gray-700 p-5 rounded-xl space-y-3">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg text-indigo-400">${escapeHtml(doc.title)}</h3>
+            <p class="text-xs text-indigo-300/80 mt-1">
+              Author(s): <span class="text-gray-300 font-medium">${escapeHtml(doc.author)}</span>
             </p>
           </div>
-        `).join('');
-      } catch (error) {
-        console.error('Error loading documents:', error);
-      }
+          <a href="${doc.file_url}" target="_blank"
+             class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg">
+            View PDF
+          </a>
+        </div>
+        <div>
+          <p class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-1">Abstract</p>
+          <p class="text-sm text-gray-300 leading-relaxed">${escapeHtml(doc.abstract)}</p>
+        </div>
+      </div>
+    `).join('');
+
+  } catch (error) {
+    console.error('Error loading documents:', error);
+
+    searchResults.innerHTML = `
+      <div class="bg-red-950/40 border border-red-800 p-6 rounded-lg text-red-300 text-sm text-center">
+        Could not load documents: ${escapeHtml(error.message)}
+      </div>`;
+  }
     }
 
     // Modal Control Functions
