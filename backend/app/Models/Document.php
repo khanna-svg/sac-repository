@@ -16,4 +16,9 @@ class Document extends Model
         'file_path',
         'file_url',
     ];
+
+    public function chunks() 
+    {
+        return $this->hasMany(DocumentChunk:: class, 'document_id');
+    }
 }

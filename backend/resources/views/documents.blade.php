@@ -40,7 +40,7 @@
           <input type="text" id="authorInput" required placeholder="e.g., Juan Dela Cruz, Maria Santos" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500">
         </div>
 
-        <div items-center justify-center>
+        <div>
           <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-1">Abstract</label>
           <textarea id="abstractInput" rows="4" required placeholder="Paste thesis abstract here..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
         </div>
@@ -85,12 +85,35 @@
 
   </main>
 
+  <!-- Success Modal -->
+  <div id="successModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center hidden z-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full text-center transform transition-all scale-100">
+      
+      <!-- Circle Check Icon -->
+      <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-50 border-2 border-green-200 mb-6">
+        <svg class="h-10 w-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+        </svg>
+      </div>
+
+      <h3 class="text-2xl font-bold text-gray-800 mb-3">Success</h3>
+      <p class="text-gray-600 text-sm mb-6">Thesis uploaded successfully!</p>
+
+      <button id="closeModalBtn" class="w-24 bg-[#0284c7] hover:bg-[#0369a1] text-white font-medium py-2.5 rounded-lg text-sm transition focus:outline-none shadow-md">
+        OK
+      </button>
+    </div>
+  </div>
+
   <script>
     const uploadForm = document.getElementById('uploadForm');
     const uploadStatus = document.getElementById('uploadStatus');
     const searchResults = document.getElementById('searchResults');
     const searchQuery = document.getElementById('searchQuery');
     const searchBtn = document.getElementById('searchBtn');
+
+    const successModal = document.getElementById('successModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
 
     // Handle Form Submission
     uploadForm.addEventListener('submit', async (e) => {
@@ -112,7 +135,7 @@
       formData.append('abstract', abstract);
       formData.append('pdf', pdfFile);
 
-      showStatus('Uploading document and saving metadata...', 'text-indigo-400');
+      showStatus('Uploading document and vectorizing chunks...', 'text-indigo-400');
 
       try {
         const response = await fetch('/api/documents/upload', {
@@ -124,9 +147,10 @@
         const result = await response.json();
 
         if (response.ok) {
-          showStatus('Thesis published successfully!', 'text-green-400');
+          uploadStatus.classList.add('hidden');
           uploadForm.reset();
           fetchDocuments();
+          showSuccessModal();
         } else {
           showStatus(result.message || 'Upload failed. Check input values.', 'text-red-400');
         }
@@ -175,6 +199,15 @@
         console.error('Error loading documents:', error);
       }
     }
+
+    // Modal Control Functions
+    function showSuccessModal() {
+      successModal.classList.remove('hidden');
+    }
+
+    closeModalBtn.addEventListener('click', () => {
+      successModal.classList.add('hidden');
+    });
 
     // Search Triggering
     searchBtn.addEventListener('click', () => fetchDocuments(searchQuery.value.trim()));
