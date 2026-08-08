@@ -1,17 +1,14 @@
 {
-    "$schema": "https://openapi.vercel.sh/vercel.json",
-    "framework": null,
-    "outputDirectory": "public",
-    "functions": {
-        "api/*.php": {
-            "runtime": "vercel-php@0.9.0",
-            "maxDuration": 60
-        }
-    },
-    "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "/api/index.php"
-        }
-    ]
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.9.0",
+      "maxDuration": 60
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.php"
+    }
+  ]
 }
