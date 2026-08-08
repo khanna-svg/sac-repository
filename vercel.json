@@ -1,5 +1,22 @@
 {
-    "rewrites": [
-        { "source": "/(.*)", "destination": "/index.php" }
-    ]
-}
+  "version": 2,
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.6.1"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(favicon\\.ico|robots\\.txt|images/.*)",
+      "dest": "/public/$1"
+    },
+    {
+      "src": "/build/(.*)",
+      "dest": "/public/build/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/api/index.php"
+    }
+  ]
+}   
