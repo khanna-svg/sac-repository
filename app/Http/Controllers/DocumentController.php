@@ -15,7 +15,7 @@ class DocumentController extends Controller
 {
     public function viewPdf(Document $document)
     {
-        $baseUrl = rtrim((string) getenv('SUPABASE_PROJECT_URL'), '/');
+        $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
         $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
         $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
 
@@ -88,7 +88,7 @@ class DocumentController extends Controller
             }
 
             // Read Supabase Storage settings from Vercel.
-            $baseUrl = rtrim((string) getenv('SUPABASE_PROJECT_URL'), '/');
+            $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
             $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
             $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
 
