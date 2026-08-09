@@ -87,7 +87,7 @@ class DocumentController extends Controller
         $filename = basename($path);
         
         // Generate secure route URL instead of static asset link
-        $url = route('documents.file', ['filename' => $filename]);
+        $url = '/documents/file/' . $filename;
 
         // ---------------------------------------------------------
         // 3. Save document metadata

@@ -246,7 +246,7 @@
                   Author(s): <span class="text-gray-300 font-medium">${escapeHtml(doc.author)}</span>
                 </p>
               </div>
-              <button onclick="openPdfViewer('${doc.file_url}', '${escapeHtml(doc.title)}')"
+              <button onclick="openPdfViewer('/backend/documents/file/' + '${doc.file_path}'.split('/').pop(), '${escapeHtml(doc.title)}')"
                  class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg transition shrink-0">
                 View Thesis
               </button>
@@ -275,12 +275,8 @@
       pdfViewerModal.classList.remove('hidden');
 
       try {
-        // Pass object with url and withCredentials
-        const loadingTask = pdfjsLib.getDocument({
-          url: fileUrl,
-          withCredentials: true
-        });
-        
+        // Pass url string directly to avoid CORS credential handling errors
+        const loadingTask = pdfjsLib.getDocument(fileUrl);
         const pdf = await loadingTask.promise;
 
         pdfViewerContainer.innerHTML = ''; // Clear loader
