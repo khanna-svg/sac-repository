@@ -18,9 +18,25 @@ class DocumentController extends Controller
         $baseUrl = rtrim((string) getenv('SUPABASE_PROJECT_URL'), '/');
         $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
         $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
-        
-        if (!$baseUrl || !$key || !$bucket) {
-            abort(500, 'Supabase Storage is not configured.');
+
+        $missing = [];
+
+        if ($baseUrl === '') {
+            $missing[] = 'SUPABASE_PROJECT_URL';
+        }
+
+        if ($key === '') {
+            $missing[] = 'SUPABASE_SERVICE_ROLE_KEY';
+        }
+
+        if ($bucket === '') {
+            $missing[] = 'SUPABASE_STORAGE_BUCKET';
+        }
+
+        if ($missing) {
+            throw new \Exception(
+                'Missing Vercel environment variable(s): ' . implode(', ', $missing)
+            );
         }
 
         $path = ltrim($document->file_path, '/');
