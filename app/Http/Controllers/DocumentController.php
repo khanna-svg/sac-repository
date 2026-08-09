@@ -19,24 +19,8 @@ class DocumentController extends Controller
         $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
         $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
 
-        $missing = [];
-
-        if ($baseUrl === '') {
-            $missing[] = 'SUPABASE_PROJECT_URL';
-        }
-
-        if ($key === '') {
-            $missing[] = 'SUPABASE_SERVICE_ROLE_KEY';
-        }
-
-        if ($bucket === '') {
-            $missing[] = 'SUPABASE_STORAGE_BUCKET';
-        }
-
-        if ($missing) {
-            throw new \Exception(
-                'Missing Vercel environment variable(s): ' . implode(', ', $missing)
-            );
+        if ($baseUrl === '' || $key === '' || $bucket === '') {
+            abort(500, 'Supabase Storage is not configured.');
         }
 
         $path = ltrim($document->file_path, '/');
@@ -91,10 +75,10 @@ class DocumentController extends Controller
         $file = $request->file('pdf');
 
         try {
-            // Extract text while the uploaded temporary file is available.
+            // Extract PDF text for the RAG system.
             $parser = new Parser();
-            $pdfData = $parser->parseFile($file->getRealPath());
-            $rawText = trim(preg_replace('/\s+/', ' ', $pdfData->getText()));
+            $pdf = $parser->parseFile($file->getRealPath());
+            $rawText = trim(preg_replace('/\s+/', ' ', $pdf->getText()));
 
             if ($rawText === '') {
                 return response()->json([
@@ -103,15 +87,33 @@ class DocumentController extends Controller
                 ], 422);
             }
 
-            // Upload the actual PDF to private Supabase Storage.
-            $baseUrl = rtrim(env('SUPABASE_PROJECT_URL'), '/');
-            $key = env('SUPABASE_SERVICE_ROLE_KEY');
-            $bucket = env('SUPABASE_STORAGE_BUCKET');
+            // Read Supabase Storage settings from Vercel.
+            $baseUrl = rtrim((string) getenv('SUPABASE_PROJECT_URL'), '/');
+            $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
+            $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
 
-            if (!$baseUrl || !$key || !$bucket) {
-                throw new \Exception('Supabase Storage is not configured.');
+            $missing = [];
+
+            if ($baseUrl === '') {
+                $missing[] = 'SUPABASE_PROJECT_URL';
             }
 
+            if ($key === '') {
+                $missing[] = 'SUPABASE_SERVICE_ROLE_KEY';
+            }
+
+            if ($bucket === '') {
+                $missing[] = 'SUPABASE_STORAGE_BUCKET';
+            }
+
+            if ($missing) {
+                throw new \Exception(
+                    'Missing Vercel environment variable(s): ' .
+                    implode(', ', $missing)
+                );
+            }
+
+            // Upload the PDF into private Supabase Storage.
             $path = 'documents/' . Str::uuid() . '.pdf';
 
             $upload = Http::timeout(60)
@@ -128,11 +130,12 @@ class DocumentController extends Controller
 
             if (!$upload->successful()) {
                 throw new \Exception(
-                    'Supabase Storage upload failed: ' . $upload->body()
+                    'Supabase upload failed (' . $upload->status() . '): ' .
+                    $upload->body()
                 );
             }
 
-            // Save metadata in Supabase Postgres.
+            // Save thesis metadata in Supabase Postgres.
             $document = Document::create([
                 'title' => $request->title,
                 'author' => $request->author,
@@ -145,9 +148,8 @@ class DocumentController extends Controller
                 'file_url' => "/backend/documents/{$document->id}/view",
             ]);
 
-            // Generate and save RAG embeddings.
+            // Generate RAG embeddings after the PDF is safely stored.
             $gemini = app(GeminiService::class);
-
             $chunks = array_slice(str_split($rawText, 800), 0, 20);
             $processedChunks = 0;
 
@@ -164,13 +166,13 @@ class DocumentController extends Controller
                     throw new \Exception('Gemini returned an invalid embedding.');
                 }
 
-                $embeddingVector = '[' . implode(',', $embedding) . ']';
+                $vector = '[' . implode(',', $embedding) . ']';
 
                 DB::statement(
                     'INSERT INTO document_chunks
                     (document_id, chunk_text, embedding, created_at, updated_at)
                     VALUES (?, ?, ?::extensions.vector, NOW(), NOW())',
-                    [$document->id, $chunk, $embeddingVector]
+                    [$document->id, $chunk, $vector]
                 );
 
                 $processedChunks++;
