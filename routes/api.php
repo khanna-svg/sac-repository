@@ -9,9 +9,15 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-// Document Upload & Search Routes
+// Document Routes
 Route::get('/documents', [DocumentController::class, 'index']);
 Route::post('/documents/upload', [DocumentController::class, 'store']);
 
-// RAG AI Chatbot Route
+// View a thesis PDF
+Route::get('/documents/{document}/view', [
+    DocumentController::class,
+    'viewPdf'
+]);
+
+// RAG AI Chatbot
 Route::post('/chat', [ChatController::class, 'ask']);
