@@ -5,8 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SAC Thesis System - Document Search</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- PDF.js Core Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+
+  <style>
+    /* Prevent text highlight and user selection */
+    .no-select {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -khtml-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    /* Print Masking */
+    @media print {
+      body {
+        display: none !important;
+      }
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans">
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col font-sans no-select">
 
   <!-- Navigation Bar -->
   <header class="border-b border-gray-800 bg-gray-950 px-6 py-4 flex items-center justify-between">
@@ -105,7 +126,24 @@
     </div>
   </div>
 
+  <!-- PDF Viewer Modal (Read-Only Canvas Viewer) -->
+  <div id="pdfViewerModal" class="fixed inset-0 bg-black/80 backdrop-blur-md flex flex-col hidden z-50">
+    <div class="bg-gray-950 border-b border-gray-800 px-6 py-3 flex items-center justify-between">
+      <h3 id="pdfViewerTitle" class="text-sm font-semibold text-gray-200 truncate max-w-xl">Thesis Viewer</h3>
+      <button onclick="closePdfViewer()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-1.5 rounded-lg text-xs font-medium transition">
+        Close Viewer
+      </button>
+    </div>
+    
+    <div id="pdfViewerContainer" class="flex-1 overflow-y-auto p-6 flex flex-col items-center space-y-6">
+      <!-- Canvases will render dynamically here -->
+    </div>
+  </div>
+
   <script>
+    // Setup PDF.js Worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
     const uploadForm = document.getElementById('uploadForm');
     const uploadStatus = document.getElementById('uploadStatus');
     const searchResults = document.getElementById('searchResults');
@@ -114,6 +152,10 @@
 
     const successModal = document.getElementById('successModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
+
+    const pdfViewerModal = document.getElementById('pdfViewerModal');
+    const pdfViewerContainer = document.getElementById('pdfViewerContainer');
+    const pdfViewerTitle = document.getElementById('pdfViewerTitle');
 
     // Handle Form Submission
     uploadForm.addEventListener('submit', async (e) => {
@@ -162,69 +204,125 @@
 
     // Fetch and display documents
     async function fetchDocuments(query = '') {
-  try {
-    const url = query
-      ? `/backend/documents?query=${encodeURIComponent(query)}`
-      : '/backend/documents';
+      try {
+        const url = query
+          ? `/backend/documents?query=${encodeURIComponent(query)}`
+          : '/backend/documents';
 
-    const response = await fetch(url, {
-      headers: { Accept: 'application/json' }
+        const response = await fetch(url, {
+          headers: { Accept: 'application/json' }
+        });
+
+        const responseText = await response.text();
+
+        if (!response.ok) {
+          throw new Error(`Request failed (${response.status}): ${responseText.slice(0, 250)}`);
+        }
+
+        const contentType = response.headers.get('content-type') || '';
+
+        if (!contentType.includes('application/json')) {
+          throw new Error(
+            `Expected JSON but received ${contentType}: ${responseText.slice(0, 300)}`
+          );
+        }
+
+        const documents = JSON.parse(responseText);
+
+        if (!Array.isArray(documents) || documents.length === 0) {
+          searchResults.innerHTML = `
+            <div class="bg-gray-800/60 border border-gray-700 p-6 rounded-lg text-gray-400 text-sm text-center">
+              ${query ? 'No matching research papers found.' : 'No documents in repository yet.'}
+            </div>`;
+          return;
+        }
+
+        searchResults.innerHTML = documents.map(doc => `
+          <div class="bg-gray-800/60 border border-gray-700 p-5 rounded-xl space-y-3">
+            <div class="flex justify-between items-start gap-4">
+              <div>
+                <h3 class="font-semibold text-lg text-indigo-400">${escapeHtml(doc.title)}</h3>
+                <p class="text-xs text-indigo-300/80 mt-1">
+                  Author(s): <span class="text-gray-300 font-medium">${escapeHtml(doc.author)}</span>
+                </p>
+              </div>
+              <button onclick="openPdfViewer('${doc.file_url}', '${escapeHtml(doc.title)}')"
+                 class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg transition shrink-0">
+                View Thesis
+              </button>
+            </div>
+            <div>
+              <p class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-1">Abstract</p>
+              <p class="text-sm text-gray-300 leading-relaxed">${escapeHtml(doc.abstract)}</p>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (error) {
+        console.error('Error loading documents:', error);
+
+        searchResults.innerHTML = `
+          <div class="bg-red-950/40 border border-red-800 p-6 rounded-lg text-red-300 text-sm text-center">
+            Could not load documents: ${escapeHtml(error.message)}
+          </div>`;
+      }
+    }
+
+    // Canvas PDF Rendering Logic
+    async function openPdfViewer(fileUrl, title) {
+      pdfViewerTitle.textContent = title;
+      pdfViewerContainer.innerHTML = '<div class="text-gray-400 text-sm py-12">Rendering document security view...</div>';
+      pdfViewerModal.classList.remove('hidden');
+
+      try {
+        const loadingTask = pdfjsLib.getDocument(fileUrl);
+        const pdf = await loadingTask.promise;
+
+        pdfViewerContainer.innerHTML = ''; // Clear loader
+
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 1.5 });
+
+          const canvas = document.createElement('canvas');
+          canvas.className = 'rounded-lg shadow-2xl bg-white max-w-full';
+          const context = canvas.getContext('2d');
+
+          canvas.height = viewport.height;
+          canvas.width = viewport.width;
+
+          pdfViewerContainer.appendChild(canvas);
+
+          await page.render({
+            canvasContext: context,
+            viewport: viewport
+          }).promise;
+        }
+      } catch (error) {
+        console.error('PDF rendering failed:', error);
+        pdfViewerContainer.innerHTML = '<div class="text-red-400 text-sm py-12">Failed to render PDF document.</div>';
+      }
+    }
+
+    function closePdfViewer() {
+      pdfViewerModal.classList.add('hidden');
+      pdfViewerContainer.innerHTML = '';
+    }
+
+    // Security Rules: Block Keyboard Shortcuts (Ctrl+S, Ctrl+P, Ctrl+C, Ctrl+U, F12)
+    document.addEventListener('keydown', (e) => {
+      if (
+        (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'c' || e.key === 'u' || e.key === 'a')) ||
+        e.key === 'F12'
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+      }
     });
 
-    const responseText = await response.text();
-
-    if (!response.ok) {
-      throw new Error(`Request failed (${response.status}): ${responseText.slice(0, 250)}`);
-    }
-
-    const contentType = response.headers.get('content-type') || '';
-
-      if (!contentType.includes('application/json')) {
-        throw new Error(
-          `Expected JSON but received ${contentType}: ${responseText.slice(0, 300)}`
-        );
-      }
-
-    const documents = JSON.parse(responseText);
-
-    if (!Array.isArray(documents) || documents.length === 0) {
-      searchResults.innerHTML = `
-        <div class="bg-gray-800/60 border border-gray-700 p-6 rounded-lg text-gray-400 text-sm text-center">
-          ${query ? 'No matching research papers found.' : 'No documents in repository yet.'}
-        </div>`;
-      return;
-    }
-
-    searchResults.innerHTML = documents.map(doc => `
-      <div class="bg-gray-800/60 border border-gray-700 p-5 rounded-xl space-y-3">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg text-indigo-400">${escapeHtml(doc.title)}</h3>
-            <p class="text-xs text-indigo-300/80 mt-1">
-              Author(s): <span class="text-gray-300 font-medium">${escapeHtml(doc.author)}</span>
-            </p>
-          </div>
-          <a href="${doc.file_url}" target="_blank"
-             class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg">
-            View PDF
-          </a>
-        </div>
-        <div>
-          <p class="text-xs font-medium uppercase tracking-wider text-gray-400 mb-1">Abstract</p>
-          <p class="text-sm text-gray-300 leading-relaxed">${escapeHtml(doc.abstract)}</p>
-        </div>
-      </div>
-    `).join('');
-
-  } catch (error) {
-    console.error('Error loading documents:', error);
-
-    searchResults.innerHTML = `
-      <div class="bg-red-950/40 border border-red-800 p-6 rounded-lg text-red-300 text-sm text-center">
-        Could not load documents: ${escapeHtml(error.message)}
-      </div>`;
-  }
-    }
+    // Disable Right Click Menu globally
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
 
     // Modal Control Functions
     function showSuccessModal() {
