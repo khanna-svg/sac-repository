@@ -30,12 +30,13 @@ class DocumentController extends Controller
             abort(404, 'File not found');
         }
 
-        // Get the absolute path to the stored file
         $fullPath = Storage::disk('public')->path($path);
 
-        // response()->file() is recognized natively by Intelephense without warnings
         return response()->file($fullPath, [
+            'Content-Type' => 'application/pdf',
             'Content-Disposition' => 'inline; filename="' . $filename . '"',
+            'Access-Control-Allow-Origin' => '*',
+            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
             'Pragma' => 'no-cache',
             'Expires' => '0',

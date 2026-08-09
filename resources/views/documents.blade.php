@@ -275,7 +275,12 @@
       pdfViewerModal.classList.remove('hidden');
 
       try {
-        const loadingTask = pdfjsLib.getDocument(fileUrl);
+        // Pass object with url and withCredentials
+        const loadingTask = pdfjsLib.getDocument({
+          url: fileUrl,
+          withCredentials: true
+        });
+        
         const pdf = await loadingTask.promise;
 
         pdfViewerContainer.innerHTML = ''; // Clear loader
@@ -299,8 +304,12 @@
           }).promise;
         }
       } catch (error) {
-        console.error('PDF rendering failed:', error);
-        pdfViewerContainer.innerHTML = '<div class="text-red-400 text-sm py-12">Failed to render PDF document.</div>';
+        console.error('Detailed PDF rendering error:', error);
+        pdfViewerContainer.innerHTML = `
+          <div class="text-red-400 text-sm py-12 text-center">
+            Failed to render PDF document.<br>
+            <span class="text-xs text-gray-400 mt-2 block">${escapeHtml(error.message || 'Unknown error')}</span>
+          </div>`;
       }
     }
 
