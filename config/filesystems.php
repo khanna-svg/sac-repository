@@ -36,6 +36,16 @@ return [
             'serve' => true,
             'throw' => false,
             'report' => false,
+
+        'supabase' => [
+            'driver' => 'supabase',
+            'key' => env('SUPABASE_SERVICE_ROLE_KEY'),
+            'bucket' => env('SUPABASE_STORAGE_BUCKET'),
+            'endpoint' => env('SUPABASE_PROJECT_URL'),
+            'public' => false, // Set to false if your bucket is private
+            'throw' => false,
+            'report' => false,
+],
         ],
 
         'public' => [

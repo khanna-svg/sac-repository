@@ -5304,6 +5304,8 @@ return array(
     'Psy\\VersionUpdater\\IntervalChecker' => $vendorDir . '/psy/psysh/src/VersionUpdater/IntervalChecker.php',
     'Psy\\VersionUpdater\\NoopChecker' => $vendorDir . '/psy/psysh/src/VersionUpdater/NoopChecker.php',
     'Psy\\VersionUpdater\\SelfUpdate' => $vendorDir . '/psy/psysh/src/VersionUpdater/SelfUpdate.php',
+    'QuixLabs\\LaravelSupabaseFlysystem\\ServiceProvider' => $vendorDir . '/quix-labs/laravel-supabase-flysystem/src/ServiceProvider.php',
+    'QuixLabs\\LaravelSupabaseFlysystem\\SupabaseAdapter' => $vendorDir . '/quix-labs/laravel-supabase-flysystem/src/SupabaseAdapter.php',
     'Ramsey\\Collection\\AbstractArray' => $vendorDir . '/ramsey/collection/src/AbstractArray.php',
     'Ramsey\\Collection\\AbstractCollection' => $vendorDir . '/ramsey/collection/src/AbstractCollection.php',
     'Ramsey\\Collection\\AbstractSet' => $vendorDir . '/ramsey/collection/src/AbstractSet.php',
