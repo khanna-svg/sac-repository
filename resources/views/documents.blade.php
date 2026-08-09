@@ -246,7 +246,7 @@
                   Author(s): <span class="text-gray-300 font-medium">${escapeHtml(doc.author)}</span>
                 </p>
               </div>
-              <button onclick="openPdfViewer('/backend/documents/file/' + '${doc.file_path}'.split('/').pop(), '${escapeHtml(doc.title)}')"
+              <button onclick="openPdfViewer('/backend/documents/${doc.id}/view', 'Thesis Viewer')
                  class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg transition shrink-0">
                 View Thesis
               </button>

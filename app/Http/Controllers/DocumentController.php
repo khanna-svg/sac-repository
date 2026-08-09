@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Smalot\PdfParser\Parser;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class DocumentController extends Controller
 {
@@ -22,26 +22,31 @@ class DocumentController extends Controller
     /**
      * Stream PDF inline to prevent direct download links.
      */
-    public function viewPdf($filename)
+    public function viewPdf(Document $document)
     {
-        $path = 'documents/' . $filename;
+        $baseUrl = rtrim(env('SUPABASE_PROJECT_URL'), '/');
+        $key = env('SUPABASE_SERVICE_ROLE_KEY');
+        $bucket = env('SUPABASE_STORAGE_BUCKET');
 
-        if (!Storage::disk('public')->exists($path)) {
-            abort(404, 'File not found');
-        }
+        $path = ltrim($document->file_path, '/');
 
-        $fullPath = Storage::disk('public')->path($path);
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'Authorization' => "Bearer {$key}",
+                'apikey' => $key,
+            ])
+            ->get("{$baseUrl}/storage/v1/object/{$bucket}/{$path}");
 
-        return response()->file($fullPath, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $filename . '"',
-            'Access-Control-Allow-Origin' => '*',
-            'Access-Control-Allow-Methods' => 'GET, OPTIONS',
-            'Cache-Control' => 'no-cache, no-store, must-revalidate',
-            'Pragma' => 'no-cache',
-            'Expires' => '0',
-        ]);
+        if (!$response->successful()) {
+            abort(404, 'PDF file was not found in Supabase Storage.');
     }
+
+    return response($response->body(), 200, [
+        'Content-Type' => $response->header('Content-Type', 'application/pdf'),
+        'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+        'Cache-Control' => 'private, no-store',
+    ]);
+}
 
     /**
      * Fetch all documents or search by keyword.
