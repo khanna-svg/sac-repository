@@ -180,7 +180,7 @@
       showStatus('Uploading document and vectorizing chunks...', 'text-indigo-400');
 
       try {
-        const response = await fetch('/documents/upload', {
+        const response = await fetch('/backend/documents/upload', {
           method: 'POST',
           headers: { 'Accept': 'application/json' },
           body: formData
@@ -206,8 +206,8 @@
     async function fetchDocuments(query = '') {
       try {
         const url = query
-          ? `/documents?query=${encodeURIComponent(query)}`
-          : '/documents';
+          ? `/backend/documents?query=${encodeURIComponent(query)}`
+          : '/backend/documents';
 
         const response = await fetch(url, {
           headers: { Accept: 'application/json' }
@@ -246,7 +246,7 @@
                   Author(s): <span class="text-gray-300 font-medium">${escapeHtml(doc.author)}</span>
                 </p>
               </div>
-              <button onclick="openPdfViewer('/documents/file/' + '${doc.file_path}'.split('/').pop(), '${escapeHtml(doc.title)}')"
+              <button onclick="openPdfViewer('/backend/documents/file/' + '${doc.file_path}'.split('/').pop(), '${escapeHtml(doc.title)}')"
                  class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2 rounded-lg transition shrink-0">
                 View Thesis
               </button>
