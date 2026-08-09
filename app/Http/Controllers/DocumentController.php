@@ -15,10 +15,10 @@ class DocumentController extends Controller
 {
     public function viewPdf(Document $document)
     {
-        $baseUrl = rtrim(env('SUPABASE_PROJECT_URL'), '/');
-        $key = env('SUPABASE_SERVICE_ROLE_KEY');
-        $bucket = env('SUPABASE_STORAGE_BUCKET');
-
+        $baseUrl = rtrim((string) getenv('SUPABASE_PROJECT_URL'), '/');
+        $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
+        $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
+        
         if (!$baseUrl || !$key || !$bucket) {
             abort(500, 'Supabase Storage is not configured.');
         }
