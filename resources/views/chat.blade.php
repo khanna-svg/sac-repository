@@ -5,18 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SAC Thesis System - AI Assistant</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
+
 @include('partials.sidebar')
 
+<div class="ml-64 flex h-screen flex-col">
+    <header class="flex items-center justify-between border-b border-gray-800 bg-gray-950 px-6 py-4">
+        <div>
+            <h1 class="text-lg font-semibold text-gray-100">AI Assistant</h1>
+            <p class="mt-1 text-sm text-gray-400">
+                Ask questions about uploaded thesis documents.
+            </p>
+        </div>
+
+        <div class="rounded-lg bg-indigo-950/40 px-3 py-2 text-xs text-indigo-300">
+            RAG Thesis Assistant
+        </div>
+    </header>
+
+<!-- Chat Area -->
+
   <!-- Chat Area -->
-  <div
-        id="chatMessages"
-        class="flex-1 overflow-y-auto px-6 py-6 space-y-6"
-    >
+  <div id="chatMessages" class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
 
         <!-- Welcome Message -->
-
         <div class="flex items-start gap-3">
 
             <div class="w-9 h-9 rounded-lg bg-indigo-600 flex-shrink-0 flex items-center justify-center">
@@ -55,39 +69,22 @@
     <!-- ============================= -->
 
     <div class="border-t border-gray-800 bg-gray-900 px-6 py-4">
-
-        <form
-            id="chatForm"
-            class="flex items-end gap-3"
-        >
-
+        <form class="flex items-center gap-3 w-full">
             <div class="flex-1 relative">
-
                 <textarea
-                    id="messageInput"
-                    rows="1"
-                    required
-                    placeholder="Ask a question about the research papers..."
-                    class="w-full resize-none bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 pr-12 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                ></textarea>
-
+                id="messageInput"
+                rows="1"
+                required
+                placeholder="Ask a question about the research papers..."
+                class="w-full resize-none bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 block leading-normal"></textarea>
             </div>
-
 
             <button
                 type="submit"
                 id="sendBtn"
-                class="bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white font-medium px-6 py-3 rounded-xl text-sm transition flex items-center gap-2"
-            >
-
-                <span id="sendBtnText">
-                    Send
-                </span>
-
-                <span id="sendBtnIcon">
-                    ➤
-                </span>
-
+                class="h-[46px] bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white font-medium px-6 rounded-xl text-sm transition flex items-center justify-center gap-2 shrink-0">
+                <span id="sendBtnText">Send</span>
+                <span id="sendBtnIcon">➤</span>
             </button>
         </form>
     </div>
@@ -457,7 +454,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     headers: {
                         'Content-Type': 'application/json',
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document
+                            .querySelector('meta[name="csrf-token"]')
+                            .getAttribute('content')
                     },
 
                     body: JSON.stringify({
