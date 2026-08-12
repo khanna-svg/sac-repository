@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SAC Thesis System - Document Search</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- PDF.js Core Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
   <style>

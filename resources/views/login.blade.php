@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="http://cdn.tailwindcss.com"></script>
+    <title>SAC Thesis System - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 
 </head>
 <body class="min-h-screen bg-gray-950 text-gray-100 flex items-center justify-center p-6">
