@@ -6,20 +6,8 @@
   <title>SAC Thesis System - AI Assistant</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-gray-100 h-screen flex flex-col font-sans">
-
-  <!-- Navigation Bar -->
-  <header class="border-b border-gray-800 bg-gray-950 px-6 py-4 flex items-center justify-between">
-    <div class="flex items-center gap-3">
-      <div class="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white">S</div>
-      <h1 class="text-xl font-bold tracking-tight">SAC Thesis System</h1>
-    </div>
-    <nav class="flex gap-4 items-center">
-      <a href="/documents" class="text-sm font-medium text-gray-400 hover:text-gray-200 transition">Documents & Search</a>
-      <a href="/chat" class="text-sm font-medium text-indigo-400 border-b-2 border-indigo-500 pb-1">AI Assistant</a>
-      <button id="logoutBtn" class="text-xs bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-1.5 rounded-lg ml-4 text-gray-300">Sign Out</button>
-    </nav>
-  </header>
+<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
+@include('partials.sidebar')
 
   <!-- Chat Area -->
   <div
