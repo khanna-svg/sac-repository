@@ -57,6 +57,13 @@
                 A login code was sent to <strong>{{ $pendingEmail }}</strong>.
             </p>
 
+            <form method="POST" action=" {{  route('login.reset') }} " class="mt-4 text-center">
+                @csrf
+                <button type="submit" class="text-sm text-indigo-300 hover:text-indigo-200">
+                    Use another email / request a new code
+                </button>
+            </form>
+
             <form method="POST" action="/login/verify-code" class="space-y-5">
                 @csrf
 
@@ -69,7 +76,7 @@
                         inputmode="numeric"
                         maxlength="8"
                         pattern="[0-9]{8}"
-                        placeholder="123456"
+                        placeholder="12345678"
                         required
                         autofocus
                         class="w-full rounded-lg border border-gray-700 bg-gray-950 px-4 py-3 text-center text-xl tracking-[0.4em] outline-none focus:border-indigo-500"

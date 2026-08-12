@@ -10,6 +10,12 @@ Route::post('/login/send-code', [AuthController::class, 'sendCode'])
 Route::post('/login/verify-code', [AuthController::class, 'verifyCode'])
     ->middleware('throttle:10,1');
 
+Route::post('/login/reset', function (\Illuminate\Http\Request $request) {
+    $request->session()->forget('pending_email');
+
+    return redirect('/login');
+})->name('login.reset');
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware('sac.auth')->group(function () {
