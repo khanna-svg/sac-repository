@@ -64,7 +64,7 @@ class AuthController extends Controller
     public function verifyCode(Request $request)
     {
         $request->validate([
-            'code' => ['required', 'digits:6'],
+            'code' => ['required', 'digits:8'],
         ]);
 
         $email = $request->session()->get('pending_email');

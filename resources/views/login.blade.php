@@ -25,7 +25,7 @@
         @endif
 
         @if ($errors->any())
-            <div class="mb-5 rounded-lg border-red-700 bg-red-950/40 p-3 text-sm text-red-300">
+            <div class="mb-5 rounded-lg border border-red-700 bg-red-950/40 p-3 text-sm text-red-300">
                 {{ $errors->first() }}
             </div>
         @endif
@@ -57,18 +57,14 @@
                 A login code was sent to <strong>{{ $pendingEmail }}</strong>.
             </p>
 
-            <form method="POST" action=" {{  route('login.reset') }} " class="mt-4 text-center">
-                @csrf
-                <button type="submit" class="text-sm text-indigo-300 hover:text-indigo-200">
-                    Use another email / request a new code
-                </button>
-            </form>
-
             <form method="POST" action="/login/verify-code" class="space-y-5">
                 @csrf
 
                 <div>
-                    <label for="code" class="mb-2 block text-sm font-medium">Six-digit login code</label>
+                    <label for="code" class="mb-2 block text-sm font-medium">
+                        Eight-digit login code
+                    </label>
+
                     <input
                         id="code"
                         name="code"
@@ -85,6 +81,23 @@
 
                 <button class="w-full rounded-lg bg-indigo-600 py-3 text-sm font-semibold hover:bg-indigo-500">
                     Verify and sign in
+                </button>
+            </form>
+
+            <form method="POST" action="/login/send-code" class="mt-4 text-center">
+                @csrf
+                <input type="hidden" name="email" value="{{ $pendingEmail }}">
+
+                <button type="submit" class="text-sm text-indigo-300 hover:text-indigo-200">
+                    Send a new code
+                </button>
+            </form>
+
+            <form method="POST" action="{{ route('login.reset') }}" class="mt-3 text-center">
+                @csrf
+
+                <button type="submit" class="text-sm text-gray-400 hover:text-gray-200">
+                    Use another email
                 </button>
             </form>
         @endif
