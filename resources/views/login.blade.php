@@ -67,8 +67,8 @@
                         name="code"
                         type="text"
                         inputmode="numeric"
-                        maxlength="6"
-                        pattern="[0-9]{6}"
+                        maxlength="8"
+                        pattern="[0-9]{8}"
                         placeholder="123456"
                         required
                         autofocus
