@@ -13,7 +13,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'sac.auth' => \App\Http\Middleware\RequireSacLogin::class,
+
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

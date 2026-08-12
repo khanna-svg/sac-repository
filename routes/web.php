@@ -1,17 +1,25 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DocumentController;
 
-Route::redirect('/', '/documents');
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login/send-code', [AuthController::class, 'sendCode'])
+    ->middleware('throttle:5,1');
 
-Route::get('/documents', function () {
-    return view('documents');
-});
+Route::post('/login/verify-code', [AuthController::class, 'verifyCode'])
+    ->middleware('throttle:10,1');
 
-// Route to stream PDF files securely
-Route::get('/documents/file/{filename}', [DocumentController::class, 'viewPdf'])->name('documents.file');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::get('/chat', function () {
-    return view('chat');
+Route::middleware('sac.auth')->group(function () {
+    Route::redirect('/', '/documents');
+
+    Route::get('/documents', function () {
+        return view('documents');
+    });
+
+    Route::get('/chat', function () {
+        return view('chat');
+    });
 });

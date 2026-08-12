@@ -17,7 +17,9 @@
     <nav class="flex gap-4 items-center">
       <a href="/documents" class="text-sm font-medium text-gray-400 hover:text-gray-200 transition">Documents & Search</a>
       <a href="/chat" class="text-sm font-medium text-indigo-400 border-b-2 border-indigo-500 pb-1">AI Assistant</a>
-      <button id="logoutBtn" class="text-xs bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-1.5 rounded-lg ml-4 text-gray-300">Sign Out</button>
+      <button type="submit" class="text-xs bg-gray-800 hover:bg-gray-700 border border-gray-700 px-3 py-1.5 rounded-lg ml-4 text-gray-300">
+        Sign Out
+      </button>
     </nav>
   </header>
 
