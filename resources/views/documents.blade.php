@@ -49,8 +49,8 @@
                             AUTHOR(S)
                         </label>
                         <input
-                            id="authors"
-                            name="authors"
+                            id="author"
+                            name="author"
                             type="text"
                             required
                             placeholder="e.g., Juan Dela Cruz, Maria Santos"
