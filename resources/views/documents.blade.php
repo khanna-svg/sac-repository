@@ -170,8 +170,12 @@
       try {
         const response = await fetch('/backend/documents/upload', {
           method: 'POST',
-          headers: { 'Accept': 'application/json' },
-          body: formData
+          headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute('content')
+        },
         });
 
         const result = await response.json();
