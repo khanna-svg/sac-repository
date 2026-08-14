@@ -41,22 +41,22 @@
       <form id="uploadForm" class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-1">Thesis Title</label>
-          <input type="text" id="titleInput" required placeholder="e.g., A Mobile-Based Medication Adherence System" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500">
+          <input type="text" id="title" required placeholder="e.g., A Mobile-Based Medication Adherence System" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500">
         </div>
 
         <div>
           <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-1">Author(s)</label>
-          <input type="text" id="authorInput" required placeholder="e.g., Juan Dela Cruz, Maria Santos" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500">
+          <input type="text" id="author" required placeholder="e.g., Juan Dela Cruz, Maria Santos" class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500">
         </div>
 
         <div>
           <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-1">Abstract</label>
-          <textarea id="abstractInput" rows="4" required placeholder="Paste thesis abstract here..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+          <textarea id="abstract" rows="4" required placeholder="Paste thesis abstract here..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-sm text-gray-100 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-gray-300 uppercase tracking-wider mb-1">Upload PDF File</label>
-          <input type="file" id="pdfInput" accept=".pdf" required class="block w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer bg-gray-900 border border-gray-700 rounded-lg">
+          <input type="file" id="pdf" accept=".pdf" required class="block w-full text-sm text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500 cursor-pointer bg-gray-900 border border-gray-700 rounded-lg">
         </div>
 
         <button type="submit" id="submitBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-lg text-sm transition mt-2">
@@ -149,10 +149,10 @@
     uploadForm.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const title = document.getElementById('titleInput').value.trim();
-      const author = document.getElementById('authorInput').value.trim();
-      const abstract = document.getElementById('abstractInput').value.trim();
-      const pdfFile = document.getElementById('pdfInput').files[0];
+      const title = document.getElementById('title').value.trim();
+      const author = document.getElementById('author').value.trim();
+      const abstract = document.getElementById('abstract').value.trim();
+      const pdfFile = document.getElementById('pdf').files[0];
 
       if (!pdfFile) {
         showStatus('Please select a PDF file.', 'text-red-400');
