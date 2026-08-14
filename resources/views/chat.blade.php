@@ -69,7 +69,7 @@
     <!-- ============================= -->
 
     <div class="border-t border-gray-800 bg-gray-900 px-6 py-4">
-        <form class="flex items-center gap-3 w-full">
+        <form id="chatForm" class="flex items-center gap-3 w-full">
             <div class="flex-1 relative">
                 <textarea
                 id="messageInput"

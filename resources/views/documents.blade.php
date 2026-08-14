@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SAC Thesis System - Document Search</title>
@@ -197,7 +198,12 @@
           : '/backend/documents';
 
         const response = await fetch(url, {
-          headers: { Accept: 'application/json' }
+          headers: {
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': document
+                .querySelector('meta[name="csrf-token"]')
+                .getAttribute('content')
+        },
         });
 
         const responseText = await response.text();
