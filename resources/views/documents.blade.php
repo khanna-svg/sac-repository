@@ -7,6 +7,28 @@
     <title>SAC Thesis System - Documents</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Checkmark Animation Styling */
+        @keyframes drawCheck {
+            0% { stroke-dashoffset: 100; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .animate-check {
+            stroke-dasharray: 100;
+            stroke-dashoffset: 100;
+            animation: drawCheck 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards 0.2s;
+        }
+    </style>
+
+    <style>
+    /* Prevent text selection across the page */
+    .no-select {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    </style>
 </head>
 
 <body class="min-h-screen bg-gray-950 text-gray-100">
@@ -45,7 +67,7 @@
                     </div>
 
                     <div>
-                        <label for="authors" class="mb-2 block text-sm font-medium">
+                        <label for="author" class="mb-2 block text-sm font-medium">
                             AUTHOR(S)
                         </label>
                         <input
@@ -124,6 +146,30 @@
         </div>
     </main>
 
+    <!-- Success Modal Pop-up -->
+    <div id="successModal" class="fixed inset-0 z-50 flex hidden items-center justify-center bg-black/70 p-4 transition-opacity">
+        <div class="w-full max-w-sm rounded-2xl border border-gray-800 bg-gray-900 p-6 text-center shadow-2xl">
+            <!-- Animated Check Icon -->
+            <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-950/60 ring-8 ring-emerald-900/30">
+                <svg class="h-10 w-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                    <path class="animate-check" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            
+            <h3 class="text-lg font-bold text-white">Upload Successful!</h3>
+            <p class="mt-2 text-sm text-gray-300">Thesis Uploaded to the Library</p>
+            
+            <button
+                type="button"
+                onclick="closeSuccessModal()"
+                class="mt-6 w-full rounded-xl bg-indigo-600 py-2.5 text-sm font-medium text-white hover:bg-indigo-500 transition"
+            >
+                Done
+            </button>
+        </div>
+    </div>
+
+    <!-- PDF Viewer Modal -->
     <div id="pdfModal" class="fixed inset-0 z-50 hidden bg-black/80 p-4">
         <div class="mx-auto flex h-full max-w-6xl flex-col rounded-xl bg-gray-900">
             <div class="flex items-center justify-between border-b border-gray-700 p-4">
@@ -157,17 +203,29 @@
         const searchForm = document.getElementById('searchForm');
         const searchInput = document.getElementById('searchInput');
 
-        function showUploadMessage(message, type = 'success') {
+        function showUploadError(message) {
             uploadMessage.textContent = message;
-            uploadMessage.className = type === 'success'
-                ? 'mt-4 rounded-lg border border-green-700 bg-green-950/40 p-3 text-sm text-green-300'
-                : 'mt-4 rounded-lg border border-red-700 bg-red-950/40 p-3 text-sm text-red-300';
+            uploadMessage.className = 'mt-4 rounded-lg border border-red-700 bg-red-950/40 p-3 text-sm text-red-300';
+        }
+
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.remove('hidden');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
         }
 
         function escapeHtml(value) {
             const element = document.createElement('div');
             element.textContent = value ?? '';
             return element.innerHTML;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
         }
 
         async function fetchDocuments(search = '') {
@@ -207,13 +265,27 @@
 
                 documentsList.innerHTML = documents.map((doc) => `
                     <article class="flex flex-col gap-4 rounded-xl border border-gray-700 bg-gray-900 p-5 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                            <h3 class="text-lg font-semibold">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-white">
                                 ${escapeHtml(doc.title)}
                             </h3>
-                            <p class="mt-1 text-sm text-indigo-300">
-                                ${escapeHtml(doc.authors)}
+
+                            <!-- Author field under title -->
+                            <p class="mt-1 text-sm font-medium text-indigo-300 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-indigo-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                ${escapeHtml(doc.author || doc.authors || 'Unknown Author')}
                             </p>
+
+                            <!-- Date uploaded -->
+                            <p class="mt-1 text-xs text-gray-400 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                Uploaded on ${formatDate(doc.created_at || doc.created_date)}
+                            </p>
+
                             <p class="mt-3 text-sm leading-6 text-gray-400">
                                 ${escapeHtml(doc.abstract)}
                             </p>
@@ -222,7 +294,7 @@
                         <button
                             type="button"
                             onclick="openPdfViewer('/backend/documents/${doc.id}/view', '${escapeHtml(doc.title)}')"
-                            class="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-500"
+                            class="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-xs font-medium text-white hover:bg-indigo-500 transition"
                         >
                             View Thesis
                         </button>
@@ -268,12 +340,12 @@
                     throw new Error(validationErrors);
                 }
 
-                showUploadMessage('Thesis uploaded successfully.');
+                showSuccessModal();
                 uploadForm.reset();
                 await fetchDocuments(searchInput.value);
             } catch (error) {
                 console.error('Upload failed:', error);
-                showUploadMessage(error.message || 'Upload failed. Check the Vercel Runtime Logs.', 'error');
+                showUploadError(error.message || 'Upload failed. Check logs.');
             } finally {
                 uploadButton.disabled = false;
                 uploadButton.textContent = 'Submit & Upload Thesis';
