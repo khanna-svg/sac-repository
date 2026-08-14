@@ -49,16 +49,19 @@ class DocumentController extends Controller
 
     public function index(Request $request)
     {
-        $query = $request->query('query');
+        $query = Document::query();
 
-        $documents = Document::query()
-            ->when($query, function ($builder) use ($query) {
-                $builder->where('title', 'ILIKE', "%{$query}%")
-                    ->orWhere('author', 'ILIKE', "%{$query}%")
-                    ->orWhere('abstract', 'ILIKE', "%{$query}%");
-            })
-            ->latest()
-            ->get();
+        if ($search = $request->input('search')) {
+            $searchTerm = '%' . strtolower(trim($search)) . '%';
+
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
+                ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm]) // or 'authors' depending on your schema
+                ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
+            });
+        }
+
+        $documents = $query->latest()->get();
 
         return response()->json($documents);
     }

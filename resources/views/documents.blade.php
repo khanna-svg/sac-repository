@@ -236,8 +236,8 @@
             try {
                 const url = new URL('/backend/documents', window.location.origin);
 
-                if (search.trim()) {
-                    url.searchParams.set('search', search.trim());
+                if (search && search.trim()) {
+                    url.searchParams.set('search', search.trim().toLowerCase());
                 }
 
                 const response = await fetch(url, {
