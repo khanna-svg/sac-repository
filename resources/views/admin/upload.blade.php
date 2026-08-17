@@ -1,26 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
+        content="width=device-width, initial-scale=1.0">
     <meta
         name="csrf-token"
-        content="{{ csrf_token() }}"
-    >
-
+        content="{{ csrf_token() }}">
     <title>SAC Thesis System - Admin Upload</title>
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-
         #successCard {
             animation: popupIn 0.35s ease-out;
         }
@@ -596,17 +588,39 @@
                 uploadButton.textContent = 'Uploading PDF to Storage...';
 
                 // 2. Direct upload to Supabase Storage (bypasses Vercel 4.5MB limit)
-                const uploadRes = await fetch(urlData.signedUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/pdf'
-                    },
-                    body: file
-                });
+                const {
+                    data: uploadData,
+                    error: uploadError
+                } = await supabaseClient
+                    .storage
+                    .from('thesis')
+                    .uploadToSignedUrl(
+                        urlData.path,
+                        urlData.token,
+                        file,
+                        {
+                            contentType: 'application/pdf',
+                            cacheControl: '3600'
+                        }
+                    );
 
-                if (!uploadRes.ok) {
-                    throw new Error('Direct upload to Supabase failed. HTTP Status: ' + uploadRes.status);
+                if (uploadError) {
+
+                    console.error(
+                        'Supabase signed upload error:',
+                        uploadError
+                    );
+
+                    throw new Error(
+                        uploadError.message ||
+                        'Supabase upload failed.'
+                    );
                 }
+
+                console.log(
+                    'Supabase upload successful:',
+                    uploadData
+                );
 
                 uploadButton.textContent = 'Saving Metadata & Vectorizing...';
 
