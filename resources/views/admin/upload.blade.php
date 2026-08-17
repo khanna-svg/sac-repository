@@ -563,312 +563,59 @@
         // FORM SUBMIT
         // ========================================
 
-        uploadForm.addEventListener(
-            'submit',
-            async function (e)
-            {
-                e.preventDefault();
-
-
-                const fileInput =
-                    document.getElementById('pdf');
-
-                const file =
-                    fileInput.files[0];
-
-
-                // ========================================
-                // VALIDATION
-                // ========================================
-
-                if (!file) {
-
-                    showError(
-                        'Please select a PDF file.'
-                    );
-
-                    return;
-                }
-
-
-                if (
-                    file.type !== 'application/pdf'
-                ) {
-
-                    showError(
-                        'Only PDF files are allowed.'
-                    );
-
-                    return;
-                }
-
-
-                const maxSize =
-                    50 * 1024 * 1024;
-
-
-                if (file.size > maxSize) {
-
-                    showError(
-                        'The PDF must be 50 MB or smaller.'
-                    );
-
-                    return;
-                }
-
-
-                // ========================================
-                // START
-                // ========================================
-
-                uploadMessage.className =
-                    'hidden';
-
-                progressContainer.style.display =
-                    'block';
-
-                updateProgress(0);
-
-                uploadButton.disabled =
-                    true;
-
-                uploadButton.textContent =
-                    'Preparing upload...';
-
-
-                try {
-
-
-                    // ========================================
-                    // STEP 1
-                    // GET SIGNED UPLOAD URL
-                    // ========================================
-
-                    progressText.textContent =
-                        'Preparing secure upload...';
-
-
-                    const signedResponse =
-                        await fetch(
-                            '/backend/documents/upload-url',
-                            {
-                                method: 'POST',
-
-                                headers: {
-                                    'Accept':
-                                        'application/json',
-
-                                    'Content-Type':
-                                        'application/json',
-
-                                    'X-CSRF-TOKEN':
-                                        csrfToken
-                                },
-
-                                body:
-                                    JSON.stringify({
-                                        filename:
-                                            file.name
-                                    })
-                            }
-                        );
-
-
-                    let signedData;
-
-
-                    try {
-
-                        signedData =
-                            await signedResponse.json();
-
-                    } catch (error) {
-
-                        throw new Error(
-                            'The server returned an invalid response while preparing the upload.'
-                        );
-
-                    }
-
-
-                    console.log(
-                        'Upload URL response:',
-                        signedData
-                    );
-
-
-                    if (
-                        !signedResponse.ok ||
-                        signedData.error
-                    ) {
-
-                        throw new Error(
-                            signedData.message ||
-                            'Could not prepare the upload.'
-                        );
-
-                    }
-
-
-                    if (
-                        !signedData.signedUrl ||
-                        !signedData.path
-                    ) {
-
-                        throw new Error(
-                            'The server did not return a valid Supabase upload URL.'
-                        );
-
-                    }
-
-
-                    // ========================================
-                    // STEP 2
-                    // UPLOAD DIRECTLY TO SUPABASE
-                    // ========================================
-
-                    progressText.textContent =
-                        'Uploading PDF to storage...';
-
-                    uploadButton.textContent =
-                        'Uploading PDF...';
-
-
-                    await uploadToSupabase(
-                        signedData.signedUrl,
-                        file
-                    );
-
-
-                    // ========================================
-                    // STEP 3
-                    // SEND METADATA TO LARAVEL
-                    // ========================================
-
-                    progressText.textContent =
-                        'Processing thesis...';
-
-                    uploadButton.textContent =
-                        'Processing thesis...';
-
-
-                    const metadataResponse =
-                        await fetch(
-                            '/backend/documents/upload',
-                            {
-                                method: 'POST',
-
-                                headers: {
-                                    'Accept':
-                                        'application/json',
-
-                                    'Content-Type':
-                                        'application/json',
-
-                                    'X-CSRF-TOKEN':
-                                        csrfToken
-                                },
-
-                                body:
-                                    JSON.stringify({
-
-                                        title:
-                                            document
-                                                .getElementById('title')
-                                                .value
-                                                .trim(),
-
-                                        author:
-                                            document
-                                                .getElementById('author')
-                                                .value
-                                                .trim(),
-
-                                        abstract:
-                                            document
-                                                .getElementById('abstract')
-                                                .value
-                                                .trim(),
-
-                                        file_path:
-                                            signedData.path
-                                    })
-                            }
-                        );
-
-
-                    let data;
-
-
-                    try {
-
-                        data =
-                            await metadataResponse.json();
-
-                    } catch (error) {
-
-                        throw new Error(
-                            'The server returned an invalid response while processing the thesis.'
-                        );
-
-                    }
-
-
-                    if (
-                        !metadataResponse.ok ||
-                        data.error
-                    ) {
-
-                        throw new Error(
-                            data.message ||
-                            'Thesis processing failed.'
-                        );
-
-                    }
-
-
-                    // ========================================
-                    // SUCCESS
-                    // ========================================
-
-                    uploadForm.reset();
-
-                    progressContainer.style.display =
-                        'none';
-
-                    showSuccessPopup();
-
-
-                } catch (error) {
-
-                    console.error(
-                        'Upload error:',
-                        error
-                    );
-
-
-                    progressContainer.style.display =
-                        'none';
-
-
-                    showError(
-                        error.message ||
-                        'Upload failed.'
-                    );
-
-
-                } finally {
-
-                    uploadButton.disabled =
-                        false;
-
-                    uploadButton.textContent =
-                        'Submit & Upload Thesis';
-
-                }
-
-            }
-        );
+        uploadForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const fileInput = document.getElementById('pdf');
+    const file = fileInput.files[0];
+
+    if (!file) return showError('Please select a PDF file.');
+    if (file.type !== 'application/pdf') return showError('Only PDF files are allowed.');
+
+    uploadMessage.className = 'hidden';
+    progressContainer.style.display = 'block';
+    updateProgress(30);
+    uploadButton.disabled = true;
+    uploadButton.textContent = 'Processing & Vectorizing Thesis...';
+
+    const formData = new FormData();
+    formData.append('title', document.getElementById('title').value.trim());
+    formData.append('author', document.getElementById('author').value.trim());
+    formData.append('abstract', document.getElementById('abstract').value.trim());
+    formData.append('file', file);
+
+    try {
+        updateProgress(60);
+
+        const response = await fetch('/backend/documents/upload', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+            throw new Error(data.message || 'Upload failed.');
+        }
+
+        updateProgress(100);
+        uploadForm.reset();
+        progressContainer.style.display = 'none';
+        showSuccessPopup();
+
+    } catch (error) {
+        console.error('Upload error:', error);
+        progressContainer.style.display = 'none';
+        showError(error.message || 'Upload failed.');
+    } finally {
+        uploadButton.disabled = false;
+        uploadButton.textContent = 'Submit & Upload Thesis';
+    }
+});
 
     </script>
 
