@@ -269,7 +269,7 @@
 
                             <!-- ADDED ON -->
                             <p class="mt-3 text-xs text-gray-400">
-                                Added on:
+                                Published on:
                                 <span class="font-medium text-gray-500">
                                     ${formatAddedDate(doc.created_at)}
                                 </span>
