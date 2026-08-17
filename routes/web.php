@@ -2,8 +2,8 @@
 
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AuthController;
-use App\Http\Middleware\RequireSacAdmin;
 use App\Http\Controllers\DocumentController;
+use App\Http\Middleware\RequireSacAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -64,22 +64,10 @@ Route::middleware('sac.auth')->group(function () {
 
     })->name('chat');
 
-    Route::get('/admin/upload', function () {
-
-        if (session('sac_user_role') !== 'admin') {
-
-            return redirect()->route('documents');
-
-        }
-
-        return view('admin.upload');
-
-    })->name('admin.upload');
-
     Route::get('/backend/documents/{document}/view', [DocumentController::class, 'viewPdf']);
 
-    // Admin-Only Routes (Protected by RequireSacAdmin Middleware)
-    Route::middleware(RequireSacAdmin::class)->group(function () {
+    // Admin-Only Routes
+    Route::middleware([RequireSacAdmin::class])->group(function () {
 
         Route::get('/admin/upload', function () {
             return view('admin.upload');
