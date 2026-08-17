@@ -13,6 +13,9 @@ use Smalot\PdfParser\Parser;
 
 class DocumentController extends Controller
 {
+    /**
+     * Display a PDF from private Supabase Storage.
+     */
     public function viewPdf(Document $document)
     {
         $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
@@ -34,30 +37,54 @@ class DocumentController extends Controller
                 'Authorization' => "Bearer {$key}",
                 'apikey' => $key,
             ])
-            ->get("{$baseUrl}/storage/v1/object/{$bucket}/{$encodedPath}");
+            ->get(
+                "{$baseUrl}/storage/v1/object/{$bucket}/{$encodedPath}"
+            );
 
         if (!$response->successful()) {
             abort(404, 'PDF file was not found in Supabase Storage.');
         }
 
         return response($response->body(), 200, [
-            'Content-Type' => $response->header('Content-Type') ?: 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
+            'Content-Type' =>
+                $response->header('Content-Type')
+                ?: 'application/pdf',
+
+            'Content-Disposition' =>
+                'inline; filename="' . basename($path) . '"',
+
             'Cache-Control' => 'private, no-store',
         ]);
     }
 
+
+    /**
+     * Return thesis documents.
+     */
     public function index(Request $request)
     {
         $query = Document::query();
 
         if ($search = $request->input('search')) {
+
             $searchTerm = '%' . strtolower(trim($search)) . '%';
 
             $query->where(function ($q) use ($searchTerm) {
-                $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
-                ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm]) // or 'authors' depending on your schema
-                ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
+
+                $q->whereRaw(
+                    'LOWER(title) LIKE ?',
+                    [$searchTerm]
+                )
+
+                ->orWhereRaw(
+                    'LOWER(author) LIKE ?',
+                    [$searchTerm]
+                )
+
+                ->orWhereRaw(
+                    'LOWER(abstract) LIKE ?',
+                    [$searchTerm]
+                );
             });
         }
 
@@ -66,134 +93,478 @@ class DocumentController extends Controller
         return response()->json($documents);
     }
 
+
+    /**
+     * Create a temporary signed Supabase upload URL.
+     *
+     * The PDF itself does NOT pass through Laravel/Vercel.
+     */
+    public function createUploadUrl(Request $request)
+    {
+        $request->validate([
+            'filename' => 'required|string|max:255',
+        ]);
+
+        $baseUrl = rtrim(
+            (string) getenv('SUPABASE_URL'),
+            '/'
+        );
+
+        $key = (string) getenv(
+            'SUPABASE_SERVICE_ROLE_KEY'
+        );
+
+        $bucket = (string) getenv(
+            'SUPABASE_STORAGE_BUCKET'
+        );
+
+        if (
+            $baseUrl === '' ||
+            $key === '' ||
+            $bucket === ''
+        ) {
+            return response()->json([
+                'error' => true,
+                'message' =>
+                    'Supabase Storage is not configured.',
+            ], 500);
+        }
+
+
+        /*
+         * Always generate our own filename.
+         *
+         * Do NOT use the user's original filename as the
+         * storage path.
+         */
+        $path = 'documents/' . Str::uuid() . '.pdf';
+
+
+        try {
+
+            /*
+             * Ask Supabase for a signed upload URL.
+             *
+             * The URL is temporary and can be used by the
+             * browser to upload the PDF directly.
+             */
+            $response = Http::timeout(30)
+                ->withHeaders([
+                    'Authorization' => "Bearer {$key}",
+                    'apikey' => $key,
+                    'Content-Type' =>
+                        'application/json',
+                ])
+                ->post(
+                    "{$baseUrl}/storage/v1/object/upload/sign/"
+                    . "{$bucket}/{$path}",
+                    [
+                        'expiresIn' => 600,
+                    ]
+                );
+
+
+            if (!$response->successful()) {
+
+                Log::error(
+                    'Supabase signed upload URL failed',
+                    [
+                        'status' =>
+                            $response->status(),
+
+                        'body' =>
+                            $response->body(),
+                    ]
+                );
+
+                return response()->json([
+                    'error' => true,
+                    'message' =>
+                        'Could not prepare the file upload.',
+                ], 500);
+            }
+
+
+            $data = $response->json();
+
+
+            /*
+             * Supabase returns the signed URL information.
+             */
+            $signedUrl = $data['signedUrl']
+                ?? $data['signedURL']
+                ?? null;
+
+            $token = $data['token'] ?? null;
+
+
+            if (!$signedUrl || !$token) {
+
+                Log::error(
+                    'Supabase signed upload response missing data',
+                    [
+                        'response' => $data,
+                    ]
+                );
+
+                return response()->json([
+                    'error' => true,
+                    'message' =>
+                        'Supabase did not return a valid upload URL.',
+                ], 500);
+            }
+
+
+            return response()->json([
+                'error' => false,
+                'path' => $path,
+                'signedUrl' => $signedUrl,
+                'token' => $token,
+            ]);
+
+
+        } catch (\Throwable $e) {
+
+            Log::error(
+                'Create Supabase upload URL failed: '
+                . $e->getMessage()
+            );
+
+            return response()->json([
+                'error' => true,
+                'message' =>
+                    'Could not prepare the file upload.',
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Process a PDF that has already been uploaded
+     * directly to Supabase Storage.
+     */
     public function store(Request $request)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'author' => 'required|string|max:255',
             'abstract' => 'required|string',
-            'pdf' => 'required|mimes:pdf|max:20480',
+
+            /*
+             * Laravel no longer receives the PDF itself.
+             * It only receives the Supabase storage path.
+             */
+            'file_path' => [
+                'required',
+                'string',
+                'max:500',
+                'regex:/^documents\/[a-f0-9-]+\.pdf$/i',
+            ],
         ]);
 
-        $file = $request->file('pdf');
+
+        $filePath = ltrim(
+            $request->input('file_path'),
+            '/'
+        );
+
+
+        /*
+         * Make sure the path is one generated by our
+         * upload system.
+         */
+        if (!preg_match(
+            '/^documents\/[a-f0-9-]+\.pdf$/i',
+            $filePath
+        )) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Invalid file path.',
+            ], 422);
+        }
+
+
+        $baseUrl = rtrim(
+            (string) getenv('SUPABASE_URL'),
+            '/'
+        );
+
+        $key = (string) getenv(
+            'SUPABASE_SERVICE_ROLE_KEY'
+        );
+
+        $bucket = (string) getenv(
+            'SUPABASE_STORAGE_BUCKET'
+        );
+
+
+        if (
+            $baseUrl === '' ||
+            $key === '' ||
+            $bucket === ''
+        ) {
+            return response()->json([
+                'error' => true,
+                'message' =>
+                    'Supabase Storage is not configured.',
+            ], 500);
+        }
+
+
+        /*
+         * We'll delete this temporary file after processing.
+         */
+        $tempPath = null;
+
 
         try {
-            // Extract PDF text for the RAG system.
+
+            // ==========================================
+            // DOWNLOAD PDF FROM SUPABASE
+            // ==========================================
+
+            $encodedPath = collect(
+                explode('/', $filePath)
+            )
+                ->map(
+                    fn ($part) =>
+                        rawurlencode($part)
+                )
+                ->implode('/');
+
+
+            $tempPath = tempnam(
+                sys_get_temp_dir(),
+                'thesis_'
+            );
+
+
+            /*
+             * Download the PDF directly from Supabase
+             * into the temporary server file.
+             *
+             * This is an OUTBOUND request from Vercel,
+             * not the original browser upload request,
+             * so the 413 upload limitation is avoided.
+             */
+            $pdfResponse = Http::timeout(120)
+                ->withOptions([
+                    'sink' => $tempPath,
+                ])
+                ->withHeaders([
+                    'Authorization' =>
+                        "Bearer {$key}",
+
+                    'apikey' => $key,
+                ])
+                ->get(
+                    "{$baseUrl}/storage/v1/object/"
+                    . "{$bucket}/{$encodedPath}"
+                );
+
+
+            if (!$pdfResponse->successful()) {
+
+                throw new \Exception(
+                    'Could not retrieve the uploaded PDF '
+                    . 'from Supabase Storage. HTTP '
+                    . $pdfResponse->status()
+                );
+            }
+
+
+            if (
+                !file_exists($tempPath) ||
+                filesize($tempPath) === 0
+            ) {
+                throw new \Exception(
+                    'The uploaded PDF could not be retrieved.'
+                );
+            }
+
+
+            // ==========================================
+            // EXTRACT PDF TEXT
+            // ==========================================
+
             $parser = new Parser();
-            $pdf = $parser->parseFile($file->getRealPath());
-            $rawText = trim(preg_replace('/\s+/', ' ', $pdf->getText()));
+
+            $pdf = $parser->parseFile(
+                $tempPath
+            );
+
+
+            $rawText = trim(
+                preg_replace(
+                    '/\s+/',
+                    ' ',
+                    $pdf->getText()
+                )
+            );
+
 
             if ($rawText === '') {
+
+                @unlink($tempPath);
+                $tempPath = null;
+
                 return response()->json([
                     'error' => true,
-                    'message' => 'The PDF contains no readable text.',
+                    'message' =>
+                        'The PDF contains no readable text.',
                 ], 422);
             }
 
-            // Read Supabase Storage settings from Vercel.
-            $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
-            $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
-            $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
 
-            $missing = [];
+            // ==========================================
+            // SAVE DOCUMENT METADATA
+            // ==========================================
 
-            if ($baseUrl === '') {
-                $missing[] = 'SUPABASE_PROJECT_URL';
-            }
-
-            if ($key === '') {
-                $missing[] = 'SUPABASE_SERVICE_ROLE_KEY';
-            }
-
-            if ($bucket === '') {
-                $missing[] = 'SUPABASE_STORAGE_BUCKET';
-            }
-
-            if ($missing) {
-                throw new \Exception(
-                    'Missing Vercel environment variable(s): ' .
-                    implode(', ', $missing)
-                );
-            }
-
-            // Upload the PDF into private Supabase Storage.
-            $path = 'documents/' . Str::uuid() . '.pdf';
-
-            $upload = Http::timeout(60)
-                ->withHeaders([
-                    'Authorization' => "Bearer {$key}",
-                    'apikey' => $key,
-                    'x-upsert' => 'false',
-                ])
-                ->withBody(
-                    file_get_contents($file->getRealPath()),
-                    'application/pdf'
-                )
-                ->post("{$baseUrl}/storage/v1/object/{$bucket}/{$path}");
-
-            if (!$upload->successful()) {
-                throw new \Exception(
-                    'Supabase upload failed (' . $upload->status() . '): ' .
-                    $upload->body()
-                );
-            }
-
-            // Save thesis metadata in Supabase Postgres.
             $document = Document::create([
-                'title' => $request->title,
-                'author' => $request->author,
-                'abstract' => $request->abstract,
-                'file_path' => $path,
+                'title' =>
+                    $request->input('title'),
+
+                'author' =>
+                    $request->input('author'),
+
+                'abstract' =>
+                    $request->input('abstract'),
+
+                'file_path' =>
+                    $filePath,
+
                 'file_url' => '',
             ]);
 
+
             $document->update([
-                'file_url' => "/backend/documents/{$document->id}/view",
+                'file_url' =>
+                    "/backend/documents/"
+                    . $document->id
+                    . "/view",
             ]);
 
-            // Generate RAG embeddings after the PDF is safely stored.
-            $gemini = app(GeminiService::class);
-            $chunks = array_slice(str_split($rawText, 800), 0, 20);
+
+            // ==========================================
+            // GENERATE RAG EMBEDDINGS
+            // ==========================================
+
+            $gemini = app(
+                GeminiService::class
+            );
+
+
+            $chunks = array_slice(
+                str_split($rawText, 800),
+                0,
+                20
+            );
+
+
             $processedChunks = 0;
 
+
             foreach ($chunks as $chunk) {
+
                 $chunk = trim($chunk);
+
 
                 if ($chunk === '') {
                     continue;
                 }
 
-                $embedding = $gemini->generateEmbedding($chunk);
+
+                $embedding =
+                    $gemini->generateEmbedding(
+                        $chunk
+                    );
+
 
                 if (count($embedding) !== 768) {
-                    throw new \Exception('Gemini returned an invalid embedding.');
+
+                    throw new \Exception(
+                        'Gemini returned an invalid embedding.'
+                    );
                 }
 
-                $vector = '[' . implode(',', $embedding) . ']';
+
+                $vector =
+                    '[' .
+                    implode(',', $embedding) .
+                    ']';
+
 
                 DB::statement(
                     'INSERT INTO document_chunks
-                    (document_id, chunk_text, embedding, created_at, updated_at)
+                    (
+                        document_id,
+                        chunk_text,
+                        embedding,
+                        created_at,
+                        updated_at
+                    )
                     VALUES (?, ?, ?::extensions.vector, NOW(), NOW())',
-                    [$document->id, $chunk, $vector]
+                    [
+                        $document->id,
+                        $chunk,
+                        $vector,
+                    ]
                 );
+
 
                 $processedChunks++;
             }
 
+
+            // ==========================================
+            // DELETE TEMPORARY PDF
+            // ==========================================
+
+            @unlink($tempPath);
+            $tempPath = null;
+
+
+            // ==========================================
+            // SUCCESS
+            // ==========================================
+
             return response()->json([
                 'error' => false,
-                'message' => 'Thesis uploaded and vectorized successfully.',
-                'chunks_created' => $processedChunks,
-                'document' => $document,
+
+                'message' =>
+                    'Thesis uploaded and vectorized successfully.',
+
+                'chunks_created' =>
+                    $processedChunks,
+
+                'document' =>
+                    $document,
             ], 201);
 
+
         } catch (\Throwable $e) {
-            Log::error('Document upload failed: ' . $e->getMessage());
+
+            /*
+             * Always clean up temporary PDF.
+             */
+            if (
+                $tempPath &&
+                file_exists($tempPath)
+            ) {
+                @unlink($tempPath);
+            }
+
+
+            Log::error(
+                'Document upload failed: '
+                . $e->getMessage()
+            );
+
 
             return response()->json([
                 'error' => true,
-                'message' => 'Upload failed. Check the Vercel Runtime Logs.',
+                'message' =>
+                    'Upload failed. Check the Vercel Runtime Logs.',
             ], 500);
         }
     }
