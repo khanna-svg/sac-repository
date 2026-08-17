@@ -195,106 +195,98 @@ class DocumentController extends Controller
      * Handle direct file submission, storage in Supabase, and vector embeddings generation.
      */
     public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'abstract' => 'required|string',
-            'file' => 'required|file|mimes:pdf|max:51200', // max 50MB
-        ]);
+{
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'author' => 'required|string|max:255',
+        'abstract' => 'required|string',
+        'file' => 'required|file|mimes:pdf|max:51200', // 50MB
+    ]);
 
-        try {
-            $file = $request->file('file');
-            $filePath = 'documents/' . Str::uuid() . '.pdf';
+    try {
+        $file = $request->file('file');
+        $filePath = 'documents/' . Str::uuid() . '.pdf';
 
-            $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
-            $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
-            $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
+        $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
+        $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
+        $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
 
-            if ($baseUrl === '' || $key === '' || $bucket === '') {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Supabase Storage is not configured.',
-                ], 500);
-            }
-
-            // 1. Stream file directly to Supabase Storage
-            $fileStream = fopen($file->getRealPath(), 'r');
-            $response = Http::timeout(60)
-                ->withHeaders([
-                    'Authorization' => "Bearer {$key}",
-                    'apikey' => $key,
-                ])
-                ->withBody($fileStream, 'application/pdf')
-                ->post("{$baseUrl}/storage/v1/object/{$bucket}/{$filePath}");
-
-            if (is_resource($fileStream)) {
-                fclose($fileStream);
-            }
-
-            if (!$response->successful()) {
-                Log::error('Supabase storage upload failed', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                ]);
-
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Failed to store file in Supabase Storage.',
-                ], 500);
-            }
-
-            // 2. Extract text from PDF
-            $parser = new Parser();
-            $pdf = $parser->parseFile($file->getRealPath());
-            $rawText = trim(preg_replace('/\s+/', ' ', $pdf->getText()));
-
-            // 3. Create Document record
-            $document = Document::create([
-                'title' => $request->input('title'),
-                'author' => $request->input('author'),
-                'abstract' => $request->input('abstract'),
-                'file_path' => $filePath,
-                'file_url' => '',
-            ]);
-
-            $document->update([
-                'file_url' => "/backend/documents/{$document->id}/view",
-            ]);
-
-            // 4. Chunk text and generate vector embeddings with Gemini
-            $gemini = app(GeminiService::class);
-            $chunks = array_slice(str_split($rawText, 800), 0, 20);
-
-            foreach ($chunks as $chunk) {
-                $chunk = trim($chunk);
-                if ($chunk === '') continue;
-
-                $embedding = $gemini->generateEmbedding($chunk);
-                $vector = '[' . implode(',', $embedding) . ']';
-
-                DB::statement(
-                    'INSERT INTO document_chunks (document_id, chunk_text, embedding, created_at, updated_at) VALUES (?, ?, ?::extensions.vector, NOW(), NOW())',
-                    [$document->id, $chunk, $vector]
-                );
-            }
-
-            return response()->json([
-                'error' => false,
-                'message' => 'Thesis uploaded and vectorized successfully.',
-                'document' => $document,
-            ], 201);
-
-        } catch (\Throwable $e) {
-            Log::error('Document upload failed', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
+        if ($baseUrl === '' || $key === '' || $bucket === '') {
             return response()->json([
                 'error' => true,
-                'message' => 'Upload failed. Check the server runtime logs: ' . $e->getMessage(),
+                'message' => 'Supabase Storage is not configured.',
             ], 500);
         }
+
+        // Stream file directly from Laravel to Supabase Storage (Bypasses Browser CORS)
+        $fileStream = fopen($file->getRealPath(), 'r');
+        $response = Http::timeout(120)
+            ->withHeaders([
+                'Authorization' => "Bearer {$key}",
+                'apikey' => $key,
+            ])
+            ->withBody($fileStream, 'application/pdf')
+            ->post("{$baseUrl}/storage/v1/object/{$bucket}/{$filePath}");
+
+        if (is_resource($fileStream)) {
+            fclose($fileStream);
+        }
+
+        if (!$response->successful()) {
+            Log::error('Supabase upload failed', ['body' => $response->body()]);
+            return response()->json([
+                'error' => true,
+                'message' => 'Failed to store file in Supabase Storage.',
+            ], 500);
+        }
+
+        // Extract text and vector embeddings
+        $parser = new Parser();
+        $pdf = $parser->parseFile($file->getRealPath());
+        $rawText = trim(preg_replace('/\s+/', ' ', $pdf->getText()));
+
+        $document = Document::create([
+            'title' => $request->input('title'),
+            'author' => $request->input('author'),
+            'abstract' => $request->input('abstract'),
+            'file_path' => $filePath,
+            'file_url' => '',
+        ]);
+
+        $document->update([
+            'file_url' => "/backend/documents/{$document->id}/view",
+        ]);
+
+        // Process Gemini Embeddings
+        $gemini = app(GeminiService::class);
+        $chunks = array_slice(str_split($rawText, 800), 0, 20);
+
+        foreach ($chunks as $chunk) {
+            $chunk = trim($chunk);
+            if ($chunk === '') continue;
+
+            $embedding = $gemini->generateEmbedding($chunk);
+            $vector = '[' . implode(',', $embedding) . ']';
+
+            DB::statement(
+                'INSERT INTO document_chunks (document_id, chunk_text, embedding, created_at, updated_at) VALUES (?, ?, ?::extensions.vector, NOW(), NOW())',
+                [$document->id, $chunk, $vector]
+            );
+        }
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Thesis uploaded and vectorized successfully.',
+            'document' => $document,
+        ], 201);
+
+    } catch (\Throwable $e) {
+        Log::error('Upload failed: ' . $e->getMessage());
+
+        return response()->json([
+            'error' => true,
+            'message' => 'Upload failed: ' . $e->getMessage(),
+        ], 500);
     }
+}
 }

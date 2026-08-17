@@ -570,62 +570,29 @@
             const file = fileInput.files[0];
 
             if (!file) return showError('Please select a PDF file.');
-            
-            // Check file size on client side (e.g. max 50MB)
-            if (file.size > 50 * 1024 * 1024) {
-                return showError('File size exceeds the 50MB limit.');
-            }
+
+            const formData = new FormData();
+            formData.append('title', document.getElementById('title').value);
+            formData.append('author', document.getElementById('author').value);
+            formData.append('abstract', document.getElementById('abstract').value);
+            formData.append('file', file);
 
             uploadButton.disabled = true;
-            uploadButton.textContent = 'Uploading...';
+            uploadButton.textContent = 'Uploading & Processing...';
 
             try {
-                // Step 1: Request signed upload URL from Laravel backend
-                const urlRes = await fetch('/backend/documents/upload-url', {
+                const response = await fetch('/backend/documents', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({ filename: file.name })
+                    body: formData
                 });
 
-                const urlData = await urlRes.json();
-                if (!urlRes.ok || urlData.error) {
-                    throw new Error(urlData.message || 'Failed to get upload URL.');
-                }
+                const data = await response.json();
 
-                // Step 2: Upload file directly to Supabase Storage
-                const uploadRes = await fetch(urlData.signedUrl, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/pdf'
-                    },
-                    body: file
-                });
-
-                if (!uploadRes.ok) {
-                    throw new Error('Direct upload to Supabase failed.');
-                }
-
-                // Step 3: Send metadata to Laravel to create DB records and process vector embeddings
-                const metaRes = await fetch('/backend/documents', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({
-                        title: document.getElementById('title').value,
-                        author: document.getElementById('author').value,
-                        abstract: document.getElementById('abstract').value,
-                        file_path: urlData.path
-                    })
-                });
-
-                const metaData = await metaRes.json();
-                if (!metaRes.ok || metaData.error) {
-                    throw new Error(metaData.message || 'Failed to process document metadata.');
+                if (!response.ok || data.error) {
+                    throw new Error(data.message || 'Upload failed.');
                 }
 
                 showSuccessPopup();
