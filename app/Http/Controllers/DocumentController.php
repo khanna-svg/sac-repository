@@ -29,7 +29,7 @@ class DocumentController extends Controller
         $path = ltrim((string) $document->file_path, '/');
 
         $encodedPath = collect(explode('/', $path))
-            ->map(fn ($part) => rawurlencode($part))
+            ->map(fn($part) => rawurlencode($part))
             ->implode('/');
 
         $response = Http::timeout(60)
@@ -57,11 +57,11 @@ class DocumentController extends Controller
             200,
             [
                 'Content-Type' =>
-                    $response->header('Content-Type')
+                $response->header('Content-Type')
                     ?: 'application/pdf',
 
                 'Content-Disposition' =>
-                    'inline; filename="' . basename($path) . '"',
+                'inline; filename="' . basename($path) . '"',
 
                 'Cache-Control' => 'private, no-store',
             ]
@@ -90,15 +90,15 @@ class DocumentController extends Controller
                     [$searchTerm]
                 )
 
-                ->orWhereRaw(
-                    'LOWER(author) LIKE ?',
-                    [$searchTerm]
-                )
+                    ->orWhereRaw(
+                        'LOWER(author) LIKE ?',
+                        [$searchTerm]
+                    )
 
-                ->orWhereRaw(
-                    'LOWER(abstract) LIKE ?',
-                    [$searchTerm]
-                );
+                    ->orWhereRaw(
+                        'LOWER(abstract) LIKE ?',
+                        [$searchTerm]
+                    );
             });
         }
 
@@ -128,7 +128,7 @@ class DocumentController extends Controller
             return response()->json([
                 'error' => true,
                 'message' =>
-                    'Unauthorized. Admin access required.',
+                'Unauthorized. Admin access required.',
             ], 403);
         }
 
@@ -180,7 +180,7 @@ class DocumentController extends Controller
             return response()->json([
                 'error' => true,
                 'message' =>
-                    'Supabase Storage is not configured.',
+                'Supabase Storage is not configured.',
             ], 500);
         }
 
@@ -201,7 +201,7 @@ class DocumentController extends Controller
             return response()->json([
                 'error' => true,
                 'message' =>
-                    'Only PDF files are allowed.',
+                'Only PDF files are allowed.',
             ], 422);
         }
 
@@ -234,8 +234,8 @@ class DocumentController extends Controller
                     explode('/', $path)
                 )
                 ->map(
-                    fn ($part) =>
-                        rawurlencode($part)
+                    fn($part) =>
+                    rawurlencode($part)
                 )
                 ->implode('/');
 
@@ -262,27 +262,27 @@ class DocumentController extends Controller
              */
             $response =
                 Http::timeout(30)
-                    ->withHeaders([
-                        'Authorization' =>
-                            "Bearer {$key}",
+                ->withHeaders([
+                    'Authorization' =>
+                    "Bearer {$key}",
 
-                        'apikey' =>
-                            $key,
+                    'apikey' =>
+                    $key,
 
-                        'Content-Type' =>
-                            'application/json',
-                    ])
-                    ->post($url, []);
+                    'Content-Type' =>
+                    'application/json',
+                ])
+                ->post($url, []);
 
 
             Log::info(
                 'Supabase signed upload response',
                 [
                     'status' =>
-                        $response->status(),
+                    $response->status(),
 
                     'body' =>
-                        $response->json(),
+                    $response->json(),
                 ]
             );
 
@@ -293,13 +293,13 @@ class DocumentController extends Controller
                     'error' => true,
 
                     'message' =>
-                        'Supabase could not create the upload URL.',
+                    'Supabase could not create the upload URL.',
 
                     'supabase_status' =>
-                        $response->status(),
+                    $response->status(),
 
                     'supabase_error' =>
-                        $response->json(),
+                    $response->json(),
                 ], 500);
             }
 
@@ -329,7 +329,7 @@ class DocumentController extends Controller
                 return response()->json([
                     'error' => true,
                     'message' =>
-                        'Supabase did not return an upload URL.',
+                    'Supabase did not return an upload URL.',
                 ], 500);
             }
 
@@ -382,17 +382,17 @@ class DocumentController extends Controller
                     'Supabase signed upload URL has no token',
                     [
                         'signed_url' =>
-                            $signedUrl,
+                        $signedUrl,
 
                         'response' =>
-                            $data,
+                        $data,
                     ]
                 );
 
                 return response()->json([
                     'error' => true,
                     'message' =>
-                        'Supabase returned an invalid upload URL.',
+                    'Supabase returned an invalid upload URL.',
                 ], 500);
             }
 
@@ -404,26 +404,24 @@ class DocumentController extends Controller
                 'error' => false,
 
                 'path' =>
-                    $path,
+                $path,
 
                 'signedUrl' =>
-                    $signedUrl,
+                $signedUrl,
 
                 'token' =>
-                    $token,
+                $token,
             ]);
-
-
         } catch (\Throwable $e) {
 
             Log::error(
                 'Create Supabase upload URL failed',
                 [
                     'message' =>
-                        $e->getMessage(),
+                    $e->getMessage(),
 
                     'trace' =>
-                        $e->getTraceAsString(),
+                    $e->getTraceAsString(),
                 ]
             );
 
@@ -431,7 +429,7 @@ class DocumentController extends Controller
             return response()->json([
                 'error' => true,
                 'message' =>
-                    'Could not prepare the file upload.',
+                'Could not prepare the file upload.',
             ], 500);
         }
     }
@@ -493,16 +491,16 @@ class DocumentController extends Controller
                     'Store signed metadata received incomplete data.',
                     [
                         'title' =>
-                            $title,
+                        $title,
 
                         'author' =>
-                            $author,
+                        $author,
 
                         'has_abstract' =>
-                            $abstract !== '',
+                        $abstract !== '',
 
                         'file_path' =>
-                            $filePath,
+                        $filePath,
                     ]
                 );
 
@@ -510,7 +508,7 @@ class DocumentController extends Controller
                 return response()->json([
                     'error' => true,
                     'message' =>
-                        'Thesis information is incomplete.',
+                    'Thesis information is incomplete.',
                 ], 400);
             }
 
@@ -529,7 +527,7 @@ class DocumentController extends Controller
                 return response()->json([
                     'error' => true,
                     'message' =>
-                        'Invalid thesis file path.',
+                    'Invalid thesis file path.',
                 ], 400);
             }
 
@@ -542,19 +540,19 @@ class DocumentController extends Controller
             $document =
                 Document::create([
                     'title' =>
-                        $title,
+                    $title,
 
                     'author' =>
-                        $author,
+                    $author,
 
                     'abstract' =>
-                        $abstract,
+                    $abstract,
 
                     'file_path' =>
-                        $filePath,
+                    $filePath,
 
                     'file_url' =>
-                        '',
+                    '',
                 ]);
 
 
@@ -565,7 +563,7 @@ class DocumentController extends Controller
              */
             $document->update([
                 'file_url' =>
-                    "/backend/documents/{$document->id}/view",
+                "/backend/documents/{$document->id}/view",
             ]);
 
 
@@ -635,7 +633,6 @@ class DocumentController extends Controller
                         );
                     }
                 }
-
             } catch (\Throwable $embeddingError) {
 
                 /*
@@ -645,13 +642,13 @@ class DocumentController extends Controller
                     'Gemini/vector processing failed, but thesis was saved.',
                     [
                         'document_id' =>
-                            $document->id,
+                        $document->id,
 
                         'message' =>
-                            $embeddingError->getMessage(),
+                        $embeddingError->getMessage(),
 
                         'trace' =>
-                            $embeddingError->getTraceAsString(),
+                        $embeddingError->getTraceAsString(),
                     ]
                 );
             }
@@ -666,13 +663,11 @@ class DocumentController extends Controller
                 'error' => false,
 
                 'message' =>
-                    'Thesis uploaded successfully.',
+                'Thesis uploaded successfully.',
 
                 'document' =>
-                    $document,
+                $document,
             ], 201);
-
-
         } catch (\Throwable $e) {
 
             /*
@@ -683,10 +678,10 @@ class DocumentController extends Controller
                 'Store signed metadata failed.',
                 [
                     'message' =>
-                        $e->getMessage(),
+                    $e->getMessage(),
 
                     'trace' =>
-                        $e->getTraceAsString(),
+                    $e->getTraceAsString(),
                 ]
             );
 
@@ -695,7 +690,7 @@ class DocumentController extends Controller
                 'error' => true,
 
                 'message' =>
-                    'Failed to save thesis.',
+                'Failed to save thesis.',
             ], 500);
         }
     }
@@ -715,16 +710,16 @@ class DocumentController extends Controller
     {
         $request->validate([
             'title' =>
-                'required|string|max:255',
+            'required|string|max:255',
 
             'author' =>
-                'required|string|max:255',
+            'required|string|max:255',
 
             'abstract' =>
-                'required|string',
+            'required|string',
 
             'file' =>
-                'required|file|mimes:pdf|max:51200',
+            'required|file|mimes:pdf|max:51200',
         ]);
 
 
@@ -769,7 +764,7 @@ class DocumentController extends Controller
                     'error' => true,
 
                     'message' =>
-                        'Supabase Storage is not configured.',
+                    'Supabase Storage is not configured.',
                 ], 500);
             }
 
@@ -786,20 +781,20 @@ class DocumentController extends Controller
 
             $response =
                 Http::timeout(120)
-                    ->withHeaders([
-                        'Authorization' =>
-                            "Bearer {$key}",
+                ->withHeaders([
+                    'Authorization' =>
+                    "Bearer {$key}",
 
-                        'apikey' =>
-                            $key,
-                    ])
-                    ->withBody(
-                        $fileStream,
-                        'application/pdf'
-                    )
-                    ->post(
-                        "{$baseUrl}/storage/v1/object/{$bucket}/{$filePath}"
-                    );
+                    'apikey' =>
+                    $key,
+                ])
+                ->withBody(
+                    $fileStream,
+                    'application/pdf'
+                )
+                ->post(
+                    "{$baseUrl}/storage/v1/object/{$bucket}/{$filePath}"
+                );
 
 
             if (is_resource($fileStream)) {
@@ -813,10 +808,10 @@ class DocumentController extends Controller
                     'Supabase upload failed',
                     [
                         'status' =>
-                            $response->status(),
+                        $response->status(),
 
                         'body' =>
-                            $response->body(),
+                        $response->body(),
                     ]
                 );
 
@@ -825,7 +820,7 @@ class DocumentController extends Controller
                     'error' => true,
 
                     'message' =>
-                        'Failed to store file in Supabase Storage.',
+                    'Failed to store file in Supabase Storage.',
                 ], 500);
             }
 
@@ -859,25 +854,25 @@ class DocumentController extends Controller
             $document =
                 Document::create([
                     'title' =>
-                        $request->input('title'),
+                    $request->input('title'),
 
                     'author' =>
-                        $request->input('author'),
+                    $request->input('author'),
 
                     'abstract' =>
-                        $request->input('abstract'),
+                    $request->input('abstract'),
 
                     'file_path' =>
-                        $filePath,
+                    $filePath,
 
                     'file_url' =>
-                        '',
+                    '',
                 ]);
 
 
             $document->update([
                 'file_url' =>
-                    "/backend/documents/{$document->id}/view",
+                "/backend/documents/{$document->id}/view",
             ]);
 
 
@@ -959,7 +954,6 @@ class DocumentController extends Controller
                         ]
                     );
                 }
-
             } catch (\Throwable $embeddingError) {
 
                 /*
@@ -969,10 +963,10 @@ class DocumentController extends Controller
                     'Fallback embedding failed, but thesis was saved.',
                     [
                         'document_id' =>
-                            $document->id,
+                        $document->id,
 
                         'message' =>
-                            $embeddingError->getMessage(),
+                        $embeddingError->getMessage(),
                     ]
                 );
             }
@@ -982,23 +976,21 @@ class DocumentController extends Controller
                 'error' => false,
 
                 'message' =>
-                    'Thesis uploaded successfully.',
+                'Thesis uploaded successfully.',
 
                 'document' =>
-                    $document,
+                $document,
             ], 201);
-
-
         } catch (\Throwable $e) {
 
             Log::error(
                 'Upload failed',
                 [
                     'message' =>
-                        $e->getMessage(),
+                    $e->getMessage(),
 
                     'trace' =>
-                        $e->getTraceAsString(),
+                    $e->getTraceAsString(),
                 ]
             );
 
@@ -1007,7 +999,7 @@ class DocumentController extends Controller
                 'error' => true,
 
                 'message' =>
-                    'Upload failed.',
+                'Upload failed.',
             ], 500);
         }
     }
