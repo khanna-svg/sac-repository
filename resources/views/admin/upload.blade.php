@@ -564,58 +564,81 @@
         // ========================================
 
         uploadForm.addEventListener('submit', async function (e) {
-    e.preventDefault();
+            e.preventDefault();
 
-    const fileInput = document.getElementById('pdf');
-    const file = fileInput.files[0];
+            const fileInput = document.getElementById('pdf');
+            const file = fileInput.files[0];
 
-    if (!file) return showError('Please select a PDF file.');
-    if (file.type !== 'application/pdf') return showError('Only PDF files are allowed.');
+            if (!file) return showError('Please select a PDF file.');
+            
+            // Check file size on client side (e.g. max 50MB)
+            if (file.size > 50 * 1024 * 1024) {
+                return showError('File size exceeds the 50MB limit.');
+            }
 
-    uploadMessage.className = 'hidden';
-    progressContainer.style.display = 'block';
-    updateProgress(30);
-    uploadButton.disabled = true;
-    uploadButton.textContent = 'Processing & Vectorizing Thesis...';
+            uploadButton.disabled = true;
+            uploadButton.textContent = 'Uploading...';
 
-    const formData = new FormData();
-    formData.append('title', document.getElementById('title').value.trim());
-    formData.append('author', document.getElementById('author').value.trim());
-    formData.append('abstract', document.getElementById('abstract').value.trim());
-    formData.append('file', file);
+            try {
+                // Step 1: Request signed upload URL from Laravel backend
+                const urlRes = await fetch('/backend/documents/upload-url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({ filename: file.name })
+                });
 
-    try {
-        updateProgress(60);
+                const urlData = await urlRes.json();
+                if (!urlRes.ok || urlData.error) {
+                    throw new Error(urlData.message || 'Failed to get upload URL.');
+                }
 
-        const response = await fetch('/backend/documents/upload', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-            body: formData
+                // Step 2: Upload file directly to Supabase Storage
+                const uploadRes = await fetch(urlData.signedUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/pdf'
+                    },
+                    body: file
+                });
+
+                if (!uploadRes.ok) {
+                    throw new Error('Direct upload to Supabase failed.');
+                }
+
+                // Step 3: Send metadata to Laravel to create DB records and process vector embeddings
+                const metaRes = await fetch('/backend/documents', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        title: document.getElementById('title').value,
+                        author: document.getElementById('author').value,
+                        abstract: document.getElementById('abstract').value,
+                        file_path: urlData.path
+                    })
+                });
+
+                const metaData = await metaRes.json();
+                if (!metaRes.ok || metaData.error) {
+                    throw new Error(metaData.message || 'Failed to process document metadata.');
+                }
+
+                showSuccessPopup();
+                uploadForm.reset();
+
+            } catch (err) {
+                console.error('Upload Error:', err);
+                showError(err.message);
+            } finally {
+                uploadButton.disabled = false;
+                uploadButton.textContent = 'Submit & Upload Thesis';
+            }
         });
-
-        const data = await response.json();
-
-        if (!response.ok || data.error) {
-            throw new Error(data.message || 'Upload failed.');
-        }
-
-        updateProgress(100);
-        uploadForm.reset();
-        progressContainer.style.display = 'none';
-        showSuccessPopup();
-
-    } catch (error) {
-        console.error('Upload error:', error);
-        progressContainer.style.display = 'none';
-        showError(error.message || 'Upload failed.');
-    } finally {
-        uploadButton.disabled = false;
-        uploadButton.textContent = 'Submit & Upload Thesis';
-    }
-});
 
     </script>
 
