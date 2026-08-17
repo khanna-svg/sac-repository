@@ -13,8 +13,8 @@
 
     <script>
         const supabaseClient = window.supabase.createClient(
-            "{{ env('https://qyyuvhntwneyufkmiygm.supabase.co') }}",
-            "{{ env('sb_publishable_RZb53W-5SuMDm221Sj9FiA_QCrFIIg7') }}"
+            "{{ env('SUPABASE_URL') }}",
+            "{{ env('SUPABASE_PUBLISHABLE_KEY') }}"
         );
     </script>
 
