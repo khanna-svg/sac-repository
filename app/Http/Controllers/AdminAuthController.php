@@ -15,24 +15,29 @@ class AdminAuthController extends Controller
             'password' => ['required'],
         ]);
 
-        // Find user by email
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', strtolower(trim($request->email)))->first();
 
-        // Validate user existence, password, and admin role
         if (
             $user &&
             Hash::check($request->password, $user->password) &&
             $user->role === 'admin'
         ) {
+
             $request->session()->regenerate();
 
-            $request->session()->put([
-                'sac_user_email' => strtolower($user->email),
-                'sac_user_role' => 'admin',
-            ]);
+            $request->session()->put(
+                'sac_user_role',
+                'admin'
+            );
+
+            $request->session()->put(
+                'sac_user_email',
+                strtolower($user->email)
+            );
 
             return redirect()->route('admin.upload');
         }
+
 
         return back()->withErrors([
             'email' => 'Invalid admin credentials or account is not an admin.',

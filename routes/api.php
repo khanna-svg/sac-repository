@@ -9,17 +9,41 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-Route::middleware(['web', 'sac.auth'])->group(function () {
-    // Document routes
-    Route::get('/documents', [DocumentController::class, 'index']);
-    Route::post('/documents/upload', [DocumentController::class, 'store']);
+Route::middleware([
+    'web',
+    'sac.auth',
+])->group(function () {
 
-    // Private PDF viewer
+    Route::get('/documents', [
+        DocumentController::class,
+        'index',
+    ]);
+
+
     Route::get('/documents/{document}/view', [
         DocumentController::class,
         'viewPdf',
     ]);
 
-    // RAG chatbot
-    Route::post('/chat', [ChatController::class, 'ask']);
+    Route::post('/chat', [
+        ChatController::class,
+        'ask',
+    ]);
+});
+
+Route::middleware([
+    'web',
+    'sac.auth',
+    'sac.admin',
+])->group(function () {
+
+    Route::post('/documents/upload-url', [
+        DocumentController::class,
+        'createUploadUrl',
+    ]);
+
+    Route::post('/documents/upload', [
+        DocumentController::class,
+        'store',
+    ]);
 });
