@@ -6,7 +6,72 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>SAC Thesis System - Admin Upload</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        #successCard {
+            animation: popupIn 0.35s ease-out;
+        }
+
+        /* Circle animation */
+        .check-circle {
+            stroke-dasharray: 145;
+            stroke-dashoffset: 145;
+            animation: drawCircle 0.6s ease forwards;
+        }
+
+        /* Checkmark animation */
+        .check-mark {
+            stroke-dasharray: 40;
+            stroke-dashoffset: 40;
+            animation: drawCheck 0.4s 0.5s ease forwards;
+        }
+
+        /* Popup entrance */
+        @keyframes popupIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Circle drawing */
+        @keyframes drawCircle {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Checkmark drawing */
+        @keyframes drawCheck {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        /* Popup exit */
+        .popup-hide {
+            animation: popupOut 0.3s ease forwards;
+        }
+
+        @keyframes popupOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            to {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+    </style>
 </head>
+
 <body class="min-h-screen bg-slate-50 text-slate-800">
     @include('partials.sidebar')
 
@@ -51,6 +116,50 @@
             </section>
         </div>
     </main>
+
+    <!-- Success Popup -->
+    <div id="successPopup" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30 backdrop-blur-sm">
+        <div id="successCard" class="w-[320px] rounded-2xl bg-white p-8 text-center shadow-2xl">
+            
+            <!-- Animated Check Circle -->
+            <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
+                <svg
+                    class="h-14 w-14 text-green-600"
+                    viewBox="0 0 52 52"
+                    fill="none"
+                >
+                    <circle
+                        class="check-circle"
+                        cx="26"
+                        cy="26"
+                        r="23"
+                        stroke="currentColor"
+                        stroke-width="4"
+                        fill="none"
+                    />
+
+                    <path
+                        class="check-mark"
+                        d="M14 27L22 35L39 17"
+                        stroke="currentColor"
+                        stroke-width="4"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        fill="none"
+                    />
+                </svg>
+            </div>
+
+            <h2 class="text-xl font-bold text-gray-800">
+                Upload Successful!
+            </h2>
+
+            <p class="mt-2 text-sm text-gray-500">
+                Your thesis has been uploaded successfully.
+            </p>
+
+        </div>
+    </div>
 
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
