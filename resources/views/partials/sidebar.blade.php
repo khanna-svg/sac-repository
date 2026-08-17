@@ -1,9 +1,9 @@
-<!-- Floating Mobile Hamburger Toggle Button (Visible on mobile/tablet screens) -->
+<!-- Floating Mobile Hamburger Toggle Button -->
 <button
     id="sidebarToggleBtn"
     type="button"
     aria-label="Toggle Sidebar"
-    class="fixed top-3 left-3 z-50 rounded-lg bg-gray-900 p-2.5 text-gray-300 border border-gray-700 shadow-lg hover:bg-gray-800 focus:outline-none md:hidden"
+    class="fixed top-3 left-3 z-50 rounded-lg bg-[#500000] p-2.5 text-[#FFD700] border border-[#800000] shadow-lg hover:bg-[#600000] focus:outline-none md:hidden"
 >
     <!-- Hamburger Icon -->
     <svg id="hamburgerIcon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -18,48 +18,67 @@
 <!-- Mobile Dark Overlay Backdrop -->
 <div
     id="sidebarBackdrop"
-    class="fixed inset-0 z-30 bg-black/60 opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out md:hidden"
+    class="fixed inset-0 z-30 bg-black/70 opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out md:hidden"
 ></div>
 
 <!-- Sidebar Drawer -->
 <aside
     id="sidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-gray-800 bg-gray-950 transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0"
+    class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-[#600000] bg-[#700000] text-white transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 shadow-2xl"
 >
     <!-- Sidebar Header -->
-    <div class="flex items-center justify-between border-b border-gray-800 px-5 py-5">
+    <div class="flex items-center justify-between border-b border-[#850000] px-5 py-5 bg-[#5b0000]">
         <div class="flex items-center gap-3">
-            <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600 font-bold text-white">
-                S
+            <img 
+                src="https://sac.campus-erp.com/Student/images/sac.png"
+                alt="St. Anthony's College Logo"
+                class="h-[60px] w-[60px] object-contain"
+            >
+        </div>
+            <div class="flex flex-col">
+                <span class="font-bold text-white text-sm tracking-wide">St. Anthony's College</span>
+                <span class="text-[10px] text-[#FFD700] font-medium tracking-wider uppercase">Thesis System</span>
             </div>
-            <span class="font-bold text-gray-100">SAC Thesis System</span>
         </div>
     </div>
 
     <!-- Navigation Links -->
-    <nav class="flex-1 space-y-1 p-3">
-        <a
-            href="/documents"
-            class="flex items-center rounded-lg px-4 py-3 text-sm font-medium transition
-            {{ request()->is('documents') ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100' }}"
-        >
-            Documents & Search
-        </a>
+    <nav class="flex-1 space-y-1.5 p-3">
+        @if(session('user_role') === 'admin')
+            <!-- Visible ONLY to Admins -->
+            <a
+                href="/admin/upload"
+                class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
+                {{ request()->is('admin/upload') ? 'bg-[#D4AF37] text-[#700000] shadow-md' : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}"
+            >
+                Upload Thesis (Admin)
+            </a>
+        @else
+            <!-- Visible ONLY to Students -->
+            <a
+                href="/documents"
+                class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
+                {{ request()->is('documents') ? 'bg-[#D4AF37] text-[#700000] shadow-md' : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}"
+            >
+                Documents & Search
+            </a>
+        @endif
 
+        <!-- AI Assistant (Visible to Everyone) -->
         <a
             href="/chat"
-            class="flex items-center rounded-lg px-4 py-3 text-sm font-medium transition
-            {{ request()->is('chat') ? 'bg-indigo-600 text-white' : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100' }}"
+            class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
+            {{ request()->is('chat') ? 'bg-[#D4AF37] text-[#700000] shadow-md' : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}"
         >
             AI Assistant
         </a>
     </nav>
 
     <!-- Sidebar Footer / Account Info -->
-    <div class="border-t border-gray-800 p-3">
-        <div class="mb-3 rounded-lg bg-gray-900 px-3 py-2">
-            <p class="text-xs text-gray-500">Signed in as</p>
-            <p class="mt-1 truncate text-sm font-medium text-gray-200">
+    <div class="border-t border-[#850000] bg-[#5b0000] p-3">
+        <div class="mb-3 rounded-lg bg-[#4a0000] border border-[#7a0000] px-3 py-2.5">
+            <p class="text-[10px] font-semibold text-[#FFD700] uppercase tracking-wider">Signed in as</p>
+            <p class="mt-0.5 truncate text-sm font-medium text-white">
                 {{ session('sac_user_email') }}
             </p>
         </div>
@@ -69,7 +88,7 @@
 
             <button
                 type="submit"
-                class="w-full rounded-lg border border-gray-700 bg-gray-900 px-4 py-2.5 text-left text-sm font-medium text-gray-300 transition hover:bg-red-950 hover:text-red-300"
+                class="w-full rounded-lg border border-[#D4AF37]/40 bg-[#700000] px-4 py-2.5 text-left text-sm font-semibold text-[#FFD700] transition hover:bg-[#D4AF37] hover:text-[#700000]"
             >
                 Sign Out
             </button>

@@ -7,43 +7,43 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen font-sans">
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
 
 @include('partials.sidebar')
 
-<!-- Fixed ml-64 to md:ml-64 for responsive sidebar spacing -->
 <div class="md:ml-64 flex h-screen flex-col transition-all">
-    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-800 bg-gray-950 px-4 md:px-6 py-4">
+    <!-- Top Bar -->
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 md:px-6 py-4 shadow-sm">
         <div>
-            <h1 class="text-base md:text-lg font-semibold text-gray-100">AI Assistant</h1>
-            <p class="mt-0.5 text-xs md:text-sm text-gray-400">
+            <h1 class="text-base md:text-lg font-bold text-[#700000]">AI Assistant</h1>
+            <p class="mt-0.5 text-xs md:text-sm text-gray-500">
                 Ask questions about uploaded thesis documents.
             </p>
         </div>
 
-        <div class="self-start sm:self-auto rounded-lg bg-indigo-950/40 px-3 py-1.5 text-xs text-indigo-300 border border-indigo-800/40">
+        <div class="self-start sm:self-auto rounded-lg bg-[#700000]/10 px-3 py-1.5 text-xs text-[#700000] font-bold border border-[#700000]/20">
             RAG Thesis Assistant
         </div>
     </header>
 
     <!-- Chat Area -->
-    <div id="chatMessages" class="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6">
+    <div id="chatMessages" class="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6 bg-slate-50">
         <!-- Welcome Message -->
         <div class="flex items-start gap-3">
-            <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-indigo-600 flex-shrink-0 flex items-center justify-center text-sm md:text-base">
+            <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center text-sm md:text-base font-bold shadow-md">
                 🤖
             </div>
 
             <div class="max-w-3xl">
-                <div class="bg-gray-800 border border-gray-700 rounded-2xl rounded-tl-md px-3.5 md:px-4 py-3">
-                    <p class="text-sm text-gray-200">
+                <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-3.5 md:px-4 py-3 shadow-sm">
+                    <p class="text-sm text-gray-800 font-medium">
                         👋 Hi! I'm your RAG Thesis AI Assistant.
                     </p>
-                    <p class="text-sm text-gray-300 mt-2">
+                    <p class="text-sm text-gray-600 mt-2 leading-relaxed">
                         Ask me anything about the uploaded thesis papers. I'll search the repository and use the relevant documents to answer your question.
                     </p>
                 </div>
-                <div class="text-[10px] md:text-xs text-gray-500 mt-1.5">
+                <div class="text-[10px] md:text-xs text-[#700000] mt-1.5 font-semibold">
                     AI Thesis Assistant
                 </div>
             </div>
@@ -51,7 +51,7 @@
     </div>
 
     <!-- Message Input Bar -->
-    <div class="border-t border-gray-800 bg-gray-900 px-4 md:px-6 py-3 md:py-4">
+    <div class="border-t border-gray-200 bg-white px-4 md:px-6 py-3 md:py-4">
         <form id="chatForm" class="flex items-end sm:items-center gap-2 md:gap-3 w-full">
             <div class="flex-1 relative">
                 <textarea
@@ -59,14 +59,14 @@
                     rows="1"
                     required
                     placeholder="Ask a question..."
-                    class="w-full resize-none bg-gray-800 border border-gray-700 rounded-xl px-3.5 md:px-4 py-2.5 md:py-3 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 block leading-normal"
+                    class="w-full resize-none bg-slate-50 border border-gray-300 rounded-xl px-3.5 md:px-4 py-2.5 md:py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] block leading-normal"
                 ></textarea>
             </div>
 
             <button
                 type="submit"
                 id="sendBtn"
-                class="h-[42px] md:h-[46px] bg-indigo-600 hover:bg-indigo-500 disabled:bg-gray-700 disabled:text-gray-500 text-white font-medium px-4 md:px-6 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-1.5 md:gap-2 shrink-0"
+                class="h-[42px] md:h-[46px] bg-[#700000] hover:bg-[#800000] disabled:bg-gray-200 disabled:text-gray-400 text-[#FFD700] font-bold px-4 md:px-6 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-1.5 md:gap-2 shrink-0 shadow-sm"
             >
                 <span id="sendBtnText" class="hidden sm:inline">Send</span>
                 <span id="sendBtnIcon">➤</span>
@@ -96,10 +96,10 @@ document.addEventListener('DOMContentLoaded', function () {
         messageWrapper.className = 'flex justify-end items-start gap-3';
         messageWrapper.innerHTML = `
             <div class="max-w-xl md:max-w-3xl">
-                <div class="bg-indigo-600 rounded-2xl rounded-tr-md px-3.5 md:px-4 py-3">
+                <div class="bg-[#700000] rounded-2xl rounded-tr-md px-3.5 md:px-4 py-3 shadow-sm">
                     <p class="text-sm text-white whitespace-pre-wrap"></p>
                 </div>
-                <div class="text-[10px] md:text-xs text-gray-500 mt-1.5 text-right">You</div>
+                <div class="text-[10px] md:text-xs text-gray-500 mt-1.5 text-right font-medium">You</div>
             </div>
         `;
         messageWrapper.querySelector('p').textContent = message;
@@ -111,18 +111,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const messageWrapper = document.createElement('div');
         messageWrapper.className = 'flex items-start gap-3';
         messageWrapper.innerHTML = `
-            <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-indigo-600 flex-shrink-0 flex items-center justify-center text-sm md:text-base">🤖</div>
+            <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center text-sm md:text-base font-bold shadow-md">🤖</div>
             <div class="max-w-xl md:max-w-3xl">
-                <div class="bg-gray-800 border border-gray-700 rounded-2xl rounded-tl-md px-3.5 md:px-4 py-3">
-                    <div class="text-sm text-gray-200 whitespace-pre-wrap ai-answer"></div>
+                <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-3.5 md:px-4 py-3 shadow-sm">
+                    <div class="text-sm text-gray-800 whitespace-pre-wrap ai-answer leading-relaxed"></div>
                     ${sources.length > 0 ? `
-                        <div class="mt-4 pt-3 border-t border-gray-700">
-                            <p class="text-xs font-semibold text-gray-400 mb-2">📚 Sources</p>
+                        <div class="mt-4 pt-3 border-t border-gray-100">
+                            <p class="text-xs font-bold text-[#700000] mb-2">📚 Sources</p>
                             <div class="space-y-2 source-list"></div>
                         </div>
                     ` : ''}
                 </div>
-                <div class="text-[10px] md:text-xs text-gray-500 mt-1.5">AI Thesis Assistant</div>
+                <div class="text-[10px] md:text-xs text-[#700000] mt-1.5 font-semibold">AI Thesis Assistant</div>
             </div>
         `;
 
@@ -132,12 +132,12 @@ document.addEventListener('DOMContentLoaded', function () {
             const sourceList = messageWrapper.querySelector('.source-list');
             sources.forEach((source, index) => {
                 const sourceElement = document.createElement('div');
-                sourceElement.className = 'text-xs text-gray-400 bg-gray-900 rounded-lg px-3 py-2';
+                sourceElement.className = 'text-xs text-gray-600 bg-slate-50 border border-gray-200 rounded-lg px-3 py-2';
                 const similarity = source.similarity ? Math.round(source.similarity * 100) : null;
                 sourceElement.innerHTML = `
                     <div class="flex items-center justify-between gap-3">
-                        <span>Source ${index + 1}</span>
-                        ${similarity !== null ? `<span class="text-indigo-400">${similarity}% similarity</span>` : ''}
+                        <span class="font-medium">Source ${index + 1}</span>
+                        ${similarity !== null ? `<span class="text-[#700000] font-bold">${similarity}% similarity</span>` : ''}
                     </div>
                 `;
                 sourceList.appendChild(sourceElement);
@@ -153,16 +153,16 @@ document.addEventListener('DOMContentLoaded', function () {
         loadingWrapper.id = 'loadingMessage';
         loadingWrapper.className = 'flex items-start gap-3';
         loadingWrapper.innerHTML = `
-            <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-indigo-600 flex-shrink-0 flex items-center justify-center text-sm md:text-base">🤖</div>
+            <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center text-sm md:text-base font-bold shadow-md">🤖</div>
             <div>
-                <div class="bg-gray-800 border border-gray-700 rounded-2xl rounded-tl-md px-4 py-3">
-                    <div class="flex items-center gap-1">
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
-                        <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
+                <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2 h-2 bg-[#700000] rounded-full animate-bounce"></span>
+                        <span class="w-2 h-2 bg-[#700000] rounded-full animate-bounce" style="animation-delay: 0.15s"></span>
+                        <span class="w-2 h-2 bg-[#700000] rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
                     </div>
                 </div>
-                <div class="text-[10px] md:text-xs text-gray-500 mt-1.5">AI Thesis Assistant is searching...</div>
+                <div class="text-[10px] md:text-xs text-gray-500 mt-1.5 font-medium">AI Thesis Assistant is searching...</div>
             </div>
         `;
         chatMessages.appendChild(loadingWrapper);
@@ -178,12 +178,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const errorWrapper = document.createElement('div');
         errorWrapper.className = 'flex items-start gap-3';
         errorWrapper.innerHTML = `
-            <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-red-600 flex-shrink-0 flex items-center justify-center text-sm md:text-base">⚠️</div>
+            <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-red-600 text-white flex-shrink-0 flex items-center justify-center text-sm md:text-base font-bold shadow-md">⚠️</div>
             <div class="max-w-xl md:max-w-3xl">
-                <div class="bg-red-950/40 border border-red-800 rounded-2xl rounded-tl-md px-4 py-3">
-                    <p class="text-sm text-red-300 whitespace-pre-wrap"></p>
+                <div class="bg-red-50 border border-red-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                    <p class="text-sm text-red-700 whitespace-pre-wrap"></p>
                 </div>
-                <div class="text-[10px] md:text-xs text-gray-500 mt-1.5">System Error</div>
+                <div class="text-[10px] md:text-xs text-red-600 mt-1.5 font-semibold">System Error</div>
             </div>
         `;
         errorWrapper.querySelector('p').textContent = message;
