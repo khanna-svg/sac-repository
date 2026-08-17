@@ -18,15 +18,15 @@ class DocumentController extends Controller
      */
     public function viewPdf(Document $document)
     {
-        $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
-        $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
-        $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
+        $baseUrl = rtrim((string) env('SUPABASE_URL'), '/');
+        $key = (string) env('SUPABASE_SERVICE_ROLE_KEY');
+        $bucket = (string) env('SUPABASE_STORAGE_BUCKET');
 
         if ($baseUrl === '' || $key === '' || $bucket === '') {
             abort(500, 'Supabase Storage is not configured.');
         }
 
-        $path = ltrim($document->file_path, '/');
+        $path = ltrim((string) $document->file_path, '/');
 
         $encodedPath = collect(explode('/', $path))
             ->map(fn ($part) => rawurlencode($part))
@@ -37,18 +37,37 @@ class DocumentController extends Controller
                 'Authorization' => "Bearer {$key}",
                 'apikey' => $key,
             ])
-            ->get("{$baseUrl}/storage/v1/object/{$bucket}/{$encodedPath}");
+            ->get(
+                "{$baseUrl}/storage/v1/object/{$bucket}/{$encodedPath}"
+            );
 
         if (!$response->successful()) {
+            Log::error('Supabase PDF retrieval failed', [
+                'document_id' => $document->id,
+                'path' => $path,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
             abort(404, 'PDF file was not found in Supabase Storage.');
         }
 
-        return response($response->body(), 200, [
-            'Content-Type' => $response->header('Content-Type') ?: 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . basename($path) . '"',
-            'Cache-Control' => 'private, no-store',
-        ]);
+        return response(
+            $response->body(),
+            200,
+            [
+                'Content-Type' =>
+                    $response->header('Content-Type')
+                    ?: 'application/pdf',
+
+                'Content-Disposition' =>
+                    'inline; filename="' . basename($path) . '"',
+
+                'Cache-Control' => 'private, no-store',
+            ]
+        );
     }
+
 
     /**
      * Fetch document list with optional keyword search.
@@ -58,12 +77,28 @@ class DocumentController extends Controller
         $query = Document::query();
 
         if ($search = $request->input('search')) {
-            $searchTerm = '%' . strtolower(trim($search)) . '%';
+
+            $searchTerm =
+                '%' .
+                strtolower(trim($search)) .
+                '%';
 
             $query->where(function ($q) use ($searchTerm) {
-                $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
-                  ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
-                  ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
+
+                $q->whereRaw(
+                    'LOWER(title) LIKE ?',
+                    [$searchTerm]
+                )
+
+                ->orWhereRaw(
+                    'LOWER(author) LIKE ?',
+                    [$searchTerm]
+                )
+
+                ->orWhereRaw(
+                    'LOWER(abstract) LIKE ?',
+                    [$searchTerm]
+                );
             });
         }
 
@@ -72,272 +107,907 @@ class DocumentController extends Controller
         );
     }
 
+
     /**
-     * Generate a signed upload URL for direct client-side uploads to Supabase.
+     * Generate a signed upload URL for direct
+     * client-side uploads to Supabase.
      */
     public function createUploadUrl(Request $request)
-{
-    if ($request->session()->get('sac_user_role') !== 'admin') {
-        return response()->json([
-            'error' => true,
-            'message' => 'Unauthorized. Admin access required.',
-        ], 403);
-    }
-
-    $request->validate([
-        'filename' => 'required|string|max:255',
-    ]);
-
-    $baseUrl = rtrim((string) env('SUPABASE_URL'), '/');
-    $key = (string) env('SUPABASE_SERVICE_ROLE_KEY');
-    $bucket = (string) env('SUPABASE_STORAGE_BUCKET');
-
-    if ($baseUrl === '' || $key === '' || $bucket === '') {
-        return response()->json([
-            'error' => true,
-            'message' => 'Supabase Storage is not configured.',
-        ], 500);
-    }
-
-    $extension = strtolower(
-        pathinfo($request->filename, PATHINFO_EXTENSION)
-    );
-
-    if ($extension !== 'pdf') {
-        return response()->json([
-            'error' => true,
-            'message' => 'Only PDF files are allowed.',
-        ], 422);
-    }
-
-    /*
-     * Generate a unique path.
-     */
-    $path = 'documents/' . Str::uuid() . '.pdf';
-
-    try {
-
+    {
         /*
-         * Supabase Storage signed upload endpoint.
-         */
-        $encodedBucket = rawurlencode($bucket);
-
-        $encodedPath = collect(explode('/', $path))
-            ->map(fn ($part) => rawurlencode($part))
-            ->implode('/');
-
-        $url = "{$baseUrl}/storage/v1/object/upload/sign/"
-            . "{$encodedBucket}/{$encodedPath}";
-
-        Log::info('Creating Supabase signed upload URL', [
-            'bucket' => $bucket,
-            'path' => $path,
-        ]);
-
-        $response = Http::timeout(30)
-            ->withHeaders([
-                'Authorization' => "Bearer {$key}",
-                'apikey' => $key,
-                'Content-Type' => 'application/json',
-            ])
-            ->post($url, []);
-
-        Log::info('Supabase signed upload response', [
-            'status' => $response->status(),
-            'body' => $response->json(),
-        ]);
-
-        if (!$response->successful()) {
-
-            return response()->json([
-                'error' => true,
-                'message' => 'Supabase could not create the upload URL.',
-                'supabase_status' => $response->status(),
-                'supabase_error' => $response->json(),
-            ], 500);
-        }
-
-        $data = $response->json();
-
-        $relativeUrl =
-            $data['url']
-            ?? $data['signedURL']
-            ?? null;
-
-        if (!$relativeUrl) {
-
-            Log::error(
-                'Supabase signed upload response missing URL',
-                [
-                    'response' => $data,
-                ]
-            );
-
-            return response()->json([
-                'error' => true,
-                'message' => 'Supabase did not return an upload URL.',
-            ], 500);
-        }
-
-        /*
-         * Supabase normally returns something like:
+         * Admin check.
          *
-         * /storage/v1/object/upload/sign/thesis/...?token=...
+         * Your route already uses RequireSacAdmin,
+         * but keeping this here provides an additional
+         * protection layer.
          */
-        $signedUrl = str_starts_with(
-            $relativeUrl,
-            'http://'
-        ) || str_starts_with(
-            $relativeUrl,
-            'https://'
-        )
-            ? $relativeUrl
-            : $baseUrl . $relativeUrl;
+        if (
+            $request->session()->get('sac_user_role')
+            !== 'admin'
+        ) {
+            return response()->json([
+                'error' => true,
+                'message' =>
+                    'Unauthorized. Admin access required.',
+            ], 403);
+        }
+
 
         /*
-         * Extract token.
+         * Get filename.
          */
-        $parsedUrl = parse_url($signedUrl);
+        $filename =
+            (string) $request->input('filename');
 
-        parse_str(
-            $parsedUrl['query'] ?? '',
-            $queryParams
-        );
 
-        $token = $queryParams['token'] ?? null;
+        if ($filename === '') {
+            return response()->json([
+                'error' => true,
+                'message' => 'No filename was provided.',
+            ], 400);
+        }
 
-        if (!$token) {
 
+        /*
+         * Supabase configuration.
+         */
+        $baseUrl =
+            rtrim(
+                (string) env('SUPABASE_URL'),
+                '/'
+            );
+
+        $key =
+            (string) env(
+                'SUPABASE_SERVICE_ROLE_KEY'
+            );
+
+        $bucket =
+            (string) env(
+                'SUPABASE_STORAGE_BUCKET'
+            );
+
+
+        if (
+            $baseUrl === '' ||
+            $key === '' ||
+            $bucket === ''
+        ) {
             Log::error(
-                'Supabase signed upload URL has no token',
-                [
-                    'signed_url' => $signedUrl,
-                    'response' => $data,
-                ]
+                'Supabase environment variables are missing.'
             );
 
             return response()->json([
                 'error' => true,
-                'message' => 'Supabase returned an invalid upload URL.',
+                'message' =>
+                    'Supabase Storage is not configured.',
             ], 500);
         }
 
-        return response()->json([
-            'error' => false,
-            'path' => $path,
-            'signedUrl' => $signedUrl,
-            'token' => $token,
-        ]);
 
-    } catch (\Throwable $e) {
+        /*
+         * Only PDF files.
+         */
+        $extension =
+            strtolower(
+                pathinfo(
+                    $filename,
+                    PATHINFO_EXTENSION
+                )
+            );
 
-        Log::error(
-            'Create Supabase upload URL failed',
-            [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]
-        );
 
-        return response()->json([
-            'error' => true,
-            'message' => 'Could not prepare the file upload.',
-        ], 500);
+        if ($extension !== 'pdf') {
+            return response()->json([
+                'error' => true,
+                'message' =>
+                    'Only PDF files are allowed.',
+            ], 422);
+        }
+
+
+        /*
+         * Generate unique storage path.
+         *
+         * Example:
+         *
+         * documents/
+         * 12345678-....pdf
+         */
+        $path =
+            'documents/' .
+            Str::uuid() .
+            '.pdf';
+
+
+        try {
+
+            /*
+             * Encode bucket and path correctly.
+             */
+            $encodedBucket =
+                rawurlencode($bucket);
+
+
+            $encodedPath =
+                collect(
+                    explode('/', $path)
+                )
+                ->map(
+                    fn ($part) =>
+                        rawurlencode($part)
+                )
+                ->implode('/');
+
+
+            /*
+             * Supabase signed upload endpoint.
+             */
+            $url =
+                "{$baseUrl}/storage/v1/object/upload/sign/"
+                . "{$encodedBucket}/{$encodedPath}";
+
+
+            Log::info(
+                'Creating Supabase signed upload URL',
+                [
+                    'bucket' => $bucket,
+                    'path' => $path,
+                ]
+            );
+
+
+            /*
+             * Ask Supabase to create signed URL.
+             */
+            $response =
+                Http::timeout(30)
+                    ->withHeaders([
+                        'Authorization' =>
+                            "Bearer {$key}",
+
+                        'apikey' =>
+                            $key,
+
+                        'Content-Type' =>
+                            'application/json',
+                    ])
+                    ->post($url, []);
+
+
+            Log::info(
+                'Supabase signed upload response',
+                [
+                    'status' =>
+                        $response->status(),
+
+                    'body' =>
+                        $response->json(),
+                ]
+            );
+
+
+            if (!$response->successful()) {
+
+                return response()->json([
+                    'error' => true,
+
+                    'message' =>
+                        'Supabase could not create the upload URL.',
+
+                    'supabase_status' =>
+                        $response->status(),
+
+                    'supabase_error' =>
+                        $response->json(),
+                ], 500);
+            }
+
+
+            $data =
+                $response->json();
+
+
+            /*
+             * Supabase can return "url" or "signedURL".
+             */
+            $relativeUrl =
+                $data['url']
+                ?? $data['signedURL']
+                ?? null;
+
+
+            if (!$relativeUrl) {
+
+                Log::error(
+                    'Supabase signed upload response missing URL',
+                    [
+                        'response' => $data,
+                    ]
+                );
+
+                return response()->json([
+                    'error' => true,
+                    'message' =>
+                        'Supabase did not return an upload URL.',
+                ], 500);
+            }
+
+
+            /*
+             * Convert relative URL into absolute URL.
+             */
+            $signedUrl =
+                str_starts_with(
+                    $relativeUrl,
+                    'http://'
+                )
+
+                ||
+
+                str_starts_with(
+                    $relativeUrl,
+                    'https://'
+                )
+
+                ? $relativeUrl
+
+                : $baseUrl . $relativeUrl;
+
+
+            /*
+             * Extract signed token.
+             */
+            $parsedUrl =
+                parse_url($signedUrl);
+
+
+            $queryParams = [];
+
+
+            parse_str(
+                $parsedUrl['query'] ?? '',
+                $queryParams
+            );
+
+
+            $token =
+                $queryParams['token']
+                ?? null;
+
+
+            if (!$token) {
+
+                Log::error(
+                    'Supabase signed upload URL has no token',
+                    [
+                        'signed_url' =>
+                            $signedUrl,
+
+                        'response' =>
+                            $data,
+                    ]
+                );
+
+                return response()->json([
+                    'error' => true,
+                    'message' =>
+                        'Supabase returned an invalid upload URL.',
+                ], 500);
+            }
+
+
+            /*
+             * Send information to browser.
+             */
+            return response()->json([
+                'error' => false,
+
+                'path' =>
+                    $path,
+
+                'signedUrl' =>
+                    $signedUrl,
+
+                'token' =>
+                    $token,
+            ]);
+
+
+        } catch (\Throwable $e) {
+
+            Log::error(
+                'Create Supabase upload URL failed',
+                [
+                    'message' =>
+                        $e->getMessage(),
+
+                    'trace' =>
+                        $e->getTraceAsString(),
+                ]
+            );
+
+
+            return response()->json([
+                'error' => true,
+                'message' =>
+                    'Could not prepare the file upload.',
+            ], 500);
+        }
     }
-}
+
 
     /**
-     * Direct file streaming upload fallback (Subject to Vercel's 4.5MB payload limit).
+     * Store thesis metadata after the browser has
+     * already uploaded the PDF directly to Supabase.
+     *
+     * IMPORTANT:
+     *
+     * The PDF upload and database record are treated
+     * separately from Gemini/vector processing.
+     *
+     * If Gemini fails, the thesis is still saved.
+     */
+    public function storeFromSignedUrl(Request $request)
+    {
+        try {
+
+            /*
+             * Get values.
+             */
+            $title =
+                trim(
+                    (string) $request->input('title')
+                );
+
+            $author =
+                trim(
+                    (string) $request->input('author')
+                );
+
+            $abstract =
+                trim(
+                    (string) $request->input('abstract')
+                );
+
+            $filePath =
+                trim(
+                    (string) $request->input('file_path')
+                );
+
+
+            /*
+             * Basic data check.
+             *
+             * This is NOT Laravel validation.
+             * It simply prevents an empty database record.
+             */
+            if (
+                $title === '' ||
+                $author === '' ||
+                $abstract === '' ||
+                $filePath === ''
+            ) {
+
+                Log::warning(
+                    'Store signed metadata received incomplete data.',
+                    [
+                        'title' =>
+                            $title,
+
+                        'author' =>
+                            $author,
+
+                        'has_abstract' =>
+                            $abstract !== '',
+
+                        'file_path' =>
+                            $filePath,
+                    ]
+                );
+
+
+                return response()->json([
+                    'error' => true,
+                    'message' =>
+                        'Thesis information is incomplete.',
+                ], 400);
+            }
+
+
+            /*
+             * Make sure the file path is inside the
+             * expected documents directory.
+             */
+            if (
+                !str_starts_with(
+                    $filePath,
+                    'documents/'
+                )
+            ) {
+
+                return response()->json([
+                    'error' => true,
+                    'message' =>
+                        'Invalid thesis file path.',
+                ], 400);
+            }
+
+
+            /*
+             * ========================================
+             * 1. CREATE DOCUMENT
+             * ========================================
+             */
+            $document =
+                Document::create([
+                    'title' =>
+                        $title,
+
+                    'author' =>
+                        $author,
+
+                    'abstract' =>
+                        $abstract,
+
+                    'file_path' =>
+                        $filePath,
+
+                    'file_url' =>
+                        '',
+                ]);
+
+
+            /*
+             * ========================================
+             * 2. CREATE INTERNAL VIEW URL
+             * ========================================
+             */
+            $document->update([
+                'file_url' =>
+                    "/backend/documents/{$document->id}/view",
+            ]);
+
+
+            /*
+             * ========================================
+             * 3. TRY GEMINI EMBEDDING
+             * ========================================
+             *
+             * This is deliberately isolated.
+             *
+             * If Gemini fails:
+             *
+             * - thesis stays in database
+             * - PDF stays in Supabase
+             * - upload still succeeds
+             */
+            try {
+
+                $gemini =
+                    app(GeminiService::class);
+
+
+                if ($abstract !== '') {
+
+                    $embedding =
+                        $gemini->generateEmbedding(
+                            $abstract
+                        );
+
+
+                    if (
+                        is_array($embedding) &&
+                        count($embedding) > 0
+                    ) {
+
+                        $vector =
+                            '[' .
+                            implode(
+                                ',',
+                                $embedding
+                            ) .
+                            ']';
+
+
+                        DB::statement(
+                            'INSERT INTO document_chunks
+                            (
+                                document_id,
+                                chunk_text,
+                                embedding,
+                                created_at,
+                                updated_at
+                            )
+                            VALUES
+                            (
+                                ?,
+                                ?,
+                                ?::extensions.vector,
+                                NOW(),
+                                NOW()
+                            )',
+                            [
+                                $document->id,
+                                $abstract,
+                                $vector,
+                            ]
+                        );
+                    }
+                }
+
+            } catch (\Throwable $embeddingError) {
+
+                /*
+                 * DO NOT fail the upload.
+                 */
+                Log::error(
+                    'Gemini/vector processing failed, but thesis was saved.',
+                    [
+                        'document_id' =>
+                            $document->id,
+
+                        'message' =>
+                            $embeddingError->getMessage(),
+
+                        'trace' =>
+                            $embeddingError->getTraceAsString(),
+                    ]
+                );
+            }
+
+
+            /*
+             * ========================================
+             * 4. SUCCESS
+             * ========================================
+             */
+            return response()->json([
+                'error' => false,
+
+                'message' =>
+                    'Thesis uploaded successfully.',
+
+                'document' =>
+                    $document,
+            ], 201);
+
+
+        } catch (\Throwable $e) {
+
+            /*
+             * This catches actual database/system
+             * failures.
+             */
+            Log::error(
+                'Store signed metadata failed.',
+                [
+                    'message' =>
+                        $e->getMessage(),
+
+                    'trace' =>
+                        $e->getTraceAsString(),
+                ]
+            );
+
+
+            return response()->json([
+                'error' => true,
+
+                'message' =>
+                    'Failed to save thesis.',
+            ], 500);
+        }
+    }
+
+
+    /**
+     * Direct file streaming upload fallback.
+     *
+     * NOTE:
+     *
+     * This method is NOT used by the new admin
+     * direct-to-Supabase upload flow.
+     *
+     * It is kept here as a fallback.
      */
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'abstract' => 'required|string',
-            'file' => 'required|file|mimes:pdf|max:51200',
+            'title' =>
+                'required|string|max:255',
+
+            'author' =>
+                'required|string|max:255',
+
+            'abstract' =>
+                'required|string',
+
+            'file' =>
+                'required|file|mimes:pdf|max:51200',
         ]);
 
+
         try {
-            $file = $request->file('file');
-            $filePath = 'documents/' . Str::uuid() . '.pdf';
 
-            $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
-            $key = (string) getenv('SUPABASE_SERVICE_ROLE_KEY');
-            $bucket = (string) getenv('SUPABASE_STORAGE_BUCKET');
+            $file =
+                $request->file('file');
 
-            if ($baseUrl === '' || $key === '' || $bucket === '') {
+
+            $filePath =
+                'documents/' .
+                Str::uuid() .
+                '.pdf';
+
+
+            $baseUrl =
+                rtrim(
+                    (string) env('SUPABASE_URL'),
+                    '/'
+                );
+
+
+            $key =
+                (string) env(
+                    'SUPABASE_SERVICE_ROLE_KEY'
+                );
+
+
+            $bucket =
+                (string) env(
+                    'SUPABASE_STORAGE_BUCKET'
+                );
+
+
+            if (
+                $baseUrl === '' ||
+                $key === '' ||
+                $bucket === ''
+            ) {
+
                 return response()->json([
                     'error' => true,
-                    'message' => 'Supabase Storage is not configured.',
+
+                    'message' =>
+                        'Supabase Storage is not configured.',
                 ], 500);
             }
 
-            $fileStream = fopen($file->getRealPath(), 'r');
-            $response = Http::timeout(120)
-                ->withHeaders([
-                    'Authorization' => "Bearer {$key}",
-                    'apikey' => $key,
-                ])
-                ->withBody($fileStream, 'application/pdf')
-                ->post("{$baseUrl}/storage/v1/object/{$bucket}/{$filePath}");
+
+            /*
+             * Upload directly from Laravel.
+             */
+            $fileStream =
+                fopen(
+                    $file->getRealPath(),
+                    'r'
+                );
+
+
+            $response =
+                Http::timeout(120)
+                    ->withHeaders([
+                        'Authorization' =>
+                            "Bearer {$key}",
+
+                        'apikey' =>
+                            $key,
+                    ])
+                    ->withBody(
+                        $fileStream,
+                        'application/pdf'
+                    )
+                    ->post(
+                        "{$baseUrl}/storage/v1/object/{$bucket}/{$filePath}"
+                    );
+
 
             if (is_resource($fileStream)) {
                 fclose($fileStream);
             }
 
+
             if (!$response->successful()) {
-                Log::error('Supabase upload failed', ['body' => $response->body()]);
+
+                Log::error(
+                    'Supabase upload failed',
+                    [
+                        'status' =>
+                            $response->status(),
+
+                        'body' =>
+                            $response->body(),
+                    ]
+                );
+
+
                 return response()->json([
                     'error' => true,
-                    'message' => 'Failed to store file in Supabase Storage.',
+
+                    'message' =>
+                        'Failed to store file in Supabase Storage.',
                 ], 500);
             }
 
-            $parser = new Parser();
-            $pdf = $parser->parseFile($file->getRealPath());
-            $rawText = trim(preg_replace('/\s+/', ' ', $pdf->getText()));
 
-            $document = Document::create([
-                'title' => $request->input('title'),
-                'author' => $request->input('author'),
-                'abstract' => $request->input('abstract'),
-                'file_path' => $filePath,
-                'file_url' => '',
-            ]);
+            /*
+             * Parse PDF text.
+             */
+            $parser =
+                new Parser();
+
+
+            $pdf =
+                $parser->parseFile(
+                    $file->getRealPath()
+                );
+
+
+            $rawText =
+                trim(
+                    preg_replace(
+                        '/\s+/',
+                        ' ',
+                        $pdf->getText()
+                    )
+                );
+
+
+            /*
+             * Create document.
+             */
+            $document =
+                Document::create([
+                    'title' =>
+                        $request->input('title'),
+
+                    'author' =>
+                        $request->input('author'),
+
+                    'abstract' =>
+                        $request->input('abstract'),
+
+                    'file_path' =>
+                        $filePath,
+
+                    'file_url' =>
+                        '',
+                ]);
+
 
             $document->update([
-                'file_url' => "/backend/documents/{$document->id}/view",
+                'file_url' =>
+                    "/backend/documents/{$document->id}/view",
             ]);
 
-            $gemini = app(GeminiService::class);
-            $chunks = array_slice(str_split($rawText, 800), 0, 20);
 
-            foreach ($chunks as $chunk) {
-                $chunk = trim($chunk);
-                if ($chunk === '') continue;
+            /*
+             * Generate embeddings.
+             */
+            try {
 
-                $embedding = $gemini->generateEmbedding($chunk);
-                $vector = '[' . implode(',', $embedding) . ']';
+                $gemini =
+                    app(GeminiService::class);
 
-                DB::statement(
-                    'INSERT INTO document_chunks (document_id, chunk_text, embedding, created_at, updated_at) VALUES (?, ?, ?::extensions.vector, NOW(), NOW())',
-                    [$document->id, $chunk, $vector]
+
+                $chunks =
+                    array_slice(
+                        str_split(
+                            $rawText,
+                            800
+                        ),
+                        0,
+                        20
+                    );
+
+
+                foreach ($chunks as $chunk) {
+
+                    $chunk =
+                        trim($chunk);
+
+
+                    if ($chunk === '') {
+                        continue;
+                    }
+
+
+                    $embedding =
+                        $gemini->generateEmbedding(
+                            $chunk
+                        );
+
+
+                    if (
+                        !is_array($embedding) ||
+                        count($embedding) === 0
+                    ) {
+                        continue;
+                    }
+
+
+                    $vector =
+                        '[' .
+                        implode(
+                            ',',
+                            $embedding
+                        ) .
+                        ']';
+
+
+                    DB::statement(
+                        'INSERT INTO document_chunks
+                        (
+                            document_id,
+                            chunk_text,
+                            embedding,
+                            created_at,
+                            updated_at
+                        )
+                        VALUES
+                        (
+                            ?,
+                            ?,
+                            ?::extensions.vector,
+                            NOW(),
+                            NOW()
+                        )',
+                        [
+                            $document->id,
+                            $chunk,
+                            $vector,
+                        ]
+                    );
+                }
+
+            } catch (\Throwable $embeddingError) {
+
+                /*
+                 * Do not destroy successful upload.
+                 */
+                Log::error(
+                    'Fallback embedding failed, but thesis was saved.',
+                    [
+                        'document_id' =>
+                            $document->id,
+
+                        'message' =>
+                            $embeddingError->getMessage(),
+                    ]
                 );
             }
 
+
             return response()->json([
                 'error' => false,
-                'message' => 'Thesis uploaded and vectorized successfully.',
-                'document' => $document,
+
+                'message' =>
+                    'Thesis uploaded successfully.',
+
+                'document' =>
+                    $document,
             ], 201);
 
+
         } catch (\Throwable $e) {
-            Log::error('Upload failed: ' . $e->getMessage());
+
+            Log::error(
+                'Upload failed',
+                [
+                    'message' =>
+                        $e->getMessage(),
+
+                    'trace' =>
+                        $e->getTraceAsString(),
+                ]
+            );
+
 
             return response()->json([
                 'error' => true,
-                'message' => 'Upload failed: ' . $e->getMessage(),
+
+                'message' =>
+                    'Upload failed.',
             ], 500);
         }
     }
