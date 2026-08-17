@@ -13,9 +13,6 @@ use Smalot\PdfParser\Parser;
 
 class DocumentController extends Controller
 {
-    /**
-     * Display a PDF from private Supabase Storage.
-     */
     public function viewPdf(Document $document)
     {
         $baseUrl = rtrim((string) env('SUPABASE_URL'), '/');
@@ -26,46 +23,76 @@ class DocumentController extends Controller
             abort(500, 'Supabase Storage is not configured.');
         }
 
-        $path = ltrim((string) $document->file_path, '/');
+        $path = ltrim($document->file_path, '/');
 
         $encodedPath = collect(explode('/', $path))
             ->map(fn($part) => rawurlencode($part))
             ->implode('/');
 
-        $response = Http::timeout(60)
-            ->withHeaders([
-                'Authorization' => "Bearer {$key}",
-                'apikey' => $key,
-            ])
-            ->get(
-                "{$baseUrl}/storage/v1/object/{$bucket}/{$encodedPath}"
-            );
+        try {
 
-        if (!$response->successful()) {
-            Log::error('Supabase PDF retrieval failed', [
+            $response = Http::timeout(30)
+                ->withHeaders([
+                    'Authorization' => "Bearer {$key}",
+                    'apikey' => $key,
+                    'Content-Type' => 'application/json',
+                ])
+                ->post(
+                    "{$baseUrl}/storage/v1/object/sign/"
+                        . rawurlencode($bucket)
+                        . "/{$encodedPath}",
+                    [
+                        // URL remains valid for 1 hour
+                        'expiresIn' => 3600,
+                    ]
+                );
+
+            if (!$response->successful()) {
+
+                Log::error('Supabase signed download URL failed', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'bucket' => $bucket,
+                    'path' => $path,
+                ]);
+
+                abort(404, 'PDF file was not found in Supabase Storage.');
+            }
+
+            $data = $response->json();
+
+            $relativeUrl =
+                $data['signedURL']
+                ?? $data['signedUrl']
+                ?? $data['url']
+                ?? null;
+
+            if (!$relativeUrl) {
+
+                Log::error('Supabase signed download response missing URL', [
+                    'response' => $data,
+                ]);
+
+                abort(500, 'Supabase did not return a signed download URL.');
+            }
+
+            $signedUrl =
+                str_starts_with($relativeUrl, 'http://') ||
+                str_starts_with($relativeUrl, 'https://')
+                ? $relativeUrl
+                : $baseUrl . $relativeUrl;
+
+            return redirect()->away($signedUrl);
+        } catch (\Throwable $e) {
+
+            Log::error('View PDF failed', [
                 'document_id' => $document->id,
                 'path' => $path,
-                'status' => $response->status(),
-                'body' => $response->body(),
+                'message' => $e->getMessage(),
             ]);
 
-            abort(404, 'PDF file was not found in Supabase Storage.');
+            abort(500, 'Unable to open PDF.');
         }
-
-        return response(
-            $response->body(),
-            200,
-            [
-                'Content-Type' =>
-                $response->header('Content-Type')
-                    ?: 'application/pdf',
-
-                'Content-Disposition' =>
-                'inline; filename="' . basename($path) . '"',
-
-                'Cache-Control' => 'private, no-store',
-            ]
-        );
     }
 
 
