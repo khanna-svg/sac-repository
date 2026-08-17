@@ -75,19 +75,13 @@ Route::middleware('sac.auth')->group(function () {
 
     })->name('admin.upload');
 
-    Route::post(
-        '/backend/documents/upload-url',
-        [DocumentController::class, 'createUploadUrl']
+    Route::post('/backend/documents/upload-url',[DocumentController::class, 'createUploadUrl']
     );
 
-    Route::post(
-        '/backend/documents/upload',
-        [DocumentController::class, 'store']
+    Route::post('/backend/documents/upload',[DocumentController::class, 'store']
     );
 
-    Route::get(
-        '/backend/documents/{document}/view',
-        [DocumentController::class, 'viewPdf']
+    Route::get('/backend/documents/{document}/view',[DocumentController::class, 'viewPdf']
     );
 
 });

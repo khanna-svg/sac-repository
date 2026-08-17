@@ -8,16 +8,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RequireSacAdmin
 {
-    public function handle(
-        Request $request,
-        Closure $next
-    ): Response {
-
-        if (
-            $request->session()->get('sac_user_role')
-            !== 'admin'
-        ) {
-            return redirect('/login');
+    public function handle(Request $request, Closure $next): Response
+    {
+        if ($request->session()->get('sac_user_role') !== 'admin') {
+            return response()->json([
+                'error' => true,
+                'message' => 'Unauthorized. Admin access required.',
+            ], 403);
         }
 
         return $next($request);
