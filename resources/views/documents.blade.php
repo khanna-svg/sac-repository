@@ -292,13 +292,14 @@
                                 </div>
 
 
-                                <button
-                                    type="button"
-                                    class="view-pdf-button w-full sm:w-auto rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-sm shrink-0"
-                                    data-url="${pdfUrl}"
+                                <a
+                                    href="/backend/documents/${doc.id}/view"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="inline-flex w-full sm:w-auto items-center justify-center rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-sm shrink-0"
                                 >
                                     View Thesis
-                                </button>
+                                </a>
 
                             </article>
 
