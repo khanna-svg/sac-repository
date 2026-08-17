@@ -13,6 +13,13 @@ use Smalot\PdfParser\Parser;
 
 class DocumentController extends Controller
 {
+    /**
+     * Display a PDF from private Supabase Storage.
+     *
+     * Instead of downloading the entire PDF through Laravel/Vercel,
+     * generate a temporary signed URL and redirect the browser directly
+     * to Supabase Storage.
+     */
     public function viewPdf(Document $document)
     {
         $baseUrl = rtrim((string) env('SUPABASE_URL'), '/');
@@ -23,13 +30,32 @@ class DocumentController extends Controller
             abort(500, 'Supabase Storage is not configured.');
         }
 
-        $path = ltrim($document->file_path, '/');
+        $path = ltrim((string) $document->file_path, '/');
 
-        $encodedPath = collect(explode('/', $path))
-            ->map(fn($part) => rawurlencode($part))
-            ->implode('/');
+        if ($path === '') {
+            abort(404, 'PDF file path is missing.');
+        }
 
         try {
+
+            /*
+         * Encode each part of the storage path.
+         *
+         * Example:
+         * documents/abc123.pdf
+         */
+            $encodedPath = collect(explode('/', $path))
+                ->map(fn($part) => rawurlencode($part))
+                ->implode('/');
+
+            /*
+         * Supabase private-storage signed URL endpoint.
+         *
+         * The generated URL will only be valid for 1 hour.
+         */
+            $signUrl = "{$baseUrl}/storage/v1/object/sign/"
+                . rawurlencode($bucket)
+                . "/{$encodedPath}";
 
             $response = Http::timeout(30)
                 ->withHeaders([
@@ -37,30 +63,36 @@ class DocumentController extends Controller
                     'apikey' => $key,
                     'Content-Type' => 'application/json',
                 ])
-                ->post(
-                    "{$baseUrl}/storage/v1/object/sign/"
-                        . rawurlencode($bucket)
-                        . "/{$encodedPath}",
-                    [
-                        // URL remains valid for 1 hour
-                        'expiresIn' => 3600,
-                    ]
-                );
+                ->post($signUrl, [
+                    'expiresIn' => 3600,
+                ]);
 
             if (!$response->successful()) {
 
-                Log::error('Supabase signed download URL failed', [
+                Log::error('Supabase signed PDF URL failed', [
                     'status' => $response->status(),
                     'body' => $response->body(),
-                    'bucket' => $bucket,
+                    'document_id' => $document->id,
                     'path' => $path,
                 ]);
 
-                abort(404, 'PDF file was not found in Supabase Storage.');
+                abort(
+                    500,
+                    'Could not generate a secure PDF viewing URL.'
+                );
             }
 
             $data = $response->json();
 
+            /*
+         * Supabase may return:
+         *
+         * signedURL
+         *
+         * or
+         *
+         * signedUrl
+         */
             $relativeUrl =
                 $data['signedURL']
                 ?? $data['signedUrl']
@@ -69,29 +101,47 @@ class DocumentController extends Controller
 
             if (!$relativeUrl) {
 
-                Log::error('Supabase signed download response missing URL', [
+                Log::error('Supabase signed PDF response missing URL', [
                     'response' => $data,
+                    'document_id' => $document->id,
                 ]);
 
-                abort(500, 'Supabase did not return a signed download URL.');
+                abort(
+                    500,
+                    'Supabase did not return a valid PDF URL.'
+                );
             }
 
+            /*
+         * Supabase normally returns a relative URL.
+         * Convert it to an absolute URL.
+         */
             $signedUrl =
-                str_starts_with($relativeUrl, 'http://') ||
-                str_starts_with($relativeUrl, 'https://')
+                str_starts_with($relativeUrl, 'http://')
+                || str_starts_with($relativeUrl, 'https://')
                 ? $relativeUrl
                 : $baseUrl . $relativeUrl;
 
+            /*
+         * IMPORTANT:
+         *
+         * Redirect the browser directly to Supabase.
+         *
+         * Laravel/Vercel does NOT download or return the PDF.
+         */
             return redirect()->away($signedUrl);
         } catch (\Throwable $e) {
 
-            Log::error('View PDF failed', [
+            Log::error('PDF viewing failed', [
+                'message' => $e->getMessage(),
                 'document_id' => $document->id,
                 'path' => $path,
-                'message' => $e->getMessage(),
             ]);
 
-            abort(500, 'Unable to open PDF.');
+            abort(
+                500,
+                'Unable to open the PDF.'
+            );
         }
     }
 
