@@ -32,7 +32,7 @@ class DocumentController extends Controller
             ->map(fn ($part) => rawurlencode($part))
             ->implode('/');
 
-        $response = Http::timeout(30)
+        $response = Http::timeout(60)
             ->withHeaders([
                 'Authorization' => "Bearer {$key}",
                 'apikey' => $key,
@@ -47,8 +47,7 @@ class DocumentController extends Controller
 
         return response($response->body(), 200, [
             'Content-Type' =>
-                $response->header('Content-Type')
-                ?: 'application/pdf',
+                $response->header('Content-Type') ?: 'application/pdf',
 
             'Content-Disposition' =>
                 'inline; filename="' . basename($path) . '"',
@@ -84,15 +83,19 @@ class DocumentController extends Controller
             });
         }
 
-        $documents = $query->latest()->get();
-
-        return response()->json($documents);
+        return response()->json(
+            $query->latest()->get()
+        );
     }
 
     public function createUploadUrl(Request $request)
     {
         $request->validate([
-            'filename' => 'required|string|max:255',
+            'filename' => [
+                'required',
+                'string',
+                'max:255',
+            ],
         ]);
 
         $baseUrl = rtrim(
@@ -116,20 +119,30 @@ class DocumentController extends Controller
             return response()->json([
                 'error' => true,
                 'message' =>
-                    'Supabase Storage is not configured.',
+                    'Supabase Storage is not configured on Vercel.',
             ], 500);
         }
 
-        $path = 'documents/' . Str::uuid() . '.pdf';
+        $path =
+            'documents/' .
+            Str::uuid() .
+            '.pdf';
 
 
         try {
 
             $response = Http::timeout(30)
                 ->withHeaders([
-                    'Authorization' => "Bearer {$key}",
-                    'apikey' => $key,
+                    'Authorization' =>
+                        "Bearer {$key}",
+
+                    'apikey' =>
+                        $key,
+
                     'Content-Type' =>
+                        'application/json',
+
+                    'Accept' =>
                         'application/json',
                 ])
                 ->post(
@@ -140,43 +153,63 @@ class DocumentController extends Controller
                     ]
                 );
 
-
             if (!$response->successful()) {
 
                 Log::error(
-                    'Supabase signed upload URL failed',
+                    'Supabase signed upload creation failed',
                     [
                         'status' =>
                             $response->status(),
 
                         'body' =>
                             $response->body(),
+
+                        'path' =>
+                            $path,
                     ]
                 );
 
                 return response()->json([
                     'error' => true,
                     'message' =>
-                        'Could not prepare the file upload.',
+                        'Supabase could not create the upload URL.',
+                    'supabase_status' =>
+                        $response->status(),
                 ], 500);
             }
 
 
             $data = $response->json();
 
-            $signedUrl = $data['signedUrl']
+            $signedUrl =
+                $data['signedUrl']
                 ?? $data['signedURL']
                 ?? null;
 
-            $token = $data['token'] ?? null;
+            $token =
+                $data['token']
+                ?? null;
 
+            if (
+                is_string($signedUrl) &&
+                str_starts_with($signedUrl, '/')
+            ) {
+                $signedUrl =
+                    $baseUrl .
+                    '/storage/v1' .
+                    $signedUrl;
+            }
 
-            if (!$signedUrl || !$token) {
+            if (
+                !is_string($signedUrl) ||
+                trim($signedUrl) === ''
+            ) {
 
                 Log::error(
-                    'Supabase signed upload response missing data',
+                    'Supabase returned no signed upload URL',
                     [
                         'response' => $data,
+                        'path' => $path,
                     ]
                 );
 
@@ -190,17 +223,29 @@ class DocumentController extends Controller
 
             return response()->json([
                 'error' => false,
-                'path' => $path,
-                'signedUrl' => $signedUrl,
-                'token' => $token,
-            ]);
+
+                'path' =>
+                    $path,
+
+                'signedUrl' =>
+                    $signedUrl,
+
+                'token' =>
+                    $token,
+            ], 200);
 
 
         } catch (\Throwable $e) {
 
             Log::error(
-                'Create Supabase upload URL failed: '
-                . $e->getMessage()
+                'Create Supabase upload URL failed',
+                [
+                    'message' =>
+                        $e->getMessage(),
+
+                    'trace' =>
+                        $e->getTraceAsString(),
+                ]
             );
 
             return response()->json([
@@ -214,9 +259,14 @@ class DocumentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'abstract' => 'required|string',
+            'title' =>
+                'required|string|max:255',
+
+            'author' =>
+                'required|string|max:255',
+
+            'abstract' =>
+                'required|string',
 
             'file_path' => [
                 'required',
@@ -232,13 +282,16 @@ class DocumentController extends Controller
             '/'
         );
 
+
         if (!preg_match(
             '/^documents\/[a-f0-9-]+\.pdf$/i',
             $filePath
         )) {
+
             return response()->json([
                 'error' => true,
-                'message' => 'Invalid file path.',
+                'message' =>
+                    'Invalid file path.',
             ], 422);
         }
 
@@ -262,12 +315,14 @@ class DocumentController extends Controller
             $key === '' ||
             $bucket === ''
         ) {
+
             return response()->json([
                 'error' => true,
                 'message' =>
                     'Supabase Storage is not configured.',
             ], 500);
         }
+
 
         $tempPath = null;
 
@@ -289,15 +344,18 @@ class DocumentController extends Controller
                 'thesis_'
             );
 
+
             $pdfResponse = Http::timeout(120)
                 ->withOptions([
-                    'sink' => $tempPath,
+                    'sink' =>
+                        $tempPath,
                 ])
                 ->withHeaders([
                     'Authorization' =>
                         "Bearer {$key}",
 
-                    'apikey' => $key,
+                    'apikey' =>
+                        $key,
                 ])
                 ->get(
                     "{$baseUrl}/storage/v1/object/"
@@ -319,6 +377,7 @@ class DocumentController extends Controller
                 !file_exists($tempPath) ||
                 filesize($tempPath) === 0
             ) {
+
                 throw new \Exception(
                     'The uploaded PDF could not be retrieved.'
                 );
@@ -343,7 +402,6 @@ class DocumentController extends Controller
             if ($rawText === '') {
 
                 @unlink($tempPath);
-                $tempPath = null;
 
                 return response()->json([
                     'error' => true,
@@ -365,7 +423,8 @@ class DocumentController extends Controller
                 'file_path' =>
                     $filePath,
 
-                'file_url' => '',
+                'file_url' =>
+                    '',
             ]);
 
 
@@ -407,7 +466,9 @@ class DocumentController extends Controller
                     );
 
 
-                if (count($embedding) !== 768) {
+                if (
+                    count($embedding) !== 768
+                ) {
 
                     throw new \Exception(
                         'Gemini returned an invalid embedding.'
@@ -442,11 +503,13 @@ class DocumentController extends Controller
                 $processedChunks++;
             }
 
+
             @unlink($tempPath);
-            $tempPath = null;
+
 
             return response()->json([
-                'error' => false,
+                'error' =>
+                    false,
 
                 'message' =>
                     'Thesis uploaded and vectorized successfully.',
@@ -470,8 +533,14 @@ class DocumentController extends Controller
 
 
             Log::error(
-                'Document upload failed: '
-                . $e->getMessage()
+                'Document upload failed',
+                [
+                    'message' =>
+                        $e->getMessage(),
+
+                    'trace' =>
+                        $e->getTraceAsString(),
+                ]
             );
 
 
