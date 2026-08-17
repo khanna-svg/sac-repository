@@ -13,13 +13,6 @@ use Smalot\PdfParser\Parser;
 
 class DocumentController extends Controller
 {
-    /**
-     * Display a PDF from private Supabase Storage.
-     *
-     * Instead of downloading the entire PDF through Laravel/Vercel,
-     * generate a temporary signed URL and redirect the browser directly
-     * to Supabase Storage.
-     */
     public function viewPdf(Document $document)
     {
         $baseUrl = rtrim((string) env('SUPABASE_URL'), '/');
@@ -30,32 +23,40 @@ class DocumentController extends Controller
             abort(500, 'Supabase Storage is not configured.');
         }
 
-        $path = ltrim((string) $document->file_path, '/');
+        // Example:
+        // documents/21c4eaf7-e373-4b26-b42d-662d813f8b66.pdf
+        $path = ltrim(trim((string) $document->file_path), '/');
 
         if ($path === '') {
-            abort(404, 'PDF file path is missing.');
+            abort(404, 'Document file path is empty.');
         }
 
+        // Make sure the bucket name is NOT part of the stored path.
+        if (str_starts_with($path, $bucket . '/')) {
+            $path = substr($path, strlen($bucket) + 1);
+        }
+
+        $encodedBucket = rawurlencode($bucket);
+
+        $encodedPath = collect(explode('/', $path))
+            ->map(fn($part) => rawurlencode($part))
+            ->implode('/');
+
+        /*
+     * Supabase Storage signing endpoint.
+     */
+        $signUrl =
+            "{$baseUrl}/storage/v1/object/sign/"
+            . "{$encodedBucket}/{$encodedPath}";
+
+        Log::info('PDF SIGN REQUEST', [
+            'document_id' => $document->id,
+            'bucket' => $bucket,
+            'path' => $path,
+            'url' => $signUrl,
+        ]);
+
         try {
-
-            /*
-         * Encode each part of the storage path.
-         *
-         * Example:
-         * documents/abc123.pdf
-         */
-            $encodedPath = collect(explode('/', $path))
-                ->map(fn($part) => rawurlencode($part))
-                ->implode('/');
-
-            /*
-         * Supabase private-storage signed URL endpoint.
-         *
-         * The generated URL will only be valid for 1 hour.
-         */
-            $signUrl = "{$baseUrl}/storage/v1/object/sign/"
-                . rawurlencode($bucket)
-                . "/{$encodedPath}";
 
             $response = Http::timeout(30)
                 ->withHeaders([
@@ -67,81 +68,89 @@ class DocumentController extends Controller
                     'expiresIn' => 3600,
                 ]);
 
+            Log::info('PDF SIGN RESPONSE', [
+                'document_id' => $document->id,
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
             if (!$response->successful()) {
 
-                Log::error('Supabase signed PDF URL failed', [
+                Log::error('Supabase signed PDF failed', [
+                    'document_id' => $document->id,
                     'status' => $response->status(),
                     'body' => $response->body(),
-                    'document_id' => $document->id,
-                    'path' => $path,
                 ]);
 
-                abort(
-                    500,
-                    'Could not generate a secure PDF viewing URL.'
-                );
+                abort(404, 'PDF could not be found in Supabase Storage.');
             }
 
             $data = $response->json();
 
-            /*
-         * Supabase may return:
-         *
-         * signedURL
-         *
-         * or
-         *
-         * signedUrl
-         */
-            $relativeUrl =
+            $relativeSignedUrl =
                 $data['signedURL']
                 ?? $data['signedUrl']
-                ?? $data['url']
                 ?? null;
 
-            if (!$relativeUrl) {
+            if (!$relativeSignedUrl) {
 
-                Log::error('Supabase signed PDF response missing URL', [
+                Log::error('No signed URL returned by Supabase', [
                     'response' => $data,
-                    'document_id' => $document->id,
                 ]);
 
-                abort(
-                    500,
-                    'Supabase did not return a valid PDF URL.'
-                );
+                abort(500, 'Supabase did not return a signed URL.');
             }
 
             /*
-         * Supabase normally returns a relative URL.
-         * Convert it to an absolute URL.
+         * Supabase returns something like:
+         *
+         * /object/sign/thesis/documents/file.pdf?token=...
+         *
+         * IMPORTANT:
+         * The response does NOT necessarily include /storage/v1.
          */
-            $signedUrl =
-                str_starts_with($relativeUrl, 'http://')
-                || str_starts_with($relativeUrl, 'https://')
-                ? $relativeUrl
-                : $baseUrl . $relativeUrl;
+
+            if (str_starts_with($relativeSignedUrl, 'http://')) {
+
+                $signedUrl = $relativeSignedUrl;
+            } elseif (str_starts_with($relativeSignedUrl, 'https://')) {
+
+                $signedUrl = $relativeSignedUrl;
+            } elseif (str_starts_with($relativeSignedUrl, '/storage/v1/')) {
+
+                $signedUrl = $baseUrl . $relativeSignedUrl;
+            } elseif (str_starts_with($relativeSignedUrl, '/object/')) {
+
+                $signedUrl = $baseUrl
+                    . '/storage/v1'
+                    . $relativeSignedUrl;
+            } else {
+
+                $signedUrl = $baseUrl
+                    . '/storage/v1/'
+                    . ltrim($relativeSignedUrl, '/');
+            }
+
+            Log::info('FINAL PDF URL', [
+                'document_id' => $document->id,
+                'signed_url' => $signedUrl,
+            ]);
 
             /*
-         * IMPORTANT:
+         * Redirect directly to Supabase.
          *
-         * Redirect the browser directly to Supabase.
-         *
-         * Laravel/Vercel does NOT download or return the PDF.
+         * Laravel does NOT stream the 20MB PDF.
          */
             return redirect()->away($signedUrl);
         } catch (\Throwable $e) {
 
-            Log::error('PDF viewing failed', [
-                'message' => $e->getMessage(),
+            Log::error('PDF view exception', [
                 'document_id' => $document->id,
                 'path' => $path,
+                'message' => $e->getMessage(),
             ]);
 
-            abort(
-                500,
-                'Unable to open the PDF.'
-            );
+            abort(500, 'Unable to open the thesis PDF.');
         }
     }
 
