@@ -10,6 +10,14 @@
         content="{{ csrf_token() }}">
     <title>SAC Thesis System - Admin Upload</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        const supabaseClient = window.supabase.createClient(
+            "{{ env('https://qyyuvhntwneyufkmiygm.supabase.co') }}",
+            "{{ env('sb_publishable_RZb53W-5SuMDm221Sj9FiA_QCrFIIg7') }}"
+        );
+    </script>
+
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -356,308 +364,461 @@
 
 
     <!-- JAVASCRIPT -->
+        <script>
 
-    <script>
+            const csrfToken =
+                document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute('content');
 
-        const csrfToken =
-            document
-                .querySelector('meta[name="csrf-token"]')
-                .getAttribute('content');
+            const uploadForm =
+                document.getElementById('uploadForm');
 
+            const uploadButton =
+                document.getElementById('uploadButton');
 
-        const uploadForm =
-            document.getElementById('uploadForm');
+            const uploadMessage =
+                document.getElementById('uploadMessage');
 
-        const uploadButton =
-            document.getElementById('uploadButton');
+            const successPopup =
+                document.getElementById('successPopup');
 
-        const uploadMessage =
-            document.getElementById('uploadMessage');
+            const successCard =
+                document.getElementById('successCard');
 
-        const successPopup =
-            document.getElementById('successPopup');
+            const progressContainer =
+                document.getElementById('progressContainer');
 
-        const successCard =
-            document.getElementById('successCard');
+            const progressBar =
+                document.getElementById('progressBar');
 
-        const progressContainer =
-            document.getElementById('progressContainer');
+            const progressText =
+                document.getElementById('progressText');
 
-        const progressBar =
-            document.getElementById('progressBar');
-
-        const progressText =
-            document.getElementById('progressText');
-
-        const progressPercent =
-            document.getElementById('progressPercent');
+            const progressPercent =
+                document.getElementById('progressPercent');
 
 
-        // ========================================
-        // ERROR MESSAGE
-        // ========================================
+            // ========================================
+            // ERROR MESSAGE
+            // ========================================
 
-        function showError(message)
-        {
-            uploadMessage.textContent = message;
+            function showError(message)
+            {
+                uploadMessage.textContent = message;
 
-            uploadMessage.className =
-                'mt-4 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700';
-        }
+                uploadMessage.className =
+                    'mt-4 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700';
+            }
 
 
-        // ========================================
-        // SUCCESS POPUP
-        // ========================================
+            // ========================================
+            // SUCCESS POPUP
+            // ========================================
 
-        function showSuccessPopup()
-        {
-            successPopup.classList.remove('hidden');
-            successPopup.classList.add('flex');
+            function showSuccessPopup()
+            {
+                successPopup.classList.remove('hidden');
+                successPopup.classList.add('flex');
 
-            successCard.classList.remove('popup-hide');
-
-            setTimeout(() => {
-
-                successCard.classList.add('popup-hide');
+                successCard.classList.remove('popup-hide');
 
                 setTimeout(() => {
 
-                    successPopup.classList.add('hidden');
-                    successPopup.classList.remove('flex');
-                    successCard.classList.remove('popup-hide');
+                    successCard.classList.add('popup-hide');
 
-                }, 300);
+                    setTimeout(() => {
 
-            }, 3000);
-        }
+                        successPopup.classList.add('hidden');
+                        successPopup.classList.remove('flex');
+                        successCard.classList.remove('popup-hide');
 
+                    }, 300);
 
-        // ========================================
-        // PROGRESS
-        // ========================================
-
-        function updateProgress(percent)
-        {
-            const rounded = Math.round(percent);
-
-            progressBar.style.width = `${rounded}%`;
-
-            progressPercent.textContent = `${rounded}%`;
-        }
+                }, 3000);
+            }
 
 
-        // ========================================
-        // UPLOAD TO SUPABASE USING SIGNED URL
-        // ========================================
+            // ========================================
+            // PROGRESS
+            // ========================================
 
-        function uploadToSupabase(signedUrl, file)
-        {
-            return new Promise((resolve, reject) => {
+            function updateProgress(percent)
+            {
+                const rounded = Math.round(percent);
 
-                const xhr = new XMLHttpRequest();
-
-
-                xhr.open(
-                    'PUT',
-                    signedUrl,
-                    true
-                );
+                progressBar.style.width = `${rounded}%`;
+                progressPercent.textContent = `${rounded}%`;
+            }
 
 
-                xhr.setRequestHeader(
-                    'Content-Type',
-                    file.type || 'application/pdf'
-                );
+            // ========================================
+            // FORM SUBMIT
+            // ========================================
 
-
-                xhr.setRequestHeader(
-                    'x-upsert',
-                    'false'
-                );
-
-
-                xhr.upload.onprogress = function (event)
+            uploadForm.addEventListener(
+                'submit',
+                async function (e)
                 {
-                    if (event.lengthComputable) {
+                    e.preventDefault();
 
-                        const percent =
-                            (event.loaded / event.total) * 100;
+                    const fileInput =
+                        document.getElementById('pdf');
 
-                        updateProgress(percent);
+                    const file =
+                        fileInput.files[0];
+
+
+                    // ========================================
+                    // VALIDATION
+                    // ========================================
+
+                    if (!file) {
+
+                        showError(
+                            'Please select a PDF file.'
+                        );
+
+                        return;
                     }
-                };
-
-
-                xhr.onload = function ()
-                {
-                    console.log(
-                        'Supabase upload response:',
-                        xhr.status,
-                        xhr.responseText
-                    );
 
 
                     if (
-                        xhr.status >= 200 &&
-                        xhr.status < 300
+                        file.type !== 'application/pdf'
                     ) {
+
+                        showError(
+                            'Only PDF files are allowed.'
+                        );
+
+                        return;
+                    }
+
+
+                    const maxSize =
+                        50 * 1024 * 1024;
+
+
+                    if (file.size > maxSize) {
+
+                        showError(
+                            'File size exceeds the 50MB limit.'
+                        );
+
+                        return;
+                    }
+
+
+                    // ========================================
+                    // START
+                    // ========================================
+
+                    uploadMessage.className =
+                        'hidden';
+
+                    progressContainer.style.display =
+                        'block';
+
+                    updateProgress(0);
+
+                    uploadButton.disabled =
+                        true;
+
+                    uploadButton.textContent =
+                        'Preparing Upload...';
+
+
+                    try {
+
+                        // ========================================
+                        // STEP 1
+                        // ASK LARAVEL FOR SIGNED UPLOAD URL
+                        // ========================================
+
+                        progressText.textContent =
+                            'Preparing secure upload...';
+
+
+                        const urlRes =
+                            await fetch(
+                                '/backend/documents/upload-url',
+                                {
+                                    method: 'POST',
+
+                                    headers: {
+                                        'Content-Type':
+                                            'application/json',
+
+                                        'Accept':
+                                            'application/json',
+
+                                        'X-CSRF-TOKEN':
+                                            csrfToken
+                                    },
+
+                                    body: JSON.stringify({
+                                        filename:
+                                            file.name
+                                    })
+                                }
+                            );
+
+
+                        let urlData;
+
+
+                        try {
+
+                            urlData =
+                                await urlRes.json();
+
+                        } catch (error) {
+
+                            throw new Error(
+                                'The server returned an invalid response while preparing the upload.'
+                            );
+
+                        }
+
+
+                        console.log(
+                            'Upload URL response:',
+                            urlData
+                        );
+
+
+                        if (
+                            !urlRes.ok ||
+                            urlData.error
+                        ) {
+
+                            throw new Error(
+                                urlData.message ||
+                                'Failed to prepare the upload.'
+                            );
+                        }
+
+
+                        if (
+                            !urlData.path ||
+                            !urlData.token
+                        ) {
+
+                            throw new Error(
+                                'Laravel did not return a valid Supabase upload token.'
+                            );
+                        }
+
+
+                        // ========================================
+                        // STEP 2
+                        // UPLOAD USING SUPABASE SDK
+                        // ========================================
+
+                        uploadButton.textContent =
+                            'Uploading PDF...';
+
+                        progressText.textContent =
+                            'Uploading PDF to Supabase Storage...';
+
+
+                        console.log(
+                            'Uploading to Supabase:',
+                            urlData.path
+                        );
+
+
+                        const {
+                            data: uploadData,
+                            error: uploadError
+                        } =
+                            await supabaseClient
+                                .storage
+                                .from('thesis')
+                                .uploadToSignedUrl(
+                                    urlData.path,
+                                    urlData.token,
+                                    file,
+                                    {
+                                        contentType:
+                                            'application/pdf',
+
+                                        cacheControl:
+                                            '3600'
+                                    }
+                                );
+
+
+                        if (uploadError) {
+
+                            console.error(
+                                'Supabase upload error:',
+                                uploadError
+                            );
+
+                            throw new Error(
+                                uploadError.message ||
+                                'Supabase failed to upload the PDF.'
+                            );
+                        }
+
+
+                        console.log(
+                            'Supabase upload successful:',
+                            uploadData
+                        );
+
 
                         updateProgress(100);
 
-                        resolve();
 
-                    } else {
+                        // ========================================
+                        // STEP 3
+                        // SAVE METADATA
+                        // ========================================
 
-                        reject(
-                            new Error(
-                                'Supabase upload failed (' +
-                                xhr.status +
-                                '). ' +
-                                (
-                                    xhr.responseText ||
-                                    'Unknown Supabase error.'
-                                )
-                            )
+                        uploadButton.textContent =
+                            'Processing Thesis...';
+
+                        progressText.textContent =
+                            'Saving thesis information...';
+
+
+                        const metadataResponse =
+                            await fetch(
+                                '/backend/documents/store-signed',
+                                {
+                                    method: 'POST',
+
+                                    headers: {
+                                        'Content-Type':
+                                            'application/json',
+
+                                        'Accept':
+                                            'application/json',
+
+                                        'X-CSRF-TOKEN':
+                                            csrfToken
+                                    },
+
+                                    body: JSON.stringify({
+
+                                        title:
+                                            document
+                                                .getElementById(
+                                                    'title'
+                                                )
+                                                .value
+                                                .trim(),
+
+                                        author:
+                                            document
+                                                .getElementById(
+                                                    'author'
+                                                )
+                                                .value
+                                                .trim(),
+
+                                        abstract:
+                                            document
+                                                .getElementById(
+                                                    'abstract'
+                                                )
+                                                .value
+                                                .trim(),
+
+                                        file_path:
+                                            urlData.path
+                                    })
+                                }
+                            );
+
+
+                        let metadata;
+
+
+                        try {
+
+                            metadata =
+                                await metadataResponse.json();
+
+                        } catch (error) {
+
+                            throw new Error(
+                                'The server returned an invalid response while saving the thesis.'
+                            );
+
+                        }
+
+
+                        console.log(
+                            'Metadata response:',
+                            metadata
                         );
 
-                    }
-                };
 
+                        if (
+                            !metadataResponse.ok ||
+                            metadata.error
+                        ) {
 
-                xhr.onerror = function ()
-                {
-                    reject(
-                        new Error(
-                            'Network error while uploading the PDF to Supabase.'
-                        )
-                    );
-                };
-
-
-                xhr.onabort = function ()
-                {
-                    reject(
-                        new Error(
-                            'The PDF upload was cancelled.'
-                        )
-                    );
-                };
-
-
-                xhr.send(file);
-
-            });
-        }
-
-
-        // ========================================
-        // FORM SUBMIT
-        // ========================================
-
-        uploadForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const fileInput = document.getElementById('pdf');
-            const file = fileInput.files[0];
-
-            if (!file) return showError('Please select a PDF file.');
-            if (file.type !== 'application/pdf') return showError('Only PDF files are allowed.');
-            if (file.size > 50 * 1024 * 1024) return showError('File size exceeds the 50MB limit.');
-
-            uploadButton.disabled = true;
-            uploadButton.textContent = 'Preparing Upload...';
-
-            try {
-                // 1. Get signed upload URL from Laravel (lightweight JSON request)
-                const urlRes = await fetch('/backend/documents/upload-url', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({ filename: file.name })
-                });
-
-                const urlData = await urlRes.json();
-                if (!urlRes.ok || urlData.error) {
-                    throw new Error(urlData.message || 'Failed to get upload URL.');
-                }
-
-                uploadButton.textContent = 'Uploading PDF to Storage...';
-
-                // 2. Direct upload to Supabase Storage (bypasses Vercel 4.5MB limit)
-                const {
-                    data: uploadData,
-                    error: uploadError
-                } = await supabaseClient
-                    .storage
-                    .from('thesis')
-                    .uploadToSignedUrl(
-                        urlData.path,
-                        urlData.token,
-                        file,
-                        {
-                            contentType: 'application/pdf',
-                            cacheControl: '3600'
+                            throw new Error(
+                                metadata.message ||
+                                'Failed to save thesis metadata.'
+                            );
                         }
-                    );
 
-                if (uploadError) {
 
-                    console.error(
-                        'Supabase signed upload error:',
-                        uploadError
-                    );
+                        // ========================================
+                        // SUCCESS
+                        // ========================================
 
-                    throw new Error(
-                        uploadError.message ||
-                        'Supabase upload failed.'
-                    );
+                        progressText.textContent =
+                            'Upload complete!';
+
+                        updateProgress(100);
+
+
+                        uploadForm.reset();
+
+                        progressContainer.style.display =
+                            'none';
+
+                        showSuccessPopup();
+
+
+                    } catch (error) {
+
+                        console.error(
+                            'Upload Error:',
+                            error
+                        );
+
+
+                        progressContainer.style.display =
+                            'none';
+
+
+                        showError(
+                            error.message ||
+                            'Upload failed.'
+                        );
+
+
+                    } finally {
+
+                        uploadButton.disabled =
+                            false;
+
+                        uploadButton.textContent =
+                            'Submit & Upload Thesis';
+
+                    }
+
                 }
+            );
 
-                console.log(
-                    'Supabase upload successful:',
-                    uploadData
-                );
-
-                uploadButton.textContent = 'Saving Metadata & Vectorizing...';
-
-                // 3. Send metadata to Laravel to create DB record & process embeddings
-                const metaRes = await fetch('/backend/documents/store-signed', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({
-                        title: document.getElementById('title').value.trim(),
-                        author: document.getElementById('author').value.trim(),
-                        abstract: document.getElementById('abstract').value.trim(),
-                        file_path: urlData.path
-                    })
-                });
-
-                const metaData = await metaRes.json();
-                if (!metaRes.ok || metaData.error) {
-                    throw new Error(metaData.message || 'Failed to process document metadata.');
-                }
-
-                showSuccessPopup();
-                uploadForm.reset();
-
-            } catch (err) {
-                console.error('Upload Error:', err);
-                showError(err.message || 'Upload failed.');
-            } finally {
-                uploadButton.disabled = false;
-                uploadButton.textContent = 'Submit & Upload Thesis';
-            }
-        });
-
-    </script>
+        </script>
 
 </body>
 
