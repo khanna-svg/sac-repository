@@ -50,5 +50,5 @@ Route::middleware('sac.auth')->group(function () {
     })->name('admin.upload');
 
     // Backend Document Upload Endpoint
-    Route::post('/backend/documents/upload', [DocumentController::class, 'upload']);
+    Route::post('/backend/documents/upload', [DocumentController::class, 'store']);
 });
