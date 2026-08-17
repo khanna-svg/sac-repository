@@ -77,6 +77,8 @@ Route::middleware('sac.auth')->group(function () {
 
         Route::post('/backend/documents/upload', [DocumentController::class, 'store']);
 
+        Route::post('/backend/documents/store-signed', [DocumentController::class, 'storeFromSignedUrl']);
+
     });
 
 });
