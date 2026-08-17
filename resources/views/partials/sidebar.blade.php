@@ -44,7 +44,7 @@
 
     <!-- Navigation Links -->
     <nav class="flex-1 space-y-1.5 p-3">
-        @if(session('user_role') === 'admin')
+        @if(session('sac_user_role') == 'admin')
             <!-- Visible ONLY to Admins -->
             <a
                 href="/admin/upload"
