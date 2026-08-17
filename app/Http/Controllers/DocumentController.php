@@ -89,172 +89,206 @@ class DocumentController extends Controller
     }
 
     public function createUploadUrl(Request $request)
-    {
-        $request->validate([
-            'filename' => [
-                'required',
-                'string',
-                'max:255',
-            ],
-        ]);
+{
+    // Make sure only admins can prepare an upload.
+    if ($request->session()->get('user_role') !== 'admin') {
+        return response()->json([
+            'error' => true,
+            'message' => 'Unauthorized. Admin access required.',
+        ], 403);
+    }
 
-        $baseUrl = rtrim(
-            (string) getenv('SUPABASE_URL'),
-            '/'
-        );
+    $request->validate([
+        'filename' => 'required|string|max:255',
+    ]);
 
-        $key = (string) getenv(
-            'SUPABASE_SERVICE_ROLE_KEY'
-        );
+    $baseUrl = rtrim(
+        (string) getenv('SUPABASE_URL'),
+        '/'
+    );
 
-        $bucket = (string) getenv(
-            'SUPABASE_STORAGE_BUCKET'
-        );
+    $key = (string) getenv(
+        'SUPABASE_SERVICE_ROLE_KEY'
+    );
 
-        if (
-            $baseUrl === '' ||
-            $key === '' ||
-            $bucket === ''
-        ) {
-            return response()->json([
-                'error' => true,
-                'message' =>
-                    'Supabase Storage is not configured on Vercel.',
-            ], 500);
-        }
+    $bucket = (string) getenv(
+        'SUPABASE_STORAGE_BUCKET'
+    );
 
-        $path =
-            'documents/' .
-            Str::uuid() .
-            '.pdf';
+    if (
+        $baseUrl === '' ||
+        $key === '' ||
+        $bucket === ''
+    ) {
+        return response()->json([
+            'error' => true,
+            'message' => 'Supabase Storage is not configured.',
+        ], 500);
+    }
 
+    // Only allow PDFs.
+    $extension = strtolower(
+        pathinfo($request->filename, PATHINFO_EXTENSION)
+    );
 
-        try {
+    if ($extension !== 'pdf') {
+        return response()->json([
+            'error' => true,
+            'message' => 'Only PDF files are allowed.',
+        ], 422);
+    }
 
-            $response = Http::timeout(30)
-                ->withHeaders([
-                    'Authorization' =>
-                        "Bearer {$key}",
+    // Generate our own unique path.
+    $path = 'documents/' . Str::uuid() . '.pdf';
 
-                    'apikey' =>
-                        $key,
+    try {
+        /*
+         * Supabase signed upload endpoint.
+         *
+         * IMPORTANT:
+         * Supabase returns:
+         *
+         * {
+         *     "url": "/object/upload/sign/..."
+         * }
+         *
+         * We must convert that relative URL into a full URL
+         * and extract the token from its query string.
+         */
+        $encodedPath = collect(
+            explode('/', $path)
+        )
+            ->map(
+                fn ($part) => rawurlencode($part)
+            )
+            ->implode('/');
 
-                    'Content-Type' =>
-                        'application/json',
+        $response = Http::timeout(30)
+            ->withHeaders([
+                'Authorization' => "Bearer {$key}",
+                'apikey' => $key,
+                'Content-Type' => 'application/json',
+            ])
+            ->post(
+                "{$baseUrl}/storage/v1/object/upload/sign/"
+                . rawurlencode($bucket)
+                . "/{$encodedPath}",
+                []
+            );
 
-                    'Accept' =>
-                        'application/json',
-                ])
-                ->post(
-                    "{$baseUrl}/storage/v1/object/upload/sign/"
-                    . "{$bucket}/{$path}",
-                    [
-                        'expiresIn' => 600,
-                    ]
-                );
-
-            if (!$response->successful()) {
-
-                Log::error(
-                    'Supabase signed upload creation failed',
-                    [
-                        'status' =>
-                            $response->status(),
-
-                        'body' =>
-                            $response->body(),
-
-                        'path' =>
-                            $path,
-                    ]
-                );
-
-                return response()->json([
-                    'error' => true,
-                    'message' =>
-                        'Supabase could not create the upload URL.',
-                    'supabase_status' =>
-                        $response->status(),
-                ], 500);
-            }
-
-
-            $data = $response->json();
-
-            $signedUrl =
-                $data['signedUrl']
-                ?? $data['signedURL']
-                ?? null;
-
-            $token =
-                $data['token']
-                ?? null;
-
-            if (
-                is_string($signedUrl) &&
-                str_starts_with($signedUrl, '/')
-            ) {
-                $signedUrl =
-                    $baseUrl .
-                    '/storage/v1' .
-                    $signedUrl;
-            }
-
-            if (
-                !is_string($signedUrl) ||
-                trim($signedUrl) === ''
-            ) {
-
-                Log::error(
-                    'Supabase returned no signed upload URL',
-                    [
-                        'response' => $data,
-                        'path' => $path,
-                    ]
-                );
-
-                return response()->json([
-                    'error' => true,
-                    'message' =>
-                        'Supabase did not return a valid upload URL.',
-                ], 500);
-            }
-
-
-            return response()->json([
-                'error' => false,
-
-                'path' =>
-                    $path,
-
-                'signedUrl' =>
-                    $signedUrl,
-
-                'token' =>
-                    $token,
-            ], 200);
-
-
-        } catch (\Throwable $e) {
+        if (!$response->successful()) {
 
             Log::error(
-                'Create Supabase upload URL failed',
+                'Supabase signed upload URL failed',
                 [
-                    'message' =>
-                        $e->getMessage(),
-
-                    'trace' =>
-                        $e->getTraceAsString(),
+                    'status' => $response->status(),
+                    'body' => $response->body(),
                 ]
             );
 
             return response()->json([
                 'error' => true,
                 'message' =>
-                    'Could not prepare the file upload.',
+                    'Supabase could not create the upload URL.',
             ], 500);
         }
+
+        $data = $response->json();
+
+        /*
+         * Supabase returns "url", NOT "signedUrl".
+         */
+        $relativeUrl = $data['url'] ?? null;
+
+        if (!$relativeUrl) {
+
+            Log::error(
+                'Supabase signed upload response missing URL',
+                [
+                    'response' => $data,
+                ]
+            );
+
+            return response()->json([
+                'error' => true,
+                'message' =>
+                    'Supabase did not return an upload URL.',
+            ], 500);
+        }
+
+        /*
+         * Convert Supabase's relative URL into a full URL.
+         *
+         * Example:
+         *
+         * /storage/v1/object/upload/sign/thesis/documents/...
+         *
+         * becomes:
+         *
+         * https://xxxxx.supabase.co/storage/v1/object/upload/sign/thesis/documents/...
+         */
+        $signedUrl = str_starts_with(
+            $relativeUrl,
+            'http://'
+        ) || str_starts_with(
+            $relativeUrl,
+            'https://'
+        )
+            ? $relativeUrl
+            : $baseUrl . $relativeUrl;
+
+        /*
+         * Extract the token from:
+         *
+         * ?token=xxxxxxxx
+         */
+        $parsedUrl = parse_url($signedUrl);
+
+        parse_str(
+            $parsedUrl['query'] ?? '',
+            $queryParams
+        );
+
+        $token = $queryParams['token'] ?? null;
+
+        if (!$token) {
+
+            Log::error(
+                'Supabase signed upload URL has no token',
+                [
+                    'url' => $signedUrl,
+                    'response' => $data,
+                ]
+            );
+
+            return response()->json([
+                'error' => true,
+                'message' =>
+                    'Supabase returned an invalid upload URL.',
+            ], 500);
+        }
+
+        return response()->json([
+            'error' => false,
+            'path' => $path,
+            'signedUrl' => $signedUrl,
+            'token' => $token,
+        ]);
+
+    } catch (\Throwable $e) {
+
+        Log::error(
+            'Create Supabase upload URL failed: '
+            . $e->getMessage()
+        );
+
+        return response()->json([
+            'error' => true,
+            'message' =>
+                'Could not prepare the file upload.',
+        ], 500);
     }
+}
 
     public function store(Request $request)
     {

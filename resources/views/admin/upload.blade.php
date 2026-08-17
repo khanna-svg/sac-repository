@@ -19,125 +19,63 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
 
-
     <style>
-
-        /* ========================================
-           SUCCESS POPUP
-        ======================================== */
 
         #successCard {
             animation: popupIn 0.35s ease-out;
         }
 
-
         .check-circle {
-
             stroke-dasharray: 145;
-
             stroke-dashoffset: 145;
-
-            animation:
-                drawCircle
-                0.6s
-                ease
-                forwards;
+            animation: drawCircle 0.6s ease forwards;
         }
-
 
         .check-mark {
-
             stroke-dasharray: 40;
-
             stroke-dashoffset: 40;
-
-            animation:
-                drawCheck
-                0.4s
-                0.5s
-                ease
-                forwards;
+            animation: drawCheck 0.4s 0.5s ease forwards;
         }
-
 
         @keyframes drawCircle {
-
             to {
                 stroke-dashoffset: 0;
             }
-
         }
-
 
         @keyframes drawCheck {
-
             to {
                 stroke-dashoffset: 0;
             }
-
         }
-
 
         @keyframes popupIn {
-
             from {
-
                 opacity: 0;
-
-                transform:
-                    scale(0.8);
-
+                transform: scale(0.8);
             }
 
             to {
-
                 opacity: 1;
-
-                transform:
-                    scale(1);
-
+                transform: scale(1);
             }
-
         }
-
 
         .popup-hide {
-
-            animation:
-                popupOut
-                0.3s
-                ease
-                forwards;
-
+            animation: popupOut 0.3s ease forwards;
         }
 
-
         @keyframes popupOut {
-
             from {
-
                 opacity: 1;
-
-                transform:
-                    scale(1);
-
+                transform: scale(1);
             }
 
             to {
-
                 opacity: 0;
-
-                transform:
-                    scale(0.8);
-
+                transform: scale(0.8);
             }
-
         }
-
-
-        /* ========================================
-           UPLOAD PROGRESS
-        ======================================== */
 
         #progressContainer {
             display: none;
@@ -154,10 +92,6 @@
     @include('partials.sidebar')
 
 
-    <!-- ========================================
-         MAIN
-    ======================================== -->
-
     <main
         class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-16 md:pt-10"
     >
@@ -165,9 +99,7 @@
         <div class="mx-auto max-w-4xl">
 
 
-            <!-- ========================================
-                 HEADER
-            ======================================== -->
+            <!-- HEADER -->
 
             <section class="mb-6 md:mb-10">
 
@@ -187,9 +119,7 @@
             </section>
 
 
-            <!-- ========================================
-                 UPLOAD CARD
-            ======================================== -->
+            <!-- UPLOAD CARD -->
 
             <section
                 class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm"
@@ -208,9 +138,7 @@
                 </p>
 
 
-                <!-- ========================================
-                     MESSAGE
-                ======================================== -->
+                <!-- MESSAGE -->
 
                 <div
                     id="uploadMessage"
@@ -218,9 +146,7 @@
                 ></div>
 
 
-                <!-- ========================================
-                     FORM
-                ======================================== -->
+                <!-- FORM -->
 
                 <form
                     id="uploadForm"
@@ -314,18 +240,14 @@
                             class="block w-full cursor-pointer rounded-xl border border-gray-300 bg-white text-xs md:text-sm text-gray-600 file:mr-4 file:border-0 file:bg-[#700000] file:px-4 file:py-3 file:text-[#FFD700] file:font-bold"
                         >
 
-                        <p
-                            class="mt-2 text-xs text-gray-400"
-                        >
+                        <p class="mt-2 text-xs text-gray-400">
                             Maximum file size: 50 MB
                         </p>
 
                     </div>
 
 
-                    <!-- ========================================
-                         PROGRESS
-                    ======================================== -->
+                    <!-- PROGRESS -->
 
                     <div
                         id="progressContainer"
@@ -337,7 +259,7 @@
                         >
 
                             <span id="progressText">
-                                Uploading PDF...
+                                Preparing upload...
                             </span>
 
                             <span id="progressPercent">
@@ -361,9 +283,7 @@
                     </div>
 
 
-                    <!-- ========================================
-                         BUTTON
-                    ======================================== -->
+                    <!-- BUTTON -->
 
                     <button
                         id="uploadButton"
@@ -382,9 +302,7 @@
     </main>
 
 
-    <!-- ========================================
-         SUCCESS POPUP
-    ======================================== -->
+    <!-- SUCCESS POPUP -->
 
     <div
         id="successPopup"
@@ -395,8 +313,6 @@
             id="successCard"
             class="w-[320px] rounded-2xl bg-white p-8 text-center shadow-2xl"
         >
-
-            <!-- CHECK -->
 
             <div
                 class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-green-100"
@@ -433,16 +349,12 @@
             </div>
 
 
-            <h2
-                class="text-xl font-bold text-gray-800"
-            >
+            <h2 class="text-xl font-bold text-gray-800">
                 Upload Successful!
             </h2>
 
 
-            <p
-                class="mt-2 text-sm text-gray-500"
-            >
+            <p class="mt-2 text-sm text-gray-500">
                 Your thesis has been uploaded successfully.
             </p>
 
@@ -451,286 +363,199 @@
     </div>
 
 
-    <!-- ========================================
-         JAVASCRIPT
-    ======================================== -->
+    <!-- JAVASCRIPT -->
 
     <script>
 
         const csrfToken =
             document
-                .querySelector(
-                    'meta[name="csrf-token"]'
-                )
+                .querySelector('meta[name="csrf-token"]')
                 .getAttribute('content');
 
 
         const uploadForm =
-            document.getElementById(
-                'uploadForm'
-            );
-
+            document.getElementById('uploadForm');
 
         const uploadButton =
-            document.getElementById(
-                'uploadButton'
-            );
-
+            document.getElementById('uploadButton');
 
         const uploadMessage =
-            document.getElementById(
-                'uploadMessage'
-            );
-
+            document.getElementById('uploadMessage');
 
         const successPopup =
-            document.getElementById(
-                'successPopup'
-            );
-
+            document.getElementById('successPopup');
 
         const successCard =
-            document.getElementById(
-                'successCard'
-            );
-
+            document.getElementById('successCard');
 
         const progressContainer =
-            document.getElementById(
-                'progressContainer'
-            );
-
+            document.getElementById('progressContainer');
 
         const progressBar =
-            document.getElementById(
-                'progressBar'
-            );
-
+            document.getElementById('progressBar');
 
         const progressText =
-            document.getElementById(
-                'progressText'
-            );
-
+            document.getElementById('progressText');
 
         const progressPercent =
-            document.getElementById(
-                'progressPercent'
-            );
+            document.getElementById('progressPercent');
 
 
         // ========================================
-        // SHOW ERROR
+        // ERROR MESSAGE
         // ========================================
 
         function showError(message)
         {
-
-            uploadMessage.textContent =
-                message;
+            uploadMessage.textContent = message;
 
             uploadMessage.className =
                 'mt-4 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700';
-
         }
 
 
         // ========================================
-        // SHOW SUCCESS POPUP
+        // SUCCESS POPUP
         // ========================================
 
         function showSuccessPopup()
         {
+            successPopup.classList.remove('hidden');
+            successPopup.classList.add('flex');
 
-            successPopup.classList.remove(
-                'hidden'
-            );
-
-            successPopup.classList.add(
-                'flex'
-            );
-
-
-            successCard.classList.remove(
-                'popup-hide'
-            );
-
-
-            /*
-             * Keep popup visible for 3 seconds.
-             */
+            successCard.classList.remove('popup-hide');
 
             setTimeout(() => {
 
-                successCard.classList.add(
-                    'popup-hide'
-                );
-
+                successCard.classList.add('popup-hide');
 
                 setTimeout(() => {
 
-                    successPopup.classList.add(
-                        'hidden'
-                    );
-
-                    successPopup.classList.remove(
-                        'flex'
-                    );
-
-                    successCard.classList.remove(
-                        'popup-hide'
-                    );
+                    successPopup.classList.add('hidden');
+                    successPopup.classList.remove('flex');
+                    successCard.classList.remove('popup-hide');
 
                 }, 300);
 
             }, 3000);
-
         }
 
 
         // ========================================
-        // UPDATE PROGRESS
+        // PROGRESS
         // ========================================
 
         function updateProgress(percent)
         {
+            const rounded = Math.round(percent);
 
-            const rounded =
-                Math.round(percent);
+            progressBar.style.width = `${rounded}%`;
 
-
-            progressBar.style.width =
-                `${rounded}%`;
-
-
-            progressPercent.textContent =
-                `${rounded}%`;
-
+            progressPercent.textContent = `${rounded}%`;
         }
 
 
         // ========================================
-        // UPLOAD FILE DIRECTLY TO SUPABASE
+        // UPLOAD TO SUPABASE USING SIGNED URL
         // ========================================
 
-        function uploadToSupabase(
-            signedUrl,
-            file
-        )
+        function uploadToSupabase(signedUrl, file)
         {
+            return new Promise((resolve, reject) => {
 
-            return new Promise(
-                (
-                    resolve,
-                    reject
-                ) => {
-
-                    const xhr =
-                        new XMLHttpRequest();
+                const xhr = new XMLHttpRequest();
 
 
-                    xhr.open(
-                        'PUT',
-                        signedUrl,
-                        true
+                xhr.open(
+                    'PUT',
+                    signedUrl,
+                    true
+                );
+
+
+                xhr.setRequestHeader(
+                    'Content-Type',
+                    file.type || 'application/pdf'
+                );
+
+
+                xhr.setRequestHeader(
+                    'x-upsert',
+                    'false'
+                );
+
+
+                xhr.upload.onprogress = function (event)
+                {
+                    if (event.lengthComputable) {
+
+                        const percent =
+                            (event.loaded / event.total) * 100;
+
+                        updateProgress(percent);
+                    }
+                };
+
+
+                xhr.onload = function ()
+                {
+                    console.log(
+                        'Supabase upload response:',
+                        xhr.status,
+                        xhr.responseText
                     );
 
 
-                    xhr.setRequestHeader(
-                        'Content-Type',
-                        'application/pdf'
-                    );
+                    if (
+                        xhr.status >= 200 &&
+                        xhr.status < 300
+                    ) {
 
+                        updateProgress(100);
 
-                    /*
-                     * Track upload progress.
-                     */
+                        resolve();
 
-                    xhr.upload.onprogress =
-                        function(event)
-                    {
+                    } else {
 
-                        if (
-                            event.lengthComputable
-                        ) {
-
-                            const percent =
+                        reject(
+                            new Error(
+                                'Supabase upload failed (' +
+                                xhr.status +
+                                '). ' +
                                 (
-                                    event.loaded /
-                                    event.total
-                                ) * 100;
-
-
-                            updateProgress(
-                                percent
-                            );
-
-                        }
-
-                    };
-
-
-                    xhr.onload =
-                        function()
-                    {
-
-                        if (
-                            xhr.status >= 200 &&
-                            xhr.status < 300
-                        ) {
-
-                            updateProgress(
-                                100
-                            );
-
-                            resolve();
-
-                        } else {
-
-                            reject(
-                                new Error(
-                                    'Supabase upload failed (' +
-                                    xhr.status +
-                                    ').'
+                                    xhr.responseText ||
+                                    'Unknown Supabase error.'
                                 )
-                            );
-
-                        }
-
-                    };
-
-
-                    xhr.onerror =
-                        function()
-                    {
-
-                        reject(
-                            new Error(
-                                'Network error while uploading the PDF to Supabase.'
                             )
                         );
 
-                    };
+                    }
+                };
 
 
-                    xhr.onabort =
-                        function()
-                    {
-
-                        reject(
-                            new Error(
-                                'The PDF upload was cancelled.'
-                            )
-                        );
-
-                    };
+                xhr.onerror = function ()
+                {
+                    reject(
+                        new Error(
+                            'Network error while uploading the PDF to Supabase.'
+                        )
+                    );
+                };
 
 
-                    xhr.send(file);
+                xhr.onabort = function ()
+                {
+                    reject(
+                        new Error(
+                            'The PDF upload was cancelled.'
+                        )
+                    );
+                };
 
-                }
-            );
 
+                xhr.send(file);
+
+            });
         }
 
 
@@ -740,24 +565,20 @@
 
         uploadForm.addEventListener(
             'submit',
-            async function(e)
+            async function (e)
             {
-
                 e.preventDefault();
 
 
                 const fileInput =
-                    document.getElementById(
-                        'pdf'
-                    );
-
+                    document.getElementById('pdf');
 
                 const file =
                     fileInput.files[0];
 
 
                 // ========================================
-                // BASIC VALIDATION
+                // VALIDATION
                 // ========================================
 
                 if (!file) {
@@ -767,13 +588,11 @@
                     );
 
                     return;
-
                 }
 
 
                 if (
-                    file.type !==
-                    'application/pdf'
+                    file.type !== 'application/pdf'
                 ) {
 
                     showError(
@@ -781,51 +600,37 @@
                     );
 
                     return;
-
                 }
 
-
-                /*
-                 * 50 MB maximum.
-                 *
-                 * 50 * 1024 * 1024
-                 */
 
                 const maxSize =
                     50 * 1024 * 1024;
 
 
-                if (
-                    file.size > maxSize
-                ) {
+                if (file.size > maxSize) {
 
                     showError(
                         'The PDF must be 50 MB or smaller.'
                     );
 
                     return;
-
                 }
 
 
                 // ========================================
-                // CLEAR OLD MESSAGE
+                // START
                 // ========================================
 
                 uploadMessage.className =
                     'hidden';
 
-
                 progressContainer.style.display =
                     'block';
 
-
                 updateProgress(0);
-
 
                 uploadButton.disabled =
                     true;
-
 
                 uploadButton.textContent =
                     'Preparing upload...';
@@ -833,20 +638,23 @@
 
                 try {
 
+
                     // ========================================
                     // STEP 1
-                    // ASK LARAVEL FOR SIGNED URL
+                    // GET SIGNED UPLOAD URL
                     // ========================================
+
+                    progressText.textContent =
+                        'Preparing secure upload...';
+
 
                     const signedResponse =
                         await fetch(
                             '/backend/documents/upload-url',
                             {
-
                                 method: 'POST',
 
                                 headers: {
-
                                     'Accept':
                                         'application/json',
 
@@ -855,7 +663,6 @@
 
                                     'X-CSRF-TOKEN':
                                         csrfToken
-
                                 },
 
                                 body:
@@ -863,7 +670,6 @@
                                         filename:
                                             file.name
                                     })
-
                             }
                         );
 
@@ -876,13 +682,19 @@
                         signedData =
                             await signedResponse.json();
 
-                    } catch {
+                    } catch (error) {
 
                         throw new Error(
                             'The server returned an invalid response while preparing the upload.'
                         );
 
                     }
+
+
+                    console.log(
+                        'Upload URL response:',
+                        signedData
+                    );
 
 
                     if (
@@ -898,14 +710,25 @@
                     }
 
 
+                    if (
+                        !signedData.signedUrl ||
+                        !signedData.path
+                    ) {
+
+                        throw new Error(
+                            'The server did not return a valid Supabase upload URL.'
+                        );
+
+                    }
+
+
                     // ========================================
                     // STEP 2
-                    // DIRECT UPLOAD TO SUPABASE
+                    // UPLOAD DIRECTLY TO SUPABASE
                     // ========================================
 
                     progressText.textContent =
                         'Uploading PDF to storage...';
-
 
                     uploadButton.textContent =
                         'Uploading PDF...';
@@ -919,12 +742,11 @@
 
                     // ========================================
                     // STEP 3
-                    // SEND ONLY METADATA TO LARAVEL
+                    // SEND METADATA TO LARAVEL
                     // ========================================
 
                     progressText.textContent =
                         'Processing thesis...';
-
 
                     uploadButton.textContent =
                         'Processing thesis...';
@@ -934,11 +756,9 @@
                         await fetch(
                             '/backend/documents/upload',
                             {
-
                                 method: 'POST',
 
                                 headers: {
-
                                     'Accept':
                                         'application/json',
 
@@ -947,7 +767,6 @@
 
                                     'X-CSRF-TOKEN':
                                         csrfToken
-
                                 },
 
                                 body:
@@ -955,30 +774,25 @@
 
                                         title:
                                             document
-                                                .getElementById(
-                                                    'title'
-                                                )
-                                                .value,
+                                                .getElementById('title')
+                                                .value
+                                                .trim(),
 
                                         author:
                                             document
-                                                .getElementById(
-                                                    'author'
-                                                )
-                                                .value,
+                                                .getElementById('author')
+                                                .value
+                                                .trim(),
 
                                         abstract:
                                             document
-                                                .getElementById(
-                                                    'abstract'
-                                                )
-                                                .value,
+                                                .getElementById('abstract')
+                                                .value
+                                                .trim(),
 
                                         file_path:
                                             signedData.path
-
                                     })
-
                             }
                         );
 
@@ -991,7 +805,7 @@
                         data =
                             await metadataResponse.json();
 
-                    } catch {
+                    } catch (error) {
 
                         throw new Error(
                             'The server returned an invalid response while processing the thesis.'
@@ -1014,16 +828,13 @@
 
 
                     // ========================================
-                    // STEP 4
                     // SUCCESS
                     // ========================================
 
                     uploadForm.reset();
 
-
                     progressContainer.style.display =
                         'none';
-
 
                     showSuccessPopup();
 
@@ -1050,7 +861,6 @@
 
                     uploadButton.disabled =
                         false;
-
 
                     uploadButton.textContent =
                         'Submit & Upload Thesis';
