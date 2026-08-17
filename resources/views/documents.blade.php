@@ -119,6 +119,22 @@
             return element.innerHTML;
         }
 
+        function formatAddedDate(dateString) {
+            if (!dateString) return 'Unknown date';
+
+            const date = new Date(dateString);
+
+            if (isNaN(date.getTime())) {
+                return 'Unknown date';
+            }
+
+            return new Intl.DateTimeFormat('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            }).format(date);
+        }
+
 
         // ========================================
         // OPEN PDF
@@ -234,78 +250,43 @@
                 }
 
 
-                documentsList.innerHTML =
-                    documents.map((doc) => {
+                documentsList.innerHTML = documents.map((doc) => `
+                    <article class="flex flex-col gap-3 sm:gap-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 sm:flex-row sm:items-start sm:justify-between shadow-sm hover:shadow-md hover:border-[#700000]/40 transition">
 
-                        const title =
-                            escapeHtml(
-                                doc.title
-                            );
+                        <div class="flex-1 min-w-0">
 
-                        const author =
-                            escapeHtml(
-                                doc.author ||
-                                'Unknown Author'
-                            );
+                            <h3 class="text-base sm:text-lg font-bold text-gray-900">
+                                ${escapeHtml(doc.title)}
+                            </h3>
 
-                        const abstract =
-                            escapeHtml(
-                                doc.abstract ||
-                                'No abstract available.'
-                            );
+                            <p class="mt-1 text-xs sm:text-sm font-bold text-[#700000]">
+                                ${escapeHtml(doc.author || 'Unknown Author')}
+                            </p>
 
+                            <p class="mt-2.5 text-xs sm:text-sm leading-relaxed text-gray-600">
+                                ${escapeHtml(doc.abstract)}
+                            </p>
 
-                        const pdfUrl =
-                            `/backend/documents/${doc.id}/view`;
+                            <!-- ADDED ON -->
+                            <p class="mt-3 text-xs text-gray-400">
+                                Added on:
+                                <span class="font-medium text-gray-500">
+                                    ${formatAddedDate(doc.created_at)}
+                                </span>
+                            </p>
 
+                        </div>
 
-                        return `
+                        <button
+                            type="button"
+                            onclick="openPdfViewer('/backend/documents/${doc.id}/view', '${escapeHtml(doc.title)}')"
+                            class="w-full sm:w-auto rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-sm shrink-0"
+                        >
+                            View Thesis
+                        </button>
 
-                            <article
-                                class="flex flex-col gap-3 sm:gap-4 rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 sm:flex-row sm:items-start sm:justify-between shadow-sm hover:shadow-md hover:border-[#700000]/40 transition"
-                            >
-
-                                <div
-                                    class="flex-1 min-w-0"
-                                >
-
-                                    <h3
-                                        class="text-base sm:text-lg font-bold text-gray-900"
-                                    >
-                                        ${title}
-                                    </h3>
-
-
-                                    <p
-                                        class="mt-1 text-xs sm:text-sm font-bold text-[#700000]"
-                                    >
-                                        ${author}
-                                    </p>
-
-
-                                    <p
-                                        class="mt-2.5 text-xs sm:text-sm leading-relaxed text-gray-600"
-                                    >
-                                        ${abstract}
-                                    </p>
-
-                                </div>
-
-
-                                <a
-                                    href="/backend/documents/${doc.id}/view"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    class="inline-flex w-full sm:w-auto items-center justify-center rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-sm shrink-0"
-                                >
-                                    View Thesis
-                                </a>
-
-                            </article>
-
-                        `;
-
-                    }).join('');
+                    </article>
+                `).join('');
 
 
                 // ========================================
