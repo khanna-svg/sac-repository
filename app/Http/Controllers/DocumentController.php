@@ -91,7 +91,7 @@ class DocumentController extends Controller
     public function createUploadUrl(Request $request)
 {
     // Make sure only admins can prepare an upload.
-    if ($request->session()->get('user_role') !== 'admin') {
+    if ($request->session()->get('sac_user_role') !== 'admin') {
         return response()->json([
             'error' => true,
             'message' => 'Unauthorized. Admin access required.',
