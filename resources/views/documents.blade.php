@@ -18,7 +18,6 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-800">
 
-
     @include('partials.sidebar')
 
 
@@ -26,7 +25,6 @@
         class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-16 md:pt-10">
 
         <div class="mx-auto max-w-5xl">
-
 
             <!-- HEADER -->
 
@@ -68,7 +66,7 @@
                 </form>
 
 
-                <!-- DOCUMENTS -->
+                <!-- DOCUMENT LIST -->
 
                 <div
                     id="documentsList"
@@ -87,56 +85,14 @@
     </main>
 
 
-    <!-- ======================================== -->
-    <!-- PDF VIEWER MODAL -->
-    <!-- ======================================== -->
+    <!--
+        NO IFRAME HERE.
 
-    <div
-        id="pdfModal"
-        class="fixed inset-0 z-50 hidden bg-slate-900/60 p-2 sm:p-4 backdrop-blur-sm">
+        The PDF is opened directly in a new browser tab.
+        Laravel generates a temporary Supabase signed URL
+        and redirects the browser to it.
+    -->
 
-        <div
-            class="mx-auto flex h-full max-w-6xl flex-col rounded-2xl bg-white border border-gray-200 shadow-2xl">
-
-            <!-- HEADER -->
-
-            <div
-                class="flex items-center justify-between border-b border-gray-200 bg-[#700000] px-4 py-3 sm:px-5 sm:py-4 rounded-t-2xl">
-
-                <h2
-                    id="pdfTitle"
-                    class="text-sm sm:text-base font-bold text-[#FFD700] truncate pr-2">
-                    Thesis Viewer
-                </h2>
-
-
-                <button
-                    type="button"
-                    onclick="closePdfViewer()"
-                    class="rounded-lg bg-[#500000] px-3 py-1.5 text-xs sm:text-sm font-semibold text-white hover:bg-red-800 shrink-0 transition">
-                    Close
-                </button>
-
-            </div>
-
-
-            <!-- PDF -->
-
-            <iframe
-                id="pdfFrame"
-                class="min-h-0 flex-1 w-full rounded-b-2xl bg-white"
-                title="Thesis PDF viewer"
-                frameborder="0"
-                allowfullscreen></iframe>
-
-        </div>
-
-    </div>
-
-
-    <!-- ======================================== -->
-    <!-- JAVASCRIPT -->
-    <!-- ======================================== -->
 
     <script>
         const documentsList =
@@ -148,14 +104,10 @@
         const searchInput =
             document.getElementById('searchInput');
 
-        const pdfModal =
-            document.getElementById('pdfModal');
 
-        const pdfFrame =
-            document.getElementById('pdfFrame');
-
-        const pdfTitle =
-            document.getElementById('pdfTitle');
+        // ========================================
+        // ESCAPE HTML
+        // ========================================
 
         function escapeHtml(value) {
             const element =
@@ -166,7 +118,50 @@
 
             return element.innerHTML;
         }
+
+
+        // ========================================
+        // OPEN PDF
+        // ========================================
+
+        function openPdfViewer(url) {
+            /*
+             * Open the Laravel endpoint in a new tab.
+             *
+             * Laravel will:
+             *
+             * 1. Check the logged-in user.
+             * 2. Check the document.
+             * 3. Generate a temporary Supabase signed URL.
+             * 4. Redirect the browser directly to Supabase.
+             *
+             * The PDF therefore NEVER passes through Vercel.
+             */
+
+            const newWindow =
+                window.open(
+                    url,
+                    '_blank',
+                    'noopener,noreferrer'
+                );
+
+
+            if (!newWindow) {
+
+                alert(
+                    'Please allow pop-ups for this website to view the thesis.'
+                );
+
+            }
+        }
+
+
+        // ========================================
+        // FETCH DOCUMENTS
+        // ========================================
+
         async function fetchDocuments(search = '') {
+
             documentsList.innerHTML = `
                 <p class="text-center text-sm text-gray-500">
                     Loading documents...
@@ -237,6 +232,8 @@
                     return;
 
                 }
+
+
                 documentsList.innerHTML =
                     documents.map((doc) => {
 
@@ -256,6 +253,7 @@
                                 doc.abstract ||
                                 'No abstract available.'
                             );
+
 
                         const pdfUrl =
                             `/backend/documents/${doc.id}/view`;
@@ -298,7 +296,6 @@
                                     type="button"
                                     class="view-pdf-button w-full sm:w-auto rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-sm shrink-0"
                                     data-url="${pdfUrl}"
-                                    data-title="${title}"
                                 >
                                     View Thesis
                                 </button>
@@ -308,6 +305,11 @@
                         `;
 
                     }).join('');
+
+
+                // ========================================
+                // BUTTON EVENTS
+                // ========================================
 
                 document
                     .querySelectorAll('.view-pdf-button')
@@ -320,13 +322,7 @@
                                 const url =
                                     this.dataset.url;
 
-                                const title =
-                                    this.dataset.title;
-
-                                openPdfViewer(
-                                    url,
-                                    title
-                                );
+                                openPdfViewer(url);
 
                             }
                         );
@@ -344,14 +340,23 @@
 
                 documentsList.innerHTML = `
                     <div class="rounded-xl border border-red-200 bg-red-50 p-4 text-center">
+
                         <p class="text-sm text-red-700">
                             Could not load documents.
                         </p>
+
                     </div>
                 `;
 
             }
+
         }
+
+
+        // ========================================
+        // SEARCH
+        // ========================================
+
         searchForm.addEventListener(
             'submit',
             function(event) {
@@ -364,53 +369,12 @@
 
             }
         );
-        function openPdfViewer(
-            url,
-            title
-        ) {
-
-            pdfTitle.textContent =
-                title || 'Thesis Viewer';
-            pdfFrame.src = url;
 
 
-            pdfModal.classList.remove(
-                'hidden'
-            );
+        // ========================================
+        // LOAD DOCUMENTS
+        // ========================================
 
-            document.body.classList.add(
-                'overflow-hidden'
-            );
-
-        }
-        function closePdfViewer() {
-
-            pdfFrame.src = '';
-
-            pdfModal.classList.add(
-                'hidden'
-            );
-
-            document.body.classList.remove(
-                'overflow-hidden'
-            );
-
-        }
-        document.addEventListener(
-            'keydown',
-            function(event) {
-
-                if (
-                    event.key === 'Escape' &&
-                    !pdfModal.classList.contains('hidden')
-                ) {
-
-                    closePdfViewer();
-
-                }
-
-            }
-        );
         fetchDocuments();
     </script>
 
