@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AuthController;
+use App\Http\Middleware\RequireSacAdmin;
 use App\Http\Controllers\DocumentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -75,13 +76,19 @@ Route::middleware('sac.auth')->group(function () {
 
     })->name('admin.upload');
 
-    Route::post('/backend/documents/upload-url',[DocumentController::class, 'createUploadUrl']
-    );
+    Route::get('/backend/documents/{document}/view', [DocumentController::class, 'viewPdf']);
 
-    Route::post('/backend/documents/upload',[DocumentController::class, 'store']
-    );
+    // Admin-Only Routes (Protected by RequireSacAdmin Middleware)
+    Route::middleware(RequireSacAdmin::class)->group(function () {
 
-    Route::get('/backend/documents/{document}/view',[DocumentController::class, 'viewPdf']
-    );
+        Route::get('/admin/upload', function () {
+            return view('admin.upload');
+        })->name('admin.upload');
+
+        Route::post('/backend/documents/upload-url', [DocumentController::class, 'createUploadUrl']);
+
+        Route::post('/backend/documents/upload', [DocumentController::class, 'store']);
+
+    });
 
 });
