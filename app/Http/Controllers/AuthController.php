@@ -26,34 +26,55 @@ class AuthController extends Controller
             return back()
                 ->withInput()
                 ->withErrors([
-                    'email' => 'Only @sac.edu.ph email accounts can access this system.',
+                    'email' =>
+                        'Only @sac.edu.ph email accounts can access this system.',
                 ]);
         }
 
-        $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
-        $key = (string) getenv('SUPABASE_PUBLISHABLE_KEY');
+
+        $baseUrl = rtrim(
+            (string) getenv('SUPABASE_URL'),
+            '/'
+        );
+
+        $key = (string) getenv(
+            'SUPABASE_PUBLISHABLE_KEY'
+        );
+
 
         if ($baseUrl === '' || $key === '') {
             return back()->withErrors([
-                'email' => 'Login service is not configured.',
+                'email' =>
+                    'Login service is not configured.',
             ]);
         }
+
 
         $response = Http::withHeaders([
             'apikey' => $key,
             'Authorization' => "Bearer {$key}",
-        ])->post("{$baseUrl}/auth/v1/otp", [
-            'email' => $email,
-            'create_user' => true,
-        ]);
+        ])->post(
+            "{$baseUrl}/auth/v1/otp",
+            [
+                'email' => $email,
+                'create_user' => true,
+            ]
+        );
+
 
         if (!$response->successful()) {
             return back()->withErrors([
-                'email' => 'Could not send a login code. Please try again.',
+                'email' =>
+                    'Could not send a login code. Please try again.',
             ]);
         }
 
-        $request->session()->put('pending_email', $email);
+
+        $request->session()->put(
+            'pending_email',
+            $email
+        );
+
 
         return redirect('/login')->with(
             'success',
@@ -67,44 +88,81 @@ class AuthController extends Controller
             'code' => ['required', 'digits:8'],
         ]);
 
-        $email = $request->session()->get('pending_email');
+
+        $email = $request->session()->get(
+            'pending_email'
+        );
+
 
         if (!$email) {
             return redirect('/login')->withErrors([
-                'email' => 'Enter your SAC email first.',
+                'email' =>
+                    'Enter your SAC email first.',
             ]);
         }
 
-        $baseUrl = rtrim((string) getenv('SUPABASE_URL'), '/');
-        $key = (string) getenv('SUPABASE_PUBLISHABLE_KEY');
+
+        $baseUrl = rtrim(
+            (string) getenv('SUPABASE_URL'),
+            '/'
+        );
+
+        $key = (string) getenv(
+            'SUPABASE_PUBLISHABLE_KEY'
+        );
+
 
         $response = Http::withHeaders([
             'apikey' => $key,
             'Authorization' => "Bearer {$key}",
-        ])->post("{$baseUrl}/auth/v1/verify", [
-            'email' => $email,
-            'token' => $request->code,
-            'type' => 'email',
-        ]);
+        ])->post(
+            "{$baseUrl}/auth/v1/verify",
+            [
+                'email' => $email,
+                'token' => $request->code,
+                'type' => 'email',
+            ]
+        );
+
 
         if (!$response->successful()) {
             return back()->withErrors([
-                'code' => 'Invalid or expired code. Request a new login code.',
+                'code' =>
+                    'Invalid or expired code. Request a new login code.',
             ]);
         }
 
+
         $user = $response->json('user');
 
-        if (!$user || !str_ends_with(strtolower($user['email'] ?? ''), '@sac.edu.ph')) {
+
+        if (
+            !$user ||
+            !str_ends_with(
+                strtolower($user['email'] ?? ''),
+                '@sac.edu.ph'
+            )
+        ) {
             return redirect('/login')->withErrors([
-                'email' => 'Only @sac.edu.ph accounts can access this system.',
+                'email' =>
+                    'Only @sac.edu.ph accounts can access this system.',
             ]);
         }
 
         $request->session()->regenerate();
+        $request->session()->put([
+            'sac_user_email' =>
+                strtolower($user['email']),
 
-        $request->session()->put('sac_user_email', strtolower($user['email']));
-        $request->session()->forget('pending_email');
+            'sac_user_role' =>
+                'student',
+        ]);
+
+
+        $request->session()->forget(
+            'pending_email'
+        );
+
 
         return redirect('/documents');
     }
@@ -112,6 +170,7 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         $request->session()->invalidate();
+
         $request->session()->regenerateToken();
 
         return redirect('/login');
