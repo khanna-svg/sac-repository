@@ -13,11 +13,11 @@
     @include('partials.sidebar')
 
     <!-- Hidden Data Attributes for Safe JavaScript Access -->
-    <div id="citationData" 
-         data-title="{{ $document->title }}" 
-         data-author="{{ $document->author }}" 
-         data-year="{{ $document->created_at ? $document->created_at->format('Y') : date('Y') }}"
-         class="hidden"></div>
+    <div id="citationData"
+        data-title="{{ $document->title }}"
+        data-author="{{ $document->author }}"
+        data-year="{{ $document->created_at ? $document->created_at->format('Y') : date('Y') }}"
+        class="hidden"></div>
 
     <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-16 md:pt-10">
         <div class="mx-auto max-w-4xl">
@@ -99,8 +99,8 @@
                 <div id="tabAbstractContent" class="space-y-6">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2">Abstract</h2>
-                        <div class="rounded-2xl bg-slate-50 border border-gray-200 p-5 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-sans text-center">
-                            {{ trim($document->abstract) }}
+                        <div class="rounded-2xl bg-slate-50 border border-gray-200 p-5 text-sm text-gray-700 leading-relaxed font-sans text-justify">
+                            {!! nl2br(e(preg_replace('/^[ \t]+/m', '', $document->abstract))) !!}
                         </div>
                     </div>
                 </div>
@@ -110,19 +110,19 @@
                     <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2">Extracted Full Text</h2>
 
                     @if($document->chunks && $document->chunks->count() > 0)
-                        <div class="rounded-2xl bg-slate-50 border border-gray-200 p-6 space-y-4 max-h-[600px] overflow-y-auto leading-relaxed text-sm text-gray-800 font-sans">
-                            @foreach($document->chunks as $chunk)
-                                <p class="text-gray-700 leading-relaxed">{{ $chunk->chunk_text }}</p>
-                            @endforeach
-                        </div>
+                    <div class="rounded-2xl bg-slate-50 border border-gray-200 p-6 space-y-4 max-h-[600px] overflow-y-auto leading-relaxed text-sm text-gray-800 font-sans">
+                        @foreach($document->chunks as $chunk)
+                        <p class="text-gray-700 leading-relaxed">{{ $chunk->chunk_text }}</p>
+                        @endforeach
+                    </div>
                     @else
-                        <div class="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center text-sm text-amber-800">
-                            <p class="font-bold">Full text extraction preview is being generated.</p>
-                            <p class="mt-1 text-xs text-amber-700">You can view or download the complete original document using the button below:</p>
-                            <a href="/backend/documents/{{ $document->id }}/view" target="_blank" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000]">
-                                📄 Open PDF File
-                            </a>
-                        </div>
+                    <div class="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center text-sm text-amber-800">
+                        <p class="font-bold">Full text extraction preview is being generated.</p>
+                        <p class="mt-1 text-xs text-amber-700">You can view or download the complete original document using the button below:</p>
+                        <a href="/backend/documents/{{ $document->id }}/view" target="_blank" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000]">
+                            📄 Open PDF File
+                        </a>
+                    </div>
                     @endif
                 </div>
 
