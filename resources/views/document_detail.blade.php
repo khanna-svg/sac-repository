@@ -106,13 +106,43 @@
                 </div>
 
                 <!-- Full Text Tab Content -->
-                <div id="tabFullTextContent" class="hidden space-y-4">
-                    <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2">Extracted Full Text</h2>
+                <!-- Full Text Tab Content -->
+                <div id="tabFullTextContent" class="hidden space-y-6">
+                    <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000]">
+                            Extracted Full Text
+                        </h2>
+                        @if($document->chunks && $document->chunks->count() > 0)
+                        <span class="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                            Total Pages: {{ $document->chunks->count() }}
+                        </span>
+                        @endif
+                    </div>
 
                     @if($document->chunks && $document->chunks->count() > 0)
-                    <div class="rounded-2xl bg-slate-50 border border-gray-200 p-6 space-y-4 max-h-[600px] overflow-y-auto leading-relaxed text-sm text-gray-800 font-sans">
+                    <div class="space-y-6 max-h-[700px] overflow-y-auto pr-2">
                         @foreach($document->chunks as $chunk)
-                        <p class="text-gray-700 leading-relaxed">{{ $chunk->chunk_text }}</p>
+                        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+
+                            <!-- Page Number Label -->
+                            <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-2">
+                                <span class="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-bold text-[#700000]">
+                                    Page {{ $chunk->page_number ?? $loop->iteration }}
+                                </span>
+                            </div>
+
+                            <!-- Formatted Paragraph Blocks -->
+                            <div class="space-y-4">
+                                @foreach(explode("\n\n", $chunk->chunk_text) as $paragraph)
+                                @if(trim($paragraph))
+                                <p class="text-justify text-xs md:text-sm text-gray-800 leading-relaxed font-sans">
+                                    {{ trim($paragraph) }}
+                                </p>
+                                @endif
+                                @endforeach
+                            </div>
+
+                        </div>
                         @endforeach
                     </div>
                     @else

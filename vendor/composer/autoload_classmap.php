@@ -6,9 +6,13 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Http\\Controllers\\AdminAuthController' => $baseDir . '/app/Http/Controllers/AdminAuthController.php',
+    'App\\Http\\Controllers\\AuthController' => $baseDir . '/app/Http/Controllers/AuthController.php',
     'App\\Http\\Controllers\\ChatController' => $baseDir . '/app/Http/Controllers/ChatController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
     'App\\Http\\Controllers\\DocumentController' => $baseDir . '/app/Http/Controllers/DocumentController.php',
+    'App\\Http\\Middleware\\RequireSacAdmin' => $baseDir . '/app/Http/Middleware/RequireSacAdmin.php',
+    'App\\Http\\Middleware\\RequireSacLogin' => $baseDir . '/app/Http/Middleware/RequireSacLogin.php',
     'App\\Models\\Document' => $baseDir . '/app/Models/Document.php',
     'App\\Models\\DocumentChunk' => $baseDir . '/app/Models/DocumentChunk.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',

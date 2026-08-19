@@ -573,9 +573,13 @@ class ComposerStaticInit53b5d56b3b7e3cbac1713e68c8850f6c
     );
 
     public static $classMap = array (
+        'App\\Http\\Controllers\\AdminAuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/AdminAuthController.php',
+        'App\\Http\\Controllers\\AuthController' => __DIR__ . '/../..' . '/app/Http/Controllers/AuthController.php',
         'App\\Http\\Controllers\\ChatController' => __DIR__ . '/../..' . '/app/Http/Controllers/ChatController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
         'App\\Http\\Controllers\\DocumentController' => __DIR__ . '/../..' . '/app/Http/Controllers/DocumentController.php',
+        'App\\Http\\Middleware\\RequireSacAdmin' => __DIR__ . '/../..' . '/app/Http/Middleware/RequireSacAdmin.php',
+        'App\\Http\\Middleware\\RequireSacLogin' => __DIR__ . '/../..' . '/app/Http/Middleware/RequireSacLogin.php',
         'App\\Models\\Document' => __DIR__ . '/../..' . '/app/Models/Document.php',
         'App\\Models\\DocumentChunk' => __DIR__ . '/../..' . '/app/Models/DocumentChunk.php',
         'App\\Models\\User' => __DIR__ . '/../..' . '/app/Models/User.php',
