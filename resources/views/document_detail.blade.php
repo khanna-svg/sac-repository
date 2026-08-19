@@ -39,6 +39,16 @@
                     <span class="rounded-lg bg-[#700000]/10 text-[#700000] border border-[#700000]/20 px-3 py-1 text-xs font-bold">
                         St. Anthony's College
                     </span>
+                    @if($document->department)
+                    <span class="rounded-lg bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 text-xs font-bold">
+                        {{ $document->department }}
+                    </span>
+                    @endif
+                    @if($document->course_code)
+                    <span class="rounded-lg bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 text-xs font-bold uppercase">
+                        {{ $document->course_code }}
+                    </span>
+                    @endif
                     <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-3 py-1 text-xs font-bold flex items-center gap-1">
                         ✓ Full Text Online
                     </span>
@@ -50,18 +60,13 @@
                 <!-- Book Cover & Title Header Row -->
                 <div class="flex flex-col sm:flex-row items-start gap-5 my-3">
 
-                    <!-- Book Spine Thumbnail Icon -->
-                    <div class="w-20 sm:w-24 h-28 sm:h-32 shrink-0 rounded-lg bg-gradient-to-b from-[#700000] via-[#500000] to-[#300000] border-l-4 border-amber-400 shadow-md flex flex-col justify-between p-2.5 text-white">
-                        <div class="border-b border-white/20 pb-1">
-                            <p class="text-[7px] uppercase font-bold tracking-widest text-amber-300">Journal of</p>
-                            <p class="text-[9px] font-extrabold uppercase leading-none tracking-tight">SAC Research</p>
-                        </div>
-                        <div class="text-center my-auto">
-                            <span class="text-xl">📚</span>
-                        </div>
-                        <div class="bg-amber-400/90 text-[#700000] text-[7px] font-black tracking-wider uppercase px-1 py-0.5 rounded text-center">
-                            Official
-                        </div>
+                    <!-- Dynamic Book Cover Image -->
+                    <div class="w-20 sm:w-24 h-28 sm:h-32 shrink-0 rounded-lg overflow-hidden shadow-md border border-gray-200 bg-slate-100">
+                        <img
+                            src="{{ asset('images/covers/' . strtolower($document->course_code ?? 'default') . '.webp') }}"
+                            alt="{{ $document->title }} Cover"
+                            class="w-full h-full object-cover"
+                            onerror="handleImageError(this)">
                     </div>
 
                     <!-- Title -->
@@ -93,7 +98,7 @@
                             <span>🤖</span> Ask AI About This
                         </a>
 
-                        <!-- Download PDF Button (Replaced Share Link) -->
+                        <!-- Download PDF Button -->
                         <a href="/backend/documents/{{ $document->id }}/view" download class="rounded-xl bg-white border border-gray-300 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5 shadow-sm">
                             <span>📥</span> <span>Download PDF</span>
                         </a>
@@ -119,7 +124,7 @@
                 <div id="tabAbstractContent" class="space-y-6">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2 text-center">Abstract</h2>
-                        <div class="rounded-2xl bg-slate-50 border border-gray-200 p-5 text-sm text-gray-700 leading-relaxed font-sans text-justify">
+                        <div class="rounded-2xl bg-slate-50 border border-gray-200 p-5 text-sm text-gray-700 leading-relaxed font-sans text-center">
                             {!! nl2br(e(preg_replace('/^[ \t]+/m', '', $document->abstract))) !!}
                         </div>
                     </div>
@@ -151,7 +156,7 @@
                             </div>
 
                             <!-- Formatted Paragraph Blocks -->
-                            <div class="space-y-4">
+                            <div class="space-y-4 text-center">
                                 @foreach(explode("\n\n", $chunk->chunk_text) as $paragraph)
                                 @if(trim($paragraph))
                                 <p class="text-justify text-xs md:text-sm text-gray-800 leading-relaxed font-sans">
@@ -208,6 +213,11 @@
 
     <!-- JavaScript Logic -->
     <script>
+        function handleImageError(imageElement) {
+            imageElement.onerror = null;
+            imageElement.src = "{{ asset('images/covers/default.jpg') }}";
+        }
+
         function switchViewTab(tab) {
             const abstractBtn = document.getElementById('tabAbstractBtn');
             const fullTextBtn = document.getElementById('tabFullTextBtn');

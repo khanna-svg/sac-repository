@@ -302,10 +302,12 @@ class DocumentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'author' => 'required|string|max:255',
-            'abstract' => 'required|string',
-            'file' => 'required|file|mimes:pdf|max:51200',
+            'title'       => 'required|string|max:255',
+            'author'      => 'required|string|max:255',
+            'department'  => 'required|string|max:255',
+            'course_code' => 'required|string|max:100',
+            'abstract'    => 'required|string',
+            'file'        => 'required|file|mimes:pdf|max:51200',
         ]);
 
         try {
@@ -344,11 +346,13 @@ class DocumentController extends Controller
             }
 
             $document = Document::create([
-                'title' => $request->input('title'),
-                'author' => $request->input('author'),
-                'abstract' => $request->input('abstract'),
-                'file_path' => $filePath,
-                'file_url' => '',
+                'title'       => $request->input('title'),
+                'author'      => $request->input('author'),
+                'department'  => $request->input('department'),
+                'course_code' => $request->input('course_code'),
+                'abstract'    => $request->input('abstract'),
+                'file_path'   => $filePath,
+                'file_url'    => '',
             ]);
 
             $document->update([

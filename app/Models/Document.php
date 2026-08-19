@@ -13,6 +13,8 @@ class Document extends Model
         'title',
         'author',
         'abstract',
+        'department',
+        'course_code',
         'file_path',
         'file_url',
     ];

@@ -136,6 +136,36 @@
                         <input id="author" name="author" type="text" required class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
                     </div>
 
+                    <!-- DEPARTMENT & COURSE GRID -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- DEPARTMENT -->
+                        <div>
+                            <label for="department" class="mb-2 block text-xs md:text-sm font-semibold text-gray-700">
+                                DEPARTMENT
+                            </label>
+                            <select id="department" name="department" required class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
+                                <option value="" disabled selected>Select Department</option>
+                                <option value="College of Computer Studies">College of Computer Studies</option>
+                                <option value="College of Nursing">College of Nursing</option>
+                                <option value="College of Business">College of Business</option>
+                            </select>
+                        </div>
+
+                        <!-- COURSE -->
+                        <div>
+                            <label for="course_code" class="mb-2 block text-xs md:text-sm font-semibold text-gray-700">
+                                COURSE
+                            </label>
+                            <select id="course_code" name="course_code" required class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
+                                <option value="" disabled selected>Select Course</option>
+                                <!-- Values correspond to image filenames in public/images/covers/ -->
+                                <option value="bsit">BS in Information Technology</option>
+                                <option value="bsn">BS in Nursing</option>
+                                <option value="bsba">BS in Business Administration</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <!-- ABSTRACT -->
                     <div>
                         <label for="abstract" class="mb-2 block text-xs md:text-sm font-semibold text-gray-700">
@@ -206,6 +236,7 @@
         function showError(message) {
             uploadMessage.textContent = message;
             uploadMessage.className = 'mt-4 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700';
+            uploadMessage.classList.remove('hidden');
         }
 
         function showSuccessPopup() {
@@ -266,7 +297,7 @@
 
                 if (uploadError) throw uploadError;
 
-                // 3. Save Metadata (Server will queue the full 275-page extraction)
+                // 3. Save Metadata (Including department & course_code)
                 const metadataResponse = await fetch('/backend/documents/store-signed', {
                     method: 'POST',
                     headers: {
@@ -277,6 +308,8 @@
                     body: JSON.stringify({
                         title: document.getElementById('title').value.trim(),
                         author: document.getElementById('author').value.trim(),
+                        department: document.getElementById('department').value,
+                        course_code: document.getElementById('course_code').value,
                         abstract: document.getElementById('abstract').value.trim(),
                         file_path: urlData.path
                     })
