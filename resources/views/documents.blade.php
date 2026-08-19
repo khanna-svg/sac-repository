@@ -230,8 +230,10 @@
                             </div>
 
                             <!-- Title -->
-                            <h3 class="mt-2.5 text-base md:text-lg font-bold text-gray-900 hover:text-[#700000] transition">
-                                ${escapeHtml(doc.title)}
+                            <h3 class="mt-2.5 text-base md:text-lg font-bold text-gray-900 transition">
+                                <a href="/documents/${doc.id}" class="hover:text-[#700000] hover:underline cursor-pointer">
+                                    ${escapeHtml(doc.title)}
+                                </a>
                             </h3>
 
                             <!-- Author -->

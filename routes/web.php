@@ -28,7 +28,6 @@ Route::post('/login/reset', function (Request $request) {
     $request->session()->forget('pending_email');
 
     return redirect('/login');
-
 })->name('login.reset');
 
 Route::post('/admin/login', [AdminAuthController::class, 'login']);
@@ -45,7 +44,6 @@ Route::middleware('sac.auth')->group(function () {
         }
 
         return redirect()->route('documents');
-
     });
 
     Route::get('/documents', function () {
@@ -55,13 +53,11 @@ Route::middleware('sac.auth')->group(function () {
         }
 
         return view('documents');
-
     })->name('documents');
 
     Route::get('/chat', function () {
 
         return view('chat');
-
     })->name('chat');
 
     Route::get('/backend/documents/{document}/view', [DocumentController::class, 'viewPdf']);
@@ -73,12 +69,13 @@ Route::middleware('sac.auth')->group(function () {
             return view('admin.upload');
         })->name('admin.upload');
 
+        Route::get('/documents/{document}', [DocumentController::class, 'show'])
+            ->name('documents.show');
+
         Route::post('/backend/documents/upload-url', [DocumentController::class, 'createUploadUrl']);
 
         Route::post('/backend/documents/upload', [DocumentController::class, 'store']);
 
         Route::post('/backend/documents/store-signed', [DocumentController::class, 'storeFromSignedUrl']);
-
     });
-
 });

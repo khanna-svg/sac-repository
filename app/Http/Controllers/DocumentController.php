@@ -193,6 +193,19 @@ class DocumentController extends Controller
         );
     }
 
+    /**
+     * Display a single thesis document in ProQuest reading view.
+     */
+    public function show(Document $document)
+    {
+        // Load document chunks for full-text reading
+        $document->load('chunks');
+
+        return view('document-detail', [
+            'document' => $document,
+        ]);
+    }
+
 
     /**
      * Generate a signed upload URL for direct
