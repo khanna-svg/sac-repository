@@ -80,7 +80,6 @@ class DocumentController extends Controller
             }
 
             return redirect()->away($signedUrl);
-
         } catch (\Throwable $e) {
             Log::error('PDF view exception: ' . $e->getMessage());
             abort(500, 'Unable to open the thesis PDF.');
@@ -99,8 +98,8 @@ class DocumentController extends Controller
 
             $query->where(function ($q) use ($searchTerm) {
                 $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
-                  ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
-                  ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
+                    ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
             });
         }
 
@@ -123,7 +122,6 @@ class DocumentController extends Controller
             return view('document_detail', [
                 'document' => $document,
             ]);
-
         } catch (\Throwable $e) {
             Log::error('Document detail error: ' . $e->getMessage());
 
@@ -233,7 +231,6 @@ class DocumentController extends Controller
                 'signedUrl' => $signedUrl,
                 'token' => $token,
             ]);
-
         } catch (\Throwable $e) {
             Log::error('Create Supabase upload URL failed: ' . $e->getMessage());
 
@@ -298,27 +295,33 @@ class DocumentController extends Controller
                 }
             }
 
-            // 3. Save Text Chunks and Generate Vector Embeddings
+            // 3. Optimized Chunk Storage
             $gemini = app(GeminiService::class);
+            $maxEmbeddedChunks = 5; // Limits live API calls to prevent 504 timeouts
 
-            foreach ($allChunks as $chunk) {
-                try {
-                    $embedding = $gemini->generateEmbedding($chunk);
-                    $vector = '[' . implode(',', $embedding) . ']';
+            foreach ($allChunks as $index => $chunk) {
+                if ($index < $maxEmbeddedChunks) {
+                    try {
+                        $embedding = $gemini->generateEmbedding($chunk);
+                        $vector = '[' . implode(',', $embedding) . ']';
 
-                    DB::statement(
-                        'INSERT INTO document_chunks (document_id, chunk_text, embedding, created_at, updated_at) 
-                         VALUES (?, ?, ?::extensions.vector, NOW(), NOW())',
-                        [$document->id, $chunk, $vector]
-                    );
-                } catch (\Throwable $chunkError) {
-                    // Save text even if embedding quota fails
-                    DB::statement(
-                        'INSERT INTO document_chunks (document_id, chunk_text, created_at, updated_at) 
-                         VALUES (?, ?, NOW(), NOW())',
-                        [$document->id, $chunk]
-                    );
+                        DB::statement(
+                            'INSERT INTO document_chunks (document_id, chunk_text, embedding, created_at, updated_at) 
+                             VALUES (?, ?, ?::extensions.vector, NOW(), NOW())',
+                            [$document->id, $chunk, $vector]
+                        );
+                        continue;
+                    } catch (\Throwable $chunkError) {
+                        Log::warning("Embedding generation failed for chunk {$index}: " . $chunkError->getMessage());
+                    }
                 }
+
+                // Fast Direct SQL Insert for all remaining pages
+                DB::statement(
+                    'INSERT INTO document_chunks (document_id, chunk_text, created_at, updated_at) 
+                     VALUES (?, ?, NOW(), NOW())',
+                    [$document->id, $chunk]
+                );
             }
 
             return response()->json([
@@ -326,7 +329,6 @@ class DocumentController extends Controller
                 'message' => 'Thesis uploaded successfully.',
                 'document' => $document,
             ], 201);
-
         } catch (\Throwable $e) {
             Log::error('Store signed metadata failed: ' . $e->getMessage());
 
@@ -402,7 +404,7 @@ class DocumentController extends Controller
 
             try {
                 $gemini = app(GeminiService::class);
-                $chunks = array_slice(str_split($rawText, 800), 0, 20);
+                $chunks = array_slice(str_split($rawText, 800), 0, 5); // Capped at 5 to prevent timeouts
 
                 foreach ($chunks as $chunk) {
                     $chunk = trim($chunk);
@@ -428,7 +430,6 @@ class DocumentController extends Controller
                 'message' => 'Thesis uploaded successfully.',
                 'document' => $document,
             ], 201);
-
         } catch (\Throwable $e) {
             Log::error('Upload failed: ' . $e->getMessage());
 
