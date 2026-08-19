@@ -79,27 +79,36 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const chatForm = document.getElementById('chatForm');
+
+            // Guard check: Exit early if elements are missing
+            if (!chatForm) return;
+
             const messageInput = document.getElementById('messageInput');
             const sendBtn = document.getElementById('sendBtn');
             const sendBtnText = document.getElementById('sendBtnText');
             const sendBtnIcon = document.getElementById('sendBtnIcon');
             const chatMessages = document.getElementById('chatMessages');
-            // Read ?q= parameter from URL if student clicked "Ask AI" on a document card
+
+            // Safely read and execute URL parameter ?q= auto-submission
             const urlParams = new URLSearchParams(window.location.search);
             const initialQuery = urlParams.get('q');
-            if (initialQuery && initialQuery.trim()) {
+            if (initialQuery && initialQuery.trim() && messageInput) {
                 messageInput.value = initialQuery.trim();
-                // Optional: Automatically submit after a brief delay
                 setTimeout(() => {
-                    chatForm.requestSubmit();
+                    chatForm.dispatchEvent(new Event('submit', {
+                        cancelable: true,
+                        bubbles: true
+                    }));
                 }, 300);
             }
 
             function scrollToBottom() {
-                chatMessages.scrollTo({
-                    top: chatMessages.scrollHeight,
-                    behavior: 'smooth'
-                });
+                if (chatMessages) {
+                    chatMessages.scrollTo({
+                        top: chatMessages.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
             }
 
             function addUserMessage(message) {
@@ -145,7 +154,7 @@
 
                 if (sources.length > 0) {
                     const sourceList = messageWrapper.querySelector('.source-list');
-                    sources.forEach((source, index) => {
+                    sources.forEach((source) => {
                         const sourceElement = document.createElement('div');
                         sourceElement.className = 'text-xs text-gray-700 bg-slate-50 border border-gray-200 rounded-xl p-2.5 flex items-center justify-between gap-3 hover:border-[#700000]/40 transition';
                         const similarity = source.similarity ? Math.round(source.similarity * 100) : null;
@@ -231,12 +240,16 @@
                 addLoadingMessage();
 
                 try {
+                    // Safe access to CSRF Token meta element
+                    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+                    const csrfToken = csrfMeta ? csrfMeta.getAttribute('content') : '';
+
                     const response = await fetch('/backend/chat', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            'X-CSRF-TOKEN': csrfToken
                         },
                         body: JSON.stringify({
                             message: message
@@ -266,7 +279,10 @@
             messageInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    chatForm.requestSubmit();
+                    chatForm.dispatchEvent(new Event('submit', {
+                        cancelable: true,
+                        bubbles: true
+                    }));
                 }
             });
 
