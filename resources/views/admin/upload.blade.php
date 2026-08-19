@@ -151,7 +151,7 @@
                         </label>
                         <input id="pdf" name="pdf" type="file" accept=".pdf,application/pdf" required class="block w-full cursor-pointer rounded-xl border border-gray-300 bg-white text-xs md:text-sm text-gray-600 file:mr-4 file:border-0 file:bg-[#700000] file:px-4 file:py-3 file:text-[#FFD700] file:font-bold">
                         <p class="mt-2 text-xs text-gray-400">
-                            Maximum file size: 50 MB (Full text will be automatically extracted from all pages)
+                            Maximum file size: 50 MB (Full text will be automatically extracted and optimized)
                         </p>
                     </div>
 
@@ -257,7 +257,7 @@
 
             try {
                 // ========================================
-                // STEP 1: EXTRACT FULL TEXT FROM PDF
+                // STEP 1: EXTRACT FULL TEXT FROM PDF (OPTIMIZED)
                 // ========================================
                 progressText.textContent = 'Extracting full text from PDF pages...';
                 updateProgress(25);
@@ -265,15 +265,21 @@
                 let extractedChunks = [];
                 try {
                     const arrayBuffer = await file.arrayBuffer();
-                    const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                    
-                    for (let pageNum = 1; pageNum <= pdfDoc.numPages; pageNum++) {
+                    const pdfDoc = await pdfjsLib.getDocument({
+                        data: arrayBuffer
+                    }).promise;
+
+                    // Cap extraction to a max of 25 pages to avoid payload bloat on large files
+                    const maxPagesToExtract = Math.min(pdfDoc.numPages, 25);
+
+                    for (let pageNum = 1; pageNum <= maxPagesToExtract; pageNum++) {
                         const page = await pdfDoc.getPage(pageNum);
                         const textContent = await page.getTextContent();
                         const pageText = textContent.items.map(item => item.str).join(' ').trim();
-                        
+
                         if (pageText.length > 30) {
-                            extractedChunks.push(`[Page ${pageNum}] ${pageText}`);
+                            // Truncate each page text chunk to 1,500 characters max
+                            extractedChunks.push(`[Page ${pageNum}] ${pageText.substring(0, 1500)}`);
                         }
                     }
                 } catch (pdfErr) {
@@ -293,7 +299,9 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({ filename: file.name })
+                    body: JSON.stringify({
+                        filename: file.name
+                    })
                 });
 
                 const urlData = await urlRes.json();
@@ -310,7 +318,9 @@
 
                 const bucketName = "{{ config('services.supabase.bucket', env('SUPABASE_STORAGE_BUCKET', 'thesis')) }}";
 
-                const { error: uploadError } = await supabaseClient
+                const {
+                    error: uploadError
+                } = await supabaseClient
                     .storage
                     .from(bucketName)
                     .uploadToSignedUrl(urlData.path, urlData.token, file, {
@@ -341,7 +351,7 @@
                         author: document.getElementById('author').value.trim(),
                         abstract: document.getElementById('abstract').value.trim(),
                         file_path: urlData.path,
-                        chunks: extractedChunks // 👈 Sends full text of all pages
+                        chunks: extractedChunks
                     })
                 });
 
@@ -370,4 +380,5 @@
         });
     </script>
 </body>
+
 </html>
