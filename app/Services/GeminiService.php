@@ -75,7 +75,7 @@ class GeminiService
         // 8 second timeout to stay safely under Vercel's 10s limit
         $response = Http::timeout(8)
             ->post(
-                "{$this->baseUrl}/models/gemini-1.5-flash:generateContent?key={$this->apiKey}",
+                "{$this->baseUrl}/models/gemini-3.6-flash:generateContent?key={$this->apiKey}",
                 [
                     'contents' => [
                         [
