@@ -2,14 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessThesisPdf;
 use App\Models\Document;
-use App\Services\GeminiService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Smalot\PdfParser\Parser;
 
 class DocumentController extends Controller
 {
@@ -243,7 +241,7 @@ class DocumentController extends Controller
     }
 
     /**
-     * Store thesis metadata and all extracted full-text chunks from the PDF.
+     * Store thesis metadata and automatically trigger PDF background extraction.
      */
     public function storeFromSignedUrl(Request $request)
     {
@@ -252,7 +250,6 @@ class DocumentController extends Controller
             $author = trim((string) $request->input('author'));
             $abstract = trim((string) $request->input('abstract'));
             $filePath = trim((string) $request->input('file_path'));
-            $extractedChunks = $request->input('chunks', []);
 
             if ($title === '' || $author === '' || $abstract === '' || $filePath === '') {
                 return response()->json([
@@ -281,49 +278,8 @@ class DocumentController extends Controller
                 'file_url' => "/backend/documents/{$document->id}/view",
             ]);
 
-            // 2. Prepare Chunks (Abstract + Extracted Pages)
-            $allChunks = [];
-            if (!empty($abstract)) {
-                $allChunks[] = "ABSTRACT: " . $abstract;
-            }
-
-            if (is_array($extractedChunks)) {
-                foreach ($extractedChunks as $chunkText) {
-                    $clean = trim((string) $chunkText);
-                    if ($clean !== '') {
-                        $allChunks[] = $clean;
-                    }
-                }
-            }
-
-            // 3. Optimized Chunk Storage
-            $gemini = app(GeminiService::class);
-            $maxEmbeddedChunks = 5; // Limits live API calls to prevent 504 timeouts
-
-            foreach ($allChunks as $index => $chunk) {
-                if ($index < $maxEmbeddedChunks) {
-                    try {
-                        $embedding = $gemini->generateEmbedding($chunk);
-                        $vector = '[' . implode(',', $embedding) . ']';
-
-                        DB::statement(
-                            'INSERT INTO document_chunks (document_id, chunk_text, embedding, created_at, updated_at) 
-                             VALUES (?, ?, ?::extensions.vector, NOW(), NOW())',
-                            [$document->id, $chunk, $vector]
-                        );
-                        continue;
-                    } catch (\Throwable $chunkError) {
-                        Log::warning("Embedding generation failed for chunk {$index}: " . $chunkError->getMessage());
-                    }
-                }
-
-                // Fast Direct SQL Insert for all remaining pages
-                DB::statement(
-                    'INSERT INTO document_chunks (document_id, chunk_text, created_at, updated_at) 
-                     VALUES (?, ?, NOW(), NOW())',
-                    [$document->id, $chunk]
-                );
-            }
+            // 2. Dispatch the background job to automatically download, parse, and save page chunks
+            ProcessThesisPdf::dispatchSync($document);
 
             return response()->json([
                 'error' => false,
@@ -387,10 +343,6 @@ class DocumentController extends Controller
                 ], 500);
             }
 
-            $parser = new Parser();
-            $pdf = $parser->parseFile($file->getRealPath());
-            $rawText = trim(preg_replace('/\s+/', ' ', $pdf->getText()));
-
             $document = Document::create([
                 'title' => $request->input('title'),
                 'author' => $request->input('author'),
@@ -403,28 +355,8 @@ class DocumentController extends Controller
                 'file_url' => "/backend/documents/{$document->id}/view",
             ]);
 
-            try {
-                $gemini = app(GeminiService::class);
-                $chunks = array_slice(str_split($rawText, 800), 0, 5); // Capped at 5 to prevent timeouts
-
-                foreach ($chunks as $chunk) {
-                    $chunk = trim($chunk);
-                    if ($chunk === '') continue;
-
-                    $embedding = $gemini->generateEmbedding($chunk);
-                    if (!is_array($embedding) || count($embedding) === 0) continue;
-
-                    $vector = '[' . implode(',', $embedding) . ']';
-
-                    DB::statement(
-                        'INSERT INTO document_chunks (document_id, chunk_text, embedding, created_at, updated_at) 
-                         VALUES (?, ?, ?::extensions.vector, NOW(), NOW())',
-                        [$document->id, $chunk, $vector]
-                    );
-                }
-            } catch (\Throwable $embeddingError) {
-                Log::error('Fallback embedding failed: ' . $embeddingError->getMessage());
-            }
+            // Automatically parse pages using ProcessThesisPdf job
+            ProcessThesisPdf::dispatchSync($document);
 
             return response()->json([
                 'error' => false,
