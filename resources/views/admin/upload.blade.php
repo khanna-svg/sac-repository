@@ -236,6 +236,7 @@
 
             uploadButton.disabled = true;
             uploadButton.textContent = 'Uploading...';
+            uploadMessage.classList.add('hidden');
 
             try {
                 // 1. Get Signed URL
@@ -282,6 +283,8 @@
                 });
 
                 if (!metadataResponse.ok) throw new Error('Failed to save metadata');
+                uploadForm.reset();
+
                 showSuccessPopup();
 
             } catch (err) {

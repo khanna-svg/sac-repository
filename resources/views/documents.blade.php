@@ -65,15 +65,13 @@
         </div>
     </main>
 
-    <!-- ======================================================== -->
-    <!-- CITATION MODAL (ProQuest Style)                          -->
-    <!-- ======================================================== -->
+    <!-- CITATION MODAL (IEEE ONLY) -->
     <div id="citationModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl transition-all">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
                 <div class="flex items-center gap-2.5">
                     <span class="text-xl">📝</span>
-                    <h3 class="text-base md:text-lg font-bold text-gray-900">Generate Citation</h3>
+                    <h3 class="text-base md:text-lg font-bold text-gray-900">IEEE Citation</h3>
                 </div>
                 <button onclick="closeCitationModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition">
                     ✕
@@ -83,20 +81,10 @@
             <div class="mt-4">
                 <p id="modalDocTitle" class="text-xs font-bold text-[#700000] truncate"></p>
 
-                <!-- Format Selection Tabs -->
                 <div class="mt-4 flex rounded-xl bg-slate-100 p-1 border border-gray-200">
-                    <button id="tabAPA" onclick="selectCitationFormat('APA')" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-[#700000] shadow-sm transition">
-                        APA 7th
-                    </button>
-                    <button id="tabMLA" onclick="selectCitationFormat('MLA')" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-500 hover:text-gray-900 transition">
-                        MLA 9th
-                    </button>
-                    <button id="tabChicago" onclick="selectCitationFormat('Chicago')" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-500 hover:text-gray-900 transition">
-                        Chicago
-                    </button>
-                    <button id="tabIEEE" onclick="selectCitationFormat('IEEE')" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-500 hover:text-gray-900 transition">
-                        IEEE
-                    </button>
+                    <div class="w-full py-1.5 text-xs font-bold rounded-lg bg-white text-[#700000] shadow-sm text-center">
+                        IEEE Style Format
+                    </div>
                 </div>
 
                 <!-- Citation Text Box -->
@@ -117,13 +105,10 @@
         </div>
     </div>
 
-    <!-- ======================================================== -->
-    <!-- JAVASCRIPT LOGIC                                         -->
-    <!-- ======================================================== -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
         let allDocuments = [];
         let currentCitationDoc = null;
-        let currentFormat = 'APA';
 
         const documentsList = document.getElementById('documentsList');
         const searchForm = document.getElementById('searchForm');
@@ -146,7 +131,6 @@
             }).format(date);
         }
 
-        // Determine Department Colors & Badges Dynamically
         function getDepartmentTheme(title, author) {
             const lower = (title + ' ' + author).toLowerCase();
             if (lower.includes('detection') || lower.includes('web') || lower.includes('system') || lower.includes('platform') || lower.includes('app') || lower.includes('tracking')) {
@@ -183,7 +167,6 @@
             };
         }
 
-        // Render Document Cards
         function renderDocuments(documents) {
             if (!Array.isArray(documents) || documents.length === 0) {
                 documentsList.innerHTML = `
@@ -207,7 +190,6 @@
                 return `
                     <article class="relative flex flex-col md:flex-row gap-5 rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-[#700000]/30 transition">
                         
-                        <!-- Dynamic Book Cover Spine -->
                         <div class="w-full md:w-28 h-28 md:h-auto rounded-2xl bg-gradient-to-br ${theme.bgGradient} flex flex-col items-center justify-center text-white p-3 shadow-inner shrink-0">
                             <span class="text-2xl">${theme.icon}</span>
                             <span class="mt-1 text-[10px] font-black uppercase tracking-wider text-center text-white/90 leading-tight">
@@ -216,10 +198,7 @@
                             <span class="text-[9px] text-white/70 mt-1">${formatAddedDate(doc.created_at)}</span>
                         </div>
 
-                        <!-- Main Content -->
                         <div class="flex-1 min-w-0">
-                            
-                            <!-- Badges -->
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${theme.badgeBg}">
                                     ${theme.name}
@@ -229,19 +208,16 @@
                                 </span>
                             </div>
 
-                            <!-- Title -->
                             <h3 class="mt-2.5 text-base md:text-lg font-bold text-gray-900 transition">
                                 <a href="/documents/${doc.id}" class="hover:text-[#700000] hover:underline cursor-pointer">
                                     ${escapeHtml(doc.title)}
                                 </a>
                             </h3>
 
-                            <!-- Author -->
                             <p class="mt-1 text-xs md:text-sm font-semibold text-[#700000]">
                                 by ${escapeHtml(doc.author || 'Unknown Author')}
                             </p>
 
-                            <!-- Two-Tier Abstract -->
                             <div class="mt-3 text-xs md:text-sm text-gray-600 leading-relaxed">
                                 <span id="abstract-short-${doc.id}">${escapeHtml(truncatedAbstract)}</span>
                                 ${isLongAbstract ? `
@@ -252,19 +228,16 @@
                                 ` : ''}
                             </div>
 
-                            <!-- Bottom Action Bar (ProQuest Style) -->
                             <div class="mt-5 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
                                 <div class="flex items-center gap-2">
-                                    <!-- Cite Button -->
                                     <button
                                         type="button"
                                         onclick="openCitationModal(${idx})"
                                         class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5"
                                     >
-                                        <span>📝</span> Cite
+                                        <span>📝</span> Cite (IEEE)
                                     </button>
 
-                                    <!-- Ask AI About This Button -->
                                     <a
                                         href="/chat?q=${encodeURIComponent('Tell me about the thesis: ' + doc.title)}"
                                         class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5"
@@ -273,7 +246,6 @@
                                     </a>
                                 </div>
 
-                                <!-- View Thesis PDF Button -->
                                 <button
                                     type="button"
                                     onclick="openPdfViewer('/backend/documents/${doc.id}/view')"
@@ -289,7 +261,6 @@
             }).join('');
         }
 
-        // Toggle Abstract Read More / Less
         function toggleAbstract(id) {
             const shortSpan = document.getElementById(`abstract-short-${id}`);
             const fullSpan = document.getElementById(`abstract-full-${id}`);
@@ -306,13 +277,11 @@
             }
         }
 
-        // Open PDF Viewer in new window
         function openPdfViewer(url) {
             const win = window.open(url, '_blank', 'noopener,noreferrer');
             if (!win) alert('Please allow pop-ups for this website to view the PDF.');
         }
 
-        // Fetch Documents API
         async function fetchDocuments(search = '') {
             documentsList.innerHTML = `<p class="text-center text-sm text-gray-500 py-10">Searching documents...</p>`;
             try {
@@ -337,21 +306,17 @@
             }
         }
 
-        // Search Form Submit
         searchForm.addEventListener('submit', (e) => {
             e.preventDefault();
             fetchDocuments(searchInput.value);
         });
 
-        // ========================================================
-        // CITATION GENERATOR LOGIC
-        // ========================================================
         function openCitationModal(index) {
             currentCitationDoc = allDocuments[index];
             if (!currentCitationDoc) return;
 
             document.getElementById('modalDocTitle').textContent = currentCitationDoc.title;
-            selectCitationFormat('APA');
+            generateCitationText();
             document.getElementById('citationModal').classList.remove('hidden');
             document.getElementById('citationModal').classList.add('flex');
         }
@@ -361,20 +326,6 @@
             document.getElementById('citationModal').classList.remove('flex');
         }
 
-        function selectCitationFormat(format) {
-            currentFormat = format;
-            ['APA', 'MLA', 'Chicago', 'IEEE'].forEach(f => {
-                const tab = document.getElementById(`tab${f}`);
-                if (f === format) {
-                    tab.className = "flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-[#700000] shadow-sm transition";
-                } else {
-                    tab.className = "flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-500 hover:text-gray-900 transition";
-                }
-            });
-
-            generateCitationText();
-        }
-
         function generateCitationText() {
             if (!currentCitationDoc) return;
 
@@ -382,17 +333,7 @@
             const title = currentCitationDoc.title || 'Untitled Thesis';
             const year = currentCitationDoc.created_at ? new Date(currentCitationDoc.created_at).getFullYear() : new Date().getFullYear();
 
-            let citation = '';
-
-            if (currentFormat === 'APA') {
-                citation = `${author} (${year}). ${title} (Undergraduate thesis). St. Anthony's College, San Jose, Antique.`;
-            } else if (currentFormat === 'MLA') {
-                citation = `${author}. "${title}." Undergraduate thesis, St. Anthony's College, ${year}.`;
-            } else if (currentFormat === 'Chicago') {
-                citation = `${author}. "${title}." Undergraduate thesis, St. Anthony's College, ${year}.`;
-            } else if (currentFormat === 'IEEE') {
-                citation = `${author}, "${title}," Undergraduate thesis, Dept. of Research, St. Anthony's College, San Jose, Antique, ${year}.`;
-            }
+            const citation = `${author}, "${title}," Undergraduate thesis, Dept. of Research, St. Anthony's College, San Jose, Antique, ${year}.`;
 
             document.getElementById('citationText').textContent = citation;
             resetCopyButton();
@@ -414,7 +355,6 @@
             document.getElementById('copyBtnIcon').textContent = '📋';
         }
 
-        // Initialize on load
         fetchDocuments();
     </script>
 </body>

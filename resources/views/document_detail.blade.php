@@ -47,25 +47,45 @@
                     </span>
                 </div>
 
-                <!-- Title -->
-                <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight">
-                    {{ $document->title }}
-                </h1>
+                <!-- Book Cover & Title Header Row -->
+                <div class="flex flex-col sm:flex-row items-start gap-5 my-3">
 
-                <!-- Authors -->
-                <div class="mt-3 flex flex-wrap items-center gap-y-1 gap-x-4 text-xs md:text-sm text-gray-600 border-b border-gray-100 pb-5">
-                    <p>
-                        <span class="font-bold text-[#700000]">Author(s):</span>
-                        <span class="font-semibold text-gray-800">{{ $document->author }}</span>
-                    </p>
+                    <!-- Book Spine Thumbnail Icon -->
+                    <div class="w-20 sm:w-24 h-28 sm:h-32 shrink-0 rounded-lg bg-gradient-to-b from-[#700000] via-[#500000] to-[#300000] border-l-4 border-amber-400 shadow-md flex flex-col justify-between p-2.5 text-white">
+                        <div class="border-b border-white/20 pb-1">
+                            <p class="text-[7px] uppercase font-bold tracking-widest text-amber-300">Journal of</p>
+                            <p class="text-[9px] font-extrabold uppercase leading-none tracking-tight">SAC Research</p>
+                        </div>
+                        <div class="text-center my-auto">
+                            <span class="text-xl">📚</span>
+                        </div>
+                        <div class="bg-amber-400/90 text-[#700000] text-[7px] font-black tracking-wider uppercase px-1 py-0.5 rounded text-center">
+                            Official
+                        </div>
+                    </div>
+
+                    <!-- Title -->
+                    <div class="flex-1">
+                        <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight">
+                            {{ $document->title }}
+                        </h1>
+
+                        <!-- Authors -->
+                        <div class="mt-3 flex flex-wrap items-center gap-y-1 gap-x-4 text-xs md:text-sm text-gray-600">
+                            <p>
+                                <span class="font-bold text-[#700000]">Author(s):</span>
+                                <span class="font-semibold text-gray-800">{{ $document->author }}</span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- ProQuest Action Bar -->
+                <!-- Action Bar -->
                 <div class="my-6 flex flex-wrap items-center justify-between gap-3 bg-slate-50 border border-gray-200 rounded-2xl p-3 md:p-4">
                     <div class="flex flex-wrap items-center gap-2">
                         <!-- Cite Button -->
                         <button onclick="openCitationModal()" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 shadow-sm">
-                            <span>📝</span> Cite This Thesis
+                            <span>📝</span> Cite (IEEE)
                         </button>
 
                         <!-- Ask AI Button -->
@@ -73,13 +93,13 @@
                             <span>🤖</span> Ask AI About This
                         </a>
 
-                        <!-- Copy Link -->
-                        <button onclick="copyShareLink()" id="shareBtn" class="rounded-xl bg-white border border-gray-300 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5 shadow-sm">
-                            <span>🔗</span> <span id="shareBtnText">Share Link</span>
-                        </button>
+                        <!-- Download PDF Button (Replaced Share Link) -->
+                        <a href="/backend/documents/{{ $document->id }}/view" download class="rounded-xl bg-white border border-gray-300 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5 shadow-sm">
+                            <span>📥</span> <span>Download PDF</span>
+                        </a>
                     </div>
 
-                    <!-- View / Download PDF -->
+                    <!-- View PDF Button -->
                     <a href="/backend/documents/{{ $document->id }}/view" target="_blank" class="rounded-xl bg-[#700000] px-5 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md flex items-center gap-2">
                         <span>📄</span> View Original PDF
                     </a>
@@ -98,14 +118,13 @@
                 <!-- Abstract Tab Content -->
                 <div id="tabAbstractContent" class="space-y-6">
                     <div>
-                        <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2">Abstract</h2>
-                        <div class="rounded-2xl bg-slate-50 border border-gray-200 p-5 text-sm text-gray-700 leading-relaxed font-sans text-center">
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2 text-center">Abstract</h2>
+                        <div class="rounded-2xl bg-slate-50 border border-gray-200 p-5 text-sm text-gray-700 leading-relaxed font-sans text-justify">
                             {!! nl2br(e(preg_replace('/^[ \t]+/m', '', $document->abstract))) !!}
                         </div>
                     </div>
                 </div>
 
-                <!-- Full Text Tab Content -->
                 <!-- Full Text Tab Content -->
                 <div id="tabFullTextContent" class="hidden space-y-6">
                     <div class="flex items-center justify-between border-b border-gray-200 pb-3">
@@ -161,19 +180,18 @@
         </div>
     </main>
 
-    <!-- Citation Modal -->
+    <!-- IEEE Citation Modal -->
     <div id="citationModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
-                <h3 class="text-base font-bold text-gray-900">📝 Cite This Thesis</h3>
+                <h3 class="text-base font-bold text-gray-900">📝 IEEE Citation</h3>
                 <button onclick="closeCitationModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100">✕</button>
             </div>
             <div class="mt-4">
                 <div class="flex rounded-xl bg-slate-100 p-1 border border-gray-200">
-                    <button id="tabAPA" onclick="selectCitationFormat('APA')" class="flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-[#700000] shadow-sm">APA 7th</button>
-                    <button id="tabMLA" onclick="selectCitationFormat('MLA')" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-500">MLA 9th</button>
-                    <button id="tabChicago" onclick="selectCitationFormat('Chicago')" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-500">Chicago</button>
-                    <button id="tabIEEE" onclick="selectCitationFormat('IEEE')" class="flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-500">IEEE</button>
+                    <div class="w-full py-1.5 text-xs font-bold rounded-lg bg-white text-[#700000] shadow-sm text-center">
+                        IEEE Style Format
+                    </div>
                 </div>
                 <div class="mt-4 rounded-2xl border border-gray-200 bg-slate-50 p-4">
                     <p id="citationText" class="text-xs md:text-sm text-gray-800 leading-relaxed font-mono select-all break-words"></p>
@@ -213,10 +231,11 @@
         const docTitle = dataElement ? dataElement.getAttribute('data-title') : 'Untitled Thesis';
         const docAuthor = dataElement ? dataElement.getAttribute('data-author') : 'Unknown Author';
         const docYear = dataElement ? dataElement.getAttribute('data-year') : '2025';
-        let currentFormat = 'APA';
 
         function openCitationModal() {
-            selectCitationFormat('APA');
+            const text = `${docAuthor}, "${docTitle}," Undergraduate thesis, St. Anthony's College, ${docYear}.`;
+            document.getElementById('citationText').textContent = text;
+
             document.getElementById('citationModal').classList.remove('hidden');
             document.getElementById('citationModal').classList.add('flex');
         }
@@ -226,42 +245,12 @@
             document.getElementById('citationModal').classList.remove('flex');
         }
 
-        function selectCitationFormat(format) {
-            currentFormat = format;
-            ['APA', 'MLA', 'Chicago', 'IEEE'].forEach(f => {
-                const el = document.getElementById(`tab${f}`);
-                if (el) {
-                    el.className = f === format ?
-                        "flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-[#700000] shadow-sm transition" :
-                        "flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-500 hover:text-gray-900 transition";
-                }
-            });
-
-            let text = '';
-            if (format === 'APA') text = `${docAuthor} (${docYear}). ${docTitle} (Undergraduate thesis). St. Anthony's College.`;
-            else if (format === 'MLA') text = `${docAuthor}. "${docTitle}." Undergraduate thesis, St. Anthony's College, ${docYear}.`;
-            else if (format === 'Chicago') text = `${docAuthor}. "${docTitle}." Undergraduate thesis, St. Anthony's College, ${docYear}.`;
-            else if (format === 'IEEE') text = `${docAuthor}, "${docTitle}," Undergraduate thesis, St. Anthony's College, ${docYear}.`;
-
-            document.getElementById('citationText').textContent = text;
-        }
-
         function copyCitation() {
             navigator.clipboard.writeText(document.getElementById('citationText').textContent).then(() => {
                 const btn = document.getElementById('copyBtn');
                 btn.textContent = '✓ Copied!';
                 setTimeout(() => {
                     btn.textContent = '📋 Copy Citation';
-                }, 2000);
-            });
-        }
-
-        function copyShareLink() {
-            navigator.clipboard.writeText(window.location.href).then(() => {
-                const text = document.getElementById('shareBtnText');
-                text.textContent = 'Copied!';
-                setTimeout(() => {
-                    text.textContent = 'Share Link';
                 }, 2000);
             });
         }
