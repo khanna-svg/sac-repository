@@ -17,8 +17,8 @@ class Document extends Model
         'file_url',
     ];
 
-    public function chunks() 
+    public function chunks()
     {
-        return $this->hasMany(DocumentChunk:: class, 'document_id');
+        return $this->hasMany(DocumentChunk::class, 'document_id')->orderBy('page_number', 'asc');
     }
 }

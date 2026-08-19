@@ -114,9 +114,10 @@ class DocumentController extends Controller
     public function show($id)
     {
         try {
-            // Load document and readable text chunks (skips heavy vector embeddings)
+            // Load document with page_number and sort by page_number
             $document = Document::with(['chunks' => function ($query) {
-                $query->select('id', 'document_id', 'chunk_text');
+                $query->select('id', 'document_id', 'page_number', 'chunk_text')
+                    ->orderBy('page_number', 'asc');
             }])->findOrFail($id);
 
             return view('document_detail', [
