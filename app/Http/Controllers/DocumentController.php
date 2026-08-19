@@ -207,7 +207,7 @@ class DocumentController extends Controller
                 $query->select('id', 'document_id', 'chunk_text');
             }])->findOrFail($id);
 
-            return view('document-detail', [
+            return view('document_detail', [
                 'document' => $document,
             ]);
         } catch (\Throwable $e) {
