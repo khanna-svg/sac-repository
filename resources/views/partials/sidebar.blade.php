@@ -85,42 +85,42 @@
 
         @if(session('sac_user_role') == 'admin')
 
-            <!-- Visible ONLY to Admins -->
-            <a
-                href="{{ route('admin.upload') }}"
-                class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
-                    {{ request()->is('admin/upload')
-                        ? 'bg-[#D4AF37] text-[#700000] shadow-md'
-                        : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
+        <!-- Visible ONLY to Admins -->
+        <a
+            href="/admin/upload"
+            class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
+                {{ request()->is('admin/upload')
+                    ? 'bg-[#D4AF37] text-[#700000] shadow-md'
+                    : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
 
-                Upload Thesis (Admin)
+            Upload Thesis (Admin)
 
-            </a>
+        </a>
 
         @else
 
-            <!-- Visible ONLY to Students -->
-            <a
-                href="{{ route('documents.index') }}"
-                class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
-                    {{ request()->is('documents')
-                        ? 'bg-[#D4AF37] text-[#700000] shadow-md'
-                        : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
+        <!-- Visible ONLY to Students -->
+        <a
+            href="/documents"
+            class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
+                {{ request()->is('documents')
+                    ? 'bg-[#D4AF37] text-[#700000] shadow-md'
+                    : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
 
-                Documents & Search
+            Documents & Search
 
-            </a>
+        </a>
 
         @endif
 
 
         <!-- AI Assistant -->
         <a
-            href="{{ route('chat') }}"
+            href="/chat"
             class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
-                {{ request()->is('chat')
-                    ? 'bg-[#D4AF37] text-[#700000] shadow-md'
-                    : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
+            {{ request()->is('chat')
+                ? 'bg-[#D4AF37] text-[#700000] shadow-md'
+                : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
 
             AI Assistant
 
@@ -145,7 +145,7 @@
         </div>
 
 
-        <!-- Secure Laravel Logout -->
+        <!-- Normal Laravel Logout -->
         <form
             method="POST"
             action="{{ route('logout') }}"
@@ -173,269 +173,229 @@
 ========================================================= -->
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
 
-    /*
-    |--------------------------------------------------------------------------
-    | GET SIDEBAR ELEMENTS
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | GET SIDEBAR ELEMENTS
+        |--------------------------------------------------------------------------
+        */
 
-    const sidebar =
-        document.getElementById('sidebar');
+        const sidebar =
+            document.getElementById('sidebar');
 
-    const toggleBtn =
-        document.getElementById('sidebarToggleBtn');
+        const toggleBtn =
+            document.getElementById('sidebarToggleBtn');
 
-    const backdrop =
-        document.getElementById('sidebarBackdrop');
+        const backdrop =
+            document.getElementById('sidebarBackdrop');
 
-    const hamburgerIcon =
-        document.getElementById('hamburgerIcon');
+        const hamburgerIcon =
+            document.getElementById('hamburgerIcon');
 
-    const closeIcon =
-        document.getElementById('closeIcon');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | SAFETY CHECK
-    |--------------------------------------------------------------------------
-    */
-
-    if (!sidebar) {
-        console.error('Sidebar error: #sidebar not found.');
-        return;
-    }
-
-    if (!toggleBtn) {
-        console.error('Sidebar error: #sidebarToggleBtn not found.');
-        return;
-    }
-
-    if (!backdrop) {
-        console.error('Sidebar error: #sidebarBackdrop not found.');
-        return;
-    }
-
-    if (!hamburgerIcon) {
-        console.error('Sidebar error: #hamburgerIcon not found.');
-        return;
-    }
-
-    if (!closeIcon) {
-        console.error('Sidebar error: #closeIcon not found.');
-        return;
-    }
+        const closeIcon =
+            document.getElementById('closeIcon');
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | SIDEBAR STATE
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | SAFETY CHECK
+        |--------------------------------------------------------------------------
+        |
+        | Never call addEventListener() if an element doesn't exist.
+        |
+        */
 
-    let isOpen = false;
+        if (!sidebar) {
+            console.error('Sidebar error: #sidebar not found.');
+            return;
+        }
 
+        if (!toggleBtn) {
+            console.error('Sidebar error: #sidebarToggleBtn not found.');
+            return;
+        }
 
-    /*
-    |--------------------------------------------------------------------------
-    | OPEN SIDEBAR
-    |--------------------------------------------------------------------------
-    */
+        if (!backdrop) {
+            console.error('Sidebar error: #sidebarBackdrop not found.');
+            return;
+        }
 
-    function openSidebar() {
+        if (!hamburgerIcon) {
+            console.error('Sidebar error: #hamburgerIcon not found.');
+            return;
+        }
 
-        isOpen = true;
-
-        sidebar.classList.remove(
-            '-translate-x-full'
-        );
-
-        backdrop.classList.remove(
-            'opacity-0',
-            'pointer-events-none'
-        );
-
-        backdrop.classList.add(
-            'opacity-100'
-        );
-
-        hamburgerIcon.classList.add(
-            'hidden'
-        );
-
-        closeIcon.classList.remove(
-            'hidden'
-        );
-    }
+        if (!closeIcon) {
+            console.error('Sidebar error: #closeIcon not found.');
+            return;
+        }
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | CLOSE SIDEBAR
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | SIDEBAR STATE
+        |--------------------------------------------------------------------------
+        */
 
-    function closeSidebar() {
-
-        isOpen = false;
-
-        sidebar.classList.add(
-            '-translate-x-full'
-        );
-
-        backdrop.classList.remove(
-            'opacity-100'
-        );
-
-        backdrop.classList.add(
-            'opacity-0',
-            'pointer-events-none'
-        );
-
-        hamburgerIcon.classList.remove(
-            'hidden'
-        );
-
-        closeIcon.classList.add(
-            'hidden'
-        );
-    }
+        let isOpen = false;
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | TOGGLE BUTTON
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | OPEN SIDEBAR
+        |--------------------------------------------------------------------------
+        */
 
-    toggleBtn.addEventListener(
-        'click',
-        function () {
+        function openSidebar() {
 
-            if (isOpen) {
+            isOpen = true;
 
-                closeSidebar();
+            sidebar.classList.remove(
+                '-translate-x-full'
+            );
 
-            } else {
+            backdrop.classList.remove(
+                'opacity-0',
+                'pointer-events-none'
+            );
 
-                openSidebar();
+            backdrop.classList.add(
+                'opacity-100'
+            );
+
+            hamburgerIcon.classList.add(
+                'hidden'
+            );
+
+            closeIcon.classList.remove(
+                'hidden'
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CLOSE SIDEBAR
+        |--------------------------------------------------------------------------
+        */
+
+        function closeSidebar() {
+
+            isOpen = false;
+
+            sidebar.classList.add(
+                '-translate-x-full'
+            );
+
+            backdrop.classList.remove(
+                'opacity-100'
+            );
+
+            backdrop.classList.add(
+                'opacity-0',
+                'pointer-events-none'
+            );
+
+            hamburgerIcon.classList.remove(
+                'hidden'
+            );
+
+            closeIcon.classList.add(
+                'hidden'
+            );
+
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | TOGGLE BUTTON
+        |--------------------------------------------------------------------------
+        */
+
+        toggleBtn.addEventListener(
+            'click',
+            function() {
+
+                if (isOpen) {
+
+                    closeSidebar();
+
+                } else {
+
+                    openSidebar();
+
+                }
 
             }
-
-        }
-    );
+        );
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | BACKDROP
-    |--------------------------------------------------------------------------
-    */
+        /*
+        |--------------------------------------------------------------------------
+        | BACKDROP
+        |--------------------------------------------------------------------------
+        */
 
-    backdrop.addEventListener(
-        'click',
-        function () {
-
-            closeSidebar();
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | ESC KEY
-    |--------------------------------------------------------------------------
-    */
-
-    document.addEventListener(
-        'keydown',
-        function (event) {
-
-            if (
-                event.key === 'Escape' &&
-                isOpen
-            ) {
+        backdrop.addEventListener(
+            'click',
+            function() {
 
                 closeSidebar();
 
             }
-
-        }
-    );
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | INITIAL STATE
-    |--------------------------------------------------------------------------
-    */
-
-    if (window.innerWidth >= 768) {
-
-        sidebar.classList.remove(
-            '-translate-x-full'
         );
 
-        isOpen = false;
 
-    } else {
+        /*
+        |--------------------------------------------------------------------------
+        | ESC KEY
+        |--------------------------------------------------------------------------
+        */
 
-        sidebar.classList.add(
-            '-translate-x-full'
-        );
+        document.addEventListener(
+            'keydown',
+            function(event) {
 
-    }
+                if (
+                    event.key === 'Escape' &&
+                    isOpen
+                ) {
 
+                    closeSidebar();
 
-    /*
-    |--------------------------------------------------------------------------
-    | HANDLE RESIZE
-    |--------------------------------------------------------------------------
-    */
-
-    window.addEventListener(
-        'resize',
-        function () {
-
-            if (window.innerWidth >= 768) {
-
-                sidebar.classList.remove(
-                    '-translate-x-full'
-                );
-
-                backdrop.classList.add(
-                    'opacity-0',
-                    'pointer-events-none'
-                );
-
-                hamburgerIcon.classList.remove(
-                    'hidden'
-                );
-
-                closeIcon.classList.add(
-                    'hidden'
-                );
-
-                isOpen = false;
-
-            } else if (!isOpen) {
-
-                sidebar.classList.add(
-                    '-translate-x-full'
-                );
+                }
 
             }
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | INITIAL STATE
+        |--------------------------------------------------------------------------
+        */
+
+        if (window.innerWidth >= 768) {
+
+            sidebar.classList.remove(
+                '-translate-x-full'
+            );
+
+        } else {
+
+            sidebar.classList.add(
+                '-translate-x-full'
+            );
 
         }
-    );
 
 
-    console.log(
-        'Sidebar initialized successfully.'
-    );
+        console.log(
+            'Sidebar initialized successfully.'
+        );
 
-});
+    });
 </script>
