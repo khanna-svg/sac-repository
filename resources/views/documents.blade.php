@@ -107,6 +107,9 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // Define base path dynamically for Blade and Vercel static asset routing
+        const COVERS_BASE_URL = "{{ asset('images/covers') }}";
+
         let allDocuments = [];
         let currentCitationDoc = null;
 
@@ -212,7 +215,7 @@
                         <!-- Book Cover Image Placeholder -->
                         <div class="w-full md:w-28 h-36 md:h-36 rounded-2xl border border-gray-200 bg-slate-100 overflow-hidden shadow-sm shrink-0">
                             <img
-                                src="{{ asset('images/covers') }}/${details.cover}"
+                                src="${COVERS_BASE_URL}/${details.cover}"
                                 alt="${escapeHtml(doc.title)} Cover"
                                 class="w-full h-full object-cover"
                                 onerror="handleImageError(this)">

@@ -37,43 +37,43 @@
                 <!-- Badges & Cover Image File Resolution -->
                 @php
                 $departmentNames = [
-                'nursing' => 'Nursing Department',
-                'marine' => 'Marine Engineering Department',
-                'it' => 'Information Technology Department',
-                'hospitality' => 'Hospitality Management',
-                'education' => 'Education Department',
-                'criminology' => 'Criminology Department',
+                    'nursing' => 'Nursing Department',
+                    'marine' => 'Marine Engineering Department',
+                    'it' => 'Information Technology Department',
+                    'hospitality' => 'Hospitality Management',
+                    'education' => 'Education Department',
+                    'criminology' => 'Criminology Department',
                 ];
 
                 $courseNames = [
-                'bsn' => 'BS in Nursing (BSN)',
-                'bsmare' => 'BS in Marine Engineering (BSMarE)',
-                'bsit' => 'BS in Information Technology (BSIT)',
-                'bshm' => 'BS in Hospitality Management (BSHM)',
-                'bsed' => 'Bachelor of Secondary Education (BSED)',
-                'bsc' => 'BS in Criminology (BSC)',
+                    'bsn' => 'BS in Nursing (BSN)',
+                    'bsmare' => 'BS in Marine Engineering (BSMarE)',
+                    'bsit' => 'BS in Information Technology (BSIT)',
+                    'bshm' => 'BS in Hospitality Management (BSHM)',
+                    'bsed' => 'Bachelor of Secondary Education (BSED)',
+                    'bsc' => 'BS in Criminology (BSC)',
                 ];
 
-                // Map departments/courses directly to your cover filenames: CRIM, EDUC, HM, IT, MARINE, NURSING
                 $coverMap = [
-                'nursing' => 'NURSING',
-                'bsn' => 'NURSING',
-                'marine' => 'MARINE',
-                'bsmare' => 'MARINE',
-                'it' => 'IT',
-                'bsit' => 'IT',
-                'hospitality' => 'HM',
-                'bshm' => 'HM',
-                'education' => 'EDUC',
-                'bsed' => 'EDUC',
-                'criminology' => 'CRIM',
-                'bsc' => 'CRIM',
+                    'nursing' => 'NURSING',
+                    'bsn' => 'NURSING',
+                    'marine' => 'MARINE',
+                    'bsmare' => 'MARINE',
+                    'it' => 'IT',
+                    'bsit' => 'IT',
+                    'hospitality' => 'HM',
+                    'bshm' => 'HM',
+                    'education' => 'EDUC',
+                    'bsed' => 'EDUC',
+                    'criminology' => 'CRIM',
+                    'bsc' => 'CRIM',
                 ];
 
                 $deptKey = strtolower($document->department ?? '');
                 $courseKey = strtolower($document->course_code ?? '');
 
-                $coverFilename = $coverMap[$deptKey] ?? $coverMap[$courseKey] ?? 'DEFAULT';
+                // Fallback to 'IT' if no matching key is found to avoid invalid image paths
+                $coverFilename = $coverMap[$deptKey] ?? $coverMap[$courseKey] ?? 'IT';
                 @endphp
 
                 <div class="flex flex-wrap items-center gap-2 mb-4">
@@ -259,7 +259,6 @@
     <script>
         function handleImageError(imageElement) {
             imageElement.onerror = null;
-            // Inline SVG fallback ensures zero 404 network errors
             imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>SAC THESIS</text></svg>";
         }
 
@@ -285,7 +284,7 @@
         const dataElement = document.getElementById('citationData');
         const docTitle = dataElement ? dataElement.getAttribute('data-title') : 'Untitled Thesis';
         const docAuthor = dataElement ? dataElement.getAttribute('data-author') : 'Unknown Author';
-        const docYear = dataElement ? dataElement.getAttribute('data-year') : '2026';
+        const docYear = dataElement ? dataElement.getAttribute('data-year') : new Date().getFullYear().toString();
 
         function openCitationModal() {
             const text = `${docAuthor}, "${docTitle}," Undergraduate thesis, St. Anthony's College, ${docYear}.`;
