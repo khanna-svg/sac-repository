@@ -39,16 +39,42 @@
                     <span class="rounded-lg bg-[#700000]/10 text-[#700000] border border-[#700000]/20 px-3 py-1 text-xs font-bold">
                         St. Anthony's College
                     </span>
-                    @if($document->department)
+
+                    @php
+                    $departmentNames = [
+                    'nursing' => 'Nursing Department',
+                    'marine' => 'Marine Engineering Department',
+                    'it' => 'Information Technology Department',
+                    'hospitality' => 'Hospitality Management',
+                    'education' => 'Education Department',
+                    'criminology' => 'Criminology Department',
+                    ];
+
+                    $courseNames = [
+                    'bsn' => 'BS in Nursing (BSN)',
+                    'bsmare' => 'BS in Marine Engineering (BSMarE)',
+                    'bsit' => 'BS in Information Technology (BSIT)',
+                    'bshm' => 'BS in Hospitality Management (BSHM)',
+                    'bsed' => 'Bachelor of Secondary Education (BSED)',
+                    'bsc' => 'BS in Criminology (BSC)',
+                    ];
+
+                    $deptKey = strtolower($document->department ?? '');
+                    $courseKey = strtolower($document->course_code ?? '');
+                    @endphp
+
+                    @if(!empty($document->department))
                     <span class="rounded-lg bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 text-xs font-bold">
-                        {{ $document->department }}
+                        {{ $departmentNames[$deptKey] ?? $document->department }}
                     </span>
                     @endif
-                    @if($document->course_code)
-                    <span class="rounded-lg bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 text-xs font-bold uppercase">
-                        {{ $document->course_code }}
+
+                    @if(!empty($document->course_code))
+                    <span class="rounded-lg bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 text-xs font-bold">
+                        {{ $courseNames[$courseKey] ?? strtoupper($document->course_code) }}
                     </span>
                     @endif
+
                     <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-3 py-1 text-xs font-bold flex items-center gap-1">
                         ✓ Full Text Online
                     </span>
@@ -215,7 +241,7 @@
     <script>
         function handleImageError(imageElement) {
             imageElement.onerror = null;
-            imageElement.src = "{{ asset('images/covers/default.jpg') }}";
+            imageElement.src = "https://placehold.co/400x600/700000/FFD700?text=SAC+Thesis";
         }
 
         function switchViewTab(tab) {
@@ -240,7 +266,7 @@
         const dataElement = document.getElementById('citationData');
         const docTitle = dataElement ? dataElement.getAttribute('data-title') : 'Untitled Thesis';
         const docAuthor = dataElement ? dataElement.getAttribute('data-author') : 'Unknown Author';
-        const docYear = dataElement ? dataElement.getAttribute('data-year') : '2025';
+        const docYear = dataElement ? dataElement.getAttribute('data-year') : '2026';
 
         function openCitationModal() {
             const text = `${docAuthor}, "${docTitle}," Undergraduate thesis, St. Anthony's College, ${docYear}.`;
