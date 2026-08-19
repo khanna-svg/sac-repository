@@ -100,7 +100,7 @@
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2">Abstract</h2>
                         <div class="rounded-2xl bg-slate-50 border border-gray-200 p-5 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-sans text-center">
-                            {{ $document->abstract }}
+                            {{ trim($document->abstract) }}
                         </div>
                     </div>
                 </div>
