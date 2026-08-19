@@ -131,39 +131,58 @@
             }).format(date);
         }
 
-        function getDepartmentTheme(title, author) {
-            const lower = (title + ' ' + author).toLowerCase();
-            if (lower.includes('detection') || lower.includes('web') || lower.includes('system') || lower.includes('platform') || lower.includes('app') || lower.includes('tracking')) {
+        function handleImageError(imageElement) {
+            imageElement.onerror = null;
+            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>SAC THESIS</text></svg>";
+        }
+
+        function getDepartmentDetails(deptVal, courseVal, titleVal) {
+            const dept = (deptVal || '').toLowerCase();
+            const course = (courseVal || '').toLowerCase();
+            const title = (titleVal || '').toLowerCase();
+
+            if (dept === 'nursing' || course === 'bsn' || title.includes('patient') || title.includes('nursing')) {
                 return {
-                    name: 'Information Technology',
-                    tag: 'BSIT',
-                    bgGradient: 'from-blue-600 to-indigo-800',
-                    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
-                    icon: '💻'
+                    cover: 'NURSING.webp',
+                    name: 'Nursing Department',
+                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 };
-            } else if (lower.includes('health') || lower.includes('patient') || lower.includes('nursing') || lower.includes('care') || lower.includes('medical')) {
+            } else if (dept === 'marine' || course === 'bsmare' || title.includes('marine') || title.includes('vessel')) {
                 return {
-                    name: 'Nursing & Health',
-                    tag: 'BSN',
-                    bgGradient: 'from-emerald-600 to-teal-800',
-                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                    icon: '🩺'
+                    cover: 'MARINE.webp',
+                    name: 'Marine Engineering Department',
+                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
                 };
-            } else if (lower.includes('business') || lower.includes('inventory') || lower.includes('market') || lower.includes('finance') || lower.includes('management')) {
+            } else if (dept === 'it' || course === 'bsit' || title.includes('system') || title.includes('app') || title.includes('web')) {
                 return {
-                    name: 'Business Administration',
-                    tag: 'BSBA',
-                    bgGradient: 'from-amber-500 to-yellow-700',
-                    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200',
-                    icon: '📊'
+                    cover: 'IT.webp',
+                    name: 'Information Technology Department',
+                    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
+                };
+            } else if (dept === 'hospitality' || course === 'bshm' || title.includes('hotel') || title.includes('hospitality')) {
+                return {
+                    cover: 'HM.webp',
+                    name: 'Hospitality Management',
+                    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
+                };
+            } else if (dept === 'education' || course === 'bsed' || title.includes('teaching') || title.includes('education')) {
+                return {
+                    cover: 'EDUC.webp',
+                    name: 'Education Department',
+                    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
+                };
+            } else if (dept === 'criminology' || course === 'bsc' || title.includes('crime') || title.includes('criminology')) {
+                return {
+                    cover: 'CRIM.webp',
+                    name: 'Criminology Department',
+                    badgeBg: 'bg-red-50 text-red-700 border-red-200'
                 };
             }
+
             return {
+                cover: 'IT.webp',
                 name: 'Academic Research',
-                tag: 'SAC Research',
-                bgGradient: 'from-[#700000] to-[#500000]',
-                badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20',
-                icon: '📚'
+                badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20'
             };
         }
 
@@ -183,25 +202,26 @@
             docCountBadge.textContent = `${documents.length} Theses Available`;
 
             documentsList.innerHTML = documents.map((doc, idx) => {
-                const theme = getDepartmentTheme(doc.title, doc.author);
+                const details = getDepartmentDetails(doc.department, doc.course_code, doc.title);
                 const isLongAbstract = (doc.abstract || '').length > 200;
                 const truncatedAbstract = isLongAbstract ? doc.abstract.substring(0, 200) + '...' : doc.abstract;
 
                 return `
                     <article class="relative flex flex-col md:flex-row gap-5 rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-[#700000]/30 transition">
                         
-                        <div class="w-full md:w-28 h-28 md:h-auto rounded-2xl bg-gradient-to-br ${theme.bgGradient} flex flex-col items-center justify-center text-white p-3 shadow-inner shrink-0">
-                            <span class="text-2xl">${theme.icon}</span>
-                            <span class="mt-1 text-[10px] font-black uppercase tracking-wider text-center text-white/90 leading-tight">
-                                ${theme.tag}
-                            </span>
-                            <span class="text-[9px] text-white/70 mt-1">${formatAddedDate(doc.created_at)}</span>
+                        <!-- Book Cover Image Placeholder -->
+                        <div class="w-full md:w-28 h-36 md:h-36 rounded-2xl border border-gray-200 bg-slate-100 overflow-hidden shadow-sm shrink-0">
+                            <img
+                                src="/images/covers/${details.cover}"
+                                alt="${escapeHtml(doc.title)} Cover"
+                                class="w-full h-full object-cover"
+                                onerror="handleImageError(this)">
                         </div>
 
                         <div class="flex-1 min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
-                                <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${theme.badgeBg}">
-                                    ${theme.name}
+                                <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
+                                    ${details.name}
                                 </span>
                                 <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-[10px] font-bold">
                                     ✓ Full Text Available

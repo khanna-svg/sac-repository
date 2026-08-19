@@ -34,34 +34,52 @@
             <!-- Main Document Card -->
             <article class="rounded-3xl border border-gray-200 bg-white p-6 md:p-8 shadow-sm">
 
-                <!-- Badges -->
+                <!-- Badges & Cover Image File Resolution -->
+                @php
+                $departmentNames = [
+                'nursing' => 'Nursing Department',
+                'marine' => 'Marine Engineering Department',
+                'it' => 'Information Technology Department',
+                'hospitality' => 'Hospitality Management',
+                'education' => 'Education Department',
+                'criminology' => 'Criminology Department',
+                ];
+
+                $courseNames = [
+                'bsn' => 'BS in Nursing (BSN)',
+                'bsmare' => 'BS in Marine Engineering (BSMarE)',
+                'bsit' => 'BS in Information Technology (BSIT)',
+                'bshm' => 'BS in Hospitality Management (BSHM)',
+                'bsed' => 'Bachelor of Secondary Education (BSED)',
+                'bsc' => 'BS in Criminology (BSC)',
+                ];
+
+                // Map departments/courses directly to your cover filenames: CRIM, EDUC, HM, IT, MARINE, NURSING
+                $coverMap = [
+                'nursing' => 'NURSING',
+                'bsn' => 'NURSING',
+                'marine' => 'MARINE',
+                'bsmare' => 'MARINE',
+                'it' => 'IT',
+                'bsit' => 'IT',
+                'hospitality' => 'HM',
+                'bshm' => 'HM',
+                'education' => 'EDUC',
+                'bsed' => 'EDUC',
+                'criminology' => 'CRIM',
+                'bsc' => 'CRIM',
+                ];
+
+                $deptKey = strtolower($document->department ?? '');
+                $courseKey = strtolower($document->course_code ?? '');
+
+                $coverFilename = $coverMap[$deptKey] ?? $coverMap[$courseKey] ?? 'DEFAULT';
+                @endphp
+
                 <div class="flex flex-wrap items-center gap-2 mb-4">
                     <span class="rounded-lg bg-[#700000]/10 text-[#700000] border border-[#700000]/20 px-3 py-1 text-xs font-bold">
                         St. Anthony's College
                     </span>
-
-                    @php
-                    $departmentNames = [
-                    'nursing' => 'Nursing Department',
-                    'marine' => 'Marine Engineering Department',
-                    'it' => 'Information Technology Department',
-                    'hospitality' => 'Hospitality Management',
-                    'education' => 'Education Department',
-                    'criminology' => 'Criminology Department',
-                    ];
-
-                    $courseNames = [
-                    'bsn' => 'BS in Nursing (BSN)',
-                    'bsmare' => 'BS in Marine Engineering (BSMarE)',
-                    'bsit' => 'BS in Information Technology (BSIT)',
-                    'bshm' => 'BS in Hospitality Management (BSHM)',
-                    'bsed' => 'Bachelor of Secondary Education (BSED)',
-                    'bsc' => 'BS in Criminology (BSC)',
-                    ];
-
-                    $deptKey = strtolower($document->department ?? '');
-                    $courseKey = strtolower($document->course_code ?? '');
-                    @endphp
 
                     @if(!empty($document->department))
                     <span class="rounded-lg bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 text-xs font-bold">
@@ -89,7 +107,7 @@
                     <!-- Dynamic Book Cover Image -->
                     <div class="w-20 sm:w-24 h-28 sm:h-32 shrink-0 rounded-lg overflow-hidden shadow-md border border-gray-200 bg-slate-100">
                         <img
-                            src="{{ asset('images/covers/' . strtolower($document->course_code ?? 'default') . '.webp') }}"
+                            src="{{ asset('images/covers/' . $coverFilename . '.webp') }}"
                             alt="{{ $document->title }} Cover"
                             class="w-full h-full object-cover"
                             onerror="handleImageError(this)">
@@ -241,7 +259,8 @@
     <script>
         function handleImageError(imageElement) {
             imageElement.onerror = null;
-            imageElement.src = "https://placehold.co/400x600/700000/FFD700?text=SAC+Thesis";
+            // Inline SVG fallback ensures zero 404 network errors
+            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>SAC THESIS</text></svg>";
         }
 
         function switchViewTab(tab) {
