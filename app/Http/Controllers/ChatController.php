@@ -34,9 +34,7 @@ class ChatController extends Controller
 
         $userQuestion = trim($userQuestion);
 
-        Log::info(
-            'RAG Chatbot question: ' . $userQuestion
-        );
+        Log::info('RAG Chatbot question: ' . $userQuestion);
 
         try {
 
@@ -44,45 +42,34 @@ class ChatController extends Controller
             // 2. Generate embedding for user's question
             // -----------------------------------------------------
 
-            Log::info(
-                'Generating query embedding...'
-            );
+            Log::info('Generating query embedding...');
 
             $embedding = $this->geminiService
                 ->generateEmbedding($userQuestion);
 
             if (empty($embedding)) {
-                throw new \Exception(
-                    'Gemini returned an empty query embedding.'
-                );
+                throw new \Exception('Gemini returned an empty query embedding.');
             }
 
             // Verify dimension
             $dimension = count($embedding);
 
-            Log::info(
-                "Query embedding generated. Dimension: {$dimension}"
-            );
+            Log::info("Query embedding generated. Dimension: {$dimension}");
 
             if ($dimension !== 768) {
-                throw new \Exception(
-                    "Query embedding has {$dimension} dimensions. Expected 768."
-                );
+                throw new \Exception("Query embedding has {$dimension} dimensions. Expected 768.");
             }
 
             // -----------------------------------------------------
             // 3. Convert embedding to PostgreSQL vector
             // -----------------------------------------------------
 
-            $embeddingVector =
-                '[' . implode(',', $embedding) . ']';
+            $embeddingVector = '[' . implode(',', $embedding) . ']';
 
-            Log::info(
-                'Querying document_chunks using vector similarity...'
-            );
+            Log::info('Querying document_chunks using vector similarity...');
 
             // -----------------------------------------------------
-            // 4. Search document chunks
+            // 4. Search document chunks (Top 10 for more thesis variety)
             // -----------------------------------------------------
 
             $chunks = DB::select("
@@ -105,39 +92,31 @@ class ChatController extends Controller
                 ORDER BY
                     dc.embedding OPERATOR(extensions.<=>)
                     ?::extensions.vector ASC
-                LIMIT 5
+                LIMIT 10
             ", [
                 $embeddingVector,
                 $embeddingVector,
                 $embeddingVector
             ]);
 
-            Log::info(
-                'Vector search returned ' .
-                    count($chunks) .
-                    ' chunks.'
-            );
+            Log::info('Vector search returned ' . count($chunks) . ' chunks.');
 
             // -----------------------------------------------------
             // 5. No relevant chunks
             // -----------------------------------------------------
 
             if (empty($chunks)) {
-
-                Log::info(
-                    'No relevant thesis chunks found.'
-                );
+                Log::info('No relevant thesis chunks found.');
 
                 return response()->json([
                     'error' => false,
-                    'answer' =>
-                    'I could not find relevant information in the uploaded thesis documents.',
+                    'answer' => 'I could not find relevant information in the uploaded thesis documents.',
                     'sources' => []
                 ]);
             }
 
             // -----------------------------------------------------
-            // 6. Build RAG context
+            // 6. Build RAG context for Gemini
             // -----------------------------------------------------
 
             $contextParts = [];
@@ -152,22 +131,15 @@ class ChatController extends Controller
                     $chunk->chunk_text;
             }
 
-            $contextText = implode(
-                "\n\n---\n\n",
-                $contextParts
-            );
+            $contextText = implode("\n\n---\n\n", $contextParts);
 
-            Log::info(
-                'RAG context successfully created.'
-            );
+            Log::info('RAG context successfully created.');
 
             // -----------------------------------------------------
             // 7. Generate answer with Gemini
             // -----------------------------------------------------
 
-            Log::info(
-                'Sending RAG context to Gemini...'
-            );
+            Log::info('Sending RAG context to Gemini...');
 
             $answer = $this->geminiService
                 ->generateAnswer(
@@ -175,43 +147,35 @@ class ChatController extends Controller
                     $contextText
                 );
 
-            Log::info(
-                'Gemini generated chatbot answer successfully.'
-            );
+            Log::info('Gemini generated chatbot answer successfully.');
 
             // -----------------------------------------------------
-            // 8. Return answer
+            // 8. Deduplicate sources by document_id for the UI
             // -----------------------------------------------------
+
+            $uniqueSources = [];
+            foreach ($chunks as $chunk) {
+                $docId = $chunk->document_id;
+                // Only store the highest similarity score for each unique thesis
+                if (!isset($uniqueSources[$docId])) {
+                    $uniqueSources[$docId] = $chunk;
+                }
+            }
 
             return response()->json([
                 'error' => false,
                 'answer' => $answer,
-                'sources' => $chunks
+                'sources' => array_values($uniqueSources)
             ]);
+
         } catch (\Exception $e) {
 
-            // -----------------------------------------------------
-            // 9. Log exact error
-            // -----------------------------------------------------
-
-            Log::error(
-                'RAG CHATBOT ERROR: ' .
-                    $e->getMessage()
-            );
-
-            Log::error(
-                $e->getTraceAsString()
-            );
-
-            // -----------------------------------------------------
-            // 10. Return actual error during development
-            // -----------------------------------------------------
+            Log::error('RAG CHATBOT ERROR: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
             return response()->json([
                 'error' => true,
-                'message' =>
-                'RAG chatbot error: ' .
-                    $e->getMessage()
+                'message' => 'RAG chatbot error: ' . $e->getMessage()
             ], 500);
         }
     }
