@@ -196,12 +196,31 @@ class DocumentController extends Controller
     /**
      * Display a single thesis document in ProQuest reading view.
      */
+    /**
+     * Display a single thesis document in ProQuest reading view.
+     */
     public function show($id)
     {
-        $document = Document::with('chunks')->findOrFail($id);
-        return view('document-detail', [
-            'document' => $document,
-        ]);
+        try {
+            // Load document and only chunk text (skipping the heavy vector embedding)
+            $document = Document::with(['chunks' => function ($query) {
+                $query->select('id', 'document_id', 'chunk_text');
+            }])->findOrFail($id);
+
+            return view('document-detail', [
+                'document' => $document,
+            ]);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Document detail error: ' . $e->getMessage());
+
+            // Print exact error so we can fix it immediately
+            return response()->json([
+                'status' => 'Error loading document',
+                'message' => $e->getMessage(),
+                'file' => basename($e->getFile()),
+                'line' => $e->getLine(),
+            ], 500);
+        }
     }
 
 
