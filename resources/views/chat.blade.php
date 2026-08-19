@@ -84,6 +84,16 @@
             const sendBtnText = document.getElementById('sendBtnText');
             const sendBtnIcon = document.getElementById('sendBtnIcon');
             const chatMessages = document.getElementById('chatMessages');
+            // Read ?q= parameter from URL if student clicked "Ask AI" on a document card
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialQuery = urlParams.get('q');
+            if (initialQuery && initialQuery.trim()) {
+                messageInput.value = initialQuery.trim();
+                // Optional: Automatically submit after a brief delay
+                setTimeout(() => {
+                    chatForm.requestSubmit();
+                }, 300);
+            }
 
             function scrollToBottom() {
                 chatMessages.scrollTo({
