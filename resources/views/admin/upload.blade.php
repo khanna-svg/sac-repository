@@ -143,11 +143,14 @@
                             <label for="department" class="mb-2 block text-xs md:text-sm font-semibold text-gray-700">
                                 DEPARTMENT
                             </label>
-                            <select id="department" name="department" required class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
+                            <select id="department" name="department" required onchange="handleDepartmentChange(this.value)" class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
                                 <option value="" disabled selected>Select Department</option>
-                                <option value="College of Computer Studies">College of Computer Studies</option>
-                                <option value="College of Nursing">College of Nursing</option>
-                                <option value="College of Business">College of Business</option>
+                                <option value="nursing">Nursing Department</option>
+                                <option value="marine">Marine Engineering Department</option>
+                                <option value="it">Information Technology Department</option>
+                                <option value="hospitality">Hospitality Management</option>
+                                <option value="education">Education Department</option>
+                                <option value="criminology">Criminology Department</option>
                             </select>
                         </div>
 
@@ -158,10 +161,12 @@
                             </label>
                             <select id="course_code" name="course_code" required class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
                                 <option value="" disabled selected>Select Course</option>
-                                <!-- Values correspond to image filenames in public/images/covers/ -->
-                                <option value="bsit">BS in Information Technology</option>
-                                <option value="bsn">BS in Nursing</option>
-                                <option value="bsba">BS in Business Administration</option>
+                                <option value="bsn">BS in Nursing (BSN)</option>
+                                <option value="bsmare">BS in Marine Engineering (BSMarE)</option>
+                                <option value="bsit">BS in Information Technology (BSIT)</option>
+                                <option value="bshm">BS in Hospitality Management (BSHM)</option>
+                                <option value="bsed">Bachelor of Secondary Education (BSED)</option>
+                                <option value="bsc">BS in Criminology (BSC)</option>
                             </select>
                         </div>
                     </div>
@@ -233,6 +238,23 @@
         const progressText = document.getElementById('progressText');
         const progressPercent = document.getElementById('progressPercent');
 
+        // Department-to-Course automatic mapping selector
+        const courseMapping = {
+            'nursing': 'bsn',
+            'marine': 'bsmare',
+            'it': 'bsit',
+            'hospitality': 'bshm',
+            'education': 'bsed',
+            'criminology': 'bsc'
+        };
+
+        function handleDepartmentChange(selectedDepartment) {
+            const courseSelect = document.getElementById('course_code');
+            if (courseMapping[selectedDepartment]) {
+                courseSelect.value = courseMapping[selectedDepartment];
+            }
+        }
+
         function showError(message) {
             uploadMessage.textContent = message;
             uploadMessage.className = 'mt-4 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700';
@@ -297,7 +319,7 @@
 
                 if (uploadError) throw uploadError;
 
-                // 3. Save Metadata (Including department & course_code)
+                // 3. Save Metadata
                 const metadataResponse = await fetch('/backend/documents/store-signed', {
                     method: 'POST',
                     headers: {
