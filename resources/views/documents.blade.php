@@ -212,7 +212,7 @@
                         <!-- Book Cover Image Placeholder -->
                         <div class="w-full md:w-28 h-36 md:h-36 rounded-2xl border border-gray-200 bg-slate-100 overflow-hidden shadow-sm shrink-0">
                             <img
-                                src="/images/covers/${details.cover}"
+                                src="{{ asset('images/covers') }}/${details.cover}"
                                 alt="${escapeHtml(doc.title)} Cover"
                                 class="w-full h-full object-cover"
                                 onerror="handleImageError(this)">
