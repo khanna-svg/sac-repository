@@ -88,7 +88,7 @@ class GeminiService
 
         $response = Http::timeout(60)
             ->post(
-                "{$this->baseUrl}/models/gemini-1.5-flash:generateContent?key={$this->apiKey}",
+                "{$this->baseUrl}/models/gemini-3.6-flash:generateContent?key={$this->apiKey}",
                 [
                     'contents' => [
                         [
