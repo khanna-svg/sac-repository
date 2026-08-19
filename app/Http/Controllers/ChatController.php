@@ -46,30 +46,35 @@ class ChatController extends Controller
             $embeddingVector = '[' . implode(',', $embedding) . ']';
 
             // -----------------------------------------------------
-            // 2. Search top 5 document chunks
+            // 2. Fetch the best matching chunk for EACH unique thesis
             // -----------------------------------------------------
 
             $chunks = DB::select("
-                SELECT
-                    dc.chunk_text,
-                    dc.document_id,
-                    d.title AS document_title,
-                    d.author AS document_author,
-                    1 - (
+                SELECT *
+                FROM (
+                    SELECT DISTINCT ON (dc.document_id)
+                        dc.chunk_text,
+                        dc.document_id,
+                        d.title AS document_title,
+                        d.author AS document_author,
+                        1 - (
+                            dc.embedding OPERATOR(extensions.<=>)
+                            ?::extensions.vector
+                        ) AS similarity
+                    FROM document_chunks dc
+                    JOIN documents d ON d.id = dc.document_id
+                    WHERE
+                        1 - (
+                            dc.embedding OPERATOR(extensions.<=>)
+                            ?::extensions.vector
+                        ) > 0.15
+                    ORDER BY
+                        dc.document_id,
                         dc.embedding OPERATOR(extensions.<=>)
-                        ?::extensions.vector
-                    ) AS similarity
-                FROM document_chunks dc
-                JOIN documents d ON d.id = dc.document_id
-                WHERE
-                    1 - (
-                        dc.embedding OPERATOR(extensions.<=>)
-                        ?::extensions.vector
-                    ) > 0.15
-                ORDER BY
-                    dc.embedding OPERATOR(extensions.<=>)
-                    ?::extensions.vector ASC
-                LIMIT 5
+                        ?::extensions.vector ASC
+                ) unique_theses
+                ORDER BY similarity DESC
+                LIMIT 8
             ", [
                 $embeddingVector,
                 $embeddingVector,
@@ -85,20 +90,18 @@ class ChatController extends Controller
             }
 
             // -----------------------------------------------------
-            // 3. Build compact context for fastest AI response
+            // 3. Build context for Gemini from unique theses
             // -----------------------------------------------------
 
             $contextParts = [];
-            // Take top 3 most relevant chunks to keep response fast
-            $topChunks = array_slice($chunks, 0, 3);
 
-            foreach ($topChunks as $index => $chunk) {
+            foreach ($chunks as $index => $chunk) {
                 $score = round($chunk->similarity * 100, 1);
                 $docTitle = $chunk->document_title ?? 'Thesis Document';
                 $docAuthor = $chunk->document_author ?? 'Unknown Author';
 
                 $contextParts[] =
-                    "[Source #" . ($index + 1) . " - \"{$docTitle}\" by {$docAuthor} ({$score}% match)]\n" .
+                    "[Thesis #" . ($index + 1) . ": \"{$docTitle}\" by {$docAuthor} ({$score}% match)]\n" .
                     $chunk->chunk_text;
             }
 
@@ -115,21 +118,13 @@ class ChatController extends Controller
                 );
 
             // -----------------------------------------------------
-            // 5. Deduplicate sources by document_id for the UI
+            // 5. Return all distinct matching theses
             // -----------------------------------------------------
-
-            $uniqueSources = [];
-            foreach ($chunks as $chunk) {
-                $docId = $chunk->document_id;
-                if (!isset($uniqueSources[$docId])) {
-                    $uniqueSources[$docId] = $chunk;
-                }
-            }
 
             return response()->json([
                 'error' => false,
                 'answer' => $answer,
-                'sources' => array_values($uniqueSources)
+                'sources' => $chunks
             ]);
 
         } catch (\Exception $e) {
