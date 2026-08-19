@@ -87,20 +87,23 @@ class ChatController extends Controller
 
             $chunks = DB::select("
                 SELECT
-                    chunk_text,
-                    document_id,
+                    dc.chunk_text,
+                    dc.document_id,
+                    d.title AS document_title,
+                    d.author AS document_author,
                     1 - (
-                        embedding OPERATOR(extensions.<=>)
+                        dc.embedding OPERATOR(extensions.<=>)
                         ?::extensions.vector
                     ) AS similarity
-                FROM document_chunks
+                FROM document_chunks dc
+                JOIN documents d ON d.id = dc.document_id
                 WHERE
                     1 - (
-                        embedding OPERATOR(extensions.<=>)
+                        dc.embedding OPERATOR(extensions.<=>)
                         ?::extensions.vector
                     ) > 0.15
                 ORDER BY
-                    embedding OPERATOR(extensions.<=>)
+                    dc.embedding OPERATOR(extensions.<=>)
                     ?::extensions.vector ASC
                 LIMIT 5
             ", [
@@ -111,8 +114,8 @@ class ChatController extends Controller
 
             Log::info(
                 'Vector search returned ' .
-                count($chunks) .
-                ' chunks.'
+                    count($chunks) .
+                    ' chunks.'
             );
 
             // -----------------------------------------------------
@@ -128,7 +131,7 @@ class ChatController extends Controller
                 return response()->json([
                     'error' => false,
                     'answer' =>
-                        'I could not find relevant information in the uploaded thesis documents.',
+                    'I could not find relevant information in the uploaded thesis documents.',
                     'sources' => []
                 ]);
             }
@@ -140,16 +143,12 @@ class ChatController extends Controller
             $contextParts = [];
 
             foreach ($chunks as $index => $chunk) {
-
-                $score = round(
-                    $chunk->similarity * 100,
-                    1
-                );
+                $score = round($chunk->similarity * 100, 1);
+                $docTitle = $chunk->document_title ?? 'Thesis Document';
+                $docAuthor = $chunk->document_author ?? 'Unknown Author';
 
                 $contextParts[] =
-                    "[Source #" .
-                    ($index + 1) .
-                    " - Similarity: {$score}%]\n" .
+                    "[Source #" . ($index + 1) . " - \"{$docTitle}\" by {$docAuthor} ({$score}% match)]\n" .
                     $chunk->chunk_text;
             }
 
@@ -189,7 +188,6 @@ class ChatController extends Controller
                 'answer' => $answer,
                 'sources' => $chunks
             ]);
-
         } catch (\Exception $e) {
 
             // -----------------------------------------------------
@@ -198,7 +196,7 @@ class ChatController extends Controller
 
             Log::error(
                 'RAG CHATBOT ERROR: ' .
-                $e->getMessage()
+                    $e->getMessage()
             );
 
             Log::error(
@@ -212,7 +210,7 @@ class ChatController extends Controller
             return response()->json([
                 'error' => true,
                 'message' =>
-                    'RAG chatbot error: ' .
+                'RAG chatbot error: ' .
                     $e->getMessage()
             ], 500);
         }
