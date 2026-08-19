@@ -40,75 +40,120 @@ class ChatController extends Controller
                 ->generateEmbedding($userQuestion);
 
             if (empty($embedding)) {
-                throw new \Exception('Gemini returned an empty query embedding.');
+                throw new \Exception(
+                    'Gemini returned an empty query embedding.'
+                );
             }
 
             $embeddingVector = '[' . implode(',', $embedding) . ']';
 
+
             // -----------------------------------------------------
-            // 2. Fetch the best matching chunk for EACH unique thesis
+            // 2. Retrieve the best matching chunks
+            //    We do NOT use a similarity threshold here.
             // -----------------------------------------------------
 
             $chunks = DB::select("
-                SELECT *
-                FROM (
-                    SELECT DISTINCT ON (dc.document_id)
-                        dc.chunk_text,
-                        dc.document_id,
-                        d.title AS document_title,
-                        d.author AS document_author,
-                        1 - (
-                            dc.embedding OPERATOR(extensions.<=>)
-                            ?::extensions.vector
-                        ) AS similarity
-                    FROM document_chunks dc
-                    JOIN documents d ON d.id = dc.document_id
-                    WHERE
-                        1 - (
-                            dc.embedding OPERATOR(extensions.<=>)
-                            ?::extensions.vector
-                        ) > 0.15
-                    ORDER BY
-                        dc.document_id,
+                SELECT
+                    dc.chunk_text,
+                    dc.document_id,
+                    d.title AS document_title,
+                    d.author AS document_author,
+                    1 - (
                         dc.embedding OPERATOR(extensions.<=>)
-                        ?::extensions.vector ASC
-                ) unique_theses
-                ORDER BY similarity DESC
-                LIMIT 8
+                        ?::extensions.vector
+                    ) AS similarity
+
+                FROM document_chunks dc
+
+                INNER JOIN documents d
+                    ON d.id = dc.document_id
+
+                WHERE dc.embedding IS NOT NULL
+
+                ORDER BY
+                    dc.embedding OPERATOR(extensions.<=>)
+                    ?::extensions.vector ASC
+
+                LIMIT 12
             ", [
-                $embeddingVector,
                 $embeddingVector,
                 $embeddingVector
             ]);
 
+
+            // -----------------------------------------------------
+            // 3. Check if there are actually chunks in the database
+            // -----------------------------------------------------
+
             if (empty($chunks)) {
+
+                Log::warning('RAG: document_chunks returned no results.', [
+                    'question' => $userQuestion
+                ]);
+
                 return response()->json([
                     'error' => false,
-                    'answer' => 'I could not find relevant information in the uploaded thesis documents.',
+                    'answer' =>
+                        'There are currently no processed thesis document chunks available for semantic search.',
                     'sources' => []
                 ]);
             }
 
+
             // -----------------------------------------------------
-            // 3. Build context for Gemini from unique theses
+            // 4. Log similarity results for debugging
+            // -----------------------------------------------------
+
+            Log::info('RAG SEARCH RESULTS', [
+                'question' => $userQuestion,
+                'chunk_count' => count($chunks),
+                'results' => collect($chunks)->map(function ($chunk) {
+                    return [
+                        'document_id' => $chunk->document_id,
+                        'title' => $chunk->document_title,
+                        'similarity' => $chunk->similarity
+                    ];
+                })->values()->toArray()
+            ]);
+
+
+            // -----------------------------------------------------
+            // 5. Build thesis context
             // -----------------------------------------------------
 
             $contextParts = [];
 
             foreach ($chunks as $index => $chunk) {
-                $score = round($chunk->similarity * 100, 1);
-                $docTitle = $chunk->document_title ?? 'Thesis Document';
-                $docAuthor = $chunk->document_author ?? 'Unknown Author';
+
+                $score = round(
+                    ((float) $chunk->similarity) * 100,
+                    1
+                );
+
+                $docTitle =
+                    $chunk->document_title
+                    ?? 'Thesis Document';
+
+                $docAuthor =
+                    $chunk->document_author
+                    ?? 'Unknown Author';
 
                 $contextParts[] =
-                    "[Thesis #" . ($index + 1) . ": \"{$docTitle}\" by {$docAuthor} ({$score}% match)]\n" .
+                    "[Source #" . ($index + 1) . "]\n" .
+                    "Thesis Title: {$docTitle}\n" .
+                    "Author: {$docAuthor}\n" .
+                    "Similarity: {$score}%\n" .
+                    "Content:\n" .
                     $chunk->chunk_text;
             }
 
-            $contextText = implode("\n\n---\n\n", $contextParts);
+            $contextText =
+                implode("\n\n---\n\n", $contextParts);
+
 
             // -----------------------------------------------------
-            // 4. Generate answer with Gemini
+            // 6. Generate answer using retrieved context
             // -----------------------------------------------------
 
             $answer = $this->geminiService
@@ -117,8 +162,9 @@ class ChatController extends Controller
                     $contextText
                 );
 
+
             // -----------------------------------------------------
-            // 5. Return all distinct matching theses
+            // 7. Return answer + sources
             // -----------------------------------------------------
 
             return response()->json([
@@ -127,13 +173,18 @@ class ChatController extends Controller
                 'sources' => $chunks
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
 
-            Log::error('RAG CHATBOT ERROR: ' . $e->getMessage());
+            Log::error('RAG CHATBOT ERROR', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
 
             return response()->json([
                 'error' => true,
-                'message' => 'RAG chatbot error: ' . $e->getMessage()
+                'message' =>
+                    'RAG chatbot error: ' . $e->getMessage()
             ], 500);
         }
     }
