@@ -196,11 +196,9 @@ class DocumentController extends Controller
     /**
      * Display a single thesis document in ProQuest reading view.
      */
-    public function show(Document $document)
+    public function show($id)
     {
-        // Load document chunks for full-text reading
-        $document->load('chunks');
-
+        $document = Document::with('chunks')->findOrFail($id);
         return view('document-detail', [
             'document' => $document,
         ]);

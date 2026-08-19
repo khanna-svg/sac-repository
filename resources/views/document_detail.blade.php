@@ -12,10 +12,11 @@
 
     @include('partials.sidebar')
 
-    <!-- Hidden Data Attributes for Citation Modal -->
+    <!-- Hidden Data Attributes for Safe JavaScript Access -->
     <div id="citationData" 
          data-title="{{ $document->title }}" 
          data-author="{{ $document->author }}" 
+         data-year="{{ $document->created_at ? $document->created_at->format('Y') : date('Y') }}"
          class="hidden"></div>
 
     <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-16 md:pt-10">
@@ -30,7 +31,7 @@
                 <span class="text-gray-400 truncate max-w-xs">{{ $document->title }}</span>
             </nav>
 
-            <!-- Main Document Container -->
+            <!-- Main Document Card -->
             <article class="rounded-3xl border border-gray-200 bg-white p-6 md:p-8 shadow-sm">
 
                 <!-- Badges -->
@@ -51,7 +52,7 @@
                     {{ $document->title }}
                 </h1>
 
-                <!-- Authors & Metadata -->
+                <!-- Authors -->
                 <div class="mt-3 flex flex-wrap items-center gap-y-1 gap-x-4 text-xs md:text-sm text-gray-600 border-b border-gray-100 pb-5">
                     <p>
                         <span class="font-bold text-[#700000]">Author(s):</span>
@@ -97,7 +98,7 @@
                 <!-- Abstract Tab Content -->
                 <div id="tabAbstractContent" class="space-y-6">
                     <div>
-                        <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wider text-[#700000] mb-2">Abstract</h2>
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2">Abstract</h2>
                         <div class="rounded-2xl bg-slate-50 border border-gray-200 p-5 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap font-sans">
                             {{ $document->abstract }}
                         </div>
@@ -106,22 +107,22 @@
 
                 <!-- Full Text Tab Content -->
                 <div id="tabFullTextContent" class="hidden space-y-4">
-                    <h2 class="text-sm font-bold text-gray-900 uppercase tracking-wider text-[#700000] mb-2">Extracted Full Text</h2>
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2">Extracted Full Text</h2>
 
                     @if($document->chunks && $document->chunks->count() > 0)
-                    <div class="rounded-2xl bg-slate-50 border border-gray-200 p-6 space-y-4 max-h-[600px] overflow-y-auto leading-relaxed text-sm text-gray-800 font-sans">
-                        @foreach($document->chunks as $index => $chunk)
-                        <p class="text-gray-700 leading-relaxed">{{ $chunk->chunk_text }}</p>
-                        @endforeach
-                    </div>
+                        <div class="rounded-2xl bg-slate-50 border border-gray-200 p-6 space-y-4 max-h-[600px] overflow-y-auto leading-relaxed text-sm text-gray-800 font-sans">
+                            @foreach($document->chunks as $chunk)
+                                <p class="text-gray-700 leading-relaxed">{{ $chunk->chunk_text }}</p>
+                            @endforeach
+                        </div>
                     @else
-                    <div class="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center text-sm text-amber-800">
-                        <p class="font-bold">Full text extraction preview is being generated.</p>
-                        <p class="mt-1 text-xs text-amber-700">You can view or download the complete original document using the button below:</p>
-                        <a href="/backend/documents/{{ $document->id }}/view" target="_blank" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000]">
-                            📄 Open PDF File
-                        </a>
-                    </div>
+                        <div class="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center text-sm text-amber-800">
+                            <p class="font-bold">Full text extraction preview is being generated.</p>
+                            <p class="mt-1 text-xs text-amber-700">You can view or download the complete original document using the button below:</p>
+                            <a href="/backend/documents/{{ $document->id }}/view" target="_blank" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000]">
+                                📄 Open PDF File
+                            </a>
+                        </div>
                     @endif
                 </div>
 
@@ -157,6 +158,7 @@
         </div>
     </div>
 
+    <!-- JavaScript Logic -->
     <script>
         function switchViewTab(tab) {
             const abstractBtn = document.getElementById('tabAbstractBtn');
@@ -177,10 +179,10 @@
             }
         }
 
-        const citationElement = document.getElementById('citationData');
-        const docTitle = citationElement.dataset.title || 'Untitled Thesis';
-        const docAuthor = citationElement.dataset.author || 'Unknown Author';
-        const docYear = "{{ $document->created_at ? $document->created_at->format('Y') : date('Y') }}";
+        const dataElement = document.getElementById('citationData');
+        const docTitle = dataElement ? dataElement.getAttribute('data-title') : 'Untitled Thesis';
+        const docAuthor = dataElement ? dataElement.getAttribute('data-author') : 'Unknown Author';
+        const docYear = dataElement ? dataElement.getAttribute('data-year') : '2025';
         let currentFormat = 'APA';
 
         function openCitationModal() {
@@ -197,9 +199,12 @@
         function selectCitationFormat(format) {
             currentFormat = format;
             ['APA', 'MLA', 'Chicago', 'IEEE'].forEach(f => {
-                document.getElementById(`tab${f}`).className = f === format ?
-                    "flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-[#700000] shadow-sm transition" :
-                    "flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-500 hover:text-gray-900 transition";
+                const el = document.getElementById(`tab${f}`);
+                if (el) {
+                    el.className = f === format ?
+                        "flex-1 py-1.5 text-xs font-bold rounded-lg bg-white text-[#700000] shadow-sm transition" :
+                        "flex-1 py-1.5 text-xs font-bold rounded-lg text-gray-500 hover:text-gray-900 transition";
+                }
             });
 
             let text = '';
