@@ -18,10 +18,6 @@ class ChatController extends Controller
 
     public function ask(Request $request)
     {
-        // ---------------------------------------------------------
-        // 1. Get user's question
-        // ---------------------------------------------------------
-
         $userQuestion = $request->input('message')
             ?? $request->input('question');
 
@@ -34,15 +30,11 @@ class ChatController extends Controller
 
         $userQuestion = trim($userQuestion);
 
-        Log::info('RAG Chatbot question: ' . $userQuestion);
-
         try {
 
             // -----------------------------------------------------
-            // 2. Generate embedding for user's question
+            // 1. Generate embedding for user's question
             // -----------------------------------------------------
-
-            Log::info('Generating query embedding...');
 
             $embedding = $this->geminiService
                 ->generateEmbedding($userQuestion);
@@ -51,25 +43,10 @@ class ChatController extends Controller
                 throw new \Exception('Gemini returned an empty query embedding.');
             }
 
-            // Verify dimension
-            $dimension = count($embedding);
-
-            Log::info("Query embedding generated. Dimension: {$dimension}");
-
-            if ($dimension !== 768) {
-                throw new \Exception("Query embedding has {$dimension} dimensions. Expected 768.");
-            }
-
-            // -----------------------------------------------------
-            // 3. Convert embedding to PostgreSQL vector
-            // -----------------------------------------------------
-
             $embeddingVector = '[' . implode(',', $embedding) . ']';
 
-            Log::info('Querying document_chunks using vector similarity...');
-
             // -----------------------------------------------------
-            // 4. Search document chunks (Top 10 for more thesis variety)
+            // 2. Search top 5 document chunks
             // -----------------------------------------------------
 
             $chunks = DB::select("
@@ -92,22 +69,14 @@ class ChatController extends Controller
                 ORDER BY
                     dc.embedding OPERATOR(extensions.<=>)
                     ?::extensions.vector ASC
-                LIMIT 10
+                LIMIT 5
             ", [
                 $embeddingVector,
                 $embeddingVector,
                 $embeddingVector
             ]);
 
-            Log::info('Vector search returned ' . count($chunks) . ' chunks.');
-
-            // -----------------------------------------------------
-            // 5. No relevant chunks
-            // -----------------------------------------------------
-
             if (empty($chunks)) {
-                Log::info('No relevant thesis chunks found.');
-
                 return response()->json([
                     'error' => false,
                     'answer' => 'I could not find relevant information in the uploaded thesis documents.',
@@ -116,12 +85,14 @@ class ChatController extends Controller
             }
 
             // -----------------------------------------------------
-            // 6. Build RAG context for Gemini
+            // 3. Build compact context for fastest AI response
             // -----------------------------------------------------
 
             $contextParts = [];
+            // Take top 3 most relevant chunks to keep response fast
+            $topChunks = array_slice($chunks, 0, 3);
 
-            foreach ($chunks as $index => $chunk) {
+            foreach ($topChunks as $index => $chunk) {
                 $score = round($chunk->similarity * 100, 1);
                 $docTitle = $chunk->document_title ?? 'Thesis Document';
                 $docAuthor = $chunk->document_author ?? 'Unknown Author';
@@ -133,13 +104,9 @@ class ChatController extends Controller
 
             $contextText = implode("\n\n---\n\n", $contextParts);
 
-            Log::info('RAG context successfully created.');
-
             // -----------------------------------------------------
-            // 7. Generate answer with Gemini
+            // 4. Generate answer with Gemini
             // -----------------------------------------------------
-
-            Log::info('Sending RAG context to Gemini...');
 
             $answer = $this->geminiService
                 ->generateAnswer(
@@ -147,16 +114,13 @@ class ChatController extends Controller
                     $contextText
                 );
 
-            Log::info('Gemini generated chatbot answer successfully.');
-
             // -----------------------------------------------------
-            // 8. Deduplicate sources by document_id for the UI
+            // 5. Deduplicate sources by document_id for the UI
             // -----------------------------------------------------
 
             $uniqueSources = [];
             foreach ($chunks as $chunk) {
                 $docId = $chunk->document_id;
-                // Only store the highest similarity score for each unique thesis
                 if (!isset($uniqueSources[$docId])) {
                     $uniqueSources[$docId] = $chunk;
                 }
@@ -171,7 +135,6 @@ class ChatController extends Controller
         } catch (\Exception $e) {
 
             Log::error('RAG CHATBOT ERROR: ' . $e->getMessage());
-            Log::error($e->getTraceAsString());
 
             return response()->json([
                 'error' => true,
