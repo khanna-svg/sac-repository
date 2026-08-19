@@ -147,11 +147,6 @@
                             <span>📥</span> <span>Download PDF</span>
                         </a>
                     </div>
-
-                    <!-- View PDF Button -->
-                    <a href="/backend/documents/{{ $document->id }}/view" target="_blank" class="rounded-xl bg-[#700000] px-5 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md flex items-center gap-2">
-                        <span>📄</span> View Original PDF
-                    </a>
                 </div>
 
                 <!-- Tabs: Abstract vs Full Text -->
