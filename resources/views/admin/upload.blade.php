@@ -231,67 +231,14 @@
 
         uploadForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            const fileInput = document.getElementById('pdf');
-            const file = fileInput.files[0];
+            const file = document.getElementById('pdf').files[0];
+            if (!file) return;
 
-            if (!file) {
-                showError('Please select a PDF file.');
-                return;
-            }
-
-            if (file.type !== 'application/pdf') {
-                showError('Only PDF files are allowed.');
-                return;
-            }
-
-            if (file.size > 50 * 1024 * 1024) {
-                showError('File size exceeds the 50MB limit.');
-                return;
-            }
-
-            uploadMessage.className = 'hidden';
-            progressContainer.style.display = 'block';
-            updateProgress(10);
             uploadButton.disabled = true;
-            uploadButton.textContent = 'Preparing Upload...';
+            uploadButton.textContent = 'Uploading...';
 
             try {
-                // ========================================
-                // STEP 1: EXTRACT FULL TEXT FROM PDF (OPTIMIZED)
-                // ========================================
-                progressText.textContent = 'Extracting full text from PDF pages...';
-                updateProgress(25);
-
-                let extractedChunks = [];
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const pdfDoc = await pdfjsLib.getDocument({
-                        data: arrayBuffer
-                    }).promise;
-
-                    // Cap extraction to a max of 25 pages to avoid payload bloat on large files
-                    const maxPagesToExtract = Math.min(pdfDoc.numPages, 25);
-
-                    for (let pageNum = 1; pageNum <= maxPagesToExtract; pageNum++) {
-                        const page = await pdfDoc.getPage(pageNum);
-                        const textContent = await page.getTextContent();
-                        const pageText = textContent.items.map(item => item.str).join(' ').trim();
-
-                        if (pageText.length > 30) {
-                            // Truncate each page text chunk to 1,500 characters max
-                            extractedChunks.push(`[Page ${pageNum}] ${pageText.substring(0, 1500)}`);
-                        }
-                    }
-                } catch (pdfErr) {
-                    console.warn('PDF text extraction error:', pdfErr);
-                }
-
-                // ========================================
-                // STEP 2: GET SIGNED UPLOAD URL
-                // ========================================
-                progressText.textContent = 'Preparing secure upload...';
-                updateProgress(40);
-
+                // 1. Get Signed URL
                 const urlRes = await fetch('/backend/documents/upload-url', {
                     method: 'POST',
                     headers: {
@@ -303,42 +250,22 @@
                         filename: file.name
                     })
                 });
-
                 const urlData = await urlRes.json();
-                if (!urlRes.ok || urlData.error) {
-                    throw new Error(urlData.message || 'Failed to prepare the upload.');
-                }
 
-                // ========================================
-                // STEP 3: UPLOAD PDF DIRECTLY TO SUPABASE
-                // ========================================
-                uploadButton.textContent = 'Uploading PDF...';
-                progressText.textContent = 'Uploading PDF to Supabase Storage...';
-                updateProgress(65);
-
+                // 2. Upload PDF directly to Supabase Storage
                 const bucketName = "{{ config('services.supabase.bucket', env('SUPABASE_STORAGE_BUCKET', 'thesis')) }}";
-
                 const {
                     error: uploadError
                 } = await supabaseClient
                     .storage
                     .from(bucketName)
                     .uploadToSignedUrl(urlData.path, urlData.token, file, {
-                        contentType: 'application/pdf',
-                        cacheControl: '3600'
+                        contentType: 'application/pdf'
                     });
 
-                if (uploadError) {
-                    throw new Error(uploadError.message || 'Supabase failed to upload the PDF.');
-                }
+                if (uploadError) throw uploadError;
 
-                // ========================================
-                // STEP 4: SAVE METADATA & FULL-TEXT CHUNKS
-                // ========================================
-                uploadButton.textContent = 'Indexing Thesis...';
-                progressText.textContent = 'Saving metadata and full-text chunks...';
-                updateProgress(85);
-
+                // 3. Save Metadata (Server will queue the full 275-page extraction)
                 const metadataResponse = await fetch('/backend/documents/store-signed', {
                     method: 'POST',
                     headers: {
@@ -350,29 +277,15 @@
                         title: document.getElementById('title').value.trim(),
                         author: document.getElementById('author').value.trim(),
                         abstract: document.getElementById('abstract').value.trim(),
-                        file_path: urlData.path,
-                        chunks: extractedChunks
+                        file_path: urlData.path
                     })
                 });
 
-                const metadata = await metadataResponse.json();
-                if (!metadataResponse.ok || metadata.error) {
-                    throw new Error(metadata.message || 'Failed to save thesis metadata.');
-                }
-
-                // ========================================
-                // SUCCESS
-                // ========================================
-                progressText.textContent = 'Upload complete!';
-                updateProgress(100);
-                uploadForm.reset();
-                progressContainer.style.display = 'none';
+                if (!metadataResponse.ok) throw new Error('Failed to save metadata');
                 showSuccessPopup();
 
-            } catch (error) {
-                console.error('Upload Error:', error);
-                progressContainer.style.display = 'none';
-                showError(error.message || 'Upload failed.');
+            } catch (err) {
+                showError(err.message);
             } finally {
                 uploadButton.disabled = false;
                 uploadButton.textContent = 'Submit & Upload Thesis';
