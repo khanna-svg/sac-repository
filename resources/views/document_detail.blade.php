@@ -37,36 +37,36 @@
                 <!-- Badges & Cover Image File Resolution -->
                 @php
                 $departmentNames = [
-                    'nursing' => 'Nursing Department',
-                    'marine' => 'Marine Engineering Department',
-                    'it' => 'Information Technology Department',
-                    'hospitality' => 'Hospitality Management',
-                    'education' => 'Education Department',
-                    'criminology' => 'Criminology Department',
+                'nursing' => 'Nursing Department',
+                'marine' => 'Marine Engineering Department',
+                'it' => 'Information Technology Department',
+                'hospitality' => 'Hospitality Management',
+                'education' => 'Education Department',
+                'criminology' => 'Criminology Department',
                 ];
 
                 $courseNames = [
-                    'bsn' => 'BS in Nursing (BSN)',
-                    'bsmare' => 'BS in Marine Engineering (BSMarE)',
-                    'bsit' => 'BS in Information Technology (BSIT)',
-                    'bshm' => 'BS in Hospitality Management (BSHM)',
-                    'bsed' => 'Bachelor of Secondary Education (BSED)',
-                    'bsc' => 'BS in Criminology (BSC)',
+                'bsn' => 'BS in Nursing (BSN)',
+                'bsmare' => 'BS in Marine Engineering (BSMarE)',
+                'bsit' => 'BS in Information Technology (BSIT)',
+                'bshm' => 'BS in Hospitality Management (BSHM)',
+                'bsed' => 'Bachelor of Secondary Education (BSED)',
+                'bsc' => 'BS in Criminology (BSC)',
                 ];
 
                 $coverMap = [
-                    'nursing' => 'NURSING',
-                    'bsn' => 'NURSING',
-                    'marine' => 'MARINE',
-                    'bsmare' => 'MARINE',
-                    'it' => 'IT',
-                    'bsit' => 'IT',
-                    'hospitality' => 'HM',
-                    'bshm' => 'HM',
-                    'education' => 'EDUC',
-                    'bsed' => 'EDUC',
-                    'criminology' => 'CRIM',
-                    'bsc' => 'CRIM',
+                'nursing' => 'NURSING',
+                'bsn' => 'NURSING',
+                'marine' => 'MARINE',
+                'bsmare' => 'MARINE',
+                'it' => 'IT',
+                'bsit' => 'IT',
+                'hospitality' => 'HM',
+                'bshm' => 'HM',
+                'education' => 'EDUC',
+                'bsed' => 'EDUC',
+                'criminology' => 'CRIM',
+                'bsc' => 'CRIM',
                 ];
 
                 $deptKey = strtolower($document->department ?? '');
@@ -143,7 +143,7 @@
                         </a>
 
                         <!-- Download PDF Button -->
-                        <a href="/backend/documents/{{ $document->id }}/view" download class="rounded-xl bg-white border border-gray-300 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5 shadow-sm">
+                        <a href="/backend/documents/{{ $document->id }}/view" target="_blank" rel="noopener noreferrer" download class="rounded-xl bg-white border border-gray-300 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5 shadow-sm">
                             <span>📥</span> <span>Download PDF</span>
                         </a>
                     </div>

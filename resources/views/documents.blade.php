@@ -268,14 +268,6 @@
                                         <span>🤖</span> Ask AI
                                     </a>
                                 </div>
-
-                                <button
-                                    type="button"
-                                    onclick="openPdfViewer('/backend/documents/${doc.id}/view')"
-                                    class="rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md flex items-center gap-1.5 shrink-0"
-                                >
-                                    <span>📄</span> View PDF
-                                </button>
                             </div>
 
                         </div>
