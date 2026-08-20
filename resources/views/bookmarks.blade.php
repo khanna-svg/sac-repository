@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Saved & Bookmarked Theses - SAC Thesis Repository</title>
+    <title>Saved / Bookmarks - SAC Thesis Repository</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -21,7 +21,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h1 class="text-2xl md:text-3xl font-bold text-[#700000] flex items-center gap-2.5">
-                            <span>🔖</span> Saved / Bookmarks
+                            Saved / Bookmarks
                         </h1>
                         <p class="mt-1 text-xs md:text-sm text-gray-500">
                             Your saved thesis and capstone projects for quick reading and citation.
@@ -29,7 +29,7 @@
                     </div>
                     <div class="flex items-center gap-2">
                         <span id="bookmarkCountBadge" class="rounded-xl bg-[#700000]/10 px-3.5 py-1.5 text-xs font-bold text-[#700000] border border-[#700000]/20">
-                            Loading saved items...
+                            0 Saved Theses
                         </span>
                     </div>
                 </div>
@@ -169,7 +169,6 @@
                 });
 
                 if (res.ok) {
-                    // Remove from view immediately
                     bookmarkedDocuments = bookmarkedDocuments.filter(d => d.id !== docId);
                     renderDocuments(bookmarkedDocuments);
                 }
@@ -183,18 +182,18 @@
                 documentsList.innerHTML = `
                     <div class="rounded-3xl border border-dashed border-gray-300 bg-white p-12 text-center">
                         <span class="text-4xl">🔖</span>
-                        <h3 class="mt-3 text-base font-bold text-gray-800">No saved theses yet</h3>
+                        <h3 class="mt-3 text-base font-bold text-gray-800">No saved thesis</h3>
                         <p class="mt-1 text-xs text-gray-500">When you bookmark a thesis in the repository, it will appear here for easy access.</p>
                         <a href="/documents" class="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] shadow-sm transition">
                             Explore Thesis Repository →
                         </a>
                     </div>
                 `;
-                bookmarkCountBadge.textContent = '0 Theses Saved';
+                bookmarkCountBadge.textContent = '0 Saved Theses';
                 return;
             }
 
-            bookmarkCountBadge.textContent = `${documents.length} Theses Saved`;
+            bookmarkCountBadge.textContent = `${documents.length} Saved Theses`;
 
             documentsList.innerHTML = documents.map((doc, idx) => {
                 const details = getDepartmentDetails(doc.department, doc.course_code, doc.title);
@@ -204,6 +203,17 @@
                 return `
                     <article class="relative flex flex-col md:flex-row gap-5 rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-[#700000]/30 transition">
                         
+                        <!-- Top-Right Active Yellow Bookmark Icon Button -->
+                        <button
+                            type="button"
+                            onclick="toggleBookmark(${doc.id})"
+                            title="Remove from saved"
+                            class="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-xl border bg-amber-50 border-amber-300 text-amber-500 shadow-sm transition hover:bg-red-50 hover:text-red-600 hover:border-red-300">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                            </svg>
+                        </button>
+
                         <!-- Book Cover Image -->
                         <div class="w-full md:w-28 h-36 md:h-36 rounded-2xl border border-gray-200 bg-slate-100 overflow-hidden shadow-sm shrink-0">
                             <img
@@ -213,25 +223,14 @@
                                 onerror="handleImageError(this)">
                         </div>
 
-                        <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center justify-between gap-2">
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
-                                        ${details.name}
-                                    </span>
-                                    <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-[10px] font-bold">
-                                        ✓ Full Text Available
-                                    </span>
-                                </div>
-
-                                <!-- Remove Bookmark Button -->
-                                <button
-                                    type="button"
-                                    onclick="toggleBookmark(${doc.id})"
-                                    title="Remove from saved"
-                                    class="rounded-xl border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition flex items-center gap-1">
-                                    <span>🔖</span> Saved
-                                </button>
+                        <div class="flex-1 min-w-0 pr-8">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
+                                    ${details.name}
+                                </span>
+                                <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-[10px] font-bold">
+                                    ✓ Full Text Available
+                                </span>
                             </div>
 
                             <h3 class="mt-2.5 text-base md:text-lg font-bold text-gray-900 transition">
@@ -289,11 +288,8 @@
                 bookmarkedDocuments = await res.json();
                 renderDocuments(bookmarkedDocuments);
             } catch (err) {
-                documentsList.innerHTML = `
-                    <div class="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
-                        Could not load saved bookmarks from server.
-                    </div>
-                `;
+                // If anything fails, gracefully show the empty state "No saved thesis"
+                renderDocuments([]);
             }
         }
 
