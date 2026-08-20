@@ -13,7 +13,7 @@ class GeminiService
 
     protected string $embeddingModel = 'gemini-embedding-001';
 
-    protected string $generationModel = 'gemini-2.5-flash';
+    protected string $generationModel = 'gemini-3.6-flash';
 
     public function __construct()
     {
