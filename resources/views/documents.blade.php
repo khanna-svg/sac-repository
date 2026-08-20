@@ -134,48 +134,20 @@
             const title = (titleVal || '').toLowerCase();
 
             if (dept === 'nursing' || course === 'bsn' || title.includes('patient') || title.includes('nursing')) {
-                return {
-                    cover: 'NURSING.webp',
-                    name: 'Nursing Department',
-                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                };
+                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
             } else if (dept === 'marine' || course === 'bsmare' || title.includes('marine') || title.includes('vessel')) {
-                return {
-                    cover: 'MARINE.webp',
-                    name: 'Marine Engineering Department',
-                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
-                };
+                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
             } else if (dept === 'it' || course === 'bsit' || title.includes('system') || title.includes('app') || title.includes('web')) {
-                return {
-                    cover: 'IT.webp',
-                    name: 'Information Technology Department',
-                    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
-                };
+                return { cover: 'IT.webp', name: 'Information Technology Department', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' };
             } else if (dept === 'hospitality' || course === 'bshm' || title.includes('hotel') || title.includes('hospitality')) {
-                return {
-                    cover: 'HM.webp',
-                    name: 'Hospitality Management',
-                    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
-                };
+                return { cover: 'HM.webp', name: 'Hospitality Management', badgeBg: 'bg-amber-50 text-amber-800 border-amber-200' };
             } else if (dept === 'education' || course === 'bsed' || title.includes('teaching') || title.includes('education')) {
-                return {
-                    cover: 'EDUC.webp',
-                    name: 'Education Department',
-                    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
-                };
+                return { cover: 'EDUC.webp', name: 'Education Department', badgeBg: 'bg-purple-50 text-purple-700 border-purple-200' };
             } else if (dept === 'criminology' || course === 'bsc' || title.includes('crime') || title.includes('criminology')) {
-                return {
-                    cover: 'CRIM.webp',
-                    name: 'Criminology Department',
-                    badgeBg: 'bg-red-50 text-red-700 border-red-200'
-                };
+                return { cover: 'CRIM.webp', name: 'Criminology Department', badgeBg: 'bg-red-50 text-red-700 border-red-200' };
             }
 
-            return {
-                cover: 'IT.webp',
-                name: 'Academic Research',
-                badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20'
-            };
+            return { cover: 'IT.webp', name: 'Academic Research', badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20' };
         }
 
         function renderDocuments(documents) {
@@ -202,6 +174,18 @@
                 return `
                     <article class="relative flex flex-col md:flex-row gap-5 rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-[#700000]/30 transition">
                         
+                        <!-- Top-Right Bookmark Icon Button -->
+                        <button
+                            type="button"
+                            onclick="toggleBookmark(${doc.id}, this)"
+                            title="${isSaved ? 'Remove from saved' : 'Save to bookmarks'}"
+                            class="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-xl border transition ${isSaved ? 'bg-amber-50 border-amber-300 text-amber-500 shadow-sm' : 'bg-white border-gray-200 text-gray-400 hover:text-[#700000] hover:border-gray-300 hover:bg-slate-50'}"
+                        >
+                            <svg class="w-5 h-5 ${isSaved ? 'fill-current' : 'fill-none'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                            </svg>
+                        </button>
+
                         <!-- Book Cover Image -->
                         <div class="w-full md:w-28 h-36 md:h-36 rounded-2xl border border-gray-200 bg-slate-100 overflow-hidden shadow-sm shrink-0">
                             <img
@@ -211,7 +195,7 @@
                                 onerror="handleImageError(this)">
                         </div>
 
-                        <div class="flex-1 min-w-0">
+                        <div class="flex-1 min-w-0 pr-8">
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
                                     ${details.name}
@@ -241,6 +225,7 @@
                                 ` : ''}
                             </div>
 
+                            <!-- Bottom Action Buttons (Cite & Ask AI) -->
                             <div class="mt-5 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
                                 <div class="flex items-center gap-2">
                                     <button
@@ -249,14 +234,6 @@
                                         class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5"
                                     >
                                         <span>📝</span> Cite (IEEE)
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onclick="toggleBookmark(${doc.id}, this)"
-                                        class="rounded-xl border ${isSaved ? 'border-amber-300 bg-amber-50 text-amber-900' : 'border-gray-200 bg-slate-50 text-gray-700 hover:bg-amber-50 hover:text-amber-900'} px-3.5 py-2 text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
-                                    >
-                                        <span>🔖</span> <span>${isSaved ? 'Saved' : 'Save'}</span>
                                     </button>
 
                                     <a
@@ -309,19 +286,27 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({
-                        document_id: docId
-                    })
+                    body: JSON.stringify({ document_id: docId })
                 });
                 const data = await res.json();
                 if (data.bookmarked) {
                     savedBookmarkIds.add(docId);
-                    btnElement.innerHTML = '<span>🔖</span> <span>Saved</span>';
-                    btnElement.className = 'rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-xs font-bold text-amber-900 transition flex items-center gap-1.5 shadow-sm';
+                    btnElement.title = 'Remove from saved';
+                    btnElement.className = 'absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-xl border bg-amber-50 border-amber-300 text-amber-500 shadow-sm transition';
+                    btnElement.innerHTML = `
+                        <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                    `;
                 } else {
                     savedBookmarkIds.delete(docId);
-                    btnElement.innerHTML = '<span>🔖</span> <span>Save</span>';
-                    btnElement.className = 'rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50 hover:text-amber-900 hover:border-amber-200 transition flex items-center gap-1.5';
+                    btnElement.title = 'Save to bookmarks';
+                    btnElement.className = 'absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-xl border bg-white border-gray-200 text-gray-400 hover:text-[#700000] hover:border-gray-300 hover:bg-slate-50 transition';
+                    btnElement.innerHTML = `
+                        <svg class="w-5 h-5 fill-none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                        </svg>
+                    `;
                 }
             } catch (err) {
                 console.error(err);
@@ -335,9 +320,7 @@
                 if (search && search.trim()) url.searchParams.set('search', search.trim());
 
                 const res = await fetch(url.toString(), {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Accept': 'application/json' }
                 });
                 if (!res.ok) throw new Error('Failed to load');
 
@@ -397,7 +380,6 @@
             document.getElementById('copyBtnIcon').textContent = '📋';
         }
 
-        // Initialize page: fetch saved bookmark IDs first, then render documents
         async function init() {
             await fetchBookmarkIds();
             await fetchDocuments();

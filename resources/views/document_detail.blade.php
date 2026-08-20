@@ -34,41 +34,53 @@
             </nav>
 
             <!-- Main Document Card -->
-            <article class="rounded-3xl border border-gray-200 bg-white p-6 md:p-8 shadow-sm">
+            <article class="relative rounded-3xl border border-gray-200 bg-white p-6 md:p-8 shadow-sm">
+
+                <!-- Top-Right Bookmark Button -->
+                <button
+                    type="button"
+                    id="bookmarkDetailBtn"
+                    onclick="toggleDetailBookmark()"
+                    title="Bookmark Thesis"
+                    class="absolute top-6 right-6 p-2.5 rounded-2xl border border-gray-200 bg-white text-gray-400 hover:text-[#700000] hover:border-gray-300 hover:bg-slate-50 transition shadow-sm flex items-center justify-center">
+                    <svg id="bookmarkIcon" class="w-5 h-5 fill-none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                    </svg>
+                </button>
 
                 <!-- Badges & Cover Image File Resolution -->
                 @php
                 $departmentNames = [
-                'nursing' => 'Nursing Department',
-                'marine' => 'Marine Engineering Department',
-                'it' => 'Information Technology Department',
-                'hospitality' => 'Hospitality Management',
-                'education' => 'Education Department',
-                'criminology' => 'Criminology Department',
+                    'nursing' => 'Nursing Department',
+                    'marine' => 'Marine Engineering Department',
+                    'it' => 'Information Technology Department',
+                    'hospitality' => 'Hospitality Management',
+                    'education' => 'Education Department',
+                    'criminology' => 'Criminology Department',
                 ];
 
                 $courseNames = [
-                'bsn' => 'BS in Nursing (BSN)',
-                'bsmare' => 'BS in Marine Engineering (BSMarE)',
-                'bsit' => 'BS in Information Technology (BSIT)',
-                'bshm' => 'BS in Hospitality Management (BSHM)',
-                'bsed' => 'Bachelor of Secondary Education (BSED)',
-                'bsc' => 'BS in Criminology (BSC)',
+                    'bsn' => 'BS in Nursing (BSN)',
+                    'bsmare' => 'BS in Marine Engineering (BSMarE)',
+                    'bsit' => 'BS in Information Technology (BSIT)',
+                    'bshm' => 'BS in Hospitality Management (BSHM)',
+                    'bsed' => 'Bachelor of Secondary Education (BSED)',
+                    'bsc' => 'BS in Criminology (BSC)',
                 ];
 
                 $coverMap = [
-                'nursing' => 'NURSING',
-                'bsn' => 'NURSING',
-                'marine' => 'MARINE',
-                'bsmare' => 'MARINE',
-                'it' => 'IT',
-                'bsit' => 'IT',
-                'hospitality' => 'HM',
-                'bshm' => 'HM',
-                'education' => 'EDUC',
-                'bsed' => 'EDUC',
-                'criminology' => 'CRIM',
-                'bsc' => 'CRIM',
+                    'nursing' => 'NURSING',
+                    'bsn' => 'NURSING',
+                    'marine' => 'MARINE',
+                    'bsmare' => 'MARINE',
+                    'it' => 'IT',
+                    'bsit' => 'IT',
+                    'hospitality' => 'HM',
+                    'bshm' => 'HM',
+                    'education' => 'EDUC',
+                    'bsed' => 'EDUC',
+                    'criminology' => 'CRIM',
+                    'bsc' => 'CRIM',
                 ];
 
                 $deptKey = strtolower($document->department ?? '');
@@ -76,7 +88,7 @@
                 $coverFilename = $coverMap[$deptKey] ?? $coverMap[$courseKey] ?? 'IT';
                 @endphp
 
-                <div class="flex flex-wrap items-center gap-2 mb-4">
+                <div class="flex flex-wrap items-center gap-2 mb-4 pr-12">
                     <span class="rounded-lg bg-[#700000]/10 text-[#700000] border border-[#700000]/20 px-3 py-1 text-xs font-bold">
                         St. Anthony's College
                     </span>
@@ -131,11 +143,6 @@
                         <!-- Cite Button -->
                         <button type="button" onclick="openCitationModal()" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 shadow-sm">
                             <span>📝</span> Cite (IEEE)
-                        </button>
-
-                        <!-- Bookmark Button -->
-                        <button type="button" id="bookmarkDetailBtn" onclick="toggleDetailBookmark()" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center gap-1.5 shadow-sm">
-                            <span id="bookmarkDetailIcon">🔖</span> <span id="bookmarkDetailText">Bookmark</span>
                         </button>
 
                         <!-- Ask AI Button -->
@@ -320,13 +327,15 @@
 
         function updateBookmarkBtnState(isSaved) {
             const btn = document.getElementById('bookmarkDetailBtn');
-            const text = document.getElementById('bookmarkDetailText');
+            const icon = document.getElementById('bookmarkIcon');
             if (isSaved) {
-                btn.className = "rounded-xl bg-amber-50 border border-amber-300 px-4 py-2 text-xs font-bold text-amber-900 transition flex items-center gap-1.5 shadow-sm";
-                text.textContent = "Saved";
+                btn.title = "Remove Bookmark";
+                btn.className = "absolute top-6 right-6 p-2.5 rounded-2xl border border-amber-300 bg-amber-50 text-amber-500 shadow-sm transition flex items-center justify-center";
+                icon.setAttribute('class', 'w-5 h-5 fill-current');
             } else {
-                btn.className = "rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center gap-1.5 shadow-sm";
-                text.textContent = "Bookmark";
+                btn.title = "Bookmark Thesis";
+                btn.className = "absolute top-6 right-6 p-2.5 rounded-2xl border border-gray-200 bg-white text-gray-400 hover:text-[#700000] hover:border-gray-300 hover:bg-slate-50 transition shadow-sm flex items-center justify-center";
+                icon.setAttribute('class', 'w-5 h-5 fill-none');
             }
         }
 
@@ -340,9 +349,7 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({
-                        document_id: currentDocId
-                    })
+                    body: JSON.stringify({ document_id: currentDocId })
                 });
                 const data = await res.json();
                 updateBookmarkBtnState(data.bookmarked);
