@@ -37,12 +37,13 @@ class ProcessThesisPdf implements ShouldQueue
             mkdir($tempDir, 0777, true);
         }
 
-        $pdfPath = "{$tempDir}/temp_{$this->document->id}.pdf";
+        $pdfPath =
+            "{$tempDir}/temp_{$this->document->id}.pdf";
 
         try {
 
             // =====================================================
-            // 1. DOWNLOAD PDF FROM SUPABASE
+            // 1. DOWNLOAD PDF
             // =====================================================
 
             $bucketName = config(
@@ -58,20 +59,18 @@ class ProcessThesisPdf implements ShouldQueue
                 '/'
             );
 
-            // IMPORTANT:
-            // Use SERVICE ROLE key for server-side PDF processing.
             $supabaseKey = config(
                 'services.supabase.service_role_key',
                 env('SUPABASE_SERVICE_ROLE_KEY')
             );
 
             if (
+                empty($bucketName) ||
                 empty($supabaseUrl) ||
-                empty($supabaseKey) ||
-                empty($bucketName)
+                empty($supabaseKey)
             ) {
                 throw new \Exception(
-                    'Supabase Storage configuration is missing.'
+                    'Supabase configuration is missing.'
                 );
             }
 
@@ -90,14 +89,13 @@ class ProcessThesisPdf implements ShouldQueue
                 $cleanFilePath =
                     substr(
                         $cleanFilePath,
-                        strlen("{$bucketName}/")
+                        strlen($bucketName) + 1
                     );
             }
 
-
-            // Try authenticated storage endpoint first.
             $fileUrl =
-                "{$supabaseUrl}/storage/v1/object/{$bucketName}/{$cleanFilePath}";
+                "{$supabaseUrl}/storage/v1/object/" .
+                "{$bucketName}/{$cleanFilePath}";
 
             $response = Http::timeout(120)
                 ->withHeaders([
@@ -109,21 +107,20 @@ class ProcessThesisPdf implements ShouldQueue
                 ])
                 ->get($fileUrl);
 
-
             if ($response->failed()) {
 
                 throw new \Exception(
-                    "Failed to download PDF from Supabase. " .
-                    "HTTP {$response->status()}"
+                    'Failed to download PDF from Supabase. HTTP ' .
+                    $response->status() .
+                    ': ' .
+                    $response->body()
                 );
             }
-
 
             file_put_contents(
                 $pdfPath,
                 $response->body()
             );
-
 
             if (
                 !file_exists($pdfPath) ||
@@ -136,7 +133,7 @@ class ProcessThesisPdf implements ShouldQueue
 
 
             // =====================================================
-            // 2. PARSE PDF
+            // 2. EXTRACT TEXT
             // =====================================================
 
             $parser = new Parser();
@@ -147,20 +144,17 @@ class ProcessThesisPdf implements ShouldQueue
             $pages =
                 $pdf->getPages();
 
-
             $chunks = [];
 
             $now = now();
 
-
             foreach ($pages as $index => $page) {
 
-                $pageNum =
+                $pageNumber =
                     $index + 1;
 
                 $rawText =
                     $page->getText();
-
 
                 $cleanText =
                     preg_replace(
@@ -179,15 +173,14 @@ class ProcessThesisPdf implements ShouldQueue
                 $cleanText =
                     trim($cleanText);
 
-
-                if (!empty($cleanText)) {
+                if ($cleanText !== '') {
 
                     $chunks[] = [
                         'document_id' =>
                             $this->document->id,
 
                         'page_number' =>
-                            $pageNum,
+                            $pageNumber,
 
                         'chunk_text' =>
                             $cleanText,
@@ -201,23 +194,18 @@ class ProcessThesisPdf implements ShouldQueue
                 }
             }
 
-
             if (empty($chunks)) {
 
                 throw new \Exception(
-                    'No readable text was extracted from the PDF.'
+                    'No readable text was extracted from PDF.'
                 );
             }
 
-
             Log::info(
-                "PDF extracted successfully.",
+                'PDF chunks extracted',
                 [
                     'document_id' =>
                         $this->document->id,
-
-                    'pages' =>
-                        count($pages),
 
                     'chunks' =>
                         count($chunks),
@@ -238,94 +226,122 @@ class ProcessThesisPdf implements ShouldQueue
 
 
             // =====================================================
-            // 4. GENERATE EMBEDDINGS + SAVE CHUNKS
+            // 4. PROCESS EMBEDDINGS IN SMALL BATCHES
             // =====================================================
 
-            $savedChunks = 0;
+            /*
+             * Do NOT send all 288 chunks in one request.
+             *
+             * We use 20 chunks per Gemini request.
+             */
+
+            $batchSize = 20;
+
+            $totalChunks =
+                count($chunks);
+
+            $saved = 0;
 
 
-            foreach ($chunks as $index => $chunk) {
+            foreach (
+                array_chunk(
+                    $chunks,
+                    $batchSize
+                ) as $batchIndex => $batch
+            ) {
 
                 Log::info(
-                    "Generating embedding.",
+                    'Generating Gemini embeddings',
                     [
                         'document_id' =>
                             $this->document->id,
 
-                        'chunk' =>
-                            ($index + 1) .
-                            '/' .
-                            count($chunks),
+                        'batch' =>
+                            $batchIndex + 1,
+
+                        'chunks_in_batch' =>
+                            count($batch),
                     ]
                 );
 
 
-                // Generate 768-dimensional Gemini embedding.
-                $embedding =
+                $texts =
+                    array_map(
+                        fn($chunk) =>
+                            $chunk['chunk_text'],
+                        $batch
+                    );
+
+
+                $embeddings =
                     $geminiService
-                        ->generateEmbedding(
-                            $chunk['chunk_text']
+                        ->generateEmbeddings(
+                            $texts
                         );
 
 
                 if (
-                    empty($embedding) ||
-                    count($embedding) !== 768
+                    count($embeddings) !==
+                    count($batch)
                 ) {
                     throw new \Exception(
-                        'Invalid embedding returned for chunk ' .
-                        ($index + 1)
+                        'Embedding count does not match chunk count.'
                     );
                 }
 
 
-                // pgvector format:
-                // [0.123,0.456,...]
-                $embeddingVector =
-                    '[' .
-                    implode(
-                        ',',
-                        $embedding
-                    ) .
-                    ']';
+                foreach (
+                    $batch as $index => $chunk
+                ) {
+
+                    $embedding =
+                        $embeddings[$index];
+
+                    $embeddingVector =
+                        '[' .
+                        implode(
+                            ',',
+                            $embedding
+                        ) .
+                        ']';
 
 
-                DB::table('document_chunks')
-                    ->insert([
-                        'document_id' =>
-                            $chunk['document_id'],
+                    DB::table('document_chunks')
+                        ->insert([
+                            'document_id' =>
+                                $chunk['document_id'],
 
-                        'page_number' =>
-                            $chunk['page_number'],
+                            'page_number' =>
+                                $chunk['page_number'],
 
-                        'chunk_text' =>
-                            $chunk['chunk_text'],
+                            'chunk_text' =>
+                                $chunk['chunk_text'],
 
-                        'embedding' =>
-                            $embeddingVector,
+                            'embedding' =>
+                                $embeddingVector,
 
-                        'created_at' =>
-                            $chunk['created_at'],
+                            'created_at' =>
+                                $chunk['created_at'],
 
-                        'updated_at' =>
-                            $chunk['updated_at'],
-                    ]);
+                            'updated_at' =>
+                                $chunk['updated_at'],
+                        ]);
 
-
-                $savedChunks++;
+                    $saved++;
+                }
 
 
                 Log::info(
-                    "Embedding saved.",
+                    'Embedding batch saved',
                     [
                         'document_id' =>
                             $this->document->id,
 
-                        'chunk' =>
-                            ($index + 1),
-
                         'saved' =>
-                            $savedChunks,
+                            $saved,
+
+                        'total' =>
+                            $totalChunks,
                     ]
                 );
             }
@@ -346,35 +362,39 @@ class ProcessThesisPdf implements ShouldQueue
 
 
             Log::info(
-                "Thesis processing completed.",
+                'Thesis embedding complete',
                 [
                     'document_id' =>
                         $this->document->id,
 
-                    'total_chunks' =>
-                        $savedChunks,
+                    'total' =>
+                        $totalChunks,
 
-                    'embedded_chunks' =>
+                    'embedded' =>
                         $embeddedCount,
                 ]
             );
 
 
-            if ($embeddedCount !== $savedChunks) {
+            if (
+                $embeddedCount !==
+                $totalChunks
+            ) {
 
                 throw new \Exception(
                     "Embedding verification failed. " .
-                    "Expected {$savedChunks}, " .
-                    "found {$embeddedCount}."
+                    "Expected {$totalChunks}, got {$embeddedCount}."
                 );
             }
 
         } catch (\Throwable $e) {
 
             Log::error(
-                "Error processing document ID " .
-                $this->document->id,
+                'ProcessThesisPdf failed',
                 [
+                    'document_id' =>
+                        $this->document->id,
+
                     'message' =>
                         $e->getMessage(),
 
@@ -389,10 +409,6 @@ class ProcessThesisPdf implements ShouldQueue
             throw $e;
 
         } finally {
-
-            // =====================================================
-            // 6. CLEAN TEMP FILE
-            // =====================================================
 
             if (file_exists($pdfPath)) {
                 @unlink($pdfPath);
