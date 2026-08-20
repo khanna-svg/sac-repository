@@ -29,6 +29,10 @@ Route::middleware([
         ChatController::class,
         'ask',
     ]);
+
+    Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'index']);
+    Route::get('/bookmarks/ids', [\App\Http\Controllers\BookmarkController::class, 'getIds']);
+    Route::post('/bookmarks/toggle', [\App\Http\Controllers\BookmarkController::class, 'toggle']);
 });
 
 Route::middleware([

@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAC Thesis Repository - Documents</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Saved & Bookmarked Theses - SAC Thesis Repository</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
@@ -20,53 +20,32 @@
             <section class="mb-6 md:mb-8">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 class="text-2xl md:text-3xl font-bold text-[#700000]">
-                            Thesis Repository
+                        <h1 class="text-2xl md:text-3xl font-bold text-[#700000] flex items-center gap-2.5">
+                            <span>🔖</span> Saved / Bookmarks
                         </h1>
                         <p class="mt-1 text-xs md:text-sm text-gray-500">
-                            Search, cite, and view approved St. Anthony's College thesis documents.
+                            Your saved thesis and capstone projects for quick reading and citation.
                         </p>
                     </div>
                     <div class="flex items-center gap-2">
-                        <span id="docCountBadge" class="rounded-xl bg-[#700000]/10 px-3.5 py-1.5 text-xs font-bold text-[#700000] border border-[#700000]/20">
-                            Loading repository...
+                        <span id="bookmarkCountBadge" class="rounded-xl bg-[#700000]/10 px-3.5 py-1.5 text-xs font-bold text-[#700000] border border-[#700000]/20">
+                            Loading saved items...
                         </span>
                     </div>
                 </div>
             </section>
 
-            <!-- SEARCH BAR -->
-            <section class="mb-8">
-                <form id="searchForm" class="flex flex-col sm:flex-row gap-3">
-                    <div class="relative flex-1">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
-                            🔍
-                        </span>
-                        <input
-                            id="searchInput"
-                            type="search"
-                            placeholder="Search by topic, author, keywords, or department..."
-                            class="w-full rounded-2xl border border-gray-300 bg-white pl-10 pr-4 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-sm transition">
-                    </div>
-                    <button
-                        type="submit"
-                        class="rounded-2xl bg-[#700000] px-7 py-3 text-xs md:text-sm font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md shrink-0 flex items-center justify-center gap-2">
-                        Search
-                    </button>
-                </form>
-            </section>
-
             <!-- DOCUMENT LIST CONTAINER -->
             <section id="documentsList" class="space-y-4">
                 <p class="text-center text-sm text-gray-500 py-10">
-                    Loading thesis repository...
+                    Loading your saved theses...
                 </p>
             </section>
 
         </div>
     </main>
 
-    <!-- CITATION MODAL (IEEE ONLY) -->
+    <!-- CITATION MODAL (IEEE) -->
     <div id="citationModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl transition-all">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -108,14 +87,11 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const COVERS_BASE_URL = "{{ asset('images/covers') }}";
 
-        let allDocuments = [];
+        let bookmarkedDocuments = [];
         let currentCitationDoc = null;
-        let savedBookmarkIds = new Set();
 
         const documentsList = document.getElementById('documentsList');
-        const searchForm = document.getElementById('searchForm');
-        const searchInput = document.getElementById('searchInput');
-        const docCountBadge = document.getElementById('docCountBadge');
+        const bookmarkCountBadge = document.getElementById('bookmarkCountBadge');
 
         function escapeHtml(value) {
             const div = document.createElement('div');
@@ -178,26 +154,52 @@
             };
         }
 
+        async function toggleBookmark(docId) {
+            try {
+                const res = await fetch('/backend/bookmarks/toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        document_id: docId
+                    })
+                });
+
+                if (res.ok) {
+                    // Remove from view immediately
+                    bookmarkedDocuments = bookmarkedDocuments.filter(d => d.id !== docId);
+                    renderDocuments(bookmarkedDocuments);
+                }
+            } catch (err) {
+                console.error('Failed to toggle bookmark:', err);
+            }
+        }
+
         function renderDocuments(documents) {
             if (!Array.isArray(documents) || documents.length === 0) {
                 documentsList.innerHTML = `
                     <div class="rounded-3xl border border-dashed border-gray-300 bg-white p-12 text-center">
-                        <span class="text-4xl">📂</span>
-                        <h3 class="mt-3 text-base font-bold text-gray-800">No theses found</h3>
-                        <p class="mt-1 text-xs text-gray-500">Try searching for different keywords or authors.</p>
+                        <span class="text-4xl">🔖</span>
+                        <h3 class="mt-3 text-base font-bold text-gray-800">No saved theses yet</h3>
+                        <p class="mt-1 text-xs text-gray-500">When you bookmark a thesis in the repository, it will appear here for easy access.</p>
+                        <a href="/documents" class="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] shadow-sm transition">
+                            Explore Thesis Repository →
+                        </a>
                     </div>
                 `;
-                docCountBadge.textContent = '0 Theses Found';
+                bookmarkCountBadge.textContent = '0 Theses Saved';
                 return;
             }
 
-            docCountBadge.textContent = `${documents.length} Theses Available`;
+            bookmarkCountBadge.textContent = `${documents.length} Theses Saved`;
 
             documentsList.innerHTML = documents.map((doc, idx) => {
                 const details = getDepartmentDetails(doc.department, doc.course_code, doc.title);
                 const isLongAbstract = (doc.abstract || '').length > 200;
                 const truncatedAbstract = isLongAbstract ? doc.abstract.substring(0, 200) + '...' : doc.abstract;
-                const isSaved = savedBookmarkIds.has(doc.id);
 
                 return `
                     <article class="relative flex flex-col md:flex-row gap-5 rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-[#700000]/30 transition">
@@ -212,13 +214,24 @@
                         </div>
 
                         <div class="flex-1 min-w-0">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
-                                    ${details.name}
-                                </span>
-                                <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-[10px] font-bold">
-                                    ✓ Full Text Available
-                                </span>
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
+                                        ${details.name}
+                                    </span>
+                                    <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-[10px] font-bold">
+                                        ✓ Full Text Available
+                                    </span>
+                                </div>
+
+                                <!-- Remove Bookmark Button -->
+                                <button
+                                    type="button"
+                                    onclick="toggleBookmark(${doc.id})"
+                                    title="Remove from saved"
+                                    class="rounded-xl border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 hover:bg-red-50 hover:text-red-700 hover:border-red-300 transition flex items-center gap-1">
+                                    <span>🔖</span> Saved
+                                </button>
                             </div>
 
                             <h3 class="mt-2.5 text-base md:text-lg font-bold text-gray-900 transition">
@@ -232,13 +245,7 @@
                             </p>
 
                             <div class="mt-3 text-xs md:text-sm text-gray-600 leading-relaxed">
-                                <span id="abstract-short-${doc.id}">${escapeHtml(truncatedAbstract)}</span>
-                                ${isLongAbstract ? `
-                                    <span id="abstract-full-${doc.id}" class="hidden">${escapeHtml(doc.abstract)}</span>
-                                    <button type="button" onclick="toggleAbstract(${doc.id})" id="abstract-btn-${doc.id}" class="ml-1 text-xs font-bold text-[#700000] hover:underline">
-                                        Read More
-                                    </button>
-                                ` : ''}
+                                <p>${escapeHtml(truncatedAbstract)}</p>
                             </div>
 
                             <div class="mt-5 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
@@ -246,24 +253,21 @@
                                     <button
                                         type="button"
                                         onclick="openCitationModal(${idx})"
-                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5"
-                                    >
+                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5">
                                         <span>📝</span> Cite (IEEE)
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        onclick="toggleBookmark(${doc.id}, this)"
-                                        class="rounded-xl border ${isSaved ? 'border-amber-300 bg-amber-50 text-amber-900' : 'border-gray-200 bg-slate-50 text-gray-700 hover:bg-amber-50 hover:text-amber-900'} px-3.5 py-2 text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
-                                    >
-                                        <span>🔖</span> <span>${isSaved ? 'Saved' : 'Save'}</span>
                                     </button>
 
                                     <a
                                         href="/chat?q=${encodeURIComponent('Tell me about the thesis: ' + doc.title)}"
-                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5"
-                                    >
+                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5">
                                         <span>🤖</span> Ask AI
+                                    </a>
+
+                                    <a
+                                        href="/backend/documents/${doc.id}/view"
+                                        target="_blank"
+                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5">
+                                        <span>📄</span> View PDF
                                     </a>
                                 </div>
                             </div>
@@ -274,91 +278,27 @@
             }).join('');
         }
 
-        function toggleAbstract(id) {
-            const shortSpan = document.getElementById(`abstract-short-${id}`);
-            const fullSpan = document.getElementById(`abstract-full-${id}`);
-            const btn = document.getElementById(`abstract-btn-${id}`);
-
-            if (fullSpan.classList.contains('hidden')) {
-                shortSpan.classList.add('hidden');
-                fullSpan.classList.remove('hidden');
-                btn.textContent = 'Show Less';
-            } else {
-                shortSpan.classList.remove('hidden');
-                fullSpan.classList.add('hidden');
-                btn.textContent = 'Read More';
-            }
-        }
-
-        async function fetchBookmarkIds() {
+        async function fetchBookmarks() {
             try {
-                const res = await fetch('/backend/bookmarks/ids');
-                if (res.ok) {
-                    const ids = await res.json();
-                    savedBookmarkIds = new Set(ids);
-                }
-            } catch (e) {}
-        }
-
-        async function toggleBookmark(docId, btnElement) {
-            try {
-                const res = await fetch('/backend/bookmarks/toggle', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({
-                        document_id: docId
-                    })
-                });
-                const data = await res.json();
-                if (data.bookmarked) {
-                    savedBookmarkIds.add(docId);
-                    btnElement.innerHTML = '<span>🔖</span> <span>Saved</span>';
-                    btnElement.className = 'rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2 text-xs font-bold text-amber-900 transition flex items-center gap-1.5 shadow-sm';
-                } else {
-                    savedBookmarkIds.delete(docId);
-                    btnElement.innerHTML = '<span>🔖</span> <span>Save</span>';
-                    btnElement.className = 'rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50 hover:text-amber-900 hover:border-amber-200 transition flex items-center gap-1.5';
-                }
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        async function fetchDocuments(search = '') {
-            documentsList.innerHTML = `<p class="text-center text-sm text-gray-500 py-10">Searching documents...</p>`;
-            try {
-                const url = new URL('/backend/documents', window.location.origin);
-                if (search && search.trim()) url.searchParams.set('search', search.trim());
-
-                const res = await fetch(url.toString(), {
+                const res = await fetch('/backend/bookmarks', {
                     headers: {
                         'Accept': 'application/json'
                     }
                 });
                 if (!res.ok) throw new Error('Failed to load');
-
-                allDocuments = await res.json();
-                renderDocuments(allDocuments);
+                bookmarkedDocuments = await res.json();
+                renderDocuments(bookmarkedDocuments);
             } catch (err) {
                 documentsList.innerHTML = `
                     <div class="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
-                        Could not load documents from server.
+                        Could not load saved bookmarks from server.
                     </div>
                 `;
             }
         }
 
-        searchForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            fetchDocuments(searchInput.value);
-        });
-
         function openCitationModal(index) {
-            currentCitationDoc = allDocuments[index];
+            currentCitationDoc = bookmarkedDocuments[index];
             if (!currentCitationDoc) return;
             document.getElementById('modalDocTitle').textContent = currentCitationDoc.title;
             generateCitationText();
@@ -397,13 +337,7 @@
             document.getElementById('copyBtnIcon').textContent = '📋';
         }
 
-        // Initialize page: fetch saved bookmark IDs first, then render documents
-        async function init() {
-            await fetchBookmarkIds();
-            await fetchDocuments();
-        }
-
-        init();
+        fetchBookmarks();
     </script>
 </body>
 

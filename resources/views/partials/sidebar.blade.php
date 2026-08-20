@@ -111,6 +111,17 @@
 
         </a>
 
+        <!-- Saved / Bookmarks -->
+        <a
+            href="/bookmarks"
+            class="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold transition
+                {{ request()->is('bookmarks')
+                    ? 'bg-[#D4AF37] text-[#700000] shadow-md'
+                    : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
+            <span>🔖</span>
+            <span>Saved / Bookmarks</span>
+            
+        </a>
         @endif
 
 

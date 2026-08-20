@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $document->title }} - SAC Thesis Repository</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -14,6 +15,7 @@
 
     <!-- Hidden Data Attributes for Safe JavaScript Access -->
     <div id="citationData"
+        data-id="{{ $document->id }}"
         data-title="{{ $document->title }}"
         data-author="{{ $document->author }}"
         data-year="{{ $document->created_at ? $document->created_at->format('Y') : date('Y') }}"
@@ -71,8 +73,6 @@
 
                 $deptKey = strtolower($document->department ?? '');
                 $courseKey = strtolower($document->course_code ?? '');
-
-                // Fallback to 'IT' if no matching key is found to avoid invalid image paths
                 $coverFilename = $coverMap[$deptKey] ?? $coverMap[$courseKey] ?? 'IT';
                 @endphp
 
@@ -103,8 +103,6 @@
 
                 <!-- Book Cover & Title Header Row -->
                 <div class="flex flex-col sm:flex-row items-start gap-5 my-3">
-
-                    <!-- Dynamic Book Cover Image -->
                     <div class="w-20 sm:w-24 h-28 sm:h-32 shrink-0 rounded-lg overflow-hidden shadow-md border border-gray-200 bg-slate-100">
                         <img
                             src="{{ asset('images/covers/' . $coverFilename . '.webp') }}"
@@ -113,13 +111,11 @@
                             onerror="handleImageError(this)">
                     </div>
 
-                    <!-- Title -->
                     <div class="flex-1">
                         <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight">
                             {{ $document->title }}
                         </h1>
 
-                        <!-- Authors -->
                         <div class="mt-3 flex flex-wrap items-center gap-y-1 gap-x-4 text-xs md:text-sm text-gray-600">
                             <p>
                                 <span class="font-bold text-[#700000]">Author(s):</span>
@@ -133,18 +129,26 @@
                 <div class="my-6 flex flex-wrap items-center justify-between gap-3 bg-slate-50 border border-gray-200 rounded-2xl p-3 md:p-4">
                     <div class="flex flex-wrap items-center gap-2">
                         <!-- Cite Button -->
-                        <button onclick="openCitationModal()" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 shadow-sm">
+                        <button type="button" onclick="openCitationModal()" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 shadow-sm">
                             <span>📝</span> Cite (IEEE)
                         </button>
+
+                        <!-- Bookmark Button -->
+                        <button type="button" id="bookmarkDetailBtn" onclick="toggleDetailBookmark()" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center gap-1.5 shadow-sm">
+                            <span id="bookmarkDetailIcon">🔖</span> <span id="bookmarkDetailText">Bookmark</span>
+                        </button>
+
                         <!-- Ask AI Button -->
                         <a href="/chat?q={{ urlencode('Tell me about the thesis: ' . $document->title) }}" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 shadow-sm">
                             <span>🤖</span> Ask AI About This
                         </a>
-                        <!-- View PDF Button (Opens in new tab) -->
+
+                        <!-- View PDF Button -->
                         <a href="/backend/documents/{{ $document->id }}/view" target="_blank" rel="noopener noreferrer" class="rounded-xl bg-white border border-gray-300 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5 shadow-sm">
                             <span>📄</span> <span>View PDF</span>
                         </a>
-                        <!-- Download PDF Button (Direct Save As Dialog) -->
+
+                        <!-- Download PDF Button -->
                         <a href="/backend/documents/{{ $document->id }}/view?download=1" class="rounded-xl bg-[#700000] px-3.5 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition flex items-center gap-1.5 shadow-sm">
                             <span>📥</span> <span>Download PDF</span>
                         </a>
@@ -188,15 +192,11 @@
                     <div class="space-y-6 max-h-[700px] overflow-y-auto pr-2">
                         @foreach($document->chunks as $chunk)
                         <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-
-                            <!-- Page Number Label -->
                             <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-2">
                                 <span class="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-bold text-[#700000]">
                                     Page {{ $chunk->page_number ?? $loop->iteration }}
                                 </span>
                             </div>
-
-                            <!-- Formatted Paragraph Blocks -->
                             <div class="space-y-4 text-center">
                                 @foreach(explode("\n\n", $chunk->chunk_text) as $paragraph)
                                 @if(trim($paragraph))
@@ -206,7 +206,6 @@
                                 @endif
                                 @endforeach
                             </div>
-
                         </div>
                         @endforeach
                     </div>
@@ -222,7 +221,6 @@
                 </div>
 
             </article>
-
         </div>
     </main>
 
@@ -254,6 +252,13 @@
 
     <!-- JavaScript Logic -->
     <script>
+        const dataElement = document.getElementById('citationData');
+        const currentDocId = dataElement ? parseInt(dataElement.getAttribute('data-id'), 10) : null;
+        const docTitle = dataElement ? dataElement.getAttribute('data-title') : 'Untitled Thesis';
+        const docAuthor = dataElement ? dataElement.getAttribute('data-author') : 'Unknown Author';
+        const docYear = dataElement ? dataElement.getAttribute('data-year') : new Date().getFullYear().toString();
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
         function handleImageError(imageElement) {
             imageElement.onerror = null;
             imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>SAC THESIS</text></svg>";
@@ -278,15 +283,9 @@
             }
         }
 
-        const dataElement = document.getElementById('citationData');
-        const docTitle = dataElement ? dataElement.getAttribute('data-title') : 'Untitled Thesis';
-        const docAuthor = dataElement ? dataElement.getAttribute('data-author') : 'Unknown Author';
-        const docYear = dataElement ? dataElement.getAttribute('data-year') : new Date().getFullYear().toString();
-
         function openCitationModal() {
             const text = `${docAuthor}, "${docTitle}," Undergraduate thesis, St. Anthony's College, ${docYear}.`;
             document.getElementById('citationText').textContent = text;
-
             document.getElementById('citationModal').classList.remove('hidden');
             document.getElementById('citationModal').classList.add('flex');
         }
@@ -304,6 +303,56 @@
                     btn.textContent = '📋 Copy Citation';
                 }, 2000);
             });
+        }
+
+        async function checkInitialBookmark(docId) {
+            if (!docId) return;
+            try {
+                const res = await fetch('/backend/bookmarks/ids');
+                if (res.ok) {
+                    const ids = await res.json();
+                    if (ids.includes(docId)) {
+                        updateBookmarkBtnState(true);
+                    }
+                }
+            } catch (e) {}
+        }
+
+        function updateBookmarkBtnState(isSaved) {
+            const btn = document.getElementById('bookmarkDetailBtn');
+            const text = document.getElementById('bookmarkDetailText');
+            if (isSaved) {
+                btn.className = "rounded-xl bg-amber-50 border border-amber-300 px-4 py-2 text-xs font-bold text-amber-900 transition flex items-center gap-1.5 shadow-sm";
+                text.textContent = "Saved";
+            } else {
+                btn.className = "rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50 hover:text-amber-900 transition flex items-center gap-1.5 shadow-sm";
+                text.textContent = "Bookmark";
+            }
+        }
+
+        async function toggleDetailBookmark() {
+            if (!currentDocId) return;
+            try {
+                const res = await fetch('/backend/bookmarks/toggle', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        document_id: currentDocId
+                    })
+                });
+                const data = await res.json();
+                updateBookmarkBtnState(data.bookmarked);
+            } catch (err) {
+                console.error('Bookmark error:', err);
+            }
+        }
+
+        if (currentDocId) {
+            checkInitialBookmark(currentDocId);
         }
     </script>
 </body>
