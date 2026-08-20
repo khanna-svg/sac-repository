@@ -337,7 +337,17 @@
                     })
                 });
 
-                if (!metadataResponse.ok) throw new Error('Failed to save metadata');
+                if (!metadataResponse.ok) {
+                    let errorMessage = 'Failed to save metadata';
+
+                    try {
+                        const errorData = await metadataResponse.json();
+                        errorMessage = errorData.message || errorMessage;
+                    } catch (error) {
+                    }
+
+                    throw new Error(errorMessage);
+                }
                 uploadForm.reset();
 
                 showSuccessPopup();
