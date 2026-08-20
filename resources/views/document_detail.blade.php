@@ -136,14 +136,16 @@
                         <button onclick="openCitationModal()" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 shadow-sm">
                             <span>📝</span> Cite (IEEE)
                         </button>
-
                         <!-- Ask AI Button -->
                         <a href="/chat?q={{ urlencode('Tell me about the thesis: ' . $document->title) }}" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 shadow-sm">
                             <span>🤖</span> Ask AI About This
                         </a>
-
-                        <!-- Download PDF Button -->
-                        <a href="/backend/documents/{{ $document->id }}/view" target="_blank" rel="noopener noreferrer" download class="rounded-xl bg-white border border-gray-300 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5 shadow-sm">
+                        <!-- View PDF Button (Opens in new tab) -->
+                        <a href="/backend/documents/{{ $document->id }}/view" target="_blank" rel="noopener noreferrer" class="rounded-xl bg-white border border-gray-300 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5 shadow-sm">
+                            <span>📄</span> <span>View PDF</span>
+                        </a>
+                        <!-- Download PDF Button (Direct Save As Dialog) -->
+                        <a href="/backend/documents/{{ $document->id }}/view?download=1" class="rounded-xl bg-[#700000] px-3.5 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition flex items-center gap-1.5 shadow-sm">
                             <span>📥</span> <span>Download PDF</span>
                         </a>
                     </div>

@@ -15,7 +15,7 @@ class DocumentController extends Controller
     /**
      * Generate a temporary signed URL and redirect directly to Supabase PDF.
      */
-    public function viewPdf(Document $document)
+    public function viewPdf(Request $request, Document $document)
     {
         $baseUrl = rtrim(
             (string) config(
@@ -24,39 +24,31 @@ class DocumentController extends Controller
             ),
             '/'
         );
-
         $key = (string) config(
             'services.supabase.service_role_key',
             env('SUPABASE_SERVICE_ROLE_KEY')
         );
-
         $bucket = (string) config(
             'services.supabase.bucket',
             env('SUPABASE_STORAGE_BUCKET', 'thesis')
         );
-
         if ($baseUrl === '' || $key === '' || $bucket === '') {
             abort(500, 'Supabase Storage is not configured.');
         }
-
         $path = ltrim(
             trim((string) $document->file_path),
             '/'
         );
-
         if ($path === '') {
             abort(404, 'Document file path is empty.');
         }
-
         if (str_starts_with($path, $bucket . '/')) {
             $path = substr(
                 $path,
                 strlen($bucket) + 1
             );
         }
-
         $encodedBucket = rawurlencode($bucket);
-
         $encodedPath = collect(
             explode('/', $path)
         )
@@ -64,129 +56,60 @@ class DocumentController extends Controller
                 fn($part) => rawurlencode($part)
             )
             ->implode('/');
-
         $signUrl =
             "{$baseUrl}/storage/v1/object/sign/{$encodedBucket}/{$encodedPath}";
-
+        $isDownload = $request->has('download');
+        $safeFilename = preg_replace('/[^A-Za-z0-9_\-\. ]/', '', $document->title);
+        $safeFilename = trim($safeFilename) ?: 'Thesis_Document';
+        if (!str_ends_with(strtolower($safeFilename), '.pdf')) {
+            $safeFilename .= '.pdf';
+        }
+        $payload = [
+            'expiresIn' => 3600,
+        ];
+        if ($isDownload) {
+            $payload['download'] = $safeFilename;
+        }
         try {
-
             $response = Http::timeout(30)
                 ->withHeaders([
-                    'Authorization' =>
-                    "Bearer {$key}",
-
-                    'apikey' =>
-                    $key,
-
-                    'Content-Type' =>
-                    'application/json',
+                    'Authorization' => "Bearer {$key}",
+                    'apikey' => $key,
+                    'Content-Type' => 'application/json',
                 ])
-                ->post($signUrl, [
-                    'expiresIn' => 3600,
-                ]);
-
+                ->post($signUrl, $payload);
             if (!$response->successful()) {
-
-                Log::error(
-                    'Supabase signed PDF failed',
-                    [
-                        'document_id' =>
-                        $document->id,
-
-                        'status' =>
-                        $response->status(),
-
-                        'body' =>
-                        $response->body(),
-                    ]
-                );
-
-                abort(
-                    404,
-                    'PDF could not be found in Supabase Storage.'
-                );
+                Log::error('Supabase signed PDF failed', [
+                    'document_id' => $document->id,
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                abort(404, 'PDF could not be found in Supabase Storage.');
             }
-
             $data = $response->json();
-
-            $relativeSignedUrl =
-                $data['signedURL']
-                ?? $data['signedUrl']
-                ?? null;
-
+            $relativeSignedUrl = $data['signedURL'] ?? $data['signedUrl'] ?? null;
             if (!$relativeSignedUrl) {
-                abort(
-                    500,
-                    'Supabase did not return a signed URL.'
-                );
+                abort(500, 'Supabase did not return a signed URL.');
             }
-
-            if (
-                str_starts_with(
-                    $relativeSignedUrl,
-                    'http://'
-                )
-                ||
-                str_starts_with(
-                    $relativeSignedUrl,
-                    'https://'
-                )
-            ) {
-
-                $signedUrl =
-                    $relativeSignedUrl;
-            } elseif (
-                str_starts_with(
-                    $relativeSignedUrl,
-                    '/storage/v1/'
-                )
-            ) {
-
-                $signedUrl =
-                    $baseUrl .
-                    $relativeSignedUrl;
-            } elseif (
-                str_starts_with(
-                    $relativeSignedUrl,
-                    '/object/'
-                )
-            ) {
-
-                $signedUrl =
-                    $baseUrl .
-                    '/storage/v1' .
-                    $relativeSignedUrl;
+            if (str_starts_with($relativeSignedUrl, 'http://') || str_starts_with($relativeSignedUrl, 'https://')) {
+                $signedUrl = $relativeSignedUrl;
+            } elseif (str_starts_with($relativeSignedUrl, '/storage/v1/')) {
+                $signedUrl = $baseUrl . $relativeSignedUrl;
+            } elseif (str_starts_with($relativeSignedUrl, '/object/')) {
+                $signedUrl = $baseUrl . '/storage/v1' . $relativeSignedUrl;
             } else {
-
-                $signedUrl =
-                    $baseUrl .
-                    '/storage/v1/' .
-                    ltrim(
-                        $relativeSignedUrl,
-                        '/'
-                    );
+                $signedUrl = $baseUrl . '/storage/v1/' . ltrim($relativeSignedUrl, '/');
             }
-
-            return redirect()->away(
-                $signedUrl
-            );
+            if ($isDownload && !str_contains($signedUrl, 'download=')) {
+                $signedUrl .= (str_contains($signedUrl, '?') ? '&' : '?') . 'download=' . urlencode($safeFilename);
+            }
+            return redirect()->away($signedUrl);
         } catch (\Throwable $e) {
-
-            Log::error(
-                'PDF view exception',
-                [
-                    'document_id' =>
-                    $document->id,
-
-                    'message' =>
-                    $e->getMessage(),
-                ]
-            );
-
-            abort(
-                500,
-                'Unable to open the thesis PDF.'
-            );
+            Log::error('PDF view/download exception', [
+                'document_id' => $document->id,
+                'message' => $e->getMessage(),
+            ]);
+            abort(500, 'Unable to open the thesis PDF.');
         }
     }
 
