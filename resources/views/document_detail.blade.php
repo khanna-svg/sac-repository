@@ -51,36 +51,36 @@
                 <!-- Badges & Cover Image File Resolution -->
                 @php
                 $departmentNames = [
-                    'nursing' => 'Nursing Department',
-                    'marine' => 'Marine Engineering Department',
-                    'it' => 'Information Technology Department',
-                    'hospitality' => 'Hospitality Management',
-                    'education' => 'Education Department',
-                    'criminology' => 'Criminology Department',
+                'nursing' => 'Nursing Department',
+                'marine' => 'Marine Engineering Department',
+                'it' => 'Information Technology Department',
+                'hospitality' => 'Hospitality Management',
+                'education' => 'Education Department',
+                'criminology' => 'Criminology Department',
                 ];
 
                 $courseNames = [
-                    'bsn' => 'BS in Nursing (BSN)',
-                    'bsmare' => 'BS in Marine Engineering (BSMarE)',
-                    'bsit' => 'BS in Information Technology (BSIT)',
-                    'bshm' => 'BS in Hospitality Management (BSHM)',
-                    'bsed' => 'Bachelor of Secondary Education (BSED)',
-                    'bsc' => 'BS in Criminology (BSC)',
+                'bsn' => 'BS in Nursing (BSN)',
+                'bsmare' => 'BS in Marine Engineering (BSMarE)',
+                'bsit' => 'BS in Information Technology (BSIT)',
+                'bshm' => 'BS in Hospitality Management (BSHM)',
+                'bsed' => 'Bachelor of Secondary Education (BSED)',
+                'bsc' => 'BS in Criminology (BSC)',
                 ];
 
                 $coverMap = [
-                    'nursing' => 'NURSING',
-                    'bsn' => 'NURSING',
-                    'marine' => 'MARINE',
-                    'bsmare' => 'MARINE',
-                    'it' => 'IT',
-                    'bsit' => 'IT',
-                    'hospitality' => 'HM',
-                    'bshm' => 'HM',
-                    'education' => 'EDUC',
-                    'bsed' => 'EDUC',
-                    'criminology' => 'CRIM',
-                    'bsc' => 'CRIM',
+                'nursing' => 'NURSING',
+                'bsn' => 'NURSING',
+                'marine' => 'MARINE',
+                'bsmare' => 'MARINE',
+                'it' => 'IT',
+                'bsit' => 'IT',
+                'hospitality' => 'HM',
+                'bshm' => 'HM',
+                'education' => 'EDUC',
+                'bsed' => 'EDUC',
+                'criminology' => 'CRIM',
+                'bsc' => 'CRIM',
                 ];
 
                 $deptKey = strtolower($document->department ?? '');
@@ -231,6 +231,14 @@
         </div>
     </main>
 
+    <!-- FLOATING TOAST NOTIFICATION POP-UP -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+        <div class="flex items-center gap-3 rounded-2xl bg-gray-900 text-white px-5 py-3.5 shadow-2xl backdrop-blur-md border border-white/10">
+            <span id="toastIcon" class="text-lg">🔖</span>
+            <p id="toastMessage" class="text-xs md:text-sm font-semibold tracking-wide">Added to bookmark</p>
+        </div>
+    </div>
+
     <!-- IEEE Citation Modal -->
     <div id="citationModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
@@ -265,6 +273,28 @@
         const docAuthor = dataElement ? dataElement.getAttribute('data-author') : 'Unknown Author';
         const docYear = dataElement ? dataElement.getAttribute('data-year') : new Date().getFullYear().toString();
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+        let toastTimeout = null;
+
+        function showToast(message, icon = '🔖') {
+            const toast = document.getElementById('toastNotification');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIco = document.getElementById('toastIcon');
+
+            if (!toast || !toastMsg) return;
+
+            toastMsg.textContent = message;
+            if (toastIco) toastIco.textContent = icon;
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 2500);
+        }
 
         function handleImageError(imageElement) {
             imageElement.onerror = null;
@@ -329,11 +359,11 @@
             const btn = document.getElementById('bookmarkDetailBtn');
             const icon = document.getElementById('bookmarkIcon');
             if (isSaved) {
-                btn.title = "Remove Bookmark";
+                btn.title = "Remove from bookmark";
                 btn.className = "absolute top-6 right-6 p-2.5 rounded-2xl border border-amber-300 bg-amber-50 text-amber-500 shadow-sm transition flex items-center justify-center";
                 icon.setAttribute('class', 'w-5 h-5 fill-current');
             } else {
-                btn.title = "Bookmark Thesis";
+                btn.title = "Add to bookmark";
                 btn.className = "absolute top-6 right-6 p-2.5 rounded-2xl border border-gray-200 bg-white text-gray-400 hover:text-[#700000] hover:border-gray-300 hover:bg-slate-50 transition shadow-sm flex items-center justify-center";
                 icon.setAttribute('class', 'w-5 h-5 fill-none');
             }
@@ -349,10 +379,18 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({ document_id: currentDocId })
+                    body: JSON.stringify({
+                        document_id: currentDocId
+                    })
                 });
                 const data = await res.json();
                 updateBookmarkBtnState(data.bookmarked);
+
+                if (data.bookmarked) {
+                    showToast('Added to bookmark', '🔖');
+                } else {
+                    showToast('Removed from bookmark', '🗑️');
+                }
             } catch (err) {
                 console.error('Bookmark error:', err);
             }

@@ -66,6 +66,14 @@
         </div>
     </main>
 
+    <!-- FLOATING TOAST NOTIFICATION POP-UP -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+        <div class="flex items-center gap-3 rounded-2xl bg-gray-900 text-white px-5 py-3.5 shadow-2xl backdrop-blur-md border border-white/10">
+            <span id="toastIcon" class="text-lg">🔖</span>
+            <p id="toastMessage" class="text-xs md:text-sm font-semibold tracking-wide">Added to bookmark</p>
+        </div>
+    </div>
+
     <!-- CITATION MODAL (IEEE ONLY) -->
     <div id="citationModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl transition-all">
@@ -111,11 +119,33 @@
         let allDocuments = [];
         let currentCitationDoc = null;
         let savedBookmarkIds = new Set();
+        let toastTimeout = null;
 
         const documentsList = document.getElementById('documentsList');
         const searchForm = document.getElementById('searchForm');
         const searchInput = document.getElementById('searchInput');
         const docCountBadge = document.getElementById('docCountBadge');
+
+        function showToast(message, icon = '🔖') {
+            const toast = document.getElementById('toastNotification');
+            const toastMsg = document.getElementById('toastMessage');
+            const toastIco = document.getElementById('toastIcon');
+
+            if (!toast || !toastMsg) return;
+
+            toastMsg.textContent = message;
+            if (toastIco) toastIco.textContent = icon;
+
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            if (toastTimeout) clearTimeout(toastTimeout);
+
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 2500);
+        }
 
         function escapeHtml(value) {
             const div = document.createElement('div');
@@ -134,20 +164,48 @@
             const title = (titleVal || '').toLowerCase();
 
             if (dept === 'nursing' || course === 'bsn' || title.includes('patient') || title.includes('nursing')) {
-                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+                return {
+                    cover: 'NURSING.webp',
+                    name: 'Nursing Department',
+                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                };
             } else if (dept === 'marine' || course === 'bsmare' || title.includes('marine') || title.includes('vessel')) {
-                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
+                return {
+                    cover: 'MARINE.webp',
+                    name: 'Marine Engineering Department',
+                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
+                };
             } else if (dept === 'it' || course === 'bsit' || title.includes('system') || title.includes('app') || title.includes('web')) {
-                return { cover: 'IT.webp', name: 'Information Technology Department', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' };
+                return {
+                    cover: 'IT.webp',
+                    name: 'Information Technology Department',
+                    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
+                };
             } else if (dept === 'hospitality' || course === 'bshm' || title.includes('hotel') || title.includes('hospitality')) {
-                return { cover: 'HM.webp', name: 'Hospitality Management', badgeBg: 'bg-amber-50 text-amber-800 border-amber-200' };
+                return {
+                    cover: 'HM.webp',
+                    name: 'Hospitality Management',
+                    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
+                };
             } else if (dept === 'education' || course === 'bsed' || title.includes('teaching') || title.includes('education')) {
-                return { cover: 'EDUC.webp', name: 'Education Department', badgeBg: 'bg-purple-50 text-purple-700 border-purple-200' };
+                return {
+                    cover: 'EDUC.webp',
+                    name: 'Education Department',
+                    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
+                };
             } else if (dept === 'criminology' || course === 'bsc' || title.includes('crime') || title.includes('criminology')) {
-                return { cover: 'CRIM.webp', name: 'Criminology Department', badgeBg: 'bg-red-50 text-red-700 border-red-200' };
+                return {
+                    cover: 'CRIM.webp',
+                    name: 'Criminology Department',
+                    badgeBg: 'bg-red-50 text-red-700 border-red-200'
+                };
             }
 
-            return { cover: 'IT.webp', name: 'Academic Research', badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20' };
+            return {
+                cover: 'IT.webp',
+                name: 'Academic Research',
+                badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20'
+            };
         }
 
         function renderDocuments(documents) {
@@ -178,7 +236,7 @@
                         <button
                             type="button"
                             onclick="toggleBookmark(${doc.id}, this)"
-                            title="${isSaved ? 'Remove from saved' : 'Save to bookmarks'}"
+                            title="${isSaved ? 'Remove from bookmark' : 'Add to bookmark'}"
                             class="absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-xl border transition ${isSaved ? 'bg-amber-50 border-amber-300 text-amber-500 shadow-sm' : 'bg-white border-gray-200 text-gray-400 hover:text-[#700000] hover:border-gray-300 hover:bg-slate-50'}"
                         >
                             <svg class="w-5 h-5 ${isSaved ? 'fill-current' : 'fill-none'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -286,27 +344,31 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({ document_id: docId })
+                    body: JSON.stringify({
+                        document_id: docId
+                    })
                 });
                 const data = await res.json();
                 if (data.bookmarked) {
                     savedBookmarkIds.add(docId);
-                    btnElement.title = 'Remove from saved';
+                    btnElement.title = 'Remove from bookmark';
                     btnElement.className = 'absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-xl border bg-amber-50 border-amber-300 text-amber-500 shadow-sm transition';
                     btnElement.innerHTML = `
                         <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                         </svg>
                     `;
+                    showToast('Added to bookmark', '🔖');
                 } else {
                     savedBookmarkIds.delete(docId);
-                    btnElement.title = 'Save to bookmarks';
+                    btnElement.title = 'Add to bookmark';
                     btnElement.className = 'absolute top-4 right-4 md:top-6 md:right-6 p-2 rounded-xl border bg-white border-gray-200 text-gray-400 hover:text-[#700000] hover:border-gray-300 hover:bg-slate-50 transition';
                     btnElement.innerHTML = `
                         <svg class="w-5 h-5 fill-none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                         </svg>
                     `;
+                    showToast('Removed from bookmark', '🗑️');
                 }
             } catch (err) {
                 console.error(err);
@@ -320,7 +382,9 @@
                 if (search && search.trim()) url.searchParams.set('search', search.trim());
 
                 const res = await fetch(url.toString(), {
-                    headers: { 'Accept': 'application/json' }
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 });
                 if (!res.ok) throw new Error('Failed to load');
 

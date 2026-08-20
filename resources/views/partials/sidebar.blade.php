@@ -119,7 +119,6 @@
             onclick="openLogoutModal()"
             class="w-full rounded-lg border border-[#D4AF37]/40 bg-[#700000] px-4 py-2.5 text-left text-sm font-semibold text-[#FFD700] transition hover:bg-[#D4AF37] hover:text-[#700000] flex items-center justify-between">
             <span>Sign Out</span>
-            <span>🚪</span>
         </button>
 
         <!-- Hidden Secure Logout Form -->
