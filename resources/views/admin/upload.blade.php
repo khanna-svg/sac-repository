@@ -26,62 +26,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
-        #successCard {
-            animation: popupIn 0.35s ease-out;
-        }
-
-        .check-circle {
-            stroke-dasharray: 145;
-            stroke-dashoffset: 145;
-            animation: drawCircle 0.6s ease forwards;
-        }
-
-        .check-mark {
-            stroke-dasharray: 40;
-            stroke-dashoffset: 40;
-            animation: drawCheck 0.4s 0.5s ease forwards;
-        }
-
-        @keyframes drawCircle {
-            to {
-                stroke-dashoffset: 0;
-            }
-        }
-
-        @keyframes drawCheck {
-            to {
-                stroke-dashoffset: 0;
-            }
-        }
-
-        @keyframes popupIn {
-            from {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .popup-hide {
-            animation: popupOut 0.3s ease forwards;
-        }
-
-        @keyframes popupOut {
-            from {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            to {
-                opacity: 0;
-                transform: scale(0.8);
-            }
-        }
-
         #progressContainer {
             display: none;
         }
@@ -93,10 +37,10 @@
     @include('partials.sidebar')
 
     <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-16 md:pt-10">
-        <div class="mx-auto max-w-4xl">
+        <div class="mx-auto max-w-4xl space-y-6">
 
             <!-- HEADER -->
-            <section class="mb-6 md:mb-10">
+            <section>
                 <h1 class="text-2xl md:text-3xl font-bold text-[#700000]">
                     Admin Management
                 </h1>
@@ -104,6 +48,9 @@
                     Upload and publish new thesis documents with automatic full-text indexing.
                 </p>
             </section>
+
+            <!-- ALERT MESSAGE CONTAINER -->
+            <div id="uploadMessage" class="hidden"></div>
 
             <!-- UPLOAD CARD -->
             <section class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
@@ -113,9 +60,6 @@
                 <p class="mt-1 text-xs md:text-sm text-gray-500">
                     Enter metadata and select the thesis PDF file.
                 </p>
-
-                <!-- MESSAGE -->
-                <div id="uploadMessage" class="mt-4 hidden rounded-xl p-3 text-sm"></div>
 
                 <!-- FORM -->
                 <form id="uploadForm" class="mt-6 space-y-4 md:space-y-5">
@@ -211,28 +155,12 @@
         </div>
     </main>
 
-    <!-- SUCCESS POPUP -->
-    <div id="successPopup" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/30 backdrop-blur-sm">
-        <div id="successCard" class="w-[320px] rounded-2xl bg-white p-8 text-center shadow-2xl">
-            <div class="mx-auto mb-5 flex h-20 w-20 items-center justify-center rounded-full bg-green-100">
-                <svg class="h-14 w-14 text-green-600" viewBox="0 0 52 52" fill="none">
-                    <circle class="check-circle" cx="26" cy="26" r="23" stroke="currentColor" stroke-width="4" fill="none" />
-                    <path class="check-mark" d="M14 27L22 35L39 17" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none" />
-                </svg>
-            </div>
-            <h2 class="text-xl font-bold text-gray-800">Upload Successful!</h2>
-            <p class="mt-2 text-sm text-gray-500">Your thesis and full-text content have been indexed.</p>
-        </div>
-    </div>
-
     <!-- JAVASCRIPT -->
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const uploadForm = document.getElementById('uploadForm');
         const uploadButton = document.getElementById('uploadButton');
         const uploadMessage = document.getElementById('uploadMessage');
-        const successPopup = document.getElementById('successPopup');
-        const successCard = document.getElementById('successCard');
         const progressContainer = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
         const progressText = document.getElementById('progressText');
@@ -254,26 +182,94 @@
             }
         }
 
-        function showError(message) {
-            uploadMessage.textContent = message;
-            uploadMessage.className = 'mt-4 rounded-xl border border-red-300 bg-red-50 p-3 text-sm text-red-700';
-            uploadMessage.classList.remove('hidden');
-            progressContainer.style.display = 'none';
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text || '';
+            return div.innerHTML;
         }
 
-        function showSuccessPopup() {
-            successPopup.classList.remove('hidden');
-            successPopup.classList.add('flex');
-            successCard.classList.remove('popup-hide');
+        // Success Alert Component
+        function showSuccessAlert(title = 'Successfully saved!', message = 'Your thesis and all pages have been uploaded and indexed successfully.') {
+            uploadMessage.innerHTML = `
+                <div class="mx-auto w-full max-w-4xl">
+                    <div class="rounded-2xl bg-green-50 p-4 ring-1 ring-inset ring-green-200 shadow-sm">
+                        <div class="flex items-start gap-x-4">
+                            <div class="shrink-0">
+                                <svg aria-hidden="true" class="size-6 text-green-600" viewBox="0 0 55 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M43.8919 18.4573C45.1123 19.6777 45.1123 21.6563 43.8919 22.8767L25.9716 40.797C24.7513 42.0173 22.7727 42.0173 21.5523 40.797L13.5257 32.771C12.3053 31.5507 12.3052 29.572 13.5256 28.3516C14.7459 27.1312 16.7245 27.1311 17.945 28.3515L23.7618 34.1679L39.4725 18.4573C40.6929 17.2369 42.6715 17.2369 43.8919 18.4573Z" fill="currentColor"/>
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M27.5 5.66699C15.0736 5.66699 5 15.7406 5 28.167C5 40.5934 15.0736 50.667 27.5 50.667C39.9264 50.667 50 40.5934 50 28.167C50 15.7406 39.9264 5.66699 27.5 5.66699ZM0 28.167C0 12.9792 12.3122 0.666992 27.5 0.666992C42.6878 0.666992 55 12.9792 55 28.167C55 43.3548 42.6878 55.667 27.5 55.667C12.3122 55.667 0 43.3548 0 28.167Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-sm font-bold text-green-800">${escapeHtml(title)}</h3>
+                                <div class="mt-1">
+                                    <p class="text-xs sm:text-sm text-green-700 leading-relaxed">${escapeHtml(message)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            uploadMessage.classList.remove('hidden');
+            progressContainer.style.display = 'none';
+            uploadMessage.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }
 
-            setTimeout(() => {
-                successCard.classList.add('popup-hide');
-                setTimeout(() => {
-                    successPopup.classList.add('hidden');
-                    successPopup.classList.remove('flex');
-                    successCard.classList.remove('popup-hide');
-                }, 300);
-            }, 3000);
+        // Error Alert Component
+        function showErrorAlert(title = 'An error occurred', message = 'There was a problem with your request. Please try again.') {
+            uploadMessage.innerHTML = `
+                <div class="mx-auto w-full max-w-4xl">
+                    <div class="rounded-2xl bg-red-50 p-4 ring-1 ring-inset ring-red-200 shadow-sm">
+                        <div class="flex items-start gap-x-4">
+                            <div class="shrink-0">
+                                <svg aria-hidden="true" class="size-6 text-red-600" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M27.5 5C15.0736 5 5 15.0736 5 27.5C5 39.9265 15.0736 50 27.5 50C39.9265 50 50 39.9265 50 27.5C50 15.0736 39.9265 5 27.5 5ZM0 27.5C0 12.3122 12.3122 0 27.5 0C42.6879 0 55 12.3122 55 27.5C55 42.6879 42.6879 55 27.5 55C12.3122 55 0 42.6879 0 27.5ZM14.6211 14.6211C15.5975 13.6448 17.1804 13.6448 18.1567 14.6211L27.5 23.9645L36.8433 14.6211C37.8197 13.6448 39.4026 13.6448 40.3789 14.6211C41.3552 15.5974 41.3552 17.1803 40.3789 18.1567L31.0355 27.5L40.3789 36.8433C41.3552 37.8197 41.3552 39.4026 40.3789 40.3789C39.4026 41.3552 37.8197 41.3552 36.8433 40.3789L27.5 31.0355L18.1567 40.3789C17.1803 41.3552 15.5974 41.3552 14.6211 40.3789C13.6448 39.4026 13.6448 37.8197 14.6211 36.8433L23.9645 27.5L14.6211 18.1567C13.6448 17.1803 13.6448 15.5974 14.6211 14.6211Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-sm font-bold text-red-800">${escapeHtml(title)}</h3>
+                                <div class="mt-1">
+                                    <p class="text-xs sm:text-sm text-red-700 leading-relaxed">${escapeHtml(message)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            uploadMessage.classList.remove('hidden');
+            progressContainer.style.display = 'none';
+            uploadMessage.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }
+
+        // Warning Alert Component
+        function showWarningAlert(title = 'Something went wrong', message = 'There was a partial problem with your request.') {
+            uploadMessage.innerHTML = `
+                <div class="mx-auto w-full max-w-4xl">
+                    <div class="rounded-2xl bg-yellow-50 p-4 ring-1 ring-inset ring-yellow-300 shadow-sm">
+                        <div class="flex items-start gap-x-4">
+                            <div class="shrink-0">
+                                <svg aria-hidden="true" class="size-6 text-yellow-600" viewBox="0 0 55 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M19.9663 4.54867C23.1584 -1.51623 31.8415 -1.51622 35.0335 4.5487L35.0336 4.54875L54.0083 40.6026C54.0084 40.6029 54.0085 40.6031 54.0087 40.6034C56.993 46.2711 52.8794 53.0796 46.475 53.0796H8.52485C2.11871 53.0796 -1.9923 46.2696 0.991191 40.6006L0.991245 40.6005L19.9663 4.5487C19.9663 4.54869 19.9663 4.54868 19.9663 4.54867ZM30.0114 7.19191C28.9471 5.16965 26.0528 5.16965 24.9884 7.19191L24.9884 7.19193L6.01337 43.2436C6.01336 43.2437 6.01334 43.2437 6.01332 43.2437C5.01859 45.134 6.38982 47.4044 8.52485 47.4044H46.475C48.6115 47.4044 49.9801 45.1331 48.9869 43.2473L48.9865 43.2465L30.0114 7.19191ZM27.4999 16.1907C29.0671 16.1907 30.3375 17.4611 30.3375 19.0283V30.3787C30.3375 31.9459 29.0671 33.2163 27.4999 33.2163C25.9328 33.2163 24.6623 31.9459 24.6623 30.3787V19.0283C24.6623 17.4611 25.9328 16.1907 27.4999 16.1907ZM27.4999 36.0539C29.0671 36.0539 30.3375 37.3244 30.3375 38.8915V38.9199C30.3375 40.4871 29.0671 41.7575 27.4999 41.7575C25.9328 41.7575 24.6623 40.4871 24.6623 38.9199V38.8915C24.6623 37.3244 25.9328 36.0539 27.4999 36.0539Z" fill="currentColor"/>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-sm font-bold text-yellow-800">${escapeHtml(title)}</h3>
+                                <div class="mt-1">
+                                    <p class="text-xs sm:text-sm text-yellow-700 leading-relaxed">${escapeHtml(message)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            uploadMessage.classList.remove('hidden');
+            progressContainer.style.display = 'none';
         }
 
         function updateProgress(percent, text) {
@@ -285,7 +281,7 @@
             }
         }
 
-        // Fast client-side PDF text extraction using PDF.js (in browser)
+        // Fast client-side PDF text extraction using PDF.js
         async function extractPdfText(file) {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({
@@ -331,7 +327,7 @@
             progressContainer.style.display = 'block';
 
             try {
-                // 1. Extract text from all 288 pages in browser (1-2 seconds)
+                // 1. Extract text from all pages in browser (1-2 seconds)
                 updateProgress(5, 'Extracting full text from PDF...');
                 const extractedChunks = await extractPdfText(file);
 
@@ -367,8 +363,9 @@
 
                 if (uploadError) throw uploadError;
 
-                // 4. Save Document Metadata & all 288 page chunks (takes < 1 second)
+                // 4. Save Document Metadata & all page chunks (takes < 1 second)
                 updateProgress(60, 'Saving thesis document and page chunks...');
+                const thesisTitle = document.getElementById('title').value.trim();
                 const metadataResponse = await fetch('/backend/documents/store-signed', {
                     method: 'POST',
                     headers: {
@@ -377,7 +374,7 @@
                         'X-CSRF-TOKEN': csrfToken
                     },
                     body: JSON.stringify({
-                        title: document.getElementById('title').value.trim(),
+                        title: thesisTitle,
                         author: document.getElementById('author').value.trim(),
                         department: document.getElementById('department').value,
                         course_code: document.getElementById('course_code').value,
@@ -431,16 +428,18 @@
 
                 updateProgress(100, 'Upload and indexing complete!');
                 uploadForm.reset();
-                showSuccessPopup();
+
+                // Show Success Alert with thesis details and page count
+                showSuccessAlert(
+                    'Successfully saved!',
+                    `"${thesisTitle}" and all ${totalChunks} pages have been uploaded and indexed successfully. You can view the document in the repository.`
+                );
 
             } catch (err) {
-                showError(err.message);
+                showErrorAlert('An error occurred', err.message || 'There was a problem uploading the thesis.');
             } finally {
                 uploadButton.disabled = false;
                 uploadButton.textContent = 'Submit & Upload Thesis';
-                setTimeout(() => {
-                    progressContainer.style.display = 'none';
-                }, 3000);
             }
         });
     </script>
