@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('document_chunks', function (Blueprint $table) {
-            $table->unsignedInteger('page_number')->nullable();
-        });
+        if (! Schema::hasColumn('document_chunks', 'page_number')) {
+            Schema::table('document_chunks', function (Blueprint $table) {
+                $table->unsignedInteger('page_number')->nullable();
+            });
+        }
     }
 
     public function down(): void
