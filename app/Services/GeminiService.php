@@ -11,9 +11,9 @@ class GeminiService
 
     protected string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
 
-    protected string $embeddingModel = 'text-embedding-004';
+    protected string $embeddingModel = 'gemini-embedding-001';
 
-    protected string $generationModel = 'gemini-2.5-flash';
+    protected string $generationModel = 'gemini-3.6-flash';
 
     public function __construct()
     {
