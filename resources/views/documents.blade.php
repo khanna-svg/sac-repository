@@ -41,15 +41,21 @@
                                 type="button"
                                 id="modeKeywordBtn"
                                 onclick="setSearchMode('keyword')"
-                                class="rounded-lg px-3 py-1 text-xs font-bold bg-white text-[#700000] shadow-sm transition">
-                                🔍 Keyword
+                                class="rounded-lg px-3 py-1 text-xs font-bold bg-white text-[#700000] shadow-sm transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                <span>Keyword</span>
                             </button>
                             <button
                                 type="button"
                                 id="modeSemanticBtn"
                                 onclick="setSearchMode('semantic')"
-                                class="rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition">
-                                ✨ Semantic AI
+                                class="rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                                </svg>
+                                <span>Semantic AI</span>
                             </button>
                         </div>
                         <span id="semanticExplainer" class="text-[11px] text-gray-400 hidden sm:inline">
@@ -166,12 +172,12 @@
             const semBtn = document.getElementById('modeSemanticBtn');
             const input = document.getElementById('searchInput');
             if (mode === 'semantic') {
-                semBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold bg-[#700000] text-[#FFD700] shadow-sm transition';
-                kwBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition';
+                semBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold bg-[#700000] text-[#FFD700] shadow-sm transition flex items-center gap-1.5';
+                kwBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5';
                 input.placeholder = 'Ask or describe concepts (e.g., "how to reduce maritime accidents" or "hospital patient care")...';
             } else {
-                kwBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold bg-white text-[#700000] shadow-sm transition';
-                semBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition';
+                kwBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold bg-white text-[#700000] shadow-sm transition flex items-center gap-1.5';
+                semBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5';
                 input.placeholder = 'Search by topic, author, keywords, or department...';
             }
             if (input.value.trim()) {
@@ -325,8 +331,11 @@
                         <div class="flex-1 min-w-0 pr-8">
                             <div class="flex flex-wrap items-center gap-2">
                             ${doc.similarity_score ? `
-                                <span class="rounded-lg bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 text-[10px] font-extrabold flex items-center gap-1">
-                                    ✨ ${doc.similarity_score}% Match
+                                <span class="rounded-lg bg-amber-50 text-amber-900 border border-amber-300 px-2.5 py-0.5 text-[10px] font-extrabold flex items-center gap-1 shadow-sm">
+                                    <svg class="w-3 h-3 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                                    </svg>
+                                    <span>${doc.similarity_score}% Match</span>
                                 </span>
                             ` : ''}
                                 <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">

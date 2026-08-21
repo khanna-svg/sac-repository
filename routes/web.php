@@ -66,14 +66,6 @@ Route::middleware('sac.auth')->group(function () {
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'indexView'])
         ->name('bookmarks');
 
-    Route::get('/graph', [\App\Http\Controllers\KnowledgeGraphController::class, 'indexView'])
-        ->name('graph');
-
-    Route::get(
-        '/backend/graph/data',
-        [\App\Http\Controllers\KnowledgeGraphController::class, 'data']
-    );
-
     Route::get(
         '/backend/documents/{document}/view',
         [DocumentController::class, 'viewPdf']

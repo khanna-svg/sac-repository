@@ -124,18 +124,24 @@ class DocumentController extends Controller
                 $queryEmbedding = $geminiService->generateEmbedding($search);
                 $embeddingString = '[' . implode(',', $queryEmbedding) . ']';
 
-                // Query pgvector for the most similar chunks and group by document
-                $similarChunks = DB::table('document_chunks')
-                    ->select('document_id', DB::raw("MIN(embedding <=> '{$embeddingString}'::vector) as distance"))
-                    ->whereNotNull('embedding')
-                    ->groupBy('document_id')
-                    ->orderBy('distance', 'asc')
-                    ->limit(20)
-                    ->get();
+                // Query pgvector using extensions schema for cosine distance
+                $similarChunks = DB::select("
+                    SELECT
+                        dc.document_id,
+                        MIN(dc.embedding OPERATOR(extensions.<=>) ?::extensions.vector) AS distance
+                    FROM document_chunks dc
+                    WHERE dc.embedding IS NOT NULL
+                    GROUP BY dc.document_id
+                    ORDER BY distance ASC
+                    LIMIT 20
+                ", [$embeddingString]);
 
-                if ($similarChunks->isNotEmpty()) {
-                    $docIds = $similarChunks->pluck('document_id')->toArray();
-                    $distanceMap = $similarChunks->pluck('distance', 'document_id')->toArray();
+                if (!empty($similarChunks)) {
+                    $docIds = array_column($similarChunks, 'document_id');
+                    $distanceMap = [];
+                    foreach ($similarChunks as $row) {
+                        $distanceMap[$row->document_id] = (float) $row->distance;
+                    }
 
                     $documents = Document::whereIn('id', $docIds)->get();
 
@@ -150,7 +156,7 @@ class DocumentController extends Controller
                     return response()->json($sortedDocs);
                 }
             } catch (\Throwable $e) {
-                Log::warning('Semantic search fallback to keyword: ' . $e->getMessage());
+                Log::warning('Semantic search fallback: ' . $e->getMessage());
             }
         }
         $query = Document::query();
