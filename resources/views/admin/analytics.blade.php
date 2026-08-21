@@ -31,27 +31,17 @@
                 </p>
             </div>
 
-            <!-- 4 Metric Cards -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                <div class="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <p class="text-xs font-bold text-gray-500 uppercase">Total Theses</p>
-                    <p id="statTotalTheses" class="text-2xl md:text-3xl font-extrabold text-[#700000] mt-2">--</p>
-                    <p class="text-[11px] text-gray-400 mt-1">Approved & Indexed</p>
+            <!-- 2 Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Theses</p>
+                    <p id="statTotalTheses" class="text-3xl md:text-4xl font-extrabold text-[#700000] mt-2">--</p>
+                    <p class="text-xs text-gray-400 mt-1">Published Theses</p>
                 </div>
-                <div class="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <p class="text-xs font-bold text-gray-500 uppercase">Departments</p>
-                    <p id="statTotalDepts" class="text-2xl md:text-3xl font-extrabold text-[#700000] mt-2">--</p>
-                    <p class="text-[11px] text-gray-400 mt-1">Academic Divisions</p>
-                </div>
-                <div class="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <p class="text-xs font-bold text-gray-500 uppercase">Indexed Pages</p>
-                    <p id="statTotalPages" class="text-2xl md:text-3xl font-extrabold text-[#700000] mt-2">--</p>
-                    <p class="text-[11px] text-gray-400 mt-1">Vector Chunks in RAG</p>
-                </div>
-                <div class="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
-                    <p class="text-xs font-bold text-gray-500 uppercase">Student Bookmarks</p>
-                    <p id="statTotalBookmarks" class="text-2xl md:text-3xl font-extrabold text-amber-600 mt-2">--</p>
-                    <p class="text-[11px] text-gray-400 mt-1">Total Saved Papers</p>
+                <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Departments</p>
+                    <p id="statTotalDepts" class="text-3xl md:text-4xl font-extrabold text-[#700000] mt-2">--</p>
+                    <p class="text-xs text-gray-400 mt-1">Total published thesis by departments</p>
                 </div>
             </div>
 
@@ -93,10 +83,12 @@
                 const data = await res.json();
 
                 // 1. Populate Metric Cards
-                document.getElementById('statTotalTheses').textContent = data.metrics.total_theses;
-                document.getElementById('statTotalDepts').textContent = data.metrics.total_departments;
-                document.getElementById('statTotalPages').textContent = data.metrics.total_pages;
-                document.getElementById('statTotalBookmarks').textContent = data.metrics.total_bookmarks;
+                if (document.getElementById('statTotalTheses')) {
+                    document.getElementById('statTotalTheses').textContent = data.metrics.total_theses;
+                }
+                if (document.getElementById('statTotalDepts')) {
+                    document.getElementById('statTotalDepts').textContent = data.metrics.total_departments;
+                }
 
                 // 2. Department Doughnut Chart
                 const deptLabels = data.departments.map(d => d.department.toUpperCase());
