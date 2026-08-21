@@ -7,17 +7,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Saved / Bookmarks - SAC Thesis Repository</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            background: #850000;
-            background: linear-gradient(327deg, rgba(133, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 50%, rgba(133, 0, 0, 1) 100%);
-            background-attachment: fixed;
-            min-height: 100vh;
-        }
-    </style>
 </head>
 
-<body class="min-h-screen text-slate-800 font-sans">
+<body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
     @include('partials.sidebar')
 
