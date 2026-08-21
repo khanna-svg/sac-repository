@@ -27,11 +27,6 @@
                             Your saved thesis and capstone projects for quick reading and citation.
                         </p>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span id="bookmarkCountBadge" class="rounded-xl bg-[#700000]/10 px-3.5 py-1.5 text-xs font-bold text-[#700000] border border-[#700000]/20">
-                            Loading saved theses...
-                        </span>
-                    </div>
                 </div>
             </section>
 
@@ -47,13 +42,13 @@
 
     <!-- FLOATING TOAST NOTIFICATION POP-UP -->
     <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
-        <div class="flex items-center gap-3 rounded-2xl bg-gray-900 text-white px-5 py-3.5 shadow-2xl backdrop-blur-md border border-white/10">
+        <div class="flex items-center gap-3 rounded-2xl bg-white text-gray-900 px-5 py-3.5 shadow-xl border border-gray-200">
             <span id="toastIconContainer" class="shrink-0">
-                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
             </span>
-            <p id="toastMessage" class="text-xs md:text-sm font-semibold tracking-wide">Removed from bookmark</p>
+            <p id="toastMessage" class="text-xs md:text-sm font-semibold text-gray-800 tracking-wide">Removed from bookmark</p>
         </div>
     </div>
 
