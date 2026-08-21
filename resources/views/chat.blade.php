@@ -42,14 +42,13 @@
         <!-- CHAT AREA -->
         <div
             id="chatMessages"
-            class="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6 bg-transparent"
-        >
+            class="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6 bg-transparent">
 
             <!-- INITIAL AI MESSAGE -->
             <div class="flex items-start gap-3">
 
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center text-sm md:text-base font-bold shadow-md">
-                    🤖
+                    AI
                 </div>
 
                 <div class="max-w-3xl">
@@ -57,7 +56,7 @@
                     <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
 
                         <p class="text-sm text-gray-800 font-medium">
-                            👋 Hi! I'm your RAG Thesis AI Assistant.
+                            Hi! I'm your RAG Thesis AI Assistant.
                         </p>
 
                         <p class="text-sm text-gray-600 mt-2 leading-relaxed">
@@ -84,8 +83,7 @@
 
             <form
                 id="chatForm"
-                class="flex items-end gap-2 md:gap-3 w-full"
-            >
+                class="flex items-end gap-2 md:gap-3 w-full">
 
                 <div class="flex-1">
 
@@ -94,16 +92,14 @@
                         rows="1"
                         required
                         placeholder="Ask a question..."
-                        class="w-full resize-none bg-slate-50 border border-gray-300 rounded-xl px-3.5 md:px-4 py-2.5 md:py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] leading-normal"
-                    ></textarea>
+                        class="w-full resize-none bg-slate-50 border border-gray-300 rounded-xl px-3.5 md:px-4 py-2.5 md:py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] leading-normal"></textarea>
 
                 </div>
 
                 <button
                     type="submit"
                     id="sendBtn"
-                    class="h-[42px] md:h-[46px] bg-[#700000] hover:bg-[#800000] disabled:bg-gray-200 disabled:text-gray-400 text-[#FFD700] font-bold px-4 md:px-6 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-2 shrink-0 shadow-sm"
-                >
+                    class="h-[42px] md:h-[46px] bg-[#700000] hover:bg-[#800000] disabled:bg-gray-200 disabled:text-gray-400 text-[#FFD700] font-bold px-4 md:px-6 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-2 shrink-0 shadow-sm">
 
                     <span id="sendBtnText">
                         Send
@@ -127,115 +123,114 @@
     ========================================================== -->
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-    document.addEventListener('DOMContentLoaded', function () {
-
-        console.log('SAC Thesis AI Chat loading...');
-
-
-        /* =========================================================
-           GET ELEMENTS
-        ========================================================== */
-
-        const chatForm =
-            document.getElementById('chatForm');
-
-        const messageInput =
-            document.getElementById('messageInput');
-
-        const sendBtn =
-            document.getElementById('sendBtn');
-
-        const sendBtnText =
-            document.getElementById('sendBtnText');
-
-        const sendBtnIcon =
-            document.getElementById('sendBtnIcon');
-
-        const chatMessages =
-            document.getElementById('chatMessages');
+            console.log('SAC Thesis AI Chat loading...');
 
 
-        /* =========================================================
-           IMPORTANT:
-           MAKE SURE NONE OF THE ELEMENTS ARE NULL
-        ========================================================== */
+            /* =========================================================
+               GET ELEMENTS
+            ========================================================== */
 
-        if (!chatForm) {
-            console.error('ERROR: #chatForm does not exist.');
-            return;
-        }
+            const chatForm =
+                document.getElementById('chatForm');
 
-        if (!messageInput) {
-            console.error('ERROR: #messageInput does not exist.');
-            return;
-        }
+            const messageInput =
+                document.getElementById('messageInput');
 
-        if (!sendBtn) {
-            console.error('ERROR: #sendBtn does not exist.');
-            return;
-        }
+            const sendBtn =
+                document.getElementById('sendBtn');
 
-        if (!sendBtnText) {
-            console.error('ERROR: #sendBtnText does not exist.');
-            return;
-        }
+            const sendBtnText =
+                document.getElementById('sendBtnText');
 
-        if (!sendBtnIcon) {
-            console.error('ERROR: #sendBtnIcon does not exist.');
-            return;
-        }
+            const sendBtnIcon =
+                document.getElementById('sendBtnIcon');
 
-        if (!chatMessages) {
-            console.error('ERROR: #chatMessages does not exist.');
-            return;
-        }
+            const chatMessages =
+                document.getElementById('chatMessages');
 
 
-        console.log('All chat elements found.');
+            /* =========================================================
+               IMPORTANT:
+               MAKE SURE NONE OF THE ELEMENTS ARE NULL
+            ========================================================== */
+
+            if (!chatForm) {
+                console.error('ERROR: #chatForm does not exist.');
+                return;
+            }
+
+            if (!messageInput) {
+                console.error('ERROR: #messageInput does not exist.');
+                return;
+            }
+
+            if (!sendBtn) {
+                console.error('ERROR: #sendBtn does not exist.');
+                return;
+            }
+
+            if (!sendBtnText) {
+                console.error('ERROR: #sendBtnText does not exist.');
+                return;
+            }
+
+            if (!sendBtnIcon) {
+                console.error('ERROR: #sendBtnIcon does not exist.');
+                return;
+            }
+
+            if (!chatMessages) {
+                console.error('ERROR: #chatMessages does not exist.');
+                return;
+            }
 
 
-        /* =========================================================
-           SCROLL
-        ========================================================== */
-
-        function scrollToBottom() {
-
-            chatMessages.scrollTop =
-                chatMessages.scrollHeight;
-
-        }
+            console.log('All chat elements found.');
 
 
-        /* =========================================================
-           ESCAPE HTML
-        ========================================================== */
+            /* =========================================================
+               SCROLL
+            ========================================================== */
 
-        function escapeHtml(value) {
+            function scrollToBottom() {
 
-            return String(value ?? '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
+                chatMessages.scrollTop =
+                    chatMessages.scrollHeight;
 
-        }
+            }
 
 
-        /* =========================================================
-           ADD USER MESSAGE
-        ========================================================== */
+            /* =========================================================
+               ESCAPE HTML
+            ========================================================== */
 
-        function addUserMessage(message) {
+            function escapeHtml(value) {
 
-            const wrapper =
-                document.createElement('div');
+                return String(value ?? '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
 
-            wrapper.className =
-                'flex justify-end items-start gap-3';
+            }
 
-            wrapper.innerHTML = `
+
+            /* =========================================================
+               ADD USER MESSAGE
+            ========================================================== */
+
+            function addUserMessage(message) {
+
+                const wrapper =
+                    document.createElement('div');
+
+                wrapper.className =
+                    'flex justify-end items-start gap-3';
+
+                wrapper.innerHTML = `
 
                 <div class="max-w-xl md:max-w-3xl">
 
@@ -252,55 +247,55 @@
                 </div>
             `;
 
-            const paragraph =
-                wrapper.querySelector('p');
+                const paragraph =
+                    wrapper.querySelector('p');
 
-            if (paragraph) {
-                paragraph.textContent = message;
-            }
+                if (paragraph) {
+                    paragraph.textContent = message;
+                }
 
-            chatMessages.appendChild(wrapper);
+                chatMessages.appendChild(wrapper);
 
-            scrollToBottom();
-        }
-
-
-        /* =========================================================
-           ADD AI MESSAGE
-        ========================================================== */
-
-        function addAIMessage(answer, sources) {
-
-            sources =
-                Array.isArray(sources)
-                    ? sources
-                    : [];
-
-
-            const wrapper =
-                document.createElement('div');
-
-            wrapper.className =
-                'flex items-start gap-3';
-
-
-            let formattedAnswer =
-                escapeHtml(answer);
-
-
-            if (
-                typeof marked !== 'undefined' &&
-                marked &&
-                typeof marked.parse === 'function'
-            ) {
-
-                formattedAnswer =
-                    marked.parse(answer);
-
+                scrollToBottom();
             }
 
 
-            wrapper.innerHTML = `
+            /* =========================================================
+               ADD AI MESSAGE
+            ========================================================== */
+
+            function addAIMessage(answer, sources) {
+
+                sources =
+                    Array.isArray(sources) ?
+                    sources :
+                    [];
+
+
+                const wrapper =
+                    document.createElement('div');
+
+                wrapper.className =
+                    'flex items-start gap-3';
+
+
+                let formattedAnswer =
+                    escapeHtml(answer);
+
+
+                if (
+                    typeof marked !== 'undefined' &&
+                    marked &&
+                    typeof marked.parse === 'function'
+                ) {
+
+                    formattedAnswer =
+                        marked.parse(answer);
+
+                }
+
+
+                wrapper.innerHTML = `
 
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center text-sm md:text-base font-bold shadow-md">
                     🤖
@@ -340,88 +335,88 @@
             `;
 
 
-            /* =====================================================
-               SOURCES
-            ====================================================== */
+                /* =====================================================
+                   SOURCES
+                ====================================================== */
 
-            if (sources.length > 0) {
+                if (sources.length > 0) {
 
-                const sourceList =
-                    wrapper.querySelector('.source-list');
-
-
-                if (sourceList) {
-
-                    sources.forEach(function (source) {
-
-                        if (!source) {
-                            return;
-                        }
+                    const sourceList =
+                        wrapper.querySelector('.source-list');
 
 
-                        const sourceElement =
-                            document.createElement('div');
+                    if (sourceList) {
+
+                        sources.forEach(function(source) {
+
+                            if (!source) {
+                                return;
+                            }
 
 
-                        sourceElement.className =
-                            'text-xs text-gray-700 bg-slate-50 border border-gray-200 rounded-xl p-2.5 flex items-center justify-between gap-3';
+                            const sourceElement =
+                                document.createElement('div');
 
 
-                        const title =
-                            source.document_title ||
-                            (
-                                'Thesis #' +
+                            sourceElement.className =
+                                'text-xs text-gray-700 bg-slate-50 border border-gray-200 rounded-xl p-2.5 flex items-center justify-between gap-3';
+
+
+                            const title =
+                                source.document_title ||
                                 (
-                                    source.document_id ??
-                                    'Unknown'
-                                )
-                            );
-
-
-                        const author =
-                            source.document_author
-                                ? 'by ' +
-                                  source.document_author
-                                : '';
-
-
-                        let similarity = null;
-
-
-                        if (
-                            source.similarity !== undefined &&
-                            source.similarity !== null
-                        ) {
-
-                            similarity =
-                                Math.round(
-                                    Number(
-                                        source.similarity
-                                    ) * 100
-                                );
-
-                        }
-
-
-                        let documentId = '';
-
-
-                        if (
-                            source.document_id !== undefined &&
-                            source.document_id !== null
-                        ) {
-
-                            documentId =
-                                encodeURIComponent(
-                                    String(
-                                        source.document_id
+                                    'Thesis #' +
+                                    (
+                                        source.document_id ??
+                                        'Unknown'
                                     )
                                 );
 
-                        }
+
+                            const author =
+                                source.document_author ?
+                                'by ' +
+                                source.document_author :
+                                '';
 
 
-                        sourceElement.innerHTML = `
+                            let similarity = null;
+
+
+                            if (
+                                source.similarity !== undefined &&
+                                source.similarity !== null
+                            ) {
+
+                                similarity =
+                                    Math.round(
+                                        Number(
+                                            source.similarity
+                                        ) * 100
+                                    );
+
+                            }
+
+
+                            let documentId = '';
+
+
+                            if (
+                                source.document_id !== undefined &&
+                                source.document_id !== null
+                            ) {
+
+                                documentId =
+                                    encodeURIComponent(
+                                        String(
+                                            source.document_id
+                                        )
+                                    );
+
+                            }
+
+
+                            sourceElement.innerHTML = `
 
                             <div class="flex-1 min-w-0">
 
@@ -467,44 +462,44 @@
                         `;
 
 
-                        sourceList.appendChild(
-                            sourceElement
-                        );
+                            sourceList.appendChild(
+                                sourceElement
+                            );
 
-                    });
+                        });
+
+                    }
 
                 }
+
+
+                chatMessages.appendChild(wrapper);
+
+                scrollToBottom();
 
             }
 
 
-            chatMessages.appendChild(wrapper);
+            /* =========================================================
+               LOADING MESSAGE
+            ========================================================== */
 
-            scrollToBottom();
+            function addLoadingMessage() {
 
-        }
-
-
-        /* =========================================================
-           LOADING MESSAGE
-        ========================================================== */
-
-        function addLoadingMessage() {
-
-            removeLoadingMessage();
+                removeLoadingMessage();
 
 
-            const wrapper =
-                document.createElement('div');
+                const wrapper =
+                    document.createElement('div');
 
-            wrapper.id =
-                'loadingMessage';
+                wrapper.id =
+                    'loadingMessage';
 
-            wrapper.className =
-                'flex items-start gap-3';
+                wrapper.className =
+                    'flex items-start gap-3';
 
 
-            wrapper.innerHTML = `
+                wrapper.innerHTML = `
 
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center font-bold shadow-md">
                     🤖
@@ -534,45 +529,45 @@
             `;
 
 
-            chatMessages.appendChild(wrapper);
+                chatMessages.appendChild(wrapper);
 
-            scrollToBottom();
+                scrollToBottom();
 
-        }
-
-
-        /* =========================================================
-           REMOVE LOADING
-        ========================================================== */
-
-        function removeLoadingMessage() {
-
-            const loading =
-                document.getElementById(
-                    'loadingMessage'
-                );
-
-            if (loading) {
-                loading.remove();
             }
 
-        }
+
+            /* =========================================================
+               REMOVE LOADING
+            ========================================================== */
+
+            function removeLoadingMessage() {
+
+                const loading =
+                    document.getElementById(
+                        'loadingMessage'
+                    );
+
+                if (loading) {
+                    loading.remove();
+                }
+
+            }
 
 
-        /* =========================================================
-           ERROR MESSAGE
-        ========================================================== */
+            /* =========================================================
+               ERROR MESSAGE
+            ========================================================== */
 
-        function addErrorMessage(message) {
+            function addErrorMessage(message) {
 
-            const wrapper =
-                document.createElement('div');
+                const wrapper =
+                    document.createElement('div');
 
-            wrapper.className =
-                'flex items-start gap-3';
+                wrapper.className =
+                    'flex items-start gap-3';
 
 
-            wrapper.innerHTML = `
+                wrapper.innerHTML = `
 
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-red-600 text-white flex-shrink-0 flex items-center justify-center font-bold shadow-md">
                     ⚠️
@@ -594,343 +589,336 @@
             `;
 
 
-            const paragraph =
-                wrapper.querySelector('p');
+                const paragraph =
+                    wrapper.querySelector('p');
 
 
-            if (paragraph) {
-                paragraph.textContent = message;
-            }
-
-
-            chatMessages.appendChild(wrapper);
-
-            scrollToBottom();
-
-        }
-
-
-        /* =========================================================
-           SUBMIT CHAT
-        ========================================================== */
-
-        chatForm.addEventListener(
-            'submit',
-            async function (event) {
-
-                event.preventDefault();
-
-
-                const message =
-                    messageInput.value.trim();
-
-
-                if (!message) {
-                    return;
+                if (paragraph) {
+                    paragraph.textContent = message;
                 }
 
 
-                console.log(
-                    'Sending:',
-                    message
+                chatMessages.appendChild(wrapper);
+
+                scrollToBottom();
+
+            }
+
+
+            /* =========================================================
+               SUBMIT CHAT
+            ========================================================== */
+
+            chatForm.addEventListener(
+                'submit',
+                async function(event) {
+
+                    event.preventDefault();
+
+
+                    const message =
+                        messageInput.value.trim();
+
+
+                    if (!message) {
+                        return;
+                    }
+
+
+                    console.log(
+                        'Sending:',
+                        message
+                    );
+
+
+                    addUserMessage(message);
+
+
+                    messageInput.value =
+                        '';
+
+                    messageInput.style.height =
+                        'auto';
+
+
+                    sendBtn.disabled =
+                        true;
+
+                    sendBtnText.textContent =
+                        'Thinking...';
+
+                    sendBtnIcon.textContent =
+                        '⏳';
+
+
+                    addLoadingMessage();
+
+
+                    try {
+
+                        const csrfMeta =
+                            document.querySelector(
+                                'meta[name="csrf-token"]'
+                            );
+
+
+                        const csrfToken =
+                            csrfMeta ?
+                            csrfMeta.getAttribute(
+                                'content'
+                            ) :
+                            '';
+
+
+                        const response =
+                            await fetch(
+                                '/backend/chat', {
+                                    method: 'POST',
+
+                                    headers: {
+                                        'Content-Type': 'application/json',
+
+                                        'Accept': 'application/json',
+
+                                        'X-CSRF-TOKEN': csrfToken
+                                    },
+
+                                    body: JSON.stringify({
+                                        message: message
+                                    })
+                                }
+                            );
+
+
+                        let data;
+
+
+                        try {
+
+                            data =
+                                await response.json();
+
+                        } catch (jsonError) {
+
+                            console.error(
+                                'Invalid JSON response:',
+                                jsonError
+                            );
+
+                            throw new Error(
+                                'The server returned an invalid response.'
+                            );
+
+                        }
+
+
+                        removeLoadingMessage();
+
+
+                        if (
+                            !response.ok ||
+                            data?.error
+                        ) {
+
+                            addErrorMessage(
+                                data?.message ||
+                                `Server error: HTTP ${response.status}`
+                            );
+
+                            return;
+                        }
+
+
+                        addAIMessage(
+                            data?.answer ||
+                            'No answer was generated.',
+                            data?.sources || []
+                        );
+
+
+                    } catch (error) {
+
+                        console.error(
+                            'Chat request failed:',
+                            error
+                        );
+
+
+                        removeLoadingMessage();
+
+
+                        addErrorMessage(
+                            error?.message ||
+                            'Unable to connect to the chatbot server.'
+                        );
+
+
+                    } finally {
+
+                        sendBtn.disabled =
+                            false;
+
+                        sendBtnText.textContent =
+                            'Send';
+
+                        sendBtnIcon.textContent =
+                            '➤';
+
+                        messageInput.focus();
+
+                    }
+
+                }
+            );
+
+
+            /* =========================================================
+               ENTER TO SEND
+               
+               Enter = Send
+               Shift + Enter = New Line
+            ========================================================== */
+
+            messageInput.addEventListener(
+                'keydown',
+                function(event) {
+
+                    if (
+                        event.key === 'Enter' &&
+                        !event.shiftKey
+                    ) {
+
+                        event.preventDefault();
+
+
+                        chatForm.dispatchEvent(
+                            new Event(
+                                'submit', {
+                                    cancelable: true,
+                                    bubbles: true
+                                }
+                            )
+                        );
+
+                    }
+
+                }
+            );
+
+
+            /* =========================================================
+               TEXTAREA AUTO RESIZE
+            ========================================================== */
+
+            messageInput.addEventListener(
+                'input',
+                function() {
+
+                    this.style.height =
+                        'auto';
+
+
+                    this.style.height =
+                        Math.min(
+                            this.scrollHeight,
+                            150
+                        ) + 'px';
+
+                }
+            );
+
+
+            /* =========================================================
+               ASK AI REDIRECT HANDLING
+               
+               Example:
+               
+               /chat?q=Tell%20me%20about%20the%20thesis
+            ========================================================== */
+
+            const urlParams =
+                new URLSearchParams(
+                    window.location.search
                 );
 
 
-                addUserMessage(message);
+            const initialQuery =
+                urlParams.get('q');
+
+
+            console.log(
+                'Initial query:',
+                initialQuery
+            );
+
+
+            if (
+                initialQuery &&
+                initialQuery.trim()
+            ) {
+
+                const question =
+                    initialQuery.trim();
 
 
                 messageInput.value =
-                    '';
+                    question;
+
 
                 messageInput.style.height =
                     'auto';
 
 
-                sendBtn.disabled =
-                    true;
-
-                sendBtnText.textContent =
-                    'Thinking...';
-
-                sendBtnIcon.textContent =
-                    '⏳';
-
-
-                addLoadingMessage();
-
-
-                try {
-
-                    const csrfMeta =
-                        document.querySelector(
-                            'meta[name="csrf-token"]'
-                        );
-
-
-                    const csrfToken =
-                        csrfMeta
-                            ? csrfMeta.getAttribute(
-                                'content'
-                            )
-                            : '';
-
-
-                    const response =
-                        await fetch(
-                            '/backend/chat',
-                            {
-                                method: 'POST',
-
-                                headers: {
-                                    'Content-Type':
-                                        'application/json',
-
-                                    'Accept':
-                                        'application/json',
-
-                                    'X-CSRF-TOKEN':
-                                        csrfToken
-                                },
-
-                                body: JSON.stringify({
-                                    message: message
-                                })
-                            }
-                        );
-
-
-                    let data;
-
-
-                    try {
-
-                        data =
-                            await response.json();
-
-                    } catch (jsonError) {
-
-                        console.error(
-                            'Invalid JSON response:',
-                            jsonError
-                        );
-
-                        throw new Error(
-                            'The server returned an invalid response.'
-                        );
-
-                    }
-
-
-                    removeLoadingMessage();
-
-
-                    if (
-                        !response.ok ||
-                        data?.error
-                    ) {
-
-                        addErrorMessage(
-                            data?.message ||
-                            `Server error: HTTP ${response.status}`
-                        );
-
-                        return;
-                    }
-
-
-                    addAIMessage(
-                        data?.answer ||
-                        'No answer was generated.',
-                        data?.sources || []
-                    );
-
-
-                } catch (error) {
-
-                    console.error(
-                        'Chat request failed:',
-                        error
-                    );
-
-
-                    removeLoadingMessage();
-
-
-                    addErrorMessage(
-                        error?.message ||
-                        'Unable to connect to the chatbot server.'
-                    );
-
-
-                } finally {
-
-                    sendBtn.disabled =
-                        false;
-
-                    sendBtnText.textContent =
-                        'Send';
-
-                    sendBtnIcon.textContent =
-                        '➤';
-
-                    messageInput.focus();
-
-                }
-
-            }
-        );
-
-
-        /* =========================================================
-           ENTER TO SEND
-           
-           Enter = Send
-           Shift + Enter = New Line
-        ========================================================== */
-
-        messageInput.addEventListener(
-            'keydown',
-            function (event) {
-
-                if (
-                    event.key === 'Enter' &&
-                    !event.shiftKey
-                ) {
-
-                    event.preventDefault();
-
-
-                    chatForm.dispatchEvent(
-                        new Event(
-                            'submit',
-                            {
-                                cancelable: true,
-                                bubbles: true
-                            }
-                        )
-                    );
-
-                }
-
-            }
-        );
-
-
-        /* =========================================================
-           TEXTAREA AUTO RESIZE
-        ========================================================== */
-
-        messageInput.addEventListener(
-            'input',
-            function () {
-
-                this.style.height =
-                    'auto';
-
-
-                this.style.height =
+                messageInput.style.height =
                     Math.min(
-                        this.scrollHeight,
+                        messageInput.scrollHeight,
                         150
                     ) + 'px';
 
+
+                /*
+                 * IMPORTANT:
+                 * The submit listener has already been
+                 * registered above.
+                 */
+
+                setTimeout(
+                    function() {
+
+                        console.log(
+                            'Auto-sending Ask AI question:',
+                            question
+                        );
+
+
+                        chatForm.dispatchEvent(
+                            new Event(
+                                'submit', {
+                                    cancelable: true,
+                                    bubbles: true
+                                }
+                            )
+                        );
+
+                    },
+                    300
+                );
+
             }
-        );
 
 
-        /* =========================================================
-           ASK AI REDIRECT HANDLING
-           
-           Example:
-           
-           /chat?q=Tell%20me%20about%20the%20thesis
-        ========================================================== */
+            /* =========================================================
+               INITIAL SCROLL
+            ========================================================== */
 
-        const urlParams =
-            new URLSearchParams(
-                window.location.search
+            scrollToBottom();
+
+
+            console.log(
+                'SAC Thesis AI Chat initialized successfully.'
             );
 
-
-        const initialQuery =
-            urlParams.get('q');
-
-
-        console.log(
-            'Initial query:',
-            initialQuery
-        );
-
-
-        if (
-            initialQuery &&
-            initialQuery.trim()
-        ) {
-
-            const question =
-                initialQuery.trim();
-
-
-            messageInput.value =
-                question;
-
-
-            messageInput.style.height =
-                'auto';
-
-
-            messageInput.style.height =
-                Math.min(
-                    messageInput.scrollHeight,
-                    150
-                ) + 'px';
-
-
-            /*
-             * IMPORTANT:
-             * The submit listener has already been
-             * registered above.
-             */
-
-            setTimeout(
-                function () {
-
-                    console.log(
-                        'Auto-sending Ask AI question:',
-                        question
-                    );
-
-
-                    chatForm.dispatchEvent(
-                        new Event(
-                            'submit',
-                            {
-                                cancelable: true,
-                                bubbles: true
-                            }
-                        )
-                    );
-
-                },
-                300
-            );
-
-        }
-
-
-        /* =========================================================
-           INITIAL SCROLL
-        ========================================================== */
-
-        scrollToBottom();
-
-
-        console.log(
-            'SAC Thesis AI Chat initialized successfully.'
-        );
-
-    });
-
+        });
     </script>
 
 </body>

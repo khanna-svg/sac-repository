@@ -21,19 +21,11 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <h1 class="text-2xl md:text-3xl font-bold text-[#700000] flex items-center gap-2.5">
-                            <svg class="w-7 h-7 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                            </svg>
                             <span>Saved / Bookmarks</span>
                         </h1>
                         <p class="mt-1 text-xs md:text-sm text-gray-500">
                             Your saved thesis and capstone projects for quick reading and citation.
                         </p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span id="bookmarkCountBadge" class="rounded-xl bg-[#700000]/10 px-3.5 py-1.5 text-xs font-bold text-[#700000] border border-[#700000]/20">
-                            0 Saved Theses
-                        </span>
                     </div>
                 </div>
             </section>

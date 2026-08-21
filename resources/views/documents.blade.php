@@ -24,13 +24,8 @@
                             Thesis Repository
                         </h1>
                         <p class="mt-1 text-xs md:text-sm text-gray-500">
-                            Search, cite, and view approved St. Anthony's College thesis documents.
+                            Search, cite, and view approved St. Anthony's College thesis.
                         </p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span id="docCountBadge" class="rounded-xl bg-[#700000]/10 px-3.5 py-1.5 text-xs font-bold text-[#700000] border border-[#700000]/20">
-                            Loading repository...
-                        </span>
                     </div>
                 </div>
             </section>

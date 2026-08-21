@@ -60,7 +60,7 @@
                     Admin Management
                 </h1>
                 <p class="mt-1 md:mt-2 text-xs md:text-sm text-gray-500">
-                    Upload and publish new thesis documents with automatic full-text indexing.
+                    Upload and publish new thesis documents.
                 </p>
             </section>
 
@@ -70,12 +70,9 @@
             <!-- UPLOAD CARD -->
             <section class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
                 <h2 class="text-base md:text-lg font-bold text-[#700000]">
-                    Upload Thesis Document
+                    Upload Thesis
                 </h2>
-                <p class="mt-1 text-xs md:text-sm text-gray-500">
-                    Enter metadata and select the thesis PDF file.
-                </p>
-
+                
                 <!-- FORM -->
                 <form id="uploadForm" class="mt-6 space-y-4 md:space-y-5">
 
@@ -145,7 +142,7 @@
                         </label>
                         <input id="pdf" name="pdf" type="file" accept=".pdf,application/pdf" required class="block w-full cursor-pointer rounded-xl border border-gray-300 bg-white text-xs md:text-sm text-gray-600 file:mr-4 file:border-0 file:bg-[#700000] file:px-4 file:py-3 file:text-[#FFD700] file:font-bold">
                         <p class="mt-2 text-xs text-gray-400">
-                            Maximum file size: 50 MB (Full text will be automatically extracted and optimized)
+                            Maximum file size: 50 MB
                         </p>
                     </div>
 
@@ -162,7 +159,7 @@
 
                     <!-- BUTTON -->
                     <button id="uploadButton" type="submit" class="w-full rounded-xl bg-[#700000] px-4 py-3 text-xs md:text-sm font-bold text-[#FFD700] shadow-md transition hover:bg-[#800000] disabled:cursor-not-allowed disabled:opacity-60">
-                        Submit & Upload Thesis
+                        Upload & Publish Thesis
                     </button>
 
                 </form>
@@ -185,7 +182,7 @@
             
             <!-- Success Message -->
             <p id="successModalMessage" class="mt-3 text-sm text-gray-500 leading-relaxed">
-                Thesis created successfully.
+                Thesis published successfully.
             </p>
             
             <!-- OK Button -->

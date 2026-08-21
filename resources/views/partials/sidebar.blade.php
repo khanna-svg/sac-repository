@@ -32,11 +32,11 @@
                 class="h-[60px] w-[60px] object-contain">
         </div>
         <div class="flex flex-col">
-            <span class="font-bold text-white text-sm tracking-wide">
+            <span class="font-bold text-[#FFC107] text-sm tracking-wide">
                 St. Anthony's College
             </span>
-            <span class="text-[10px] text-[#FFD700] font-medium tracking-wider uppercase">
-                Thesis System
+            <span class="text-[10px] text-white font-medium tracking-wider uppercase">
+                Spirituality, Academic Excellence and Community Service
             </span>
         </div>
     </div>
@@ -137,7 +137,7 @@
         </div>
         <h3 class="text-xl font-bold text-gray-900">Sign Out</h3>
         <p class="mt-2 text-xs md:text-sm text-gray-500 leading-relaxed">
-            Are you sure you want to sign out of the SAC Thesis System?
+            Are you sure you want to sign out?
         </p>
         <div class="mt-6 flex items-center justify-center gap-3">
             <button
