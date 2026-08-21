@@ -83,7 +83,7 @@
 
             <form
                 id="chatForm"
-                class="flex items-end gap-2 md:gap-3 w-full">
+                class="flex items-center gap-2 md:gap-3 w-full">
 
                 <div class="flex-1">
 
@@ -92,20 +92,20 @@
                         rows="1"
                         required
                         placeholder="Ask a question..."
-                        class="w-full resize-none bg-slate-50 border border-gray-300 rounded-xl px-3.5 md:px-4 py-2.5 md:py-3 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] leading-normal"></textarea>
+                        class="w-full resize-none bg-slate-50 border border-gray-300 rounded-2xl px-4 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] leading-normal block shadow-sm"></textarea>
 
                 </div>
 
                 <button
                     type="submit"
                     id="sendBtn"
-                    class="h-[42px] md:h-[46px] bg-[#700000] hover:bg-[#800000] disabled:bg-gray-200 disabled:text-gray-400 text-[#FFD700] font-bold px-4 md:px-6 rounded-xl text-xs md:text-sm transition flex items-center justify-center gap-2 shrink-0 shadow-sm">
+                    class="h-[46px] md:h-[48px] bg-[#700000] hover:bg-[#800000] disabled:bg-gray-200 disabled:text-gray-400 text-[#FFD700] font-bold px-5 md:px-6 rounded-2xl text-xs md:text-sm transition flex items-center justify-center gap-2 shrink-0 shadow-sm">
 
                     <span id="sendBtnText">
                         Send
                     </span>
 
-                    <span id="sendBtnIcon">
+                    <span id="sendBtnIcon" class="flex items-center justify-center">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                         </svg>
@@ -508,8 +508,10 @@
 
                 wrapper.innerHTML = `
 
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center font-bold shadow-md">
-                    🤖
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                    </svg>
                 </div>
 
                 <div>
@@ -576,8 +578,10 @@
 
                 wrapper.innerHTML = `
 
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-red-600 text-white flex-shrink-0 flex items-center justify-center font-bold shadow-md">
-                    ⚠️
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-red-600 text-white flex-shrink-0 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
                 </div>
 
                 <div class="max-w-xl md:max-w-3xl">
@@ -654,8 +658,12 @@
                     sendBtnText.textContent =
                         'Thinking...';
 
-                    sendBtnIcon.textContent =
-                        '⏳';
+                    sendBtnIcon.innerHTML = `
+                        <svg class="w-4 h-4 animate-spin text-[#FFD700]" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    `;
 
 
                     addLoadingMessage();
@@ -768,8 +776,11 @@
                         sendBtnText.textContent =
                             'Send';
 
-                        sendBtnIcon.textContent =
-                            '➤';
+                        sendBtnIcon.innerHTML = `
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                            </svg>
+                        `;
 
                         messageInput.focus();
 

@@ -188,67 +188,61 @@ class GeminiService
     ): string {
         $prompt =
             "You are an expert AI Thesis Assistant for the SAC Thesis System.\n\n" .
-
             "Answer the user's question using ONLY the thesis context provided below.\n" .
-
             "Do not invent information.\n" .
-
             "If the provided context does not contain enough information to answer " .
             "the question, clearly say that the answer could not be found in " .
             "the uploaded thesis documents.\n\n" .
-
             "--- THESIS CONTEXT ---\n" .
             $contextText .
             "\n\n" .
-
             "--- USER QUESTION ---\n" .
             $userQuestion;
 
-        $response = Http::timeout(120)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-                'x-goog-api-key' => $this->apiKey,
-            ])
-            ->post(
-                "{$this->baseUrl}/models/{$this->generationModel}:generateContent",
-                [
-                    'contents' => [
-                        [
-                            'role' => 'user',
-                            'parts' => [
-                                [
-                                    'text' => $prompt,
+        $modelsToTry = [$this->generationModel, 'gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+
+        foreach (array_unique($modelsToTry) as $modelName) {
+            for ($attempt = 1; $attempt <= 2; $attempt++) {
+                try {
+                    $response = Http::timeout(60)
+                        ->withHeaders([
+                            'Content-Type' => 'application/json',
+                            'x-goog-api-key' => $this->apiKey,
+                        ])
+                        ->post(
+                            "{$this->baseUrl}/models/{$modelName}:generateContent",
+                            [
+                                'contents' => [
+                                    [
+                                        'role' => 'user',
+                                        'parts' => [
+                                            ['text' => $prompt],
+                                        ],
+                                    ],
                                 ],
-                            ],
-                        ],
-                    ],
-                ]
-            );
+                            ]
+                        );
 
-        if (!$response->successful()) {
-            Log::error('Gemini answer failed', [
-                'status' => $response->status(),
-                'body' => $response->body(),
-            ]);
+                    if ($response->successful()) {
+                        $answer = $response->json('candidates.0.content.parts.0.text');
+                        if ($answer) {
+                            return $answer;
+                        }
+                    }
 
-            throw new \Exception(
-                'Gemini answer error: ' .
-                $response->status() .
-                ' - ' .
-                $response->body()
-            );
+                    if ($response->status() === 503 || $response->status() === 429) {
+                        sleep(1);
+                        continue;
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("Gemini model {$modelName} attempt {$attempt} failed: " . $e->getMessage());
+                    sleep(1);
+                }
+            }
         }
 
-        $answer = $response->json(
-            'candidates.0.content.parts.0.text'
+        throw new \Exception(
+            'Google AI is currently experiencing high demand. Please try asking again in a moment.'
         );
-
-        if (!$answer) {
-            throw new \Exception(
-                'Gemini returned an empty answer.'
-            );
-        }
-
-        return $answer;
     }
 }
