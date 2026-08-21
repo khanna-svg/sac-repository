@@ -13,7 +13,7 @@ class GeminiService
 
     protected string $embeddingModel = 'gemini-embedding-001';
 
-    protected string $generationModel = 'gemini-3.6-flash';
+    protected string $generationModel = 'gemini-3.5-flash';
 
     public function __construct()
     {
@@ -29,7 +29,7 @@ class GeminiService
      */
     public function generateEmbedding(string $text): array
     {
-        $response = Http::timeout(60)
+        $response = Http::timeout(10)
             ->withHeaders([
                 'Content-Type' => 'application/json',
                 'x-goog-api-key' => $this->apiKey,
@@ -199,45 +199,37 @@ class GeminiService
             "--- USER QUESTION ---\n" .
             $userQuestion;
 
-        $modelsToTry = [$this->generationModel, 'gemini-3.6-flash', 'gemini-2.5-flash', 'gemini-flash-latest'];
+        $modelsToTry = [$this->generationModel, 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
 
         foreach (array_unique($modelsToTry) as $modelName) {
-            for ($attempt = 1; $attempt <= 2; $attempt++) {
-                try {
-                    $response = Http::timeout(60)
-                        ->withHeaders([
-                            'Content-Type' => 'application/json',
-                            'x-goog-api-key' => $this->apiKey,
-                        ])
-                        ->post(
-                            "{$this->baseUrl}/models/{$modelName}:generateContent",
-                            [
-                                'contents' => [
-                                    [
-                                        'role' => 'user',
-                                        'parts' => [
-                                            ['text' => $prompt],
-                                        ],
+            try {
+                $response = Http::timeout(8)
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'x-goog-api-key' => $this->apiKey,
+                    ])
+                    ->post(
+                        "{$this->baseUrl}/models/{$modelName}:generateContent",
+                        [
+                            'contents' => [
+                                [
+                                    'role' => 'user',
+                                    'parts' => [
+                                        ['text' => $prompt],
                                     ],
                                 ],
-                            ]
-                        );
+                            ],
+                        ]
+                    );
 
-                    if ($response->successful()) {
-                        $answer = $response->json('candidates.0.content.parts.0.text');
-                        if ($answer) {
-                            return $answer;
-                        }
+                if ($response->successful()) {
+                    $answer = $response->json('candidates.0.content.parts.0.text');
+                    if ($answer) {
+                        return $answer;
                     }
-
-                    if ($response->status() === 503 || $response->status() === 429) {
-                        sleep(1);
-                        continue;
-                    }
-                } catch (\Throwable $e) {
-                    Log::warning("Gemini model {$modelName} attempt {$attempt} failed: " . $e->getMessage());
-                    sleep(1);
                 }
+            } catch (\Throwable $e) {
+                Log::warning("Gemini model {$modelName} failed: " . $e->getMessage());
             }
         }
 

@@ -75,7 +75,7 @@ class ChatController extends Controller
                     dc.embedding OPERATOR(extensions.<=>)
                     ?::extensions.vector ASC
 
-                LIMIT 12
+                LIMIT 5
             ", [
                 $embeddingVector,
                 $embeddingVector
