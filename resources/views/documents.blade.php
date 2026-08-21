@@ -58,9 +58,6 @@
                                 <span>Semantic AI</span>
                             </button>
                         </div>
-                        <span id="semanticExplainer" class="text-[11px] text-gray-400 hidden sm:inline">
-                            (Searches concepts & meanings using AI embeddings)
-                        </span>
                     </div>
 
                     <div class="flex flex-col sm:flex-row gap-3">

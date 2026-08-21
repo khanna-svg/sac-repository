@@ -164,13 +164,25 @@ class ChatController extends Controller
 
 
             // -----------------------------------------------------
-            // 7. Return answer + sources
+            // 7. Return answer + deduplicated unique sources
             // -----------------------------------------------------
+
+            $uniqueSources = [];
+            foreach ($chunks as $chunk) {
+                $docId = $chunk->document_id;
+                if (!isset($uniqueSources[$docId])) {
+                    $uniqueSources[$docId] = $chunk;
+                } else {
+                    if ((float)$chunk->similarity > (float)$uniqueSources[$docId]->similarity) {
+                        $uniqueSources[$docId] = $chunk;
+                    }
+                }
+            }
 
             return response()->json([
                 'error' => false,
                 'answer' => $answer,
-                'sources' => $chunks
+                'sources' => array_values($uniqueSources)
             ]);
 
         } catch (\Throwable $e) {
