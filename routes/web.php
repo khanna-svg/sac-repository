@@ -66,6 +66,14 @@ Route::middleware('sac.auth')->group(function () {
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'indexView'])
         ->name('bookmarks');
 
+    Route::get('/graph', [\App\Http\Controllers\KnowledgeGraphController::class, 'indexView'])
+        ->name('graph');
+
+    Route::get(
+        '/backend/graph/data',
+        [\App\Http\Controllers\KnowledgeGraphController::class, 'data']
+    );
+
     Route::get(
         '/backend/documents/{document}/view',
         [DocumentController::class, 'viewPdf']
@@ -76,6 +84,16 @@ Route::middleware('sac.auth')->group(function () {
         Route::get('/admin/upload', function () {
             return view('admin.upload');
         })->name('admin.upload');
+
+        Route::get(
+            '/admin/analytics',
+            [\App\Http\Controllers\AnalyticsController::class, 'indexView']
+        )->name('admin.analytics');
+
+        Route::get(
+            '/backend/admin/analytics-data',
+            [\App\Http\Controllers\AnalyticsController::class, 'data']
+        );
 
         Route::post(
             '/backend/documents/upload-url',

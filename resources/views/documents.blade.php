@@ -31,25 +31,51 @@
             </section>
 
             <!-- SEARCH BAR -->
+            <!-- SEARCH BAR WITH SEMANTIC TOGGLE -->
             <section class="mb-8">
-                <form id="searchForm" class="flex flex-col sm:flex-row gap-3">
-                    <div class="relative flex-1">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                <form id="searchForm" class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Search Mode:</span>
+                        <div class="inline-flex rounded-xl bg-slate-200/70 p-1 border border-gray-300">
+                            <button
+                                type="button"
+                                id="modeKeywordBtn"
+                                onclick="setSearchMode('keyword')"
+                                class="rounded-lg px-3 py-1 text-xs font-bold bg-white text-[#700000] shadow-sm transition">
+                                🔍 Keyword
+                            </button>
+                            <button
+                                type="button"
+                                id="modeSemanticBtn"
+                                onclick="setSearchMode('semantic')"
+                                class="rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition">
+                                ✨ Semantic AI
+                            </button>
+                        </div>
+                        <span id="semanticExplainer" class="text-[11px] text-gray-400 hidden sm:inline">
+                            (Searches concepts & meanings using AI embeddings)
                         </span>
-                        <input
-                            id="searchInput"
-                            type="search"
-                            placeholder="Search by topic, author, keywords, or department..."
-                            class="w-full rounded-2xl border border-gray-300 bg-white pl-10 pr-4 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-sm transition">
                     </div>
-                    <button
-                        type="submit"
-                        class="rounded-2xl bg-[#700000] px-7 py-3 text-xs md:text-sm font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md shrink-0 flex items-center justify-center gap-2">
-                        <span>Search</span>
-                    </button>
+
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative flex-1">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </span>
+                            <input
+                                id="searchInput"
+                                type="search"
+                                placeholder="Search by topic, author, keywords, or department..."
+                                class="w-full rounded-2xl border border-gray-300 bg-white pl-10 pr-4 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-sm transition">
+                        </div>
+                        <button
+                            type="submit"
+                            class="rounded-2xl bg-[#700000] px-7 py-3 text-xs md:text-sm font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md shrink-0 flex items-center justify-center gap-2">
+                            <span>Search</span>
+                        </button>
+                    </div>
                 </form>
             </section>
 
@@ -127,11 +153,31 @@
         let currentCitationDoc = null;
         let savedBookmarkIds = new Set();
         let toastTimeout = null;
+        let currentSearchMode = 'keyword';
 
         const documentsList = document.getElementById('documentsList');
         const searchForm = document.getElementById('searchForm');
         const searchInput = document.getElementById('searchInput');
         const docCountBadge = document.getElementById('docCountBadge');
+
+        function setSearchMode(mode) {
+            currentSearchMode = mode;
+            const kwBtn = document.getElementById('modeKeywordBtn');
+            const semBtn = document.getElementById('modeSemanticBtn');
+            const input = document.getElementById('searchInput');
+            if (mode === 'semantic') {
+                semBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold bg-[#700000] text-[#FFD700] shadow-sm transition';
+                kwBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition';
+                input.placeholder = 'Ask or describe concepts (e.g., "how to reduce maritime accidents" or "hospital patient care")...';
+            } else {
+                kwBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold bg-white text-[#700000] shadow-sm transition';
+                semBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition';
+                input.placeholder = 'Search by topic, author, keywords, or department...';
+            }
+            if (input.value.trim()) {
+                fetchDocuments(input.value);
+            }
+        }
 
         function showToast(message, isSaved = true) {
             const toast = document.getElementById('toastNotification');
@@ -183,20 +229,48 @@
             const title = (titleVal || '').toLowerCase();
 
             if (dept === 'nursing' || course === 'bsn' || title.includes('patient') || title.includes('nursing')) {
-                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+                return {
+                    cover: 'NURSING.webp',
+                    name: 'Nursing Department',
+                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                };
             } else if (dept === 'marine' || course === 'bsmare' || title.includes('marine') || title.includes('vessel')) {
-                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
+                return {
+                    cover: 'MARINE.webp',
+                    name: 'Marine Engineering Department',
+                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
+                };
             } else if (dept === 'it' || course === 'bsit' || title.includes('system') || title.includes('app') || title.includes('web')) {
-                return { cover: 'IT.webp', name: 'Information Technology Department', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' };
+                return {
+                    cover: 'IT.webp',
+                    name: 'Information Technology Department',
+                    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
+                };
             } else if (dept === 'hospitality' || course === 'bshm' || title.includes('hotel') || title.includes('hospitality')) {
-                return { cover: 'HM.webp', name: 'Hospitality Management', badgeBg: 'bg-amber-50 text-amber-800 border-amber-200' };
+                return {
+                    cover: 'HM.webp',
+                    name: 'Hospitality Management',
+                    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
+                };
             } else if (dept === 'education' || course === 'bsed' || title.includes('teaching') || title.includes('education')) {
-                return { cover: 'EDUC.webp', name: 'Education Department', badgeBg: 'bg-purple-50 text-purple-700 border-purple-200' };
+                return {
+                    cover: 'EDUC.webp',
+                    name: 'Education Department',
+                    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
+                };
             } else if (dept === 'criminology' || course === 'bsc' || title.includes('crime') || title.includes('criminology')) {
-                return { cover: 'CRIM.webp', name: 'Criminology Department', badgeBg: 'bg-red-50 text-red-700 border-red-200' };
+                return {
+                    cover: 'CRIM.webp',
+                    name: 'Criminology Department',
+                    badgeBg: 'bg-red-50 text-red-700 border-red-200'
+                };
             }
 
-            return { cover: 'IT.webp', name: 'Academic Research', badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20' };
+            return {
+                cover: 'IT.webp',
+                name: 'Academic Research',
+                badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20'
+            };
         }
 
         function renderDocuments(documents) {
@@ -250,6 +324,11 @@
 
                         <div class="flex-1 min-w-0 pr-8">
                             <div class="flex flex-wrap items-center gap-2">
+                            ${doc.similarity_score ? `
+                                <span class="rounded-lg bg-amber-100 text-amber-900 border border-amber-300 px-2.5 py-0.5 text-[10px] font-extrabold flex items-center gap-1">
+                                    ✨ ${doc.similarity_score}% Match
+                                </span>
+                            ` : ''}
                                 <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
                                     ${details.name}
                                 </span>
@@ -348,7 +427,9 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({ document_id: docId })
+                    body: JSON.stringify({
+                        document_id: docId
+                    })
                 });
                 const data = await res.json();
                 if (data.bookmarked) {
@@ -381,13 +462,16 @@
             documentsList.innerHTML = `<p class="text-center text-sm text-gray-500 py-10">Searching documents...</p>`;
             try {
                 const url = new URL('/backend/documents', window.location.origin);
-                if (search && search.trim()) url.searchParams.set('search', search.trim());
-
+                if (search && search.trim()) {
+                    url.searchParams.set('search', search.trim());
+                    url.searchParams.set('search_type', currentSearchMode);
+                }
                 const res = await fetch(url.toString(), {
-                    headers: { 'Accept': 'application/json' }
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 });
                 if (!res.ok) throw new Error('Failed to load');
-
                 allDocuments = await res.json();
                 renderDocuments(allDocuments);
             } catch (err) {

@@ -113,53 +113,62 @@ class DocumentController extends Controller
         }
     }
 
-
-    /**
-     * Fetch document list with optional keyword search.
-     */
     public function index(Request $request)
     {
+        $search = trim((string) $request->input('search', ''));
+        $searchType = $request->input('search_type', 'keyword');
+
+        if ($search !== '' && $searchType === 'semantic') {
+            try {
+                $geminiService = app(\App\Services\GeminiService::class);
+                $queryEmbedding = $geminiService->generateEmbedding($search);
+                $embeddingString = '[' . implode(',', $queryEmbedding) . ']';
+
+                // Query pgvector for the most similar chunks and group by document
+                $similarChunks = DB::table('document_chunks')
+                    ->select('document_id', DB::raw("MIN(embedding <=> '{$embeddingString}'::vector) as distance"))
+                    ->whereNotNull('embedding')
+                    ->groupBy('document_id')
+                    ->orderBy('distance', 'asc')
+                    ->limit(20)
+                    ->get();
+
+                if ($similarChunks->isNotEmpty()) {
+                    $docIds = $similarChunks->pluck('document_id')->toArray();
+                    $distanceMap = $similarChunks->pluck('distance', 'document_id')->toArray();
+
+                    $documents = Document::whereIn('id', $docIds)->get();
+
+                    // Calculate a human-readable similarity percentage and sort
+                    $sortedDocs = $documents->map(function ($doc) use ($distanceMap) {
+                        $distance = $distanceMap[$doc->id] ?? 1.0;
+                        $similarity = max(10, min(99, round((1 - ($distance / 2)) * 100)));
+                        $doc->similarity_score = $similarity;
+                        return $doc;
+                    })->sortByDesc('similarity_score')->values();
+
+                    return response()->json($sortedDocs);
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Semantic search fallback to keyword: ' . $e->getMessage());
+            }
+        }
         $query = Document::query();
 
-        if ($search = $request->input('search')) {
-
-            $searchTerm =
-                '%' .
-                strtolower(
-                    trim($search)
-                ) .
-                '%';
-
+        if ($search !== '') {
+            $searchTerm = '%' . strtolower($search) . '%';
             $query->where(function ($q) use ($searchTerm) {
-
-                $q->whereRaw(
-                    'LOWER(title) LIKE ?',
-                    [$searchTerm]
-                )
-
-                    ->orWhereRaw(
-                        'LOWER(author) LIKE ?',
-                        [$searchTerm]
-                    )
-
-                    ->orWhereRaw(
-                        'LOWER(abstract) LIKE ?',
-                        [$searchTerm]
-                    );
+                $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(department) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(course_code) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
             });
         }
 
-        return response()->json(
-            $query
-                ->latest()
-                ->get()
-        );
+        return response()->json($query->latest()->get());
     }
 
-
-    /**
-     * Display thesis document.
-     */
     public function show($id)
     {
         try {
