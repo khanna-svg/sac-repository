@@ -35,7 +35,7 @@
             <span class="font-bold text-[#FFC107] text-sm tracking-wide">
                 St. Anthony's College
             </span>
-            <span class="text-[10px] text-white font-medium tracking-wider uppercase">
+            <span class="text-[10px] text-white font-medium italic tracking-wider uppercase">
                 IN SAC, WE CARE
             </span>
         </div>
