@@ -11,16 +11,24 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <style>
+        body {
+            background: #850000;
+            background: linear-gradient(327deg, rgba(133, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 42%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+    </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
+<body class="text-slate-800 min-h-screen font-sans">
 
     @include('partials.sidebar')
 
     <div class="md:ml-64 flex h-screen flex-col">
 
         <!-- HEADER -->
-        <header class="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 md:px-6 py-4 shadow-sm">
+        <header class="flex items-center justify-between gap-3 border-b border-gray-200 bg-white/95 backdrop-blur-md px-4 md:px-6 py-4 shadow-sm">
 
             <div>
                 <h1 class="text-base md:text-lg font-bold text-[#700000]">
@@ -42,7 +50,7 @@
         <!-- CHAT AREA -->
         <div
             id="chatMessages"
-            class="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6 bg-slate-50"
+            class="flex-1 overflow-y-auto px-4 md:px-6 py-6 space-y-6 bg-transparent"
         >
 
             <!-- INITIAL AI MESSAGE -->

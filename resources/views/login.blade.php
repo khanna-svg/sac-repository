@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SAC Thesis System - Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #850000;
+            background: linear-gradient(327deg, rgba(133, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 42%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+    </style>
 </head>
 <body class="min-h-screen text-slate-800 flex items-center justify-center p-4 sm:p-6 font-sans relative overflow-x-hidden">
 

@@ -26,6 +26,13 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
+        body {
+            background: #850000;
+            background: linear-gradient(327deg, rgba(133, 0, 0, 1) 0%, rgba(255, 255, 255, 1) 42%);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
         #progressContainer {
             display: none;
         }
@@ -47,7 +54,7 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-slate-50 text-slate-800">
+<body class="min-h-screen text-slate-800">
 
     @include('partials.sidebar')
 
