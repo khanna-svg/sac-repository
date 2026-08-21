@@ -40,7 +40,9 @@
                 <form id="searchForm" class="flex flex-col sm:flex-row gap-3">
                     <div class="relative flex-1">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
-                            🔍
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
                         </span>
                         <input
                             id="searchInput"
@@ -51,7 +53,7 @@
                     <button
                         type="submit"
                         class="rounded-2xl bg-[#700000] px-7 py-3 text-xs md:text-sm font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md shrink-0 flex items-center justify-center gap-2">
-                        Search
+                        <span>Search</span>
                     </button>
                 </form>
             </section>
@@ -69,7 +71,11 @@
     <!-- FLOATING TOAST NOTIFICATION POP-UP -->
     <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
         <div class="flex items-center gap-3 rounded-2xl bg-gray-900 text-white px-5 py-3.5 shadow-2xl backdrop-blur-md border border-white/10">
-            <span id="toastIcon" class="text-lg">🔖</span>
+            <span id="toastIconContainer" class="shrink-0">
+                <svg id="toastBookmarkIcon" class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 24 24">
+                    <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+            </span>
             <p id="toastMessage" class="text-xs md:text-sm font-semibold tracking-wide">Added to bookmark</p>
         </div>
     </div>
@@ -79,11 +85,15 @@
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl transition-all">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
                 <div class="flex items-center gap-2.5">
-                    <span class="text-xl">📝</span>
+                    <svg class="w-5 h-5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                    </svg>
                     <h3 class="text-base md:text-lg font-bold text-gray-900">IEEE Citation</h3>
                 </div>
                 <button onclick="closeCitationModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition">
-                    ✕
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
 
@@ -104,7 +114,9 @@
                     Close
                 </button>
                 <button id="copyCitationBtn" onclick="copyCitationToClipboard()" class="rounded-xl bg-[#700000] px-5 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md flex items-center gap-1.5">
-                    <span id="copyBtnIcon">📋</span>
+                    <svg id="copyBtnIcon" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
                     <span id="copyBtnText">Copy Citation</span>
                 </button>
             </div>
@@ -126,15 +138,27 @@
         const searchInput = document.getElementById('searchInput');
         const docCountBadge = document.getElementById('docCountBadge');
 
-        function showToast(message, icon = '🔖') {
+        function showToast(message, isSaved = true) {
             const toast = document.getElementById('toastNotification');
             const toastMsg = document.getElementById('toastMessage');
-            const toastIco = document.getElementById('toastIcon');
+            const toastIconContainer = document.getElementById('toastIconContainer');
 
             if (!toast || !toastMsg) return;
 
             toastMsg.textContent = message;
-            if (toastIco) toastIco.textContent = icon;
+            if (isSaved) {
+                toastIconContainer.innerHTML = `
+                    <svg class="w-5 h-5 text-amber-400 fill-current" viewBox="0 0 24 24">
+                        <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                    </svg>
+                `;
+            } else {
+                toastIconContainer.innerHTML = `
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                `;
+            }
 
             toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
             toast.classList.add('translate-y-0', 'opacity-100');
@@ -164,56 +188,32 @@
             const title = (titleVal || '').toLowerCase();
 
             if (dept === 'nursing' || course === 'bsn' || title.includes('patient') || title.includes('nursing')) {
-                return {
-                    cover: 'NURSING.webp',
-                    name: 'Nursing Department',
-                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                };
+                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
             } else if (dept === 'marine' || course === 'bsmare' || title.includes('marine') || title.includes('vessel')) {
-                return {
-                    cover: 'MARINE.webp',
-                    name: 'Marine Engineering Department',
-                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
-                };
+                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
             } else if (dept === 'it' || course === 'bsit' || title.includes('system') || title.includes('app') || title.includes('web')) {
-                return {
-                    cover: 'IT.webp',
-                    name: 'Information Technology Department',
-                    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
-                };
+                return { cover: 'IT.webp', name: 'Information Technology Department', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' };
             } else if (dept === 'hospitality' || course === 'bshm' || title.includes('hotel') || title.includes('hospitality')) {
-                return {
-                    cover: 'HM.webp',
-                    name: 'Hospitality Management',
-                    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
-                };
+                return { cover: 'HM.webp', name: 'Hospitality Management', badgeBg: 'bg-amber-50 text-amber-800 border-amber-200' };
             } else if (dept === 'education' || course === 'bsed' || title.includes('teaching') || title.includes('education')) {
-                return {
-                    cover: 'EDUC.webp',
-                    name: 'Education Department',
-                    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
-                };
+                return { cover: 'EDUC.webp', name: 'Education Department', badgeBg: 'bg-purple-50 text-purple-700 border-purple-200' };
             } else if (dept === 'criminology' || course === 'bsc' || title.includes('crime') || title.includes('criminology')) {
-                return {
-                    cover: 'CRIM.webp',
-                    name: 'Criminology Department',
-                    badgeBg: 'bg-red-50 text-red-700 border-red-200'
-                };
+                return { cover: 'CRIM.webp', name: 'Criminology Department', badgeBg: 'bg-red-50 text-red-700 border-red-200' };
             }
 
-            return {
-                cover: 'IT.webp',
-                name: 'Academic Research',
-                badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20'
-            };
+            return { cover: 'IT.webp', name: 'Academic Research', badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20' };
         }
 
         function renderDocuments(documents) {
             if (!Array.isArray(documents) || documents.length === 0) {
                 documentsList.innerHTML = `
                     <div class="rounded-3xl border border-dashed border-gray-300 bg-white p-12 text-center">
-                        <span class="text-4xl">📂</span>
-                        <h3 class="mt-3 text-base font-bold text-gray-800">No theses found</h3>
+                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-50 border border-gray-200 text-gray-400 mb-3">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.231 13.481L15 18m-2-5a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-base font-bold text-gray-800">No theses found</h3>
                         <p class="mt-1 text-xs text-gray-500">Try searching for different keywords or authors.</p>
                     </div>
                 `;
@@ -258,8 +258,11 @@
                                 <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
                                     ${details.name}
                                 </span>
-                                <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-[10px] font-bold">
-                                    ✓ Full Text Available
+                                <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-[10px] font-bold flex items-center gap-1">
+                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    Full Text Available
                                 </span>
                             </div>
 
@@ -291,14 +294,20 @@
                                         onclick="openCitationModal(${idx})"
                                         class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5"
                                     >
-                                        <span>📝</span> Cite (IEEE)
+                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                                        </svg>
+                                        <span>Cite (IEEE)</span>
                                     </button>
 
                                     <a
                                         href="/chat?q=${encodeURIComponent('Tell me about the thesis: ' + doc.title)}"
                                         class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5"
                                     >
-                                        <span>🤖</span> Ask AI
+                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                                        </svg>
+                                        <span>Ask AI</span>
                                     </a>
                                 </div>
                             </div>
@@ -344,9 +353,7 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({
-                        document_id: docId
-                    })
+                    body: JSON.stringify({ document_id: docId })
                 });
                 const data = await res.json();
                 if (data.bookmarked) {
@@ -358,7 +365,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                         </svg>
                     `;
-                    showToast('Added to bookmark', '🔖');
+                    showToast('Added to bookmark', true);
                 } else {
                     savedBookmarkIds.delete(docId);
                     btnElement.title = 'Add to bookmark';
@@ -368,7 +375,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                         </svg>
                     `;
-                    showToast('Removed from bookmark', '🗑️');
+                    showToast('Removed from bookmark', false);
                 }
             } catch (err) {
                 console.error(err);
@@ -382,9 +389,7 @@
                 if (search && search.trim()) url.searchParams.set('search', search.trim());
 
                 const res = await fetch(url.toString(), {
-                    headers: {
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Accept': 'application/json' }
                 });
                 if (!res.ok) throw new Error('Failed to load');
 
@@ -434,14 +439,18 @@
                 const btnText = document.getElementById('copyBtnText');
                 const btnIcon = document.getElementById('copyBtnIcon');
                 btnText.textContent = 'Copied!';
-                btnIcon.textContent = '✓';
+                btnIcon.innerHTML = `
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                `;
                 setTimeout(resetCopyButton, 2000);
             });
         }
 
         function resetCopyButton() {
             document.getElementById('copyBtnText').textContent = 'Copy Citation';
-            document.getElementById('copyBtnIcon').textContent = '📋';
+            document.getElementById('copyBtnIcon').innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            `;
         }
 
         async function init() {

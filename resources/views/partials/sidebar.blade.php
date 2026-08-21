@@ -3,27 +3,11 @@
     id="sidebarToggleBtn"
     type="button"
     aria-label="Toggle Sidebar"
-    class="fixed top-3 left-3 z-50 rounded-lg bg-[#500000] p-2.5 text-[#FFD700] border border-[#800000] shadow-lg hover:bg-[#600000] focus:outline-none md:hidden">
-
-    <!-- Hamburger Icon -->
-    <svg
-        id="hamburgerIcon"
-        class="h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2">
+    class="fixed top-3 left-3 z-50 rounded-xl bg-[#500000] p-2.5 text-[#FFD700] border border-[#800000] shadow-lg hover:bg-[#600000] focus:outline-none md:hidden transition">
+    <svg id="hamburgerIcon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
     </svg>
-
-    <!-- Close Icon -->
-    <svg
-        id="closeIcon"
-        class="hidden h-6 w-6"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2">
+    <svg id="closeIcon" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
     </svg>
 </button>
@@ -60,33 +44,42 @@
     <!-- Navigation Links -->
     <nav class="flex-1 space-y-1.5 p-3">
         @if(session('sac_user_role') == 'admin')
-        <!-- Visible ONLY to Admins -->
+        <!-- Admin: Upload Thesis -->
         <a
             href="/admin/upload"
-            class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
+            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
                 {{ request()->is('admin/upload')
                     ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                     : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
-            Upload Thesis (Admin)
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+            </svg>
+            <span>Upload Thesis</span>
         </a>
         @else
         <!-- Documents & Search -->
         <a
             href="/documents"
-            class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
+            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
                 {{ request()->is('documents')
                     ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                     : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
-            Documents & Search
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <span>Documents & Search</span>
         </a>
 
         <!-- Saved / Bookmarks -->
         <a
             href="/bookmarks"
-            class="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold transition
+            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
                 {{ request()->is('bookmarks')
                     ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                     : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+            </svg>
             <span>Saved / Bookmarks</span>
         </a>
         @endif
@@ -94,64 +87,58 @@
         <!-- AI Assistant -->
         <a
             href="/chat"
-            class="flex items-center rounded-lg px-4 py-3 text-sm font-semibold transition
+            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
             {{ request()->is('chat')
                 ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                 : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
-            AI Assistant
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+            </svg>
+            <span>AI Assistant</span>
         </a>
     </nav>
 
     <!-- Sidebar Footer / Account Info -->
     <div class="border-t border-[#850000] bg-[#5b0000] p-3">
-        <div class="mb-3 rounded-lg bg-[#4a0000] border border-[#7a0000] px-3 py-2.5">
+        <div class="mb-3 rounded-xl bg-[#4a0000] border border-[#7a0000] px-3 py-2.5">
             <p class="text-[10px] font-semibold text-[#FFD700] uppercase tracking-wider">
                 Signed in as
             </p>
-            <p class="mt-0.5 truncate text-sm font-medium text-white">
+            <p class="mt-0.5 truncate text-xs font-medium text-white">
                 {{ session('sac_user_email') }}
             </p>
         </div>
 
-        <!-- Logout Trigger Button (Opens Confirmation Modal) -->
+        <!-- Logout Trigger Button -->
         <button
             type="button"
             onclick="openLogoutModal()"
-            class="w-full rounded-lg border border-[#D4AF37]/40 bg-[#700000] px-4 py-2.5 text-left text-sm font-semibold text-[#FFD700] transition hover:bg-[#D4AF37] hover:text-[#700000] flex items-center justify-between">
+            class="w-full rounded-xl border border-[#D4AF37]/40 bg-[#700000] px-4 py-2.5 text-left text-xs md:text-sm font-semibold text-[#FFD700] transition hover:bg-[#D4AF37] hover:text-[#700000] flex items-center justify-between">
             <span>Sign Out</span>
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
         </button>
 
-        <!-- Hidden Secure Logout Form -->
-        <form
-            method="POST"
-            action="/logout"
-            id="logoutForm"
-            class="hidden">
+        <form method="POST" action="/logout" id="logoutForm" class="hidden">
             @csrf
         </form>
     </div>
 
 </aside>
 
-<!-- =========================================================
-     LOGOUT CONFIRMATION MODAL
-========================================================= -->
+<!-- Logout Confirmation Modal -->
 <div id="logoutModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
     <div class="w-full max-w-sm rounded-3xl bg-white p-6 md:p-8 text-center shadow-2xl transition-all">
-        <!-- Icon -->
         <div class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-red-50 ring-8 ring-red-100/70">
             <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
         </div>
-
-        <!-- Title & Subtitle -->
         <h3 class="text-xl font-bold text-gray-900">Sign Out</h3>
         <p class="mt-2 text-xs md:text-sm text-gray-500 leading-relaxed">
             Are you sure you want to sign out of the SAC Thesis System?
         </p>
-
-        <!-- Actions -->
         <div class="mt-6 flex items-center justify-center gap-3">
             <button
                 type="button"
@@ -169,9 +156,6 @@
     </div>
 </div>
 
-<!-- =========================================================
-     SIDEBAR & LOGOUT JAVASCRIPT
-========================================================= -->
 <script>
     function openLogoutModal() {
         const modal = document.getElementById('logoutModal');
@@ -219,11 +203,8 @@
         }
 
         toggleBtn.addEventListener('click', function() {
-            if (isOpen) {
-                closeSidebar();
-            } else {
-                openSidebar();
-            }
+            if (isOpen) closeSidebar();
+            else openSidebar();
         });
 
         backdrop.addEventListener('click', closeSidebar);
