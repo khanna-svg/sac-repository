@@ -13,6 +13,9 @@ class RequireSacLogin
         $email = (string) $request->session()->get('sac_user_email');
 
         if (!str_ends_with(strtolower($email), '@sac.edu.ph')) {
+            if ($request->expectsJson() || $request->is('backend/*')) {
+                return response()->json(['error' => 'Unauthenticated'], 401);
+            }
             return redirect('/login');
         }
 

@@ -67,26 +67,6 @@ Route::middleware('sac.auth')->group(function () {
         ->name('bookmarks');
 
     Route::get(
-        '/backend/documents',
-        [DocumentController::class, 'index']
-    );
-
-    Route::get(
-        '/backend/bookmarks',
-        [\App\Http\Controllers\BookmarkController::class, 'index']
-    );
-
-    Route::get(
-        '/backend/bookmarks/ids',
-        [\App\Http\Controllers\BookmarkController::class, 'getIds']
-    );
-
-    Route::post(
-        '/backend/bookmarks/toggle',
-        [\App\Http\Controllers\BookmarkController::class, 'toggle']
-    );
-
-    Route::get(
         '/backend/documents/{document}/view',
         [DocumentController::class, 'viewPdf']
     );

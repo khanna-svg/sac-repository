@@ -477,13 +477,26 @@
                 }
                 const res = await fetch(url.toString(), {
                     headers: {
-                        'Accept': 'application/json'
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
-                if (!res.ok) throw new Error('Failed to load');
+
+                if (res.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error('Document fetch failed:', res.status, text);
+                    throw new Error('HTTP ' + res.status);
+                }
+
                 allDocuments = await res.json();
                 renderDocuments(allDocuments);
             } catch (err) {
+                console.error('fetchDocuments error:', err);
                 documentsList.innerHTML = `
                     <div class="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
                         Could not load documents from server.

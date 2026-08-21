@@ -50,4 +50,9 @@ Route::middleware([
         DocumentController::class,
         'store',
     ]);
+
+    Route::get('/admin/analytics-data', [
+        \App\Http\Controllers\AnalyticsController::class,
+        'data',
+    ]);
 });
