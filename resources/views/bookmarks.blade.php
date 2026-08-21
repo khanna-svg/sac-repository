@@ -27,6 +27,11 @@
                             Your saved thesis and capstone projects for quick reading and citation.
                         </p>
                     </div>
+                    <div class="flex items-center gap-2">
+                        <span id="bookmarkCountBadge" class="rounded-xl bg-[#700000]/10 px-3.5 py-1.5 text-xs font-bold text-[#700000] border border-[#700000]/20">
+                            Loading saved theses...
+                        </span>
+                    </div>
                 </div>
             </section>
 
@@ -199,11 +204,11 @@
                         </a>
                     </div>
                 `;
-                bookmarkCountBadge.textContent = '0 Saved Theses';
+                if (bookmarkCountBadge) bookmarkCountBadge.textContent = '0 Saved Theses';
                 return;
             }
 
-            bookmarkCountBadge.textContent = `${documents.length} Saved Theses`;
+            if (bookmarkCountBadge) bookmarkCountBadge.textContent = `${documents.length} Saved Theses`;
 
             documentsList.innerHTML = documents.map((doc, idx) => {
                 const details = getDepartmentDetails(doc.department, doc.course_code, doc.title);
@@ -302,12 +307,22 @@
         async function fetchBookmarks() {
             try {
                 const res = await fetch('/backend/bookmarks', {
-                    headers: { 'Accept': 'application/json' }
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
                 });
+
+                if (res.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
                 if (!res.ok) throw new Error('Failed to load');
                 bookmarkedDocuments = await res.json();
                 renderDocuments(bookmarkedDocuments);
             } catch (err) {
+                console.error('fetchBookmarks error:', err);
                 renderDocuments([]);
             }
         }
