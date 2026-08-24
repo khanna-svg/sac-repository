@@ -7,13 +7,15 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $document->title }} - SAC Thesis Repository</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    {{-- PDF.js Library for Protected Canvas Rendering (No downloads, no raw text selection) --}}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 
-<body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
+<body class="min-h-screen bg-slate-50 text-slate-800 font-sans select-none" oncontextmenu="return false;">
 
     @include('partials.sidebar')
 
-    <!-- Hidden Data Attributes for Safe JavaScript Access -->
+    {{-- Hidden Data Attributes for Safe JavaScript Access --}}
     <div id="citationData"
         data-id="{{ $document->id }}"
         data-title="{{ $document->title }}"
@@ -24,7 +26,7 @@
     <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-16 md:pt-10">
         <div class="mx-auto max-w-4xl">
 
-            <!-- Breadcrumb Navigation -->
+            {{-- Breadcrumb Navigation --}}
             <nav class="mb-6 flex items-center gap-2 text-xs font-semibold text-gray-500">
                 <a href="{{ route('documents') }}" class="hover:text-[#700000] flex items-center gap-1.5 transition">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
@@ -36,10 +38,10 @@
                 <span class="text-gray-400 truncate max-w-xs">{{ $document->title }}</span>
             </nav>
 
-            <!-- Main Document Card -->
+            {{-- Main Document Card --}}
             <article class="relative rounded-3xl border border-gray-200 bg-white p-6 md:p-8 shadow-sm">
 
-                <!-- Top-Right Bookmark Button -->
+                {{-- Top-Right Bookmark Button --}}
                 <button
                     type="button"
                     id="bookmarkDetailBtn"
@@ -51,7 +53,7 @@
                     </svg>
                 </button>
 
-                <!-- Badges & Cover Image File Resolution -->
+                {{-- Department & Degree Badges --}}
                 @php
                 $departmentNames = [
                     'nursing' => 'Nursing Department',
@@ -108,18 +110,12 @@
                     </span>
                     @endif
 
-                    <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-3 py-1 text-xs font-bold flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                        <span>Full Text Online</span>
-                    </span>
                     <span class="rounded-lg bg-slate-100 text-gray-600 border border-gray-200 px-3 py-1 text-xs font-semibold">
                         {{ $document->created_at ? $document->created_at->format('F Y') : 'Recent' }}
                     </span>
                 </div>
 
-                <!-- Book Cover & Title Header Row -->
+                {{-- Book Cover & Title Header Row --}}
                 <div class="flex flex-col sm:flex-row items-start gap-5 my-3">
                     <div class="w-20 sm:w-24 h-28 sm:h-32 shrink-0 rounded-lg overflow-hidden shadow-md border border-gray-200 bg-slate-100">
                         <img
@@ -143,10 +139,10 @@
                     </div>
                 </div>
 
-                <!-- Action Bar -->
+                {{-- Action Bar --}}
                 <div class="my-6 flex flex-wrap items-center justify-between gap-3 bg-slate-50 border border-gray-200 rounded-2xl p-3 md:p-4">
                     <div class="flex flex-wrap items-center gap-2">
-                        <!-- Cite Button -->
+                        {{-- Cite Button --}}
                         <button type="button" onclick="openCitationModal()" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 shadow-sm">
                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
@@ -154,7 +150,7 @@
                             <span>Cite (IEEE)</span>
                         </button>
 
-                        <!-- Ask AI Button -->
+                        {{-- Ask AI Button --}}
                         <a href="/chat?q={{ urlencode('Tell me about the thesis: ' . $document->title) }}" class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 shadow-sm">
                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
@@ -162,35 +158,30 @@
                             <span>Ask AI About This</span>
                         </a>
 
-                        <!-- View PDF Button -->
-                        <a href="/backend/documents/{{ $document->id }}/view" target="_blank" rel="noopener noreferrer" class="rounded-xl bg-white border border-gray-300 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5 shadow-sm">
+                        {{-- Protected View PDF Button (Opens Secure In-App Reader) --}}
+                        <button
+                            type="button"
+                            onclick="openSecurePdfReader('/backend/documents/{{ $document->id }}/view')"
+                            class="rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#850000] transition flex items-center gap-1.5 shadow-sm">
                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                             </svg>
-                            <span>View PDF</span>
-                        </a>
-
-                        <!-- Download PDF Button -->
-                        <a href="/backend/documents/{{ $document->id }}/view?download=1" class="rounded-xl bg-[#700000] px-3.5 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition flex items-center gap-1.5 shadow-sm">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                            </svg>
-                            <span>Download PDF</span>
-                        </a>
+                            <span>View PDF (Protected)</span>
+                        </button>
                     </div>
                 </div>
 
-                <!-- Tabs: Abstract vs Full Text -->
+                {{-- Tabs: Abstract vs Full Text Content --}}
                 <div class="flex border-b border-gray-200 mb-6">
                     <button id="tabAbstractBtn" onclick="switchViewTab('abstract')" class="py-3 px-5 text-sm font-bold border-b-2 border-[#700000] text-[#700000] transition">
-                        Abstract & Details
+                        Abstract
                     </button>
                     <button id="tabFullTextBtn" onclick="switchViewTab('fulltext')" class="py-3 px-5 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition">
                         Full Text Content
                     </button>
                 </div>
 
-                <!-- Abstract Tab Content -->
+                {{-- Abstract Tab Content --}}
                 <div id="tabAbstractContent" class="space-y-6">
                     <div>
                         <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2 text-center">Abstract</h2>
@@ -200,11 +191,12 @@
                     </div>
                 </div>
 
-                <!-- Full Text Tab Content -->
-                <div id="tabFullTextContent" class="hidden space-y-6">
+                {{-- Full Text Tab Content (Protected from Copy-Pasting) --}}
+                <div id="tabFullTextContent" class="hidden space-y-6 select-none" oncontextmenu="return false;">
                     <div class="flex items-center justify-between border-b border-gray-200 pb-3">
-                        <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000]">
-                            Extracted Full Text
+                        <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] flex items-center gap-2">
+                            <span>Full Text Content</span>
+                            <span class="text-[10px] font-normal text-gray-400">(Read-Only Protected)</span>
                         </h2>
                         @if($document->chunks && $document->chunks->count() > 0)
                         <span class="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-gray-600">
@@ -236,14 +228,10 @@
                     </div>
                     @else
                     <div class="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center text-sm text-amber-800">
-                        <p class="font-bold">Full text extraction preview is being generated.</p>
-                        <p class="mt-1 text-xs text-amber-700">You can view or download the complete original document using the button below:</p>
-                        <a href="/backend/documents/{{ $document->id }}/view" target="_blank" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000]">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                            </svg>
-                            <span>Open PDF File</span>
-                        </a>
+                        <p class="font-bold">Full text extraction is processed in the secure reader.</p>
+                        <button onclick="openSecurePdfReader('/backend/documents/{{ $document->id }}/view')" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000]">
+                            <span>Open Protected PDF Reader</span>
+                        </button>
                     </div>
                     @endif
                 </div>
@@ -252,7 +240,94 @@
         </div>
     </main>
 
-    <!-- FLOATING TOAST NOTIFICATION POP-UP -->
+    {{-- =========================================================
+         PROTECTED SECURE PDF READER MODAL (CONTINUOUS SCROLLABLE CANVAS)
+    ========================================================== --}}
+    <div
+        id="securePdfModal"
+        class="fixed inset-0 z-50 hidden bg-slate-950/95 backdrop-blur-md flex-col select-none"
+        oncontextmenu="return false;">
+
+        {{-- Top Reader Header --}}
+        <div class="flex items-center justify-between px-4 md:px-6 py-3 bg-[#500000] text-white border-b border-[#700000] shadow-md shrink-0">
+            <div class="flex items-center gap-3 min-w-0 pr-4">
+                <span class="rounded bg-amber-400/20 text-[#FFD700] border border-[#FFD700]/30 px-2.5 py-0.5 text-[10px] font-extrabold uppercase shrink-0">
+                    Protected Read-Only
+                </span>
+                <h3 class="text-xs md:text-sm font-bold text-white truncate">
+                    {{ $document->title }}
+                </h3>
+            </div>
+
+            {{-- Reader Controls (Total Pages, Zoom, Close) --}}
+            <div class="flex items-center gap-2 shrink-0">
+                {{-- Total Pages Badge --}}
+                <div class="flex items-center bg-black/40 rounded-xl px-3 py-1 border border-white/10 text-xs">
+                    <span id="pageCount" class="text-amber-200 font-mono text-[11px]">Loading...</span>
+                </div>
+
+                {{-- Zoom Controls --}}
+                <div class="hidden sm:flex items-center gap-1 bg-black/40 rounded-xl px-2 py-1 border border-white/10 text-xs">
+                    <button
+                        type="button"
+                        onclick="onZoomOut()"
+                        class="p-1 rounded hover:bg-white/20 text-white"
+                        title="Zoom Out">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                        </svg>
+                    </button>
+                    <span id="zoomPercent" class="px-1 text-[11px] font-mono text-gray-300">100%</span>
+                    <button
+                        type="button"
+                        onclick="onZoomIn()"
+                        class="p-1 rounded hover:bg-white/20 text-white"
+                        title="Zoom In">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                    </button>
+                </div>
+
+                {{-- Close Reader Button --}}
+                <button
+                    type="button"
+                    onclick="closeSecurePdfReader()"
+                    class="rounded-xl p-1.5 bg-white/10 hover:bg-white/20 text-white transition ml-2"
+                    title="Close (Esc)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        {{-- Security Policy Sub-header --}}
+        <div class="bg-black/60 text-amber-200/90 text-[10px] sm:text-xs py-1 px-4 text-center border-b border-white/5 flex items-center justify-center gap-2 shrink-0">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+            <span>St. Anthony's College Protected Document • Copying, printing, and downloading are prohibited by institutional policy.</span>
+        </div>
+
+        {{-- Continuous Vertical Scrollable Canvas Container --}}
+        <div id="pdfScrollContainer" class="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center relative bg-slate-900 scroll-smooth">
+            {{-- Loading Spinner --}}
+            <div id="pdfLoader" class="sticky top-20 flex flex-col items-center justify-center gap-3 bg-slate-950/90 p-6 rounded-2xl border border-white/10 z-20 shadow-2xl">
+                <svg class="w-8 h-8 animate-spin text-[#FFD700]" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-xs font-semibold text-amber-200">Loading...</p>
+            </div>
+
+            {{-- Pages Canvas List --}}
+            <div id="pdfPagesWrapper" class="flex flex-col items-center gap-6 w-full max-w-3xl"></div>
+        </div>
+
+    </div>
+
+    {{-- FLOATING TOAST NOTIFICATION POP-UP --}}
     <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
         <div class="flex items-center gap-3 rounded-2xl bg-white text-gray-900 px-5 py-3.5 shadow-xl border border-gray-200">
             <span id="toastIconContainer" class="shrink-0">
@@ -264,7 +339,7 @@
         </div>
     </div>
 
-    <!-- IEEE Citation Modal -->
+    {{-- IEEE Citation Modal --}}
     <div id="citationModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -302,8 +377,13 @@
         </div>
     </div>
 
-    <!-- JavaScript Logic -->
+    {{-- JAVASCRIPT LOGIC --}}
     <script>
+        // Set worker source for PDF.js
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
         const dataElement = document.getElementById('citationData');
         const currentDocId = dataElement ? parseInt(dataElement.getAttribute('data-id'), 10) : null;
         const docTitle = dataElement ? dataElement.getAttribute('data-title') : 'Untitled Thesis';
@@ -311,6 +391,126 @@
         const docYear = dataElement ? dataElement.getAttribute('data-year') : new Date().getFullYear().toString();
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
         let toastTimeout = null;
+
+        // Continuous Scrollable PDF Reader state
+        let pdfDoc = null;
+        let currentScale = 1.3;
+
+        // Open Secure Scrollable Reader Modal
+        async function openSecurePdfReader() {
+            const modal = document.getElementById('securePdfModal');
+            const loader = document.getElementById('pdfLoader');
+            const pagesWrapper = document.getElementById('pdfPagesWrapper');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            loader.classList.remove('hidden');
+            pagesWrapper.innerHTML = '';
+
+            try {
+                // Fetch temporary signed URL from backend JSON endpoint
+                const res = await fetch(`/backend/documents/${currentDocId}/signed-url`);
+                if (!res.ok) throw new Error('Could not obtain secure PDF link');
+                const data = await res.json();
+                if (!data.url) throw new Error('Invalid PDF URL');
+
+                const loadingTask = pdfjsLib.getDocument({
+                    url: data.url,
+                    cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+                    cMapPacked: true
+                });
+                pdfDoc = await loadingTask.promise;
+                document.getElementById('pageCount').textContent = `${pdfDoc.numPages} Pages`;
+
+                // Render all pages in vertical scroll sequence
+                await renderAllPages();
+                loader.classList.add('hidden');
+            } catch (err) {
+                console.error('Error loading secure PDF:', err);
+                loader.innerHTML = `
+                    <div class="p-6 text-center text-red-400 bg-slate-900 rounded-2xl border border-red-500/30 max-w-sm mx-auto">
+                        <p class="font-bold text-sm">Unable to render protected PDF</p>
+                        <p class="text-xs text-gray-400 mt-1">You can read the full text content in the tab below.</p>
+                        <button onclick="closeSecurePdfReader(); switchViewTab('fulltext');" class="mt-4 px-4 py-2 rounded-xl bg-[#700000] text-[#FFD700] font-bold text-xs">Switch to Full Text Tab</button>
+                    </div>
+                `;
+            }
+        }
+
+        // Render all PDF pages vertically as HTML5 Canvas elements
+        async function renderAllPages() {
+            if (!pdfDoc) return;
+            const pagesWrapper = document.getElementById('pdfPagesWrapper');
+            pagesWrapper.innerHTML = '';
+
+            for (let num = 1; num <= pdfDoc.numPages; num++) {
+                const page = await pdfDoc.getPage(num);
+                const viewport = page.getViewport({ scale: currentScale });
+
+                const card = document.createElement('div');
+                card.className = 'flex flex-col items-center bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-300 w-full max-w-full';
+
+                const canvas = document.createElement('canvas');
+                canvas.className = 'block max-w-full h-auto';
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const ctx = canvas.getContext('2d');
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                await page.render(renderContext).promise;
+
+                const pageFooter = document.createElement('div');
+                pageFooter.className = 'w-full py-1.5 bg-slate-100 border-t border-gray-200 text-center text-[10px] sm:text-xs font-semibold text-gray-500 tracking-wider uppercase font-mono';
+                pageFooter.textContent = `Page ${num} of ${pdfDoc.numPages}`;
+
+                card.appendChild(canvas);
+                card.appendChild(pageFooter);
+                pagesWrapper.appendChild(card);
+            }
+
+            document.getElementById('zoomPercent').textContent = Math.round((currentScale / 1.3) * 100) + '%';
+        }
+
+        // Zoom In (Scales all pages)
+        async function onZoomIn() {
+            if (currentScale >= 2.5) return;
+            currentScale += 0.2;
+            const loader = document.getElementById('pdfLoader');
+            loader.classList.remove('hidden');
+            await renderAllPages();
+            loader.classList.add('hidden');
+        }
+
+        // Zoom Out (Scales all pages)
+        async function onZoomOut() {
+            if (currentScale <= 0.7) return;
+            currentScale -= 0.2;
+            const loader = document.getElementById('pdfLoader');
+            loader.classList.remove('hidden');
+            await renderAllPages();
+            loader.classList.add('hidden');
+        }
+
+        function closeSecurePdfReader() {
+            const modal = document.getElementById('securePdfModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            pdfDoc = null;
+        }
+
+        // Global Keydown Listener (Blocks Copy/Print/Save shortcuts & handles Esc)
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && ['c', 'p', 's', 'u'].includes(e.key.toLowerCase())) {
+                e.preventDefault();
+            }
+            if (e.key === 'Escape') {
+                closeSecurePdfReader();
+                closeCitationModal();
+            }
+        });
 
         function showToast(message, isSaved = true) {
             const toast = document.getElementById('toastNotification');
@@ -340,7 +540,6 @@
             toast.classList.add('translate-y-0', 'opacity-100');
 
             if (toastTimeout) clearTimeout(toastTimeout);
-
             toastTimeout = setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');

@@ -5,14 +5,22 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * GeminiService
+ * This service handles all communications between our Laravel system and Google's Gemini AI API.
+ * It is responsible for:
+ * 1. Creating vector embeddings (for semantic search & RAG retrieval).
+ * 2. Generating answers to research questions (for the AI Research Assistant).
+ */
 class GeminiService
 {
     protected string $apiKey;
-
     protected string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
 
+    // Model used for creating vector embeddings (768 dimensions)
     protected string $embeddingModel = 'gemini-embedding-001';
 
+    // Model used for generating chatbot answers
     protected string $generationModel = 'gemini-3.5-flash';
 
     public function __construct()
@@ -20,12 +28,13 @@ class GeminiService
         $this->apiKey = (string) env('GEMINI_API_KEY');
 
         if ($this->apiKey === '') {
-            throw new \Exception('GEMINI_API_KEY is not configured.');
+            throw new \Exception('GEMINI_API_KEY is not configured in .env file.');
         }
     }
 
     /**
-     * Generate one embedding.
+     * 1. Generate a single vector embedding (768 numbers).
+     * Used by Semantic Search when a student types a search query.
      */
     public function generateEmbedding(string $text): array
     {
@@ -40,9 +49,7 @@ class GeminiService
                     'model' => "models/{$this->embeddingModel}",
                     'content' => [
                         'parts' => [
-                            [
-                                'text' => $text,
-                            ],
+                            ['text' => $text],
                         ],
                     ],
                     'outputDimensionality' => 768,
@@ -55,35 +62,21 @@ class GeminiService
                 'body' => $response->body(),
             ]);
 
-            throw new \Exception(
-                'Gemini embedding error: ' .
-                $response->status() .
-                ' - ' .
-                $response->body()
-            );
+            throw new \Exception('Gemini embedding error: ' . $response->status());
         }
 
         $values = $response->json('embedding.values');
 
         if (!is_array($values) || empty($values)) {
-            throw new \Exception(
-                'Gemini returned an empty embedding: ' .
-                $response->body()
-            );
-        }
-
-        if (count($values) !== 768) {
-            throw new \Exception(
-                'Expected 768 dimensions, received ' .
-                count($values)
-            );
+            throw new \Exception('Gemini returned an empty embedding vector.');
         }
 
         return array_map('floatval', $values);
     }
 
     /**
-     * Generate embeddings for multiple chunks.
+     * 2. Generate vector embeddings for multiple text chunks in batch.
+     * Used when an Admin uploads a thesis PDF to index all pages at once.
      */
     public function generateEmbeddings(array $texts): array
     {
@@ -92,15 +85,12 @@ class GeminiService
         }
 
         $requests = [];
-
         foreach ($texts as $text) {
             $requests[] = [
                 'model' => "models/{$this->embeddingModel}",
                 'content' => [
                     'parts' => [
-                        [
-                            'text' => (string) $text,
-                        ],
+                        ['text' => (string) $text],
                     ],
                 ],
                 'outputDimensionality' => 768,
@@ -123,82 +113,48 @@ class GeminiService
             Log::error('Gemini batch embedding failed', [
                 'status' => $response->status(),
                 'body' => $response->body(),
-                'count' => count($texts),
             ]);
 
-            throw new \Exception(
-                'Gemini batch embedding error: ' .
-                $response->status() .
-                ' - ' .
-                $response->body()
-            );
+            throw new \Exception('Gemini batch embedding error: ' . $response->status());
         }
 
         $embeddings = $response->json('embeddings');
 
         if (!is_array($embeddings)) {
-            throw new \Exception(
-                'Gemini did not return embeddings: ' .
-                $response->body()
-            );
-        }
-
-        if (count($embeddings) !== count($texts)) {
-            throw new \Exception(
-                'Gemini returned ' .
-                count($embeddings) .
-                ' embeddings for ' .
-                count($texts) .
-                ' texts.'
-            );
+            throw new \Exception('Gemini did not return valid embeddings array.');
         }
 
         $result = [];
-
-        foreach ($embeddings as $index => $embedding) {
+        foreach ($embeddings as $embedding) {
             $values = $embedding['values'] ?? null;
-
-            if (!is_array($values)) {
-                throw new \Exception(
-                    'Missing embedding values at index ' . $index
-                );
+            if (is_array($values) && count($values) === 768) {
+                $result[] = array_map('floatval', $values);
             }
-
-            if (count($values) !== 768) {
-                throw new \Exception(
-                    'Invalid embedding dimension at index ' .
-                    $index .
-                    '. Expected 768, received ' .
-                    count($values)
-                );
-            }
-
-            $result[] = array_map('floatval', $values);
         }
 
         return $result;
     }
 
     /**
-     * Generate AI answer using retrieved thesis context.
+     * 3. Generate AI Answer (RAG)
+     * Takes the user's question and relevant thesis excerpts, then instructs Gemini
+     * to formulate a grounded, citation-ready response.
      */
-    public function generateAnswer(
-        string $userQuestion,
-        string $contextText
-    ): string {
+    public function generateAnswer(string $userQuestion, string $contextText): string
+    {
+        // Strict system prompt to avoid hallucinations
         $prompt =
-            "You are an expert AI Thesis Assistant for the SAC Thesis System.\n\n" .
-            "Answer the user's question using ONLY the thesis context provided below.\n" .
-            "Do not invent information.\n" .
-            "If the provided context does not contain enough information to answer " .
-            "the question, clearly say that the answer could not be found in " .
-            "the uploaded thesis documents.\n\n" .
-            "--- THESIS CONTEXT ---\n" .
+            "You are an expert AI Thesis Assistant for St. Anthony's College Institutional Research Repository.\n\n" .
+            "Answer the student's question using ONLY the thesis context provided below.\n" .
+            "Do not invent or fabricate information.\n" .
+            "If the context does not contain enough information, clearly state that the answer could not be found in the uploaded thesis documents.\n\n" .
+            "--- RETRIEVED THESIS CONTEXT ---\n" .
             $contextText .
             "\n\n" .
             "--- USER QUESTION ---\n" .
             $userQuestion;
 
+        // Multi-model fast fallback array to prevent timeouts
         $modelsToTry = [$this->generationModel, 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -229,12 +185,10 @@ class GeminiService
                     }
                 }
             } catch (\Throwable $e) {
-                Log::warning("Gemini model {$modelName} failed: " . $e->getMessage());
+                Log::warning("Gemini model {$modelName} failed, trying fallback: " . $e->getMessage());
             }
         }
 
-        throw new \Exception(
-            'Google AI is currently experiencing high demand. Please try asking again in a moment.'
-        );
+        throw new \Exception('Google AI is currently experiencing high demand. Please try asking again in a moment.');
     }
 }

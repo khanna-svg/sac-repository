@@ -113,19 +113,80 @@ class DocumentController extends Controller
         }
     }
 
+    /**
+     * Return direct temporary signed URL JSON for in-app PDF canvas reader.
+     */
+    public function getSignedUrl(Document $document)
+    {
+        $baseUrl = rtrim((string) config('services.supabase.url', env('SUPABASE_URL')), '/');
+        $key = (string) config('services.supabase.service_role_key', env('SUPABASE_SERVICE_ROLE_KEY'));
+        $bucket = (string) config('services.supabase.bucket', env('SUPABASE_STORAGE_BUCKET', 'thesis'));
+
+        $path = ltrim(trim((string) $document->file_path), '/');
+        if (str_starts_with($path, $bucket . '/')) {
+            $path = substr($path, strlen($bucket) + 1);
+        }
+
+        $encodedBucket = rawurlencode($bucket);
+        $encodedPath = collect(explode('/', $path))->map(fn($part) => rawurlencode($part))->implode('/');
+        $signUrl = "{$baseUrl}/storage/v1/object/sign/{$encodedBucket}/{$encodedPath}";
+
+        try {
+            $response = Http::timeout(20)
+                ->withHeaders([
+                    'Authorization' => "Bearer {$key}",
+                    'apikey' => $key,
+                    'Content-Type' => 'application/json',
+                ])
+                ->post($signUrl, ['expiresIn' => 3600]);
+
+            if (!$response->successful()) {
+                return response()->json(['error' => 'Could not sign PDF URL'], 404);
+            }
+
+            $data = $response->json();
+            $relative = $data['signedURL'] ?? null;
+            if (!$relative) {
+                return response()->json(['error' => 'No signed URL returned'], 500);
+            }
+
+            if (str_starts_with($relative, 'http://') || str_starts_with($relative, 'https://')) {
+                $signedUrl = $relative;
+            } elseif (str_starts_with($relative, '/storage/v1/')) {
+                $signedUrl = $baseUrl . $relative;
+            } elseif (str_starts_with($relative, '/object/')) {
+                $signedUrl = $baseUrl . '/storage/v1' . $relative;
+            } else {
+                $signedUrl = $baseUrl . '/storage/v1/' . ltrim($relative, '/');
+            }
+
+            return response()->json(['url' => $signedUrl]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Search & Filter Theses
+     * Retrieves theses for students based on search keywords,
+     * semantic AI similarity, department filter, and sort order.
+     */
     public function index(Request $request)
     {
         try {
             $search = trim((string) $request->input('search', ''));
             $searchType = $request->input('search_type', 'keyword');
+            $department = trim((string) $request->input('department', ''));
+            $sort = trim((string) $request->input('sort', 'latest'));
 
+            // 1. SEMANTIC AI SEARCH MODE (Uses Google Gemini Vector Embeddings)
             if ($search !== '' && $searchType === 'semantic') {
                 try {
                     $geminiService = app(\App\Services\GeminiService::class);
                     $queryEmbedding = $geminiService->generateEmbedding($search);
                     $embeddingString = '[' . implode(',', $queryEmbedding) . ']';
 
-                    // Query pgvector using extensions schema for cosine distance
+                    // Find nearest thesis chunks using pgvector cosine distance
                     $similarChunks = DB::select("
                         SELECT
                             dc.document_id,
@@ -144,25 +205,46 @@ class DocumentController extends Controller
                             $distanceMap[$row->document_id] = (float) $row->distance;
                         }
 
-                        $documents = Document::whereIn('id', $docIds)->get();
+                        $docQuery = Document::whereIn('id', $docIds);
 
-                        // Calculate a human-readable similarity percentage and sort
+                        // Filter by department if selected
+                        if ($department !== '' && $department !== 'all') {
+                            $docQuery->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
+                        }
+
+                        $documents = $docQuery->get();
+
+                        // Convert distance to percentage match (e.g. 95% Match)
                         $sortedDocs = $documents->map(function ($doc) use ($distanceMap) {
                             $distance = $distanceMap[$doc->id] ?? 1.0;
                             $similarity = max(10, min(99, round((1 - ($distance / 2)) * 100)));
                             $doc->similarity_score = $similarity;
                             return $doc;
-                        })->sortByDesc('similarity_score')->values();
+                        });
 
-                        return response()->json($sortedDocs);
+                        // Apply sorting
+                        if ($sort === 'title_asc') {
+                            $sortedDocs = $sortedDocs->sortBy('title');
+                        } elseif ($sort === 'title_desc') {
+                            $sortedDocs = $sortedDocs->sortByDesc('title');
+                        } elseif ($sort === 'oldest') {
+                            $sortedDocs = $sortedDocs->sortBy('id');
+                        } else {
+                            // Default: Highest similarity match first
+                            $sortedDocs = $sortedDocs->sortByDesc('similarity_score');
+                        }
+
+                        return response()->json($sortedDocs->values());
                     }
                 } catch (\Throwable $e) {
                     Log::warning('Semantic search fallback: ' . $e->getMessage());
                 }
             }
 
+            // 2. STANDARD KEYWORD & FILTER QUERY
             $query = Document::query();
 
+            // Text search in Title, Author, Department, Course, or Abstract
             if ($search !== '') {
                 $searchTerm = '%' . strtolower($search) . '%';
                 $query->where(function ($q) use ($searchTerm) {
@@ -174,7 +256,24 @@ class DocumentController extends Controller
                 });
             }
 
-            return response()->json($query->latest()->get());
+            // Filter by department
+            if ($department !== '' && $department !== 'all') {
+                $query->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
+            }
+
+            // Sort order (Newest, Oldest, Title A-Z, Title Z-A)
+            if ($sort === 'oldest') {
+                $query->orderBy('id', 'asc');
+            } elseif ($sort === 'title_asc') {
+                $query->orderBy('title', 'asc');
+            } elseif ($sort === 'title_desc') {
+                $query->orderBy('title', 'desc');
+            } else {
+                // Default: Newest first
+                $query->latest();
+            }
+
+            return response()->json($query->get());
         } catch (\Throwable $e) {
             Log::error('DocumentController index error: ' . $e->getMessage());
             return response()->json(Document::latest()->get());

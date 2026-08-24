@@ -16,43 +16,39 @@ class ChatController extends Controller
         $this->geminiService = $geminiService;
     }
 
+    /**
+     * RAG Research Assistant (Ask AI)
+     * How it works:
+     * 1. Takes the student's question.
+     * 2. Converts question into vector embedding.
+     * 3. Retrieves top 5 most relevant thesis passages from PostgreSQL using cosine similarity.
+     * 4. Sends the passages + question to Google Gemini to generate a grounded answer.
+     * 5. Returns the AI answer with deduplicated thesis source citations.
+     */
     public function ask(Request $request)
     {
-        $userQuestion = $request->input('message')
-            ?? $request->input('question');
+        $userQuestion = $request->input('message') ?? $request->input('question');
 
         if (!$userQuestion || trim($userQuestion) === '') {
             return response()->json([
                 'error' => true,
-                'message' => 'The message field is required.'
+                'message' => 'Please enter a question to ask the AI assistant.'
             ], 422);
         }
 
         $userQuestion = trim($userQuestion);
 
         try {
-
-            // -----------------------------------------------------
-            // 1. Generate embedding for user's question
-            // -----------------------------------------------------
-
-            $embedding = $this->geminiService
-                ->generateEmbedding($userQuestion);
+            // Step 1: Convert student's question into vector numbers using Gemini
+            $embedding = $this->geminiService->generateEmbedding($userQuestion);
 
             if (empty($embedding)) {
-                throw new \Exception(
-                    'Gemini returned an empty query embedding.'
-                );
+                throw new \Exception('Failed to generate embedding for the question.');
             }
 
             $embeddingVector = '[' . implode(',', $embedding) . ']';
 
-
-            // -----------------------------------------------------
-            // 2. Retrieve the best matching chunks
-            //    We do NOT use a similarity threshold here.
-            // -----------------------------------------------------
-
+            // Step 2: Search database for top 5 closest matching thesis text chunks
             $chunks = DB::select("
                 SELECT
                     dc.chunk_text,
@@ -63,81 +59,35 @@ class ChatController extends Controller
                         dc.embedding OPERATOR(extensions.<=>)
                         ?::extensions.vector
                     ) AS similarity
-
                 FROM document_chunks dc
-
-                INNER JOIN documents d
-                    ON d.id = dc.document_id
-
+                INNER JOIN documents d ON d.id = dc.document_id
                 WHERE dc.embedding IS NOT NULL
-
                 ORDER BY
                     dc.embedding OPERATOR(extensions.<=>)
                     ?::extensions.vector ASC
-
                 LIMIT 5
             ", [
                 $embeddingVector,
                 $embeddingVector
             ]);
 
-
-            // -----------------------------------------------------
-            // 3. Check if there are actually chunks in the database
-            // -----------------------------------------------------
-
+            // Step 3: Handle case when no thesis chunks exist yet
             if (empty($chunks)) {
-
-                Log::warning('RAG: document_chunks returned no results.', [
-                    'question' => $userQuestion
-                ]);
+                Log::warning('RAG: document_chunks returned no results.', ['question' => $userQuestion]);
 
                 return response()->json([
                     'error' => false,
-                    'answer' =>
-                        'There are currently no processed thesis document chunks available for semantic search.',
+                    'answer' => 'There are currently no processed thesis documents available in the repository.',
                     'sources' => []
                 ]);
             }
 
-
-            // -----------------------------------------------------
-            // 4. Log similarity results for debugging
-            // -----------------------------------------------------
-
-            Log::info('RAG SEARCH RESULTS', [
-                'question' => $userQuestion,
-                'chunk_count' => count($chunks),
-                'results' => collect($chunks)->map(function ($chunk) {
-                    return [
-                        'document_id' => $chunk->document_id,
-                        'title' => $chunk->document_title,
-                        'similarity' => $chunk->similarity
-                    ];
-                })->values()->toArray()
-            ]);
-
-
-            // -----------------------------------------------------
-            // 5. Build thesis context
-            // -----------------------------------------------------
-
+            // Step 4: Build thesis context text to feed into Gemini AI
             $contextParts = [];
-
             foreach ($chunks as $index => $chunk) {
-
-                $score = round(
-                    ((float) $chunk->similarity) * 100,
-                    1
-                );
-
-                $docTitle =
-                    $chunk->document_title
-                    ?? 'Thesis Document';
-
-                $docAuthor =
-                    $chunk->document_author
-                    ?? 'Unknown Author';
+                $score = round(((float) $chunk->similarity) * 100, 1);
+                $docTitle = $chunk->document_title ?? 'Thesis Document';
+                $docAuthor = $chunk->document_author ?? 'Unknown Author';
 
                 $contextParts[] =
                     "[Source #" . ($index + 1) . "]\n" .
@@ -148,25 +98,12 @@ class ChatController extends Controller
                     $chunk->chunk_text;
             }
 
-            $contextText =
-                implode("\n\n---\n\n", $contextParts);
+            $contextText = implode("\n\n---\n\n", $contextParts);
 
+            // Step 5: Ask Gemini to answer the question using the retrieved thesis passages
+            $answer = $this->geminiService->generateAnswer($userQuestion, $contextText);
 
-            // -----------------------------------------------------
-            // 6. Generate answer using retrieved context
-            // -----------------------------------------------------
-
-            $answer = $this->geminiService
-                ->generateAnswer(
-                    $userQuestion,
-                    $contextText
-                );
-
-
-            // -----------------------------------------------------
-            // 7. Return answer + deduplicated unique sources
-            // -----------------------------------------------------
-
+            // Step 6: Deduplicate sources so each thesis card appears only once in the UI
             $uniqueSources = [];
             foreach ($chunks as $chunk) {
                 $docId = $chunk->document_id;
@@ -179,6 +116,7 @@ class ChatController extends Controller
                 }
             }
 
+            // Step 7: Return AI answer and cited source documents
             return response()->json([
                 'error' => false,
                 'answer' => $answer,
@@ -186,7 +124,6 @@ class ChatController extends Controller
             ]);
 
         } catch (\Throwable $e) {
-
             Log::error('RAG CHATBOT ERROR', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
@@ -195,8 +132,7 @@ class ChatController extends Controller
 
             return response()->json([
                 'error' => true,
-                'message' =>
-                    'RAG chatbot error: ' . $e->getMessage()
+                'message' => 'AI Assistant temporarily unavailable: ' . $e->getMessage()
             ], 500);
         }
     }

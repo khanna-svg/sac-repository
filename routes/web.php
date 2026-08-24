@@ -28,16 +28,31 @@ Route::post('/admin/login', [AdminAuthController::class, 'login'])
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
 
+Route::get('/', function () {
+    try {
+        $recentTheses = \App\Models\Document::latest()->take(3)->get();
+        $totalCount = \App\Models\Document::count();
+        $deptCount = \App\Models\Document::distinct('department')->count('department');
+    } catch (\Throwable $e) {
+        $recentTheses = collect([]);
+        $totalCount = 0;
+        $deptCount = 0;
+    }
+    return view('landing', compact('recentTheses', 'totalCount', 'deptCount'));
+})->name('home');
+
+Route::get('/home', function () {
+    return redirect()->route('home');
+});
+
 Route::middleware('sac.auth')->group(function () {
 
-    Route::get('/', function () {
-
+    Route::get('/dashboard', function () {
         if (session('sac_user_role') === 'admin') {
             return redirect()->route('admin.upload');
         }
-
         return redirect()->route('documents');
-    });
+    })->name('dashboard');
 
     Route::get('/documents', function () {
 
@@ -77,6 +92,11 @@ Route::middleware('sac.auth')->group(function () {
     Route::get(
         '/backend/documents/{document}/view',
         [DocumentController::class, 'viewPdf']
+    );
+
+    Route::get(
+        '/backend/documents/{document}/signed-url',
+        [DocumentController::class, 'getSignedUrl']
     );
 
     Route::middleware([RequireSacAdmin::class])->group(function () {

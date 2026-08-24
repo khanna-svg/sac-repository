@@ -11,12 +11,14 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
+    {{-- SIDEBAR NAVIGATION --}}
     @include('partials.sidebar')
 
+    {{-- MAIN PAGE CONTENT --}}
     <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-16 md:pt-10">
         <div class="mx-auto max-w-5xl">
 
-            <!-- HEADER -->
+            {{-- 1. PAGE HEADER --}}
             <section class="mb-6 md:mb-8">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
@@ -24,16 +26,17 @@
                             Thesis Repository
                         </h1>
                         <p class="mt-1 text-xs md:text-sm text-gray-500">
-                            Search, cite, and view approved St. Anthony's College thesis.
+                            Search, cite, and view approved St. Anthony's College thesis documents.
                         </p>
                     </div>
                 </div>
             </section>
 
-            <!-- SEARCH BAR -->
-            <!-- SEARCH BAR WITH SEMANTIC TOGGLE -->
-            <section class="mb-8">
+            {{-- 2. SEARCH & FILTER SECTION --}}
+            <section class="mb-8 space-y-4">
                 <form id="searchForm" class="space-y-3">
+                    
+                    {{-- Search Mode Switcher (Keyword vs Semantic AI) --}}
                     <div class="flex items-center gap-2">
                         <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Search Mode:</span>
                         <div class="inline-flex rounded-xl bg-slate-200/70 p-1 border border-gray-300">
@@ -60,6 +63,7 @@
                         </div>
                     </div>
 
+                    {{-- Search Input Bar --}}
                     <div class="flex flex-col sm:flex-row gap-3">
                         <div class="relative flex-1">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
@@ -79,10 +83,51 @@
                             <span>Search</span>
                         </button>
                     </div>
+
+                    {{-- 3. QUICK FILTER & SORT TOOLBAR --}}
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                        <div class="flex items-center gap-3 flex-wrap">
+                            {{-- Department Filter Dropdown --}}
+                            <div class="flex items-center gap-1.5">
+                                <label for="deptFilter" class="text-xs font-bold text-gray-500">Department:</label>
+                                <select
+                                    id="deptFilter"
+                                    onchange="onFilterChange()"
+                                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
+                                    <option value="all">All Departments</option>
+                                    <option value="it">Information Technology (BSIT)</option>
+                                    <option value="marine">Marine Engineering (BSMarE)</option>
+                                    <option value="nursing">Nursing & Healthcare (BSN)</option>
+                                    <option value="business">Business & Accountancy (CBA)</option>
+                                    <option value="education">Teacher Education (CTE)</option>
+                                    <option value="criminology">Criminology / Arts & Sciences</option>
+                                </select>
+                            </div>
+
+                            {{-- Sort By Dropdown --}}
+                            <div class="flex items-center gap-1.5">
+                                <label for="sortFilter" class="text-xs font-bold text-gray-500">Sort By:</label>
+                                <select
+                                    id="sortFilter"
+                                    onchange="onFilterChange()"
+                                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
+                                    <option value="latest">Newest First</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="title_asc">Title (A – Z)</option>
+                                    <option value="title_desc">Title (Z – A)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {{-- Total Documents Count Badge --}}
+                        <div id="docCountBadge" class="text-xs font-semibold text-gray-500">
+                            Showing results...
+                        </div>
+                    </div>
                 </form>
             </section>
 
-            <!-- DOCUMENT LIST CONTAINER -->
+            {{-- 4. THESIS CARDS LIST CONTAINER --}}
             <section id="documentsList" class="space-y-4">
                 <p class="text-center text-sm text-gray-500 py-10">
                     Loading thesis repository...
@@ -92,7 +137,7 @@
         </div>
     </main>
 
-    <!-- FLOATING TOAST NOTIFICATION POP-UP -->
+    {{-- FLOATING TOAST NOTIFICATION (WHITE POPUP) --}}
     <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
         <div class="flex items-center gap-3 rounded-2xl bg-white text-gray-900 px-5 py-3.5 shadow-xl border border-gray-200">
             <span id="toastIconContainer" class="shrink-0">
@@ -104,7 +149,7 @@
         </div>
     </div>
 
-    <!-- CITATION MODAL (IEEE ONLY) -->
+    {{-- IEEE CITATION MODAL --}}
     <div id="citationModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl transition-all">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -125,7 +170,7 @@
                 <p id="modalDocTitle" class="text-xs font-bold text-[#700000] truncate"></p>
                 <div class="mt-4 flex rounded-xl bg-slate-100 p-1 border border-gray-200">
                     <div class="w-full py-1.5 text-xs font-bold rounded-lg bg-white text-[#700000] shadow-sm text-center">
-                        IEEE Style Format
+                        IEEE Standard Format
                     </div>
                 </div>
                 <div class="mt-4 rounded-2xl border border-gray-200 bg-slate-50 p-4">
@@ -147,8 +192,9 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    {{-- JAVASCRIPT LOGIC --}}
     <script>
+        // Global variables and elements
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         const COVERS_BASE_URL = "{{ asset('images/covers') }}";
 
@@ -161,27 +207,36 @@
         const documentsList = document.getElementById('documentsList');
         const searchForm = document.getElementById('searchForm');
         const searchInput = document.getElementById('searchInput');
+        const deptFilter = document.getElementById('deptFilter');
+        const sortFilter = document.getElementById('sortFilter');
         const docCountBadge = document.getElementById('docCountBadge');
 
+        // Switch between Keyword search and Semantic AI search mode
         function setSearchMode(mode) {
             currentSearchMode = mode;
             const kwBtn = document.getElementById('modeKeywordBtn');
             const semBtn = document.getElementById('modeSemanticBtn');
             const input = document.getElementById('searchInput');
+
             if (mode === 'semantic') {
                 semBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold bg-[#700000] text-[#FFD700] shadow-sm transition flex items-center gap-1.5';
                 kwBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5';
-                input.placeholder = 'Ask or describe concepts (e.g., "how to reduce maritime accidents" or "hospital patient care")...';
+                input.placeholder = 'Ask or describe concepts (e.g., "maritime innovation" or "fall detection for older adults")...';
             } else {
                 kwBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold bg-white text-[#700000] shadow-sm transition flex items-center gap-1.5';
                 semBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5';
                 input.placeholder = 'Search by topic, author, keywords, or department...';
             }
-            if (input.value.trim()) {
-                fetchDocuments(input.value);
-            }
+
+            fetchDocuments(input.value);
         }
 
+        // Trigger search when Department or Sort dropdown changes
+        function onFilterChange() {
+            fetchDocuments(searchInput.value);
+        }
+
+        // Display floating toast message when bookmarking/unbookmarking
         function showToast(message, isSaved = true) {
             const toast = document.getElementById('toastNotification');
             const toastMsg = document.getElementById('toastMessage');
@@ -210,7 +265,6 @@
             toast.classList.add('translate-y-0', 'opacity-100');
 
             if (toastTimeout) clearTimeout(toastTimeout);
-
             toastTimeout = setTimeout(() => {
                 toast.classList.remove('translate-y-0', 'opacity-100');
                 toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
@@ -228,6 +282,7 @@
             imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>SAC THESIS</text></svg>";
         }
 
+        // Return cover art and styling based on department
         function getDepartmentDetails(deptVal, courseVal, titleVal) {
             const dept = (deptVal || '').toLowerCase();
             const course = (courseVal || '').toLowerCase();
@@ -278,6 +333,7 @@
             };
         }
 
+        // Render thesis cards to the page
         function renderDocuments(documents) {
             if (!Array.isArray(documents) || documents.length === 0) {
                 documentsList.innerHTML = `
@@ -288,7 +344,7 @@
                             </svg>
                         </div>
                         <h3 class="text-base font-bold text-gray-800">No theses found</h3>
-                        <p class="mt-1 text-xs text-gray-500">Try searching for different keywords or authors.</p>
+                        <p class="mt-1 text-xs text-gray-500">Try adjusting your search terms or department filters.</p>
                     </div>
                 `;
                 if (docCountBadge) docCountBadge.textContent = '0 Theses Found';
@@ -306,7 +362,7 @@
                 return `
                     <article class="relative flex flex-col md:flex-row gap-5 rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-[#700000]/30 transition">
                         
-                        <!-- Top-Right Bookmark Icon Button -->
+                        {{-- Top-Right Bookmark Button --}}
                         <button
                             type="button"
                             onclick="toggleBookmark(${doc.id}, this)"
@@ -318,7 +374,7 @@
                             </svg>
                         </button>
 
-                        <!-- Book Cover Image -->
+                        {{-- Thesis Book Cover --}}
                         <div class="w-full md:w-28 h-36 md:h-36 rounded-2xl border border-gray-200 bg-slate-100 overflow-hidden shadow-sm shrink-0">
                             <img
                                 src="${COVERS_BASE_URL}/${details.cover}"
@@ -339,12 +395,6 @@
                             ` : ''}
                                 <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
                                     ${details.name}
-                                </span>
-                                <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-[10px] font-bold flex items-center gap-1">
-                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                    Full Text Available
                                 </span>
                             </div>
 
@@ -368,7 +418,7 @@
                                 ` : ''}
                             </div>
 
-                            <!-- Bottom Action Buttons (Cite & Ask AI) -->
+                            {{-- Bottom Action Buttons (Cite IEEE & Ask AI) --}}
                             <div class="mt-5 pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
                                 <div class="flex items-center gap-2">
                                     <button
@@ -400,6 +450,7 @@
             }).join('');
         }
 
+        // Toggle Expand/Collapse Abstract
         function toggleAbstract(id) {
             const shortSpan = document.getElementById(`abstract-short-${id}`);
             const fullSpan = document.getElementById(`abstract-full-${id}`);
@@ -416,6 +467,7 @@
             }
         }
 
+        // Fetch user's bookmarked thesis IDs from database
         async function fetchBookmarkIds() {
             try {
                 const res = await fetch('/backend/bookmarks/ids');
@@ -426,6 +478,7 @@
             } catch (e) {}
         }
 
+        // Toggle bookmark status for a thesis
         async function toggleBookmark(docId, btnElement) {
             try {
                 const res = await fetch('/backend/bookmarks/toggle', {
@@ -466,14 +519,30 @@
             }
         }
 
+        // Fetch theses from backend with Search, Department filter, and Sort order
         async function fetchDocuments(search = '') {
             documentsList.innerHTML = `<p class="text-center text-sm text-gray-500 py-10">Searching documents...</p>`;
             try {
                 const url = new URL('/backend/documents', window.location.origin);
+                
+                // Add search query if provided
                 if (search && search.trim()) {
                     url.searchParams.set('search', search.trim());
                     url.searchParams.set('search_type', currentSearchMode);
                 }
+
+                // Add department filter
+                const selectedDept = deptFilter ? deptFilter.value : 'all';
+                if (selectedDept && selectedDept !== 'all') {
+                    url.searchParams.set('department', selectedDept);
+                }
+
+                // Add sort order
+                const selectedSort = sortFilter ? sortFilter.value : 'latest';
+                if (selectedSort) {
+                    url.searchParams.set('sort', selectedSort);
+                }
+
                 const res = await fetch(url.toString(), {
                     headers: {
                         'Accept': 'application/json',
@@ -487,8 +556,6 @@
                 }
 
                 if (!res.ok) {
-                    const text = await res.text();
-                    console.error('Document fetch failed:', res.status, text);
                     throw new Error('HTTP ' + res.status);
                 }
 
@@ -504,11 +571,13 @@
             }
         }
 
+        // Search Form Submit Listener
         searchForm.addEventListener('submit', (e) => {
             e.preventDefault();
             fetchDocuments(searchInput.value);
         });
 
+        // Open IEEE Citation Modal
         function openCitationModal(index) {
             currentCitationDoc = allDocuments[index];
             if (!currentCitationDoc) return;
@@ -518,11 +587,13 @@
             document.getElementById('citationModal').classList.add('flex');
         }
 
+        // Close IEEE Citation Modal
         function closeCitationModal() {
             document.getElementById('citationModal').classList.add('hidden');
             document.getElementById('citationModal').classList.remove('flex');
         }
 
+        // Build standard IEEE citation string
         function generateCitationText() {
             if (!currentCitationDoc) return;
             const author = currentCitationDoc.author || 'Author, A.';
@@ -533,6 +604,7 @@
             resetCopyButton();
         }
 
+        // Copy citation text to clipboard
         function copyCitationToClipboard() {
             const text = document.getElementById('citationText').textContent;
             navigator.clipboard.writeText(text).then(() => {
@@ -553,6 +625,7 @@
             `;
         }
 
+        // Initial load on page ready
         async function init() {
             await fetchBookmarkIds();
             await fetchDocuments();

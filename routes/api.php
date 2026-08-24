@@ -25,6 +25,11 @@ Route::middleware([
         'viewPdf',
     ]);
 
+    Route::get('/documents/{document}/signed-url', [
+        DocumentController::class,
+        'getSignedUrl',
+    ]);
+
     Route::post('/chat', [
         ChatController::class,
         'ask',
