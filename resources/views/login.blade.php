@@ -10,7 +10,7 @@
 
     <!-- Blurred Background Layer -->
     <div class="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat blur-sm scale-105"
-         style="background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('https://scontent.fmnl4-5.fna.fbcdn.net/v/t39.30808-6/762656124_1358037226471496_1938876567405009188_n.jpg?stp=dst-jpg_tt6&cstp=mx2048x1153&ctp=s2048x1153&_nc_cat=104&_nc_map=urlgen_bucketless&ccb=1-7&_nc_sid=127cfc&_nc_eui2=AeG_TV-KWEtM7prV13mlyHfRljlMoJ_bU2iWOUygn9tTaOwxreFXHcSbYfOfT0s1s-yU-QCA-lXrziuqFZVrD1bz&_nc_ohc=WEziobIciVwQ7kNvwEUepfm&_nc_oc=AdqYq4bzI5DSVMHYhU7QBKgGNvieCahlMNWIScTMSUPeQFtoOW5Wi3jkHBuSL7kJQLs&_nc_zt=23&_nc_ht=scontent.fmnl4-5.fna&_nc_gid=QB391I4pfTEwiudu02W2MQ&_nc_ss=7e2a8&oh=00_AQGsTwGVg_FhUbHIV3UP4cXlLISgcyd-QW6qBTmAjArf_A&oe=6A8B670A');">
+         style="background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.45)), url('/images/campus.jpg');">
     </div>
 
     <!-- Login Container -->
