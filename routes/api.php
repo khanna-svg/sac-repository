@@ -33,6 +33,7 @@ Route::middleware([
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'index']);
     Route::get('/bookmarks/ids', [\App\Http\Controllers\BookmarkController::class, 'getIds']);
     Route::post('/bookmarks/toggle', [\App\Http\Controllers\BookmarkController::class, 'toggle']);
+    Route::get('/graph/data', [\App\Http\Controllers\KnowledgeGraphController::class, 'data']);
 });
 
 Route::middleware([

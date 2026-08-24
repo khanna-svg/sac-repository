@@ -63,6 +63,14 @@ Route::middleware('sac.auth')->group(function () {
         return view('chat');
     })->name('chat');
 
+    Route::get('/graph', [\App\Http\Controllers\KnowledgeGraphController::class, 'index'])
+        ->name('graph');
+
+    Route::get(
+        '/backend/graph/data',
+        [\App\Http\Controllers\KnowledgeGraphController::class, 'data']
+    );
+
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'indexView'])
         ->name('bookmarks');
 
