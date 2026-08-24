@@ -32,10 +32,6 @@
                 </p>
             </div>
 
-            <div class="rounded-lg bg-[#700000]/10 px-3 py-1.5 text-xs text-[#700000] font-bold border border-[#700000]/20">
-                RAG Thesis Assistant
-            </div>
-
         </header>
 
 

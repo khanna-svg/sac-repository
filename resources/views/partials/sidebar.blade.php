@@ -1,44 +1,52 @@
-<!-- Floating Mobile Hamburger Toggle Button -->
+<!-- Mobile Hamburger Toggle Button -->
 <button
     id="sidebarToggleBtn"
     type="button"
-    aria-label="Toggle Sidebar"
-    class="fixed top-3 left-3 z-50 rounded-xl bg-[#500000] p-2.5 text-[#FFD700] border border-[#800000] shadow-lg hover:bg-[#600000] focus:outline-none md:hidden transition">
-    <svg id="hamburgerIcon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+    aria-label="Open Sidebar"
+    class="fixed top-3 left-3 z-30 rounded-xl bg-[#700000] p-2.5 text-[#FFD700] border border-[#900000] shadow-md hover:bg-[#800000] focus:outline-none md:hidden transition">
+    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-    </svg>
-    <svg id="closeIcon" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
     </svg>
 </button>
 
 <!-- Mobile Dark Overlay Backdrop -->
 <div
     id="sidebarBackdrop"
-    class="fixed inset-0 z-30 bg-black/70 opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out md:hidden">
+    class="fixed inset-0 z-40 bg-black/60 opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out md:hidden">
 </div>
 
 <!-- Sidebar Drawer -->
 <aside
     id="sidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-[#600000] bg-[#700000] text-white transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 shadow-2xl">
+    class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-[#600000] bg-[#700000] text-white transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 shadow-2xl">
 
     <!-- Sidebar Header -->
-    <div class="flex items-center justify-between border-b border-[#850000] px-5 py-5 bg-[#5b0000]">
-        <div class="flex items-center gap-3">
+    <div class="flex items-center justify-between border-b border-[#850000] px-4 py-4 bg-[#5b0000]">
+        <div class="flex items-center gap-2.5">
             <img
                 src="https://sac.campus-erp.com/Student/images/sac.png"
                 alt="St. Anthony's College Logo"
-                class="h-[60px] w-[60px] object-contain">
+                class="h-[48px] w-[48px] object-contain">
+            <div class="flex flex-col">
+                <span class="font-bold text-[#FFC107] text-xs tracking-wide">
+                    St. Anthony's College
+                </span>
+                <span class="text-[9px] text-white/80 font-medium tracking-wider uppercase">
+                    IN SAC, WE CARE
+                </span>
+            </div>
         </div>
-        <div class="flex flex-col">
-            <span class="font-bold text-[#FFC107] text-sm tracking-wide">
-                St. Anthony's College
-            </span>
-            <span class="text-[10px] text-white font-medium italic tracking-wider uppercase">
-                IN SAC, WE CARE
-            </span>
-        </div>
+
+        <!-- Mobile Close Button (Inside Drawer Header) -->
+        <button
+            id="sidebarCloseBtn"
+            type="button"
+            aria-label="Close Sidebar"
+            class="rounded-xl p-1.5 text-amber-200 hover:bg-[#700000] hover:text-white md:hidden transition">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
     </div>
 
     <!-- Navigation Links -->
@@ -95,9 +103,8 @@
             </svg>
             <span>Saved / Bookmarks</span>
         </a>
-        @endif
 
-        <!-- AI Assistant -->
+        <!-- AI Assistant (Students Only) -->
         <a
             href="/chat"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
@@ -109,6 +116,7 @@
             </svg>
             <span>AI Assistant</span>
         </a>
+        @endif
     </nav>
 
     <!-- Sidebar Footer / Account Info -->
@@ -189,42 +197,32 @@
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('sidebarToggleBtn');
+        const closeBtn = document.getElementById('sidebarCloseBtn');
         const backdrop = document.getElementById('sidebarBackdrop');
-        const hamburgerIcon = document.getElementById('hamburgerIcon');
-        const closeIcon = document.getElementById('closeIcon');
 
-        if (!sidebar || !toggleBtn || !backdrop || !hamburgerIcon || !closeIcon) return;
-
-        let isOpen = false;
+        if (!sidebar || !toggleBtn || !backdrop) return;
 
         function openSidebar() {
-            isOpen = true;
             sidebar.classList.remove('-translate-x-full');
             backdrop.classList.remove('opacity-0', 'pointer-events-none');
             backdrop.classList.add('opacity-100');
-            hamburgerIcon.classList.add('hidden');
-            closeIcon.classList.remove('hidden');
+            toggleBtn.classList.add('hidden');
         }
 
         function closeSidebar() {
-            isOpen = false;
             sidebar.classList.add('-translate-x-full');
             backdrop.classList.remove('opacity-100');
             backdrop.classList.add('opacity-0', 'pointer-events-none');
-            hamburgerIcon.classList.remove('hidden');
-            closeIcon.classList.add('hidden');
+            toggleBtn.classList.remove('hidden');
         }
 
-        toggleBtn.addEventListener('click', function() {
-            if (isOpen) closeSidebar();
-            else openSidebar();
-        });
-
+        toggleBtn.addEventListener('click', openSidebar);
+        if (closeBtn) closeBtn.addEventListener('click', closeSidebar);
         backdrop.addEventListener('click', closeSidebar);
 
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
-                if (isOpen) closeSidebar();
+                closeSidebar();
                 closeLogoutModal();
             }
         });
