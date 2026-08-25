@@ -71,7 +71,7 @@
     </header>
 
     <!-- =========================================================
-         HERO SECTION (WITH CAMPUS.JPG BACKGROUND)
+         HERO SECTION (WITH CAMPUS BACKGROUND)
     ========================================================== -->
     <section id="home" class="relative pt-16 pb-24 md:pt-28 md:pb-32 bg-cover bg-center bg-no-repeat overflow-hidden"
         style="background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/images/campus.jpg');">
@@ -247,7 +247,7 @@
                     </h2>
 
                     <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        In St. Anthony’s College in San Jose de Buenavista, Antique, student theses and capstone projects have traditionally been archived as physical copies within the college library. As research output expands each year, physical storage constraints and manual cataloging present challenges for accessibility.
+                        In St. Anthony’s College in San Jose de Buenavista, Antique, student theses, research and capstone projects have traditionally been archived as physical copies within the college library. As research output expands each year, physical storage constraints and manual cataloging present challenges for accessibility.
                     </p>
 
                     <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -347,8 +347,8 @@
                     <h3 class="text-sm font-bold text-gray-900">Email</h3>
                     <p class="text-xs text-gray-600 leading-relaxed">
                         library@sac.edu.ph<br>
-                        research@sac.edu.ph<br>
-                        it.department@sac.edu.ph
+                        researchoffice@sac.edu.ph<br>
+                        sacitdepartment@sac.edu.ph
                     </p>
                 </div>
 
