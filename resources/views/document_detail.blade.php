@@ -93,26 +93,21 @@
                 $coverFilename = $coverMap[$deptKey] ?? $coverMap[$courseKey] ?? 'IT';
                 @endphp
 
-                <div class="flex flex-wrap items-center gap-2 mb-4 pr-12">
-                    <span class="rounded-lg bg-[#700000]/10 text-[#700000] border border-[#700000]/20 px-3 py-1 text-xs font-bold">
-                        St. Anthony's College
-                    </span>
+                <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 mb-4 pr-12 text-xs font-semibold text-gray-500">
+                    <span class="font-bold text-[#700000]">St. Anthony's College</span>
 
                     @if(!empty($document->department))
-                    <span class="rounded-lg bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 text-xs font-bold">
-                        {{ $departmentNames[$deptKey] ?? $document->department }}
-                    </span>
+                    <span class="text-gray-300">•</span>
+                    <span class="text-gray-700">{{ $departmentNames[$deptKey] ?? $document->department }}</span>
                     @endif
 
                     @if(!empty($document->course_code))
-                    <span class="rounded-lg bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 text-xs font-bold">
-                        {{ $courseNames[$courseKey] ?? strtoupper($document->course_code) }}
-                    </span>
+                    <span class="text-gray-300">•</span>
+                    <span class="text-gray-700 font-bold">{{ $courseNames[$courseKey] ?? strtoupper($document->course_code) }}</span>
                     @endif
 
-                    <span class="rounded-lg bg-slate-100 text-gray-600 border border-gray-200 px-3 py-1 text-xs font-semibold">
-                        {{ $document->created_at ? $document->created_at->format('F Y') : 'Recent' }}
-                    </span>
+                    <span class="text-gray-300">•</span>
+                    <span class="text-gray-500">{{ $document->created_at ? $document->created_at->format('F Y') : 'Recent' }}</span>
                 </div>
 
                 {{-- Book Cover & Title Header Row --}}

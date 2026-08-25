@@ -13,34 +13,35 @@
 <body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-[#700000] selection:text-[#FFD700]">
 
     <!-- =========================================================
-         NAVIGATION NAVBAR
+         NAVIGATION NAVBAR (ST. ANTHONY'S COLLEGE RED INSTITUTIONAL BANNER)
     ========================================================== -->
-    <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 transition-all">
+    <header class="sticky top-0 z-50 bg-[#700000] border-b-2 border-[#FFD700] shadow-xl transition-all"
+        style="background: linear-gradient(90deg, #5a0000 0%, #700000 50%, #4a0000 100%);">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
+            <div class="flex items-center justify-between h-20 sm:h-22">
 
-                <!-- Logo & Brand -->
+                <!-- Logo & Brand (Matching the Red Institutional Header) -->
                 <a href="#home" class="flex items-center gap-3.5 group">
                     <img
                         src="https://sac.campus-erp.com/Student/images/sac.png"
-                        alt="St. Anthony's College Logo"
-                        class="h-14 w-14 object-contain transition group-hover:scale-105">
+                        alt="St. Anthony's College Seal"
+                        class="h-12 w-12 sm:h-14 sm:w-14 object-contain transition group-hover:scale-105 drop-shadow-md">
                     <div class="flex flex-col">
-                        <span class="font-extrabold text-base sm:text-lg text-[#700000] tracking-tight leading-none">
+                        <span class="font-extrabold text-base sm:text-lg md:text-xl text-[#FFD700] tracking-tight leading-none drop-shadow-sm">
                             St. Anthony's College
                         </span>
-                        <span class="text-[11px] font-semibold text-amber-700 tracking-wider uppercase mt-1">
-                            Institutional Research Repository
+                        <span class="italic text-[11px] sm:text-xs text-white/95 tracking-normal font-medium mt-1 drop-shadow-xs">
+                            Spirituality, Academic Excellence and Community Service
                         </span>
                     </div>
                 </a>
 
                 <!-- Desktop Nav Links -->
-                <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-gray-600">
-                    <a href="#home" class="hover:text-[#700000] transition">Home</a>
-                    <a href="#features" class="hover:text-[#700000] transition">Features</a>
-                    <a href="#about" class="hover:text-[#700000] transition">About</a>
-                    <a href="#contact" class="hover:text-[#700000] transition">Contact Us</a>
+                <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-white/90">
+                    <a href="#home" class="hover:text-[#FFD700] transition">Home</a>
+                    <a href="#features" class="hover:text-[#FFD700] transition">Features</a>
+                    <a href="#about" class="hover:text-[#FFD700] transition">About</a>
+                    <a href="#contact" class="hover:text-[#FFD700] transition">Contact Us</a>
                 </nav>
 
                 <!-- Action Button -->
@@ -48,7 +49,7 @@
                     @if(session()->has('sac_user_role'))
                     <a
                         href="{{ session('sac_user_role') === 'admin' ? '/admin/upload' : '/documents' }}"
-                        class="inline-flex items-center gap-2 rounded-2xl bg-[#700000] px-5 py-2.5 text-xs md:text-sm font-bold text-[#FFD700] hover:bg-[#850000] shadow-md transition">
+                        class="inline-flex items-center gap-2 rounded-xl bg-[#FFD700] px-5 py-2 text-xs md:text-sm font-bold text-[#700000] hover:bg-[#ffe234] shadow-md transition">
                         <span>Go to Portal</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -57,7 +58,7 @@
                     @else
                     <a
                         href="/login"
-                        class="inline-flex items-center gap-2 rounded-2xl bg-[#700000] px-6 py-2.5 text-xs md:text-sm font-bold text-[#FFD700] hover:bg-[#850000] shadow-md transition">
+                        class="inline-flex items-center gap-2 rounded-xl bg-[#FFD700] px-5 sm:px-6 py-2 sm:py-2.5 text-xs md:text-sm font-bold text-[#700000] hover:bg-[#ffe234] shadow-md transition">
                         <span>Sign In</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
@@ -118,7 +119,7 @@
                 </div>
                 <div class="rounded-3xl border border-white/20 bg-black/35 backdrop-blur-md p-5 text-center shadow-lg text-white">
                     <p class="text-2xl sm:text-3xl font-extrabold text-[#FFD700]">Semantic</p>
-                    <p class="text-xs font-semibold text-gray-200 mt-1 uppercase tracking-wider">AI Vector Search</p>
+                    <p class="text-xs font-semibold text-gray-200 mt-1 uppercase tracking-wider">AI Search</p>
                 </div>
                 <div class="rounded-3xl border border-white/20 bg-black/35 backdrop-blur-md p-5 text-center shadow-lg text-white">
                     <p class="text-2xl sm:text-3xl font-extrabold text-[#FFD700]">RAG AI</p>
@@ -136,7 +137,7 @@
     <!-- =========================================================
          CORE FEATURES SECTION
     ========================================================== -->
-    <section id="features" class="py-20 bg-white border-y border-gray-200">
+    <section id="features" class="py-20 bg-white border-y border-gray-200 bg-gradient-to-t from-stone-50 to-red-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
@@ -236,7 +237,7 @@
     <!-- =========================================================
          ABOUT SECTION
     ========================================================== -->
-    <section id="about" class="py-20 bg-slate-50">
+    <section id="about" class="py-20 bg-slate-50 bg-gradient-to-t from-stone-50 to-red-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
@@ -306,7 +307,7 @@
     <!-- =========================================================
          CONTACT US SECTION
     ========================================================== -->
-    <section id="contact" class="py-20 bg-white border-t border-gray-200">
+    <section id="contact" class="py-20 bg-white border-t border-gray-200 bg-gradient-to-t from-stone-50 to-red-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">

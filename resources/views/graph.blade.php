@@ -126,7 +126,7 @@
                 <!-- Drawer Header -->
                 <div class="border-b border-gray-100 p-4 bg-slate-50 flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <span id="drawerBadge" class="rounded-lg bg-[#700000]/10 px-2 py-0.5 text-[10px] font-bold text-[#700000] uppercase tracking-wider">
+                        <span id="drawerBadge" class="text-xs font-bold text-[#700000] uppercase tracking-wider">
                             Thesis Details
                         </span>
                     </div>
@@ -164,7 +164,7 @@
                 </div>
 
                 <!-- Drawer Action Footer -->
-                <div class="border-t border-gray-200 p-4 bg-slate-50 space-y-2">
+                <div class="border-t border-gray-200 p-4 bg-slate-50">
                     <a
                         id="drawerReadBtn"
                         href="#"
@@ -173,13 +173,6 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                         </svg>
-                    </a>
-                    <a
-                        id="drawerPdfBtn"
-                        href="#"
-                        target="_blank"
-                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-slate-50 transition">
-                        <span>Open PDF File</span>
                     </a>
                 </div>
 

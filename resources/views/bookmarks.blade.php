@@ -234,16 +234,10 @@
                         </div>
 
                         <div class="flex-1 min-w-0 pr-8">
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
-                                    ${details.name}
-                                </span>
-                                <span class="rounded-lg bg-green-50 text-green-700 border border-green-200 px-2.5 py-0.5 text-[10px] font-bold flex items-center gap-1">
-                                    <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-                                    Full Text Available
-                                </span>
+                            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 font-semibold">
+                                <span class="font-bold text-[#700000]">St. Anthony's College</span>
+                                <span class="text-gray-300">•</span>
+                                <span class="text-gray-700">${escapeHtml(details.name)}</span>
                             </div>
 
                             <h3 class="mt-2.5 text-base md:text-lg font-bold text-gray-900 transition">

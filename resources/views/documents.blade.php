@@ -384,18 +384,18 @@
                         </div>
 
                         <div class="flex-1 min-w-0 pr-8">
-                            <div class="flex flex-wrap items-center gap-2">
+                            <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 font-semibold">
                             ${doc.similarity_score ? `
-                                <span class="rounded-lg bg-amber-50 text-amber-900 border border-amber-300 px-2.5 py-0.5 text-[10px] font-extrabold flex items-center gap-1 shadow-sm">
+                                <span class="rounded-md bg-amber-50 text-amber-900 border border-amber-300 px-2 py-0.5 text-[10px] font-extrabold flex items-center gap-1 shadow-2xs mr-1">
                                     <svg class="w-3 h-3 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                                     </svg>
                                     <span>${doc.similarity_score}% Match</span>
                                 </span>
                             ` : ''}
-                                <span class="rounded-lg border px-2.5 py-0.5 text-[10px] font-bold ${details.badgeBg}">
-                                    ${details.name}
-                                </span>
+                                <span class="font-bold text-[#700000]">St. Anthony's College</span>
+                                <span class="text-gray-300">•</span>
+                                <span class="text-gray-700">${escapeHtml(details.name)}</span>
                             </div>
 
                             <h3 class="mt-2.5 text-base md:text-lg font-bold text-gray-900 transition">
