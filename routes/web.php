@@ -89,6 +89,10 @@ Route::middleware('sac.auth')->group(function () {
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'indexView'])
         ->name('bookmarks');
 
+    Route::get('/settings', function () {
+        return view('settings');
+    })->name('settings');
+
     Route::get(
         '/backend/documents/{document}/view',
         [DocumentController::class, 'viewPdf']
@@ -114,6 +118,11 @@ Route::middleware('sac.auth')->group(function () {
             '/backend/admin/analytics-data',
             [\App\Http\Controllers\AnalyticsController::class, 'data']
         );
+
+        Route::get(
+            '/admin/analytics/export-csv',
+            [\App\Http\Controllers\AnalyticsController::class, 'exportCsv']
+        )->name('admin.analytics.export');
 
         Route::post(
             '/backend/documents/upload-url',

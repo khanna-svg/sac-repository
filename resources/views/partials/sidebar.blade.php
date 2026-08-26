@@ -129,6 +129,19 @@
             </svg>
             <span>AI Assistant</span>
         </a>
+
+        <!-- Preferences & Settings (Students Only) -->
+        <a
+            href="/settings"
+            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
+            {{ request()->is('settings')
+                ? 'bg-[#D4AF37] text-[#700000] shadow-md'
+                : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+            </svg>
+            <span>Preferences & Settings</span>
+        </a>
         @endif
     </nav>
 

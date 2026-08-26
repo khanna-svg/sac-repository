@@ -72,4 +72,60 @@ class AnalyticsController extends Controller
             'yearly' => $yearlyStats,
         ]);
     }
+
+    /**
+     * Export all repository theses as CSV report for library administration.
+     */
+    public function exportCsv(Request $request)
+    {
+        if ($request->session()->get('sac_user_role') !== 'admin') {
+            return redirect('/documents');
+        }
+
+        $theses = Document::withCount('chunks')->latest()->get();
+        $filename = 'SAC_Thesis_Repository_Report_' . date('Y-m-d') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($theses) {
+            $file = fopen('php://output', 'w');
+            // Write UTF-8 BOM for Excel compatibility
+            fputs($file, "\xEF\xBB\xBF");
+
+            // CSV Header Row
+            fputcsv($file, [
+                'ID',
+                'Thesis Title',
+                'Author(s)',
+                'Department',
+                'Course / Program',
+                'Indexed Pages',
+                'Date Uploaded',
+                'Abstract'
+            ]);
+
+            foreach ($theses as $thesis) {
+                fputcsv($file, [
+                    $thesis->id,
+                    $thesis->title,
+                    $thesis->author,
+                    strtoupper($thesis->department ?? 'N/A'),
+                    strtoupper($thesis->course_code ?? 'N/A'),
+                    $thesis->chunks_count ?? 0,
+                    $thesis->created_at ? $thesis->created_at->format('Y-m-d H:i') : 'N/A',
+                    preg_replace('/\s+/', ' ', trim($thesis->abstract ?? ''))
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }

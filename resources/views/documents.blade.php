@@ -593,13 +593,31 @@
             document.getElementById('citationModal').classList.remove('flex');
         }
 
-        // Build standard IEEE citation string
+        // Build standard citation string based on student preference
         function generateCitationText() {
             if (!currentCitationDoc) return;
             const author = currentCitationDoc.author || 'Author, A.';
             const title = currentCitationDoc.title || 'Untitled Thesis';
             const year = currentCitationDoc.created_at ? new Date(currentCitationDoc.created_at).getFullYear() : new Date().getFullYear();
-            const citation = `${author}, "${title}," Undergraduate thesis, Dept. of Research, St. Anthony's College, San Jose, Antique, ${year}.`;
+            const preferredStyle = localStorage.getItem('sac_preferred_citation') || 'ieee';
+
+            let citation = '';
+            let styleLabel = 'IEEE Style Format';
+
+            if (preferredStyle === 'apa') {
+                styleLabel = 'APA 7th Edition Format';
+                citation = `${author} (${year}). ${title} [Undergraduate thesis, St. Anthony's College]. SAC Institutional Research Repository.`;
+            } else if (preferredStyle === 'mla') {
+                styleLabel = 'MLA 9th Edition Format';
+                citation = `${author}. "${title}." Undergraduate thesis, St. Anthony's College, ${year}.`;
+            } else {
+                styleLabel = 'IEEE Style Format';
+                citation = `${author}, "${title}," Undergraduate thesis, St. Anthony's College, San Jose, Antique, ${year}.`;
+            }
+
+            const styleHeader = document.querySelector('#citationModal .bg-white.text-\\[\\#700000\\]');
+            if (styleHeader) styleHeader.textContent = styleLabel;
+
             document.getElementById('citationText').textContent = citation;
             resetCopyButton();
         }
@@ -627,6 +645,18 @@
 
         // Initial load on page ready
         async function init() {
+            // Apply student's saved preferences
+            const savedDept = localStorage.getItem('sac_preferred_dept');
+            if (savedDept) {
+                const deptFilter = document.getElementById('departmentFilter');
+                if (deptFilter) deptFilter.value = savedDept;
+            }
+
+            const savedEngine = localStorage.getItem('sac_preferred_engine');
+            if (savedEngine === 'semantic') {
+                setSearchMode('semantic');
+            }
+
             await fetchBookmarkIds();
             await fetchDocuments();
         }

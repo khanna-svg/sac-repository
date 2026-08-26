@@ -335,7 +335,25 @@
             const author = currentCitationDoc.author || 'Author, A.';
             const title = currentCitationDoc.title || 'Untitled Thesis';
             const year = currentCitationDoc.created_at ? new Date(currentCitationDoc.created_at).getFullYear() : new Date().getFullYear();
-            const citation = `${author}, "${title}," Undergraduate thesis, Dept. of Research, St. Anthony's College, San Jose, Antique, ${year}.`;
+            const preferredStyle = localStorage.getItem('sac_preferred_citation') || 'ieee';
+
+            let citation = '';
+            let styleLabel = 'IEEE Style Format';
+
+            if (preferredStyle === 'apa') {
+                styleLabel = 'APA 7th Edition Format';
+                citation = `${author} (${year}). ${title} [Undergraduate thesis, St. Anthony's College]. SAC Institutional Research Repository.`;
+            } else if (preferredStyle === 'mla') {
+                styleLabel = 'MLA 9th Edition Format';
+                citation = `${author}. "${title}." Undergraduate thesis, St. Anthony's College, ${year}.`;
+            } else {
+                styleLabel = 'IEEE Style Format';
+                citation = `${author}, "${title}," Undergraduate thesis, St. Anthony's College, San Jose, Antique, ${year}.`;
+            }
+
+            const styleHeader = document.querySelector('#citationModal .bg-white.text-\\[\\#700000\\]');
+            if (styleHeader) styleHeader.textContent = styleLabel;
+
             document.getElementById('citationText').textContent = citation;
             resetCopyButton();
         }

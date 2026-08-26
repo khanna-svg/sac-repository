@@ -566,7 +566,24 @@
         }
 
         function openCitationModal() {
-            const text = `${docAuthor}, "${docTitle}," Undergraduate thesis, St. Anthony's College, ${docYear}.`;
+            const preferredStyle = localStorage.getItem('sac_preferred_citation') || 'ieee';
+            let text = '';
+            let styleLabel = 'IEEE Style Format';
+
+            if (preferredStyle === 'apa') {
+                styleLabel = 'APA 7th Edition Format';
+                text = `${docAuthor} (${docYear}). ${docTitle} [Undergraduate thesis, St. Anthony's College]. SAC Institutional Research Repository.`;
+            } else if (preferredStyle === 'mla') {
+                styleLabel = 'MLA 9th Edition Format';
+                text = `${docAuthor}. "${docTitle}." Undergraduate thesis, St. Anthony's College, ${docYear}.`;
+            } else {
+                styleLabel = 'IEEE Style Format';
+                text = `${docAuthor}, "${docTitle}," Undergraduate thesis, St. Anthony's College, ${docYear}.`;
+            }
+
+            const styleHeader = document.querySelector('#citationModal .bg-white.text-\\[\\#700000\\]');
+            if (styleHeader) styleHeader.textContent = styleLabel;
+
             document.getElementById('citationText').textContent = text;
             document.getElementById('citationModal').classList.remove('hidden');
             document.getElementById('citationModal').classList.add('flex');
