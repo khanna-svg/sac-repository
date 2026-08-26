@@ -121,16 +121,49 @@
                     document.getElementById('statTotalBookmarks').textContent = data.metrics.total_bookmarks;
                 }
 
+                // Color palettes mapped by department and degree program
+                const deptColorMap = {
+                    'IT': '#700000',
+                    'INFORMATION TECHNOLOGY': '#700000',
+                    'EDUCATION': '#0284c7',
+                    'TEACHER EDUCATION': '#0284c7',
+                    'MARINE': '#059669',
+                    'MARINE ENGINEERING': '#059669',
+                    'NURSING': '#d97706',
+                    'HOSPITALITY': '#7c3aed',
+                    'HOSPITALITY MANAGEMENT': '#7c3aed',
+                    'CRIMINOLOGY': '#dc2626',
+                    'BUSINESS': '#ca8a04',
+                    'ACCOUNTANCY': '#ca8a04'
+                };
+
+                const courseColorMap = {
+                    'BSIT': '#700000',
+                    'BSED': '#0284c7',
+                    'BEED': '#0284c7',
+                    'BSMARE': '#059669',
+                    'BSN': '#d97706',
+                    'BSHM': '#7c3aed',
+                    'BSC': '#dc2626',
+                    'BSCRIM': '#dc2626',
+                    'BSBA': '#ca8a04',
+                    'BSA': '#ca8a04'
+                };
+
+                const defaultPalette = ['#700000', '#0284c7', '#059669', '#d97706', '#7c3aed', '#dc2626', '#ca8a04'];
+
                 // 2. Department Doughnut Chart
                 const deptLabels = data.departments.map(d => d.department.toUpperCase());
                 const deptCounts = data.departments.map(d => d.count);
+                const deptColors = deptLabels.map((lbl, idx) => deptColorMap[lbl] || defaultPalette[idx % defaultPalette.length]);
+
                 new Chart(document.getElementById('deptChart'), {
                     type: 'doughnut',
                     data: {
-                        labels: deptLabels.length ? deptLabels : ['Information Technology', 'Nursing', 'Marine Engineering'],
+                        labels: deptLabels.length ? deptLabels : ['Information Technology', 'Education', 'Marine Engineering', 'Nursing'],
                         datasets: [{
-                            data: deptCounts.length ? deptCounts : [1, 0, 0],
-                            backgroundColor: ['#700000', '#0284c7', '#059669', '#d97706', '#7c3aed', '#dc2626'],
+                            data: deptCounts.length ? deptCounts : [1, 0, 0, 0],
+                            backgroundColor: deptColors.length ? deptColors : defaultPalette,
                             borderWidth: 2,
                             borderColor: '#ffffff'
                         }]
@@ -138,21 +171,37 @@
                     options: { responsive: true, maintainAspectRatio: false }
                 });
 
-                // 3. Course Bar Chart
+                // 3. Course Bar Chart (Matching Department Colors)
                 const courseLabels = data.courses.map(c => c.course_code.toUpperCase());
                 const courseCounts = data.courses.map(c => c.count);
+                const courseColors = courseLabels.map((lbl, idx) => courseColorMap[lbl] || defaultPalette[idx % defaultPalette.length]);
+
                 new Chart(document.getElementById('courseChart'), {
                     type: 'bar',
                     data: {
-                        labels: courseLabels.length ? courseLabels : ['BSIT', 'BSN', 'BSMarE'],
+                        labels: courseLabels.length ? courseLabels : ['BSIT', 'BSED', 'BSMARE', 'BSN'],
                         datasets: [{
                             label: 'Theses Count',
-                            data: courseCounts.length ? courseCounts : [1, 0, 0],
-                            backgroundColor: '#700000',
+                            data: courseCounts.length ? courseCounts : [1, 0, 0, 0],
+                            backgroundColor: courseColors.length ? courseColors : defaultPalette,
                             borderRadius: 6
                         }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
                 });
 
                 // 4. Yearly Line Chart
