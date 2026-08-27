@@ -519,6 +519,12 @@
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
         let toastTimeout = null;
 
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value ?? '';
+            return div.innerHTML;
+        }
+
         // Continuous Scrollable PDF Reader state
         let pdfDoc = null;
         let currentScale = 1.3;

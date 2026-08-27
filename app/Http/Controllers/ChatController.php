@@ -77,6 +77,24 @@ class ChatController extends Controller
 
             // Step 3: Handle case when no thesis chunks exist yet
             if (empty($chunks)) {
+                if ($documentId) {
+                    $doc = DB::table('documents')->where('id', $documentId)->first();
+                    if ($doc) {
+                        $contextText = "Thesis Title: {$doc->title}\nAuthor: {$doc->author}\nDepartment: {$doc->department}\nAbstract:\n{$doc->abstract}";
+                        $answer = $this->geminiService->generateAnswer($userQuestion, $contextText);
+                        return response()->json([
+                            'error' => false,
+                            'answer' => $answer,
+                            'sources' => [[
+                                'id' => $doc->id,
+                                'title' => $doc->title,
+                                'author' => $doc->author,
+                                'similarity' => 100
+                            ]]
+                        ]);
+                    }
+                }
+
                 Log::warning('RAG: document_chunks returned no results.', ['question' => $userQuestion]);
 
                 return response()->json([
