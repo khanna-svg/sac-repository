@@ -103,6 +103,11 @@ Route::middleware('sac.auth')->group(function () {
         [DocumentController::class, 'getSignedUrl']
     );
 
+    Route::post(
+        '/backend/chat',
+        [\App\Http\Controllers\ChatController::class, 'ask']
+    );
+
     Route::middleware([RequireSacAdmin::class])->group(function () {
 
         Route::get('/admin/upload', function () {

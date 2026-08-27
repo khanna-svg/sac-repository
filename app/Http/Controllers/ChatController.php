@@ -48,6 +48,12 @@ class ChatController extends Controller
 
             $embeddingVector = '[' . implode(',', $embedding) . ']';
 
+            $documentId = $request->input('document_id');
+            $docFilterSql = $documentId ? "AND dc.document_id = ?" : "";
+            $bindings = $documentId 
+                ? [$embeddingVector, $documentId, $embeddingVector]
+                : [$embeddingVector, $embeddingVector];
+
             // Step 2: Search database for top 5 closest matching thesis text chunks
             $chunks = DB::select("
                 SELECT
@@ -62,14 +68,12 @@ class ChatController extends Controller
                 FROM document_chunks dc
                 INNER JOIN documents d ON d.id = dc.document_id
                 WHERE dc.embedding IS NOT NULL
+                {$docFilterSql}
                 ORDER BY
                     dc.embedding OPERATOR(extensions.<=>)
                     ?::extensions.vector ASC
                 LIMIT 5
-            ", [
-                $embeddingVector,
-                $embeddingVector
-            ]);
+            ", $bindings);
 
             // Step 3: Handle case when no thesis chunks exist yet
             if (empty($chunks)) {
