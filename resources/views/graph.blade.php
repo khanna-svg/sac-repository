@@ -22,7 +22,7 @@
 
     @include('partials.sidebar')
 
-    <main class="md:ml-64 min-h-screen flex flex-col pt-14 md:pt-0">
+    <main id="mainContent" class="md:ml-64 min-h-screen flex flex-col pt-14 md:pt-0 transition-all duration-300">
 
         <!-- Top Header & Control Toolbar -->
         <div class="border-b border-gray-200 bg-white px-4 md:px-8 py-3.5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">

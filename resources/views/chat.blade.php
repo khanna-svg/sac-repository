@@ -17,7 +17,7 @@
 
     @include('partials.sidebar')
 
-    <div class="md:ml-64 flex h-screen flex-col">
+    <div id="mainContent" class="md:ml-64 flex h-screen flex-col transition-all duration-300">
 
         <!-- HEADER -->
         <header class="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 md:px-6 py-4 shadow-sm">
