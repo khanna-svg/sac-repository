@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SAC Thesis Repository - Documents</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
@@ -191,6 +192,135 @@
             </div>
         </div>
     </div>
+
+    {{-- =========================================================
+         RIGHT-SIDE AI RESEARCH ASSISTANT DRAWER (YOUTUBE / GEMINI STYLE)
+    ========================================================== --}}
+    <!-- Mobile Backdrop for AI Drawer -->
+    <div
+        id="aiDrawerBackdrop"
+        onclick="closeDocAiDrawer()"
+        class="fixed inset-0 z-50 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden">
+    </div>
+
+    <!-- Right-Side AI Drawer -->
+    <aside
+        id="aiDrawer"
+        class="fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] md:w-[460px] bg-white border-l border-gray-200 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out translate-x-full">
+        
+        <!-- Drawer Header -->
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-white">
+            <div class="flex items-center gap-2.5 min-w-0 pr-2">
+                <div class="w-8 h-8 rounded-xl bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <h2 class="text-sm font-bold text-gray-900 truncate">Ask about this thesis</h2>
+                    <p id="aiDrawerDocTitle" class="text-[10px] text-gray-500 truncate">Select a thesis...</p>
+                </div>
+            </div>
+            <button
+                type="button"
+                onclick="closeDocAiDrawer()"
+                aria-label="Close AI Drawer"
+                class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Chat Conversation Feed -->
+        <div id="aiDrawerMessages" class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-slate-50/60">
+            
+            <!-- Initial Greeting & Quick Question Chips (YouTube Style) -->
+            <div id="aiInitialCard" class="space-y-3.5">
+                <div class="flex items-start gap-2.5">
+                    <div class="w-6 h-6 rounded-lg bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 text-xs font-bold mt-0.5 shadow-2xs">
+                        ✨
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
+                            Hello! Curious about what you're reading? I'm here to help analyze this thesis.
+                        </p>
+                        <p class="text-[11px] text-gray-500 mt-2 font-medium">
+                            Not sure what to ask? Choose something:
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Quick Prompt Chips -->
+                <div class="flex flex-col gap-2 pl-8">
+                    <button
+                        type="button"
+                        onclick="sendDocQuickQuestion('Summarize this thesis in 3 concise bullet points.')"
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
+                        📑 Summarize this thesis
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="sendDocQuickQuestion('What is the main problem and objective of this research?')"
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
+                        🎯 What problem does this study solve?
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="sendDocQuickQuestion('What methodology, tools, and technologies were used in this system?')"
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
+                        💻 What methodology and tech stack was used?
+                    </button>
+
+                    <button
+                        type="button"
+                        onclick="sendDocQuickQuestion('What are the key conclusions, findings, and recommendations of this study?')"
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
+                        📊 What are the conclusions & findings?
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dynamic Messages Thread -->
+            <div id="aiDrawerChatThread" class="space-y-4"></div>
+
+            <!-- Typing Indicator -->
+            <div id="aiDrawerTyping" class="hidden items-center gap-2 text-xs text-gray-400 pl-2">
+                <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse"></span>
+                <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse delay-150"></span>
+                <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse delay-300"></span>
+                <span class="text-[11px] text-gray-500 font-medium ml-1">Gemini is analyzing thesis...</span>
+            </div>
+        </div>
+
+        <!-- Drawer Input Footer -->
+        <div class="p-3 border-t border-gray-200 bg-white">
+            <form id="aiDrawerForm" onsubmit="handleDocAiSubmit(event)" class="relative flex items-center">
+                <input
+                    id="aiDrawerInput"
+                    type="text"
+                    placeholder="Ask a question..."
+                    autocomplete="off"
+                    class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-12 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
+                
+                <button
+                    id="aiDrawerSendBtn"
+                    type="submit"
+                    title="Send question"
+                    class="absolute right-2 p-2 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] transition disabled:opacity-50 cursor-pointer shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                    </svg>
+                </button>
+            </form>
+            <p class="text-[9px] text-gray-400 text-center mt-1.5">
+                Grounded in St. Anthony's College research • Powered by Gemini
+            </p>
+        </div>
+
+    </aside>
 
     {{-- JAVASCRIPT LOGIC --}}
     <script>
@@ -432,15 +562,16 @@
                                         <span>Cite (IEEE)</span>
                                     </button>
 
-                                    <a
-                                        href="/chat?q=${encodeURIComponent('Tell me about the thesis: ' + doc.title)}"
-                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5"
+                                    <button
+                                        type="button"
+                                        onclick="openDocAiDrawer(${idx})"
+                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 cursor-pointer"
                                     >
-                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <svg class="w-3.5 h-3.5 shrink-0 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                                         </svg>
                                         <span>Ask AI</span>
-                                    </a>
+                                    </button>
                                 </div>
                             </div>
 
@@ -642,6 +773,160 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
             `;
         }
+
+        // =========================================================
+        // RIGHT-SIDE AI RESEARCH DRAWER (YOUTUBE / GEMINI STYLE)
+        // =========================================================
+        let activeDrawerDocId = null;
+
+        function openDocAiDrawer(idx) {
+            const doc = allDocuments[idx];
+            if (!doc) return;
+
+            activeDrawerDocId = doc.id;
+            const docTitleElem = document.getElementById('aiDrawerDocTitle');
+            if (docTitleElem) docTitleElem.textContent = doc.title;
+
+            // Reset chat thread and input
+            const thread = document.getElementById('aiDrawerChatThread');
+            if (thread) thread.innerHTML = '';
+            const input = document.getElementById('aiDrawerInput');
+            if (input) input.value = '';
+
+            const drawer = document.getElementById('aiDrawer');
+            const backdrop = document.getElementById('aiDrawerBackdrop');
+            if (!drawer || !backdrop) return;
+
+            drawer.classList.remove('translate-x-full');
+            backdrop.classList.remove('opacity-0', 'pointer-events-none');
+            backdrop.classList.add('opacity-100');
+
+            setTimeout(() => {
+                if (input) input.focus();
+            }, 250);
+        }
+
+        function closeDocAiDrawer() {
+            const drawer = document.getElementById('aiDrawer');
+            const backdrop = document.getElementById('aiDrawerBackdrop');
+            if (!drawer || !backdrop) return;
+
+            drawer.classList.add('translate-x-full');
+            backdrop.classList.remove('opacity-100');
+            backdrop.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        async function sendDocQuickQuestion(questionText) {
+            const input = document.getElementById('aiDrawerInput');
+            if (input) input.value = questionText;
+            await processDocAiQuestion(questionText);
+        }
+
+        async function handleDocAiSubmit(e) {
+            e.preventDefault();
+            const input = document.getElementById('aiDrawerInput');
+            if (!input) return;
+            const question = input.value.trim();
+            if (!question) return;
+            input.value = '';
+            await processDocAiQuestion(question);
+        }
+
+        async function processDocAiQuestion(question) {
+            const thread = document.getElementById('aiDrawerChatThread');
+            const typing = document.getElementById('aiDrawerTyping');
+            const sendBtn = document.getElementById('aiDrawerSendBtn');
+            const messagesContainer = document.getElementById('aiDrawerMessages');
+
+            if (!thread || !typing || !sendBtn || !messagesContainer) return;
+
+            // 1. Append user message bubble
+            const userBubble = document.createElement('div');
+            userBubble.className = 'flex justify-end';
+            userBubble.innerHTML = `
+                <div class="max-w-[85%] rounded-2xl rounded-tr-xs bg-[#700000] text-white px-4 py-2.5 text-xs sm:text-sm font-medium shadow-sm leading-relaxed">
+                    ${escapeHtml(question)}
+                </div>
+            `;
+            thread.appendChild(userBubble);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // 2. Show typing indicator
+            typing.classList.remove('hidden');
+            typing.classList.add('flex');
+            sendBtn.disabled = true;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            try {
+                const res = await fetch('/backend/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        message: question,
+                        document_id: activeDrawerDocId
+                    })
+                });
+
+                const data = await res.json();
+                typing.classList.add('hidden');
+                typing.classList.remove('flex');
+                sendBtn.disabled = false;
+
+                const aiBubble = document.createElement('div');
+                aiBubble.className = 'flex items-start gap-2.5';
+
+                let rawAnswer = data.answer || 'I could not generate an answer for this thesis.';
+                let formattedAnswer = rawAnswer;
+
+                if (typeof marked !== 'undefined' && marked.parse) {
+                    formattedAnswer = marked.parse(rawAnswer);
+                } else {
+                    formattedAnswer = escapeHtml(rawAnswer).replace(/\n/g, '<br>');
+                }
+
+                aiBubble.innerHTML = `
+                    <div class="w-6 h-6 rounded-lg bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 text-xs font-bold mt-0.5 shadow-2xs">
+                        ✨
+                    </div>
+                    <div class="flex-1 max-w-[90%] bg-white border border-gray-200 rounded-2xl rounded-tl-xs p-3.5 shadow-sm text-xs sm:text-sm text-gray-800 leading-relaxed space-y-2">
+                        ${formattedAnswer}
+                    </div>
+                `;
+                thread.appendChild(aiBubble);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            } catch (err) {
+                console.error('AI Drawer error:', err);
+                typing.classList.add('hidden');
+                typing.classList.remove('flex');
+                sendBtn.disabled = false;
+
+                const errorBubble = document.createElement('div');
+                errorBubble.className = 'flex items-start gap-2.5';
+                errorBubble.innerHTML = `
+                    <div class="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5">
+                        ✕
+                    </div>
+                    <div class="flex-1 max-w-[90%] bg-rose-50 border border-rose-200 rounded-2xl rounded-tl-xs p-3.5 text-xs text-rose-800 font-medium">
+                        Failed to connect to AI Assistant. Please try again.
+                    </div>
+                `;
+                thread.appendChild(errorBubble);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        }
+
+        // Global Escape Listener
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeCitationModal();
+                closeDocAiDrawer();
+            }
+        });
 
         // Initial load on page ready
         async function init() {
