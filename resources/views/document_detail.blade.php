@@ -827,8 +827,6 @@
         }
 
         async function sendQuickQuestion(questionText) {
-            const input = document.getElementById('aiDrawerInput');
-            if (input) input.value = questionText;
             await processAiDrawerQuestion(questionText);
         }
 

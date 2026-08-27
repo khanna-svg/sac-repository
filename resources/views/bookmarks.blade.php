@@ -550,8 +550,6 @@
         }
 
         async function sendBookmarkQuickQuestion(questionText) {
-            const input = document.getElementById('aiDrawerInput');
-            if (input) input.value = questionText;
             await processBookmarkAiQuestion(questionText);
         }
 
