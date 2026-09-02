@@ -205,22 +205,41 @@
                     </div>
 
                     @if($document->chunks && $document->chunks->count() > 0)
-                    <div class="space-y-6 max-h-[700px] overflow-y-auto pr-2">
+                    {{-- Notice banner with shortcut to PDF canvas reader --}}
+                    <div class="rounded-2xl bg-amber-50/80 border border-amber-200/80 p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5 text-xs text-amber-900">
+                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                            </svg>
+                            <span>Viewing extracted text with preserved formatting. For exact visual pages, open the Protected Reader.</span>
+                        </div>
+                        <button
+                            type="button"
+                            onclick="openSecurePdfReader('/backend/documents/{{ $document->id }}/view')"
+                            class="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-[#700000] px-3.5 py-1.5 text-xs font-bold text-[#FFD700] hover:bg-[#850000] transition shadow-xs cursor-pointer">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                            </svg>
+                            <span>Open PDF Reader</span>
+                        </button>
+                    </div>
+
+                    <div class="space-y-6 max-h-[750px] overflow-y-auto pr-2">
                         @foreach($document->chunks as $chunk)
-                        <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                            <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-2">
-                                <span class="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-bold text-[#700000]">
+                        <div class="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-xs">
+                            {{-- Manuscript Page Header --}}
+                            <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-2.5">
+                                <span class="rounded-lg bg-red-50 border border-red-100 px-3 py-1 text-xs font-bold text-[#700000]">
                                     Page {{ $chunk->page_number ?? $loop->iteration }}
                                 </span>
+                                <span class="text-[11px] text-gray-400 truncate max-w-xs hidden sm:inline">
+                                    {{ $document->title }}
+                                </span>
                             </div>
-                            <div class="space-y-4 text-center">
-                                @foreach(explode("\n\n", $chunk->chunk_text) as $paragraph)
-                                @if(trim($paragraph))
-                                <p class="text-justify text-xs md:text-sm text-gray-800 leading-relaxed font-sans">
-                                    {{ trim($paragraph) }}
-                                </p>
-                                @endif
-                                @endforeach
+
+                            {{-- Clean Formatted Manuscript Page Body (Preserves Line Breaks) --}}
+                            <div class="whitespace-pre-line text-xs md:text-sm text-gray-800 leading-relaxed font-sans break-words select-none">
+                                {!! nl2br(e(preg_replace('/^[ \t]+/m', '', $chunk->chunk_text))) !!}
                             </div>
                         </div>
                         @endforeach
