@@ -190,68 +190,59 @@
                     </div>
                 </div>
 
-                {{-- Full Text Tab Content (Protected from Copy-Pasting) --}}
-                <div id="tabFullTextContent" class="hidden space-y-6 select-none" oncontextmenu="return false;">
+                {{-- Full Text Tab Content (Exact PDF Layout with Protected Canvas Viewer) --}}
+                <div id="tabFullTextContent" class="hidden space-y-4 select-none" oncontextmenu="return false;">
                     <div class="flex items-center justify-between border-b border-gray-200 pb-3">
-                        <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] flex items-center gap-2">
-                            <span>Full Text Content</span>
-                            <span class="text-[10px] font-normal text-gray-400">(Read-Only Protected)</span>
-                        </h2>
-                        @if($document->chunks && $document->chunks->count() > 0)
-                        <span class="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-gray-600">
-                            Total Pages: {{ $document->chunks->count() }}
-                        </span>
-                        @endif
-                    </div>
-
-                    @if($document->chunks && $document->chunks->count() > 0)
-                    {{-- Notice banner with shortcut to PDF canvas reader --}}
-                    <div class="rounded-2xl bg-amber-50/80 border border-amber-200/80 p-3.5 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div class="flex items-center gap-2.5 text-xs text-amber-900">
-                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                            </svg>
-                            <span>Viewing extracted text with preserved formatting. For exact visual pages, open the Protected Reader.</span>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000]">
+                                Full Text Content
+                            </h2>
+                            <span class="rounded-md bg-red-50 text-[#700000] border border-red-200/60 px-2 py-0.5 text-[10px] font-extrabold uppercase">
+                                Protected Read-Only
+                            </span>
                         </div>
-                        <button
-                            type="button"
-                            onclick="openSecurePdfReader('/backend/documents/{{ $document->id }}/view')"
-                            class="shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-[#700000] px-3.5 py-1.5 text-xs font-bold text-[#FFD700] hover:bg-[#850000] transition shadow-xs cursor-pointer">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                            </svg>
-                            <span>Open PDF Reader</span>
-                        </button>
-                    </div>
 
-                    <div class="space-y-6 max-h-[750px] overflow-y-auto pr-2">
-                        @foreach($document->chunks as $chunk)
-                        <div class="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-xs">
-                            {{-- Manuscript Page Header --}}
-                            <div class="mb-4 flex items-center justify-between border-b border-gray-100 pb-2.5">
-                                <span class="rounded-lg bg-red-50 border border-red-100 px-3 py-1 text-xs font-bold text-[#700000]">
-                                    Page {{ $chunk->page_number ?? $loop->iteration }}
-                                </span>
-                                <span class="text-[11px] text-gray-400 truncate max-w-xs hidden sm:inline">
-                                    {{ $document->title }}
-                                </span>
-                            </div>
-
-                            {{-- Clean Formatted Manuscript Page Body (Preserves Line Breaks) --}}
-                            <div class="whitespace-pre-line text-xs md:text-sm text-gray-800 leading-relaxed font-sans break-words select-none">
-                                {!! nl2br(e(preg_replace('/^[ \t]+/m', '', $chunk->chunk_text))) !!}
+                        <!-- Zoom Controls & Page Count -->
+                        <div class="flex items-center gap-2">
+                            <span id="tabPdfPageCount" class="text-xs font-semibold text-gray-500 hidden sm:inline">Loading pages...</span>
+                            <div class="flex items-center gap-1 bg-slate-100 rounded-xl px-2 py-1 border border-gray-200 text-xs">
+                                <button
+                                    type="button"
+                                    onclick="zoomTabPdf(-0.2)"
+                                    class="p-1 rounded hover:bg-white text-gray-700 transition cursor-pointer"
+                                    title="Zoom Out">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                                    </svg>
+                                </button>
+                                <span id="tabPdfZoomPercent" class="px-1.5 text-[11px] font-mono font-bold text-gray-700">100%</span>
+                                <button
+                                    type="button"
+                                    onclick="zoomTabPdf(0.2)"
+                                    class="p-1 rounded hover:bg-white text-gray-700 transition cursor-pointer"
+                                    title="Zoom In">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
-                        @endforeach
                     </div>
-                    @else
-                    <div class="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center text-sm text-amber-800">
-                        <p class="font-bold">Full text extraction is processed in the secure reader.</p>
-                        <button onclick="openSecurePdfReader('/backend/documents/{{ $document->id }}/view')" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000]">
-                            <span>Open Protected PDF Reader</span>
-                        </button>
+
+                    <!-- Scrollable Container for Exact PDF Pages -->
+                    <div id="tabPdfContainer" class="rounded-3xl border border-gray-200 bg-slate-100/70 p-4 sm:p-6 max-h-[850px] overflow-y-auto flex flex-col items-center gap-6 shadow-inner scroll-smooth">
+                        <!-- Loading Spinner -->
+                        <div id="tabPdfLoader" class="flex flex-col items-center justify-center py-12 gap-3">
+                            <svg class="w-8 h-8 animate-spin text-[#700000]" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <p class="text-xs font-semibold text-gray-500">Rendering exact PDF manuscript pages...</p>
+                        </div>
+
+                        <!-- Rendered Pages List -->
+                        <div id="tabPdfPagesWrapper" class="flex flex-col items-center gap-6 w-full max-w-2xl"></div>
                     </div>
-                    @endif
                 </div>
 
             </article>
@@ -704,6 +695,100 @@
             imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>SAC THESIS</text></svg>";
         }
 
+        // =========================================================
+        // FULL TEXT TAB - EMBEDDED REAL PDF VIEWER (EXACT PDF FORMAT)
+        // =========================================================
+        let tabPdfDoc = null;
+        let tabPdfScale = 1.15;
+        let tabPdfLoaded = false;
+
+        async function loadTabPdf() {
+            if (tabPdfLoaded && tabPdfDoc) return;
+            const loader = document.getElementById('tabPdfLoader');
+            const pagesWrapper = document.getElementById('tabPdfPagesWrapper');
+            const pageCountElem = document.getElementById('tabPdfPageCount');
+
+            if (!loader || !pagesWrapper) return;
+            loader.classList.remove('hidden');
+            pagesWrapper.innerHTML = '';
+
+            try {
+                const res = await fetch(`/backend/documents/${currentDocId}/signed-url`);
+                if (!res.ok) throw new Error('Could not obtain PDF link');
+                const data = await res.json();
+                if (!data.url) throw new Error('Invalid PDF URL');
+
+                const loadingTask = pdfjsLib.getDocument({
+                    url: data.url,
+                    cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+                    cMapPacked: true
+                });
+                tabPdfDoc = await loadingTask.promise;
+                tabPdfLoaded = true;
+                if (pageCountElem) pageCountElem.textContent = `${tabPdfDoc.numPages} Pages`;
+
+                await renderTabPdfPages();
+                loader.classList.add('hidden');
+            } catch (err) {
+                console.error('Error loading tab PDF:', err);
+                loader.innerHTML = `
+                    <div class="p-6 text-center text-red-500 bg-red-50 rounded-2xl border border-red-200 max-w-sm mx-auto">
+                        <p class="font-bold text-sm">Unable to render PDF manuscript pages</p>
+                        <p class="text-xs text-gray-500 mt-1">Please try opening the full protected reader.</p>
+                        <button onclick="openSecurePdfReader('/backend/documents/${currentDocId}/view')" class="mt-3 px-3.5 py-1.5 rounded-xl bg-[#700000] text-[#FFD700] text-xs font-bold">Open Full Reader</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function renderTabPdfPages() {
+            if (!tabPdfDoc) return;
+            const pagesWrapper = document.getElementById('tabPdfPagesWrapper');
+            if (!pagesWrapper) return;
+            pagesWrapper.innerHTML = '';
+
+            for (let num = 1; num <= tabPdfDoc.numPages; num++) {
+                const page = await tabPdfDoc.getPage(num);
+                const viewport = page.getViewport({ scale: tabPdfScale });
+
+                const card = document.createElement('div');
+                card.className = 'flex flex-col items-center bg-white shadow-md rounded-2xl overflow-hidden border border-gray-200 w-full max-w-full transition hover:shadow-lg';
+
+                const canvas = document.createElement('canvas');
+                canvas.className = 'block max-w-full h-auto';
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const ctx = canvas.getContext('2d');
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+                await page.render(renderContext).promise;
+
+                const pageFooter = document.createElement('div');
+                pageFooter.className = 'w-full py-2 bg-slate-50 border-t border-gray-100 text-center text-[11px] font-bold text-gray-500 tracking-wider uppercase font-mono';
+                pageFooter.textContent = `Page ${num} of ${tabPdfDoc.numPages}`;
+
+                card.appendChild(canvas);
+                card.appendChild(pageFooter);
+                pagesWrapper.appendChild(card);
+            }
+
+            const zoomElem = document.getElementById('tabPdfZoomPercent');
+            if (zoomElem) zoomElem.textContent = Math.round((tabPdfScale / 1.15) * 100) + '%';
+        }
+
+        async function zoomTabPdf(delta) {
+            const newScale = tabPdfScale + delta;
+            if (newScale < 0.6 || newScale > 2.2) return;
+            tabPdfScale = newScale;
+            const loader = document.getElementById('tabPdfLoader');
+            if (loader) loader.classList.remove('hidden');
+            await renderTabPdfPages();
+            if (loader) loader.classList.add('hidden');
+        }
+
         function switchViewTab(tab) {
             const abstractBtn = document.getElementById('tabAbstractBtn');
             const fullTextBtn = document.getElementById('tabFullTextBtn');
@@ -720,6 +805,7 @@
                 fullTextContent.classList.remove('hidden');
                 fullTextBtn.className = "py-3 px-5 text-sm font-bold border-b-2 border-[#700000] text-[#700000] transition";
                 abstractBtn.className = "py-3 px-5 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition";
+                loadTabPdf();
             }
         }
 
