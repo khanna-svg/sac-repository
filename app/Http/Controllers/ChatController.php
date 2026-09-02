@@ -37,10 +37,27 @@ class ChatController extends Controller
         }
 
         $userQuestion = trim($userQuestion);
+        $history = (array) $request->input('history', []);
 
         try {
-            // Step 1: Convert student's question into vector numbers using Gemini
-            $embedding = $this->geminiService->generateEmbedding($userQuestion);
+            // Step 1: Create contextual retrieval query for vector search
+            // If question is a follow-up (e.g. "Who wrote it?"), blend recent context for accurate embedding search
+            $searchQuery = $userQuestion;
+            if (!empty($history)) {
+                $lastUserMsg = '';
+                for ($i = count($history) - 1; $i >= 0; $i--) {
+                    if (isset($history[$i]['role']) && $history[$i]['role'] === 'user') {
+                        $lastUserMsg = trim((string)($history[$i]['content'] ?? ''));
+                        break;
+                    }
+                }
+                if ($lastUserMsg !== '' && strlen($userQuestion) < 60) {
+                    $searchQuery = $lastUserMsg . ' ' . $userQuestion;
+                }
+            }
+
+            // Convert search query into vector numbers using Gemini
+            $embedding = $this->geminiService->generateEmbedding($searchQuery);
 
             if (empty($embedding)) {
                 throw new \Exception('Failed to generate embedding for the question.');
@@ -81,7 +98,7 @@ class ChatController extends Controller
                     $doc = DB::table('documents')->where('id', $documentId)->first();
                     if ($doc) {
                         $contextText = "Thesis Title: {$doc->title}\nAuthor: {$doc->author}\nDepartment: {$doc->department}\nAbstract:\n{$doc->abstract}";
-                        $answer = $this->geminiService->generateAnswer($userQuestion, $contextText);
+                        $answer = $this->geminiService->generateChatResponse($userQuestion, $contextText, $history);
                         return response()->json([
                             'error' => false,
                             'answer' => $answer,
@@ -122,8 +139,8 @@ class ChatController extends Controller
 
             $contextText = implode("\n\n---\n\n", $contextParts);
 
-            // Step 5: Ask Gemini to answer the question using the retrieved thesis passages
-            $answer = $this->geminiService->generateAnswer($userQuestion, $contextText);
+            // Step 5: Ask Gemini to answer the question using multi-turn conversation memory
+            $answer = $this->geminiService->generateChatResponse($userQuestion, $contextText, $history);
 
             // Step 6: Deduplicate sources so each thesis card appears only once in the UI
             $uniqueSources = [];

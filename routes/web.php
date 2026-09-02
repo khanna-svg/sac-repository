@@ -88,10 +88,6 @@ Route::middleware('sac.auth')->group(function () {
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'indexView'])
         ->name('bookmarks');
 
-    Route::get('/settings', function () {
-        return view('settings');
-    })->name('settings');
-
     Route::get(
         '/backend/documents/{document}/view',
         [DocumentController::class, 'viewPdf']
@@ -108,6 +104,25 @@ Route::middleware('sac.auth')->group(function () {
     );
 
     Route::middleware([RequireSacAdmin::class])->group(function () {
+
+        Route::get('/admin/theses', function () {
+            return view('admin.theses');
+        })->name('admin.theses');
+
+        Route::get(
+            '/backend/admin/theses',
+            [DocumentController::class, 'adminList']
+        );
+
+        Route::put(
+            '/backend/admin/theses/{document}',
+            [DocumentController::class, 'update']
+        );
+
+        Route::delete(
+            '/backend/admin/theses/{document}',
+            [DocumentController::class, 'destroy']
+        );
 
         Route::get('/admin/upload', function () {
             return view('admin.upload');

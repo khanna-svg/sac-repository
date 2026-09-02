@@ -1167,4 +1167,125 @@ class DocumentController extends Controller
             );
         }
     }
+
+    /**
+     * Admin Thesis Management: List all theses with search & department filter
+     */
+    public function adminList(Request $request)
+    {
+        try {
+            $search = trim((string) $request->input('search', ''));
+            $department = trim((string) $request->input('department', ''));
+
+            $query = Document::query()->withCount('chunks');
+
+            if ($search !== '') {
+                $searchTerm = '%' . strtolower($search) . '%';
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(department) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(course_code) LIKE ?', [$searchTerm]);
+                });
+            }
+
+            if ($department !== '' && $department !== 'all') {
+                $query->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
+            }
+
+            $documents = $query->latest()->get();
+
+            return response()->json([
+                'error' => false,
+                'theses' => $documents
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Admin thesis list error: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Failed to fetch theses: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Admin Thesis Management: Update metadata (Title, Author, Department, Degree Program, Abstract)
+     */
+    public function update(Request $request, $id)
+    {
+        try {
+            $document = Document::findOrFail($id);
+
+            $validated = $request->validate([
+                'title' => ['required', 'string', 'max:500'],
+                'author' => ['required', 'string', 'max:500'],
+                'department' => ['required', 'string', 'max:100'],
+                'course_code' => ['required', 'string', 'max:50'],
+                'abstract' => ['nullable', 'string'],
+            ]);
+
+            $document->update([
+                'title' => trim($validated['title']),
+                'author' => trim($validated['author']),
+                'department' => strtolower(trim($validated['department'])),
+                'course_code' => strtolower(trim($validated['course_code'])),
+                'abstract' => isset($validated['abstract']) ? trim($validated['abstract']) : $document->abstract,
+            ]);
+
+            return response()->json([
+                'error' => false,
+                'message' => 'Thesis metadata updated successfully.',
+                'document' => $document
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Admin thesis update error: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Failed to update thesis: ' . $e->getMessage()
+            ], 422);
+        }
+    }
+
+    /**
+     * Admin Thesis Management: Delete thesis and cascade delete chunks and bookmarks
+     */
+    public function destroy($id)
+    {
+        try {
+            $document = Document::findOrFail($id);
+            $title = $document->title;
+
+            // Delete storage file if path is present in Supabase Storage
+            if (!empty($document->file_path)) {
+                try {
+                    $baseUrl = rtrim((string) env('SUPABASE_URL'), '/');
+                    $serviceKey = (string) (env('SUPABASE_SERVICE_ROLE_KEY') ?: env('SUPABASE_PUBLISHABLE_KEY'));
+                    if ($baseUrl && $serviceKey) {
+                        Http::withHeaders([
+                            'apikey' => $serviceKey,
+                            'Authorization' => "Bearer {$serviceKey}",
+                        ])->delete("{$baseUrl}/storage/v1/object/theses", [
+                            'prefixes' => [$document->file_path]
+                        ]);
+                    }
+                } catch (\Throwable $stErr) {
+                    Log::warning('Storage file deletion error (ignored): ' . $stErr->getMessage());
+                }
+            }
+
+            // DB foreign key cascade automatically cleans up document_chunks and bookmarks
+            $document->delete();
+
+            return response()->json([
+                'error' => false,
+                'message' => "Thesis '{$title}' and its indexed vectors were permanently deleted."
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Admin thesis deletion error: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Failed to delete thesis: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

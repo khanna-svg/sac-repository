@@ -96,6 +96,19 @@
             <span>Research Analytics</span>
         </a>
 
+        <!-- Admin: Manage Theses -->
+        <a
+            href="/admin/theses"
+            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
+                {{ request()->is('admin/theses')
+                    ? 'bg-[#D4AF37] text-[#700000] shadow-md'
+                    : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+            </svg>
+            <span>Manage Theses</span>
+        </a>
+
         <!-- Admin: Upload Thesis -->
         <a
             href="/admin/upload"
@@ -159,19 +172,6 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
             </svg>
             <span>AI Assistant</span>
-        </a>
-
-        <!-- Preferences & Settings (Students Only) -->
-        <a
-            href="/settings"
-            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
-            {{ request()->is('settings')
-                ? 'bg-[#D4AF37] text-[#700000] shadow-md'
-                : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
-            </svg>
-            <span>Preferences & Settings</span>
         </a>
         @endif
     </nav>

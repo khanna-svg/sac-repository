@@ -191,4 +191,82 @@ class GeminiService
 
         throw new \Exception('Google AI is currently experiencing high demand. Please try asking again in a moment.');
     }
+
+    /**
+     * 4. Generate Multi-Turn Conversational AI Answer (RAG with Memory)
+     * Maintains conversation context while grounding answers on retrieved thesis passages.
+     */
+    public function generateChatResponse(string $userQuestion, string $contextText, array $history = []): string
+    {
+        $systemInstruction = "You are an expert AI Research Assistant for St. Anthony's College Institutional Research Repository.\n" .
+            "Answer the student's questions accurately using the provided thesis context and conversation history.\n" .
+            "Maintain conversational continuity: if the user asks a follow-up question (such as 'Who were the authors of it?', 'What did they find?', or 'Summarize chapter 3'), understand that 'it' refers to the thesis previously discussed.\n" .
+            "Do not invent facts not grounded in the thesis context.\n" .
+            "If the information is not in the thesis context or previous messages, politely explain that the detail is not found in the uploaded documents.";
+
+        $contents = [];
+
+        // Add sanitized history (max 8 past turns)
+        $recentHistory = array_slice($history, -8);
+        foreach ($recentHistory as $turn) {
+            $role = (isset($turn['role']) && ($turn['role'] === 'assistant' || $turn['role'] === 'model')) ? 'model' : 'user';
+            $text = trim((string)($turn['content'] ?? ''));
+            if ($text !== '') {
+                $contents[] = [
+                    'role' => $role,
+                    'parts' => [
+                        ['text' => $text]
+                    ]
+                ];
+            }
+        }
+
+        // Current turn grounded with retrieved thesis context
+        $currentPrompt = "--- RETRIEVED THESIS CONTEXT ---\n" .
+            $contextText .
+            "\n\n--- CURRENT STUDENT QUESTION ---\n" .
+            $userQuestion;
+
+        $contents[] = [
+            'role' => 'user',
+            'parts' => [
+                ['text' => $currentPrompt]
+            ]
+        ];
+
+        $modelsToTry = [$this->generationModel, 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
+
+        foreach (array_unique($modelsToTry) as $modelName) {
+            try {
+                $response = Http::timeout(12)
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'x-goog-api-key' => $this->apiKey,
+                    ])
+                    ->post(
+                        "{$this->baseUrl}/models/{$modelName}:generateContent",
+                        [
+                            'systemInstruction' => [
+                                'parts' => [
+                                    ['text' => $systemInstruction]
+                                ]
+                            ],
+                            'contents' => $contents,
+                        ]
+                    );
+
+                if ($response->successful()) {
+                    $answer = $response->json('candidates.0.content.parts.0.text');
+                    if ($answer) {
+                        return $answer;
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Gemini multi-turn model {$modelName} failed, trying fallback: " . $e->getMessage());
+            }
+        }
+
+        // Fallback to standard generateAnswer
+        return $this->generateAnswer($userQuestion, $contextText);
+    }
 }

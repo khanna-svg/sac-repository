@@ -894,12 +894,6 @@
 
         // Initial load on page ready
         async function init() {
-            // Apply student's saved department preference
-            const savedDept = localStorage.getItem('sac_preferred_dept');
-            if (savedDept && deptFilter) {
-                deptFilter.value = savedDept;
-            }
-
             await fetchBookmarkIds();
             await fetchDocuments();
         }

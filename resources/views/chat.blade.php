@@ -21,17 +21,24 @@
 
         <!-- HEADER -->
         <header class="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 md:px-6 py-4 shadow-sm">
-
             <div>
                 <h1 class="text-base md:text-lg font-bold text-[#700000]">
                     AI Assistant
                 </h1>
-
                 <p class="mt-0.5 text-xs md:text-sm text-gray-500">
-                    Ask questions about uploaded thesis documents.
+                    Ask questions with multi-turn conversation memory.
                 </p>
             </div>
 
+            <button
+                type="button"
+                onclick="clearChatHistory()"
+                class="rounded-xl border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 px-3.5 py-2 text-xs font-semibold shadow-xs flex items-center gap-1.5 transition cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+                <span>New Conversation</span>
+            </button>
         </header>
 
 
@@ -148,6 +155,38 @@
             const chatMessages =
                 document.getElementById('chatMessages');
 
+            let conversationHistory = [];
+
+            /* =========================================================
+               CLEAR CONVERSATION / NEW CHAT
+            ========================================================== */
+            window.clearChatHistory = function() {
+                conversationHistory = [];
+                chatMessages.innerHTML = `
+                    <!-- INITIAL AI MESSAGE -->
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] shrink-0 flex items-center justify-center text-sm md:text-base font-bold shadow-md">
+                            AI
+                        </div>
+                        <div class="max-w-3xl">
+                            <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+                                <p class="text-sm text-gray-800 font-medium">
+                                    Hi! I'm your RAG Thesis AI Assistant.
+                                </p>
+                                <p class="text-sm text-gray-600 mt-2 leading-relaxed">
+                                    Ask me anything about the uploaded thesis papers.
+                                    I'll search the repository and remember our conversation context to answer your follow-up questions!
+                                </p>
+                            </div>
+                            <div class="text-[10px] md:text-xs text-[#700000] mt-1.5 font-semibold">
+                                AI Thesis Assistant
+                            </div>
+                        </div>
+                    </div>
+                `;
+                messageInput.value = '';
+                messageInput.focus();
+            };
 
             /* =========================================================
                IMPORTANT:
@@ -221,6 +260,7 @@
             ========================================================== */
 
             function addUserMessage(message) {
+                conversationHistory.push({ role: 'user', content: message });
 
                 const wrapper =
                     document.createElement('div');
@@ -229,19 +269,13 @@
                     'flex justify-end items-start gap-3';
 
                 wrapper.innerHTML = `
-
                 <div class="max-w-xl md:max-w-3xl">
-
                     <div class="bg-[#700000] rounded-2xl rounded-tr-md px-4 py-3 shadow-sm">
-
                         <p class="text-sm text-white whitespace-pre-wrap"></p>
-
                     </div>
-
                     <div class="text-[10px] md:text-xs text-gray-500 mt-1.5 text-right font-medium">
                         You
                     </div>
-
                 </div>
             `;
 
@@ -253,22 +287,19 @@
                 }
 
                 chatMessages.appendChild(wrapper);
-
                 scrollToBottom();
             }
-
 
             /* =========================================================
                ADD AI MESSAGE
             ========================================================== */
-
             function addAIMessage(answer, sources) {
+                conversationHistory.push({ role: 'assistant', content: answer });
 
                 sources =
                     Array.isArray(sources) ?
                     sources :
                     [];
-
 
                 const wrapper =
                     document.createElement('div');
@@ -695,7 +726,8 @@
                                     },
 
                                     body: JSON.stringify({
-                                        message: message
+                                        message: message,
+                                        history: conversationHistory
                                     })
                                 }
                             );
