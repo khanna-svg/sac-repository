@@ -190,8 +190,8 @@
                     </div>
                 </div>
 
-                {{-- Full Text Tab Content (Exact PDF Layout with Protected Canvas Viewer) --}}
-                <div id="tabFullTextContent" class="hidden space-y-4 select-none" oncontextmenu="return false;">
+                {{-- Full Text Tab Content (Clean Manuscript Text Formatting) --}}
+                <div id="tabFullTextContent" class="hidden space-y-6 select-none" oncontextmenu="return false;">
                     <div class="flex items-center justify-between border-b border-gray-200 pb-3">
                         <div class="flex items-center gap-2">
                             <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000]">
@@ -202,47 +202,98 @@
                             </span>
                         </div>
 
-                        <!-- Zoom Controls & Page Count -->
-                        <div class="flex items-center gap-2">
-                            <span id="tabPdfPageCount" class="text-xs font-semibold text-gray-500 hidden sm:inline">Loading pages...</span>
-                            <div class="flex items-center gap-1 bg-slate-100 rounded-xl px-2 py-1 border border-gray-200 text-xs">
-                                <button
-                                    type="button"
-                                    onclick="zoomTabPdf(-0.2)"
-                                    class="p-1 rounded hover:bg-white text-gray-700 transition cursor-pointer"
-                                    title="Zoom Out">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
-                                    </svg>
-                                </button>
-                                <span id="tabPdfZoomPercent" class="px-1.5 text-[11px] font-mono font-bold text-gray-700">100%</span>
-                                <button
-                                    type="button"
-                                    onclick="zoomTabPdf(0.2)"
-                                    class="p-1 rounded hover:bg-white text-gray-700 transition cursor-pointer"
-                                    title="Zoom In">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                                    </svg>
-                                </button>
+                        @if($document->chunks && $document->chunks->count() > 0)
+                        <span class="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-gray-600">
+                            {{ $document->chunks->count() }} Pages Extracted
+                        </span>
+                        @endif
+                    </div>
+
+                    @if($document->chunks && $document->chunks->count() > 0)
+                    <div class="space-y-6 max-h-[750px] overflow-y-auto pr-2">
+                        @foreach($document->chunks as $chunk)
+                        <div class="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-xs hover:shadow-sm transition">
+                            {{-- Manuscript Page Header Bar --}}
+                            <div class="mb-5 flex items-center justify-between border-b border-gray-100 pb-2.5">
+                                <span class="rounded-lg bg-red-50 border border-red-100 px-3 py-1 text-xs font-bold text-[#700000]">
+                                    Page {{ $chunk->page_number ?? $loop->iteration }}
+                                </span>
+                                <span class="text-[11px] text-gray-400 truncate max-w-xs hidden sm:inline font-medium">
+                                    {{ $document->title }}
+                                </span>
+                            </div>
+
+                            {{-- Formatted Academic Manuscript Text --}}
+                            <div class="text-xs sm:text-sm text-gray-800 leading-relaxed font-sans space-y-3.5">
+                                @php
+                                    $rawText = str_replace(["\r\n", "\r"], "\n", $chunk->chunk_text);
+                                    $rawParagraphs = preg_split('/\n\s*\n/', $rawText);
+                                    
+                                    // If no double newlines, group lines intelligently
+                                    if (count($rawParagraphs) <= 1 && str_contains($rawText, "\n")) {
+                                        $lines = explode("\n", $rawText);
+                                        $grouped = [];
+                                        $current = '';
+                                        foreach ($lines as $line) {
+                                            $trimmed = trim($line);
+                                            if ($trimmed === '') continue;
+                                            
+                                            $isHeading = (
+                                                strlen($trimmed) < 70 && (
+                                                    mb_strtoupper($trimmed) === $trimmed || 
+                                                    preg_match('/^(Chapter|Approval|Table of|List of|Abstract|Acknowledgement|References|Bibliography|Appendix|A Capstone|Presented to|In Partial|Bachelor of|By|Panel of)/i', $trimmed)
+                                                )
+                                            );
+                                            
+                                            if ($isHeading) {
+                                                if ($current !== '') {
+                                                    $grouped[] = $current;
+                                                    $current = '';
+                                                }
+                                                $grouped[] = '##HEADING##' . $trimmed;
+                                            } else {
+                                                if ($current !== '') {
+                                                    $current .= ' ' . $trimmed;
+                                                } else {
+                                                    $current = $trimmed;
+                                                }
+                                            }
+                                        }
+                                        if ($current !== '') $grouped[] = $current;
+                                        if (!empty($grouped)) $rawParagraphs = $grouped;
+                                    }
+                                @endphp
+
+                                @foreach($rawParagraphs as $para)
+                                    @php $cleanPara = trim($para); @endphp
+                                    @if($cleanPara !== '')
+                                        @if(str_starts_with($cleanPara, '##HEADING##'))
+                                            <h3 class="text-center font-bold text-xs sm:text-sm text-gray-900 tracking-wider uppercase my-3 py-1">
+                                                {{ substr($cleanPara, 11) }}
+                                            </h3>
+                                        @elseif(strlen($cleanPara) < 60 && (mb_strtoupper($cleanPara) === $cleanPara || preg_match('/^(Chapter|Approval|Table of|List of|Abstract|Acknowledgement|References|By)/i', $cleanPara)))
+                                            <h3 class="text-center font-bold text-xs sm:text-sm text-gray-900 tracking-wider uppercase my-3 py-1">
+                                                {{ $cleanPara }}
+                                            </h3>
+                                        @else
+                                            <p class="text-justify indent-6 sm:indent-8 leading-relaxed text-gray-800">
+                                                {{ $cleanPara }}
+                                            </p>
+                                        @endif
+                                    @endif
+                                @endforeach
                             </div>
                         </div>
+                        @endforeach
                     </div>
-
-                    <!-- Scrollable Container for Exact PDF Pages -->
-                    <div id="tabPdfContainer" class="rounded-3xl border border-gray-200 bg-slate-100/70 p-4 sm:p-6 max-h-[850px] overflow-y-auto flex flex-col items-center gap-6 shadow-inner scroll-smooth">
-                        <!-- Loading Spinner -->
-                        <div id="tabPdfLoader" class="flex flex-col items-center justify-center py-12 gap-3">
-                            <svg class="w-8 h-8 animate-spin text-[#700000]" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <p class="text-xs font-semibold text-gray-500">Rendering exact PDF manuscript pages...</p>
-                        </div>
-
-                        <!-- Rendered Pages List -->
-                        <div id="tabPdfPagesWrapper" class="flex flex-col items-center gap-6 w-full max-w-2xl"></div>
+                    @else
+                    <div class="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center text-sm text-amber-800">
+                        <p class="font-bold">Full text extraction is processed in the secure reader.</p>
+                        <button onclick="openSecurePdfReader('/backend/documents/{{ $document->id }}/view')" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000]">
+                            <span>Open Protected PDF Reader</span>
+                        </button>
                     </div>
+                    @endif
                 </div>
 
             </article>
@@ -695,100 +746,6 @@
             imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>SAC THESIS</text></svg>";
         }
 
-        // =========================================================
-        // FULL TEXT TAB - EMBEDDED REAL PDF VIEWER (EXACT PDF FORMAT)
-        // =========================================================
-        let tabPdfDoc = null;
-        let tabPdfScale = 1.15;
-        let tabPdfLoaded = false;
-
-        async function loadTabPdf() {
-            if (tabPdfLoaded && tabPdfDoc) return;
-            const loader = document.getElementById('tabPdfLoader');
-            const pagesWrapper = document.getElementById('tabPdfPagesWrapper');
-            const pageCountElem = document.getElementById('tabPdfPageCount');
-
-            if (!loader || !pagesWrapper) return;
-            loader.classList.remove('hidden');
-            pagesWrapper.innerHTML = '';
-
-            try {
-                const res = await fetch(`/backend/documents/${currentDocId}/signed-url`);
-                if (!res.ok) throw new Error('Could not obtain PDF link');
-                const data = await res.json();
-                if (!data.url) throw new Error('Invalid PDF URL');
-
-                const loadingTask = pdfjsLib.getDocument({
-                    url: data.url,
-                    cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-                    cMapPacked: true
-                });
-                tabPdfDoc = await loadingTask.promise;
-                tabPdfLoaded = true;
-                if (pageCountElem) pageCountElem.textContent = `${tabPdfDoc.numPages} Pages`;
-
-                await renderTabPdfPages();
-                loader.classList.add('hidden');
-            } catch (err) {
-                console.error('Error loading tab PDF:', err);
-                loader.innerHTML = `
-                    <div class="p-6 text-center text-red-500 bg-red-50 rounded-2xl border border-red-200 max-w-sm mx-auto">
-                        <p class="font-bold text-sm">Unable to render PDF manuscript pages</p>
-                        <p class="text-xs text-gray-500 mt-1">Please try opening the full protected reader.</p>
-                        <button onclick="openSecurePdfReader('/backend/documents/${currentDocId}/view')" class="mt-3 px-3.5 py-1.5 rounded-xl bg-[#700000] text-[#FFD700] text-xs font-bold">Open Full Reader</button>
-                    </div>
-                `;
-            }
-        }
-
-        async function renderTabPdfPages() {
-            if (!tabPdfDoc) return;
-            const pagesWrapper = document.getElementById('tabPdfPagesWrapper');
-            if (!pagesWrapper) return;
-            pagesWrapper.innerHTML = '';
-
-            for (let num = 1; num <= tabPdfDoc.numPages; num++) {
-                const page = await tabPdfDoc.getPage(num);
-                const viewport = page.getViewport({ scale: tabPdfScale });
-
-                const card = document.createElement('div');
-                card.className = 'flex flex-col items-center bg-white shadow-md rounded-2xl overflow-hidden border border-gray-200 w-full max-w-full transition hover:shadow-lg';
-
-                const canvas = document.createElement('canvas');
-                canvas.className = 'block max-w-full h-auto';
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                const ctx = canvas.getContext('2d');
-                const renderContext = {
-                    canvasContext: ctx,
-                    viewport: viewport
-                };
-                await page.render(renderContext).promise;
-
-                const pageFooter = document.createElement('div');
-                pageFooter.className = 'w-full py-2 bg-slate-50 border-t border-gray-100 text-center text-[11px] font-bold text-gray-500 tracking-wider uppercase font-mono';
-                pageFooter.textContent = `Page ${num} of ${tabPdfDoc.numPages}`;
-
-                card.appendChild(canvas);
-                card.appendChild(pageFooter);
-                pagesWrapper.appendChild(card);
-            }
-
-            const zoomElem = document.getElementById('tabPdfZoomPercent');
-            if (zoomElem) zoomElem.textContent = Math.round((tabPdfScale / 1.15) * 100) + '%';
-        }
-
-        async function zoomTabPdf(delta) {
-            const newScale = tabPdfScale + delta;
-            if (newScale < 0.6 || newScale > 2.2) return;
-            tabPdfScale = newScale;
-            const loader = document.getElementById('tabPdfLoader');
-            if (loader) loader.classList.remove('hidden');
-            await renderTabPdfPages();
-            if (loader) loader.classList.add('hidden');
-        }
-
         function switchViewTab(tab) {
             const abstractBtn = document.getElementById('tabAbstractBtn');
             const fullTextBtn = document.getElementById('tabFullTextBtn');
@@ -805,7 +762,6 @@
                 fullTextContent.classList.remove('hidden');
                 fullTextBtn.className = "py-3 px-5 text-sm font-bold border-b-2 border-[#700000] text-[#700000] transition";
                 abstractBtn.className = "py-3 px-5 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition";
-                loadTabPdf();
             }
         }
 
