@@ -18,7 +18,7 @@ class AuthController extends Controller
 
         if ($email && str_ends_with(strtolower($email), '@sac.edu.ph')) {
             if ($role === 'admin') {
-                return redirect()->route('admin.upload');
+                return redirect()->route('admin.analytics');
             }
             return redirect()->route('documents');
         }

@@ -35,7 +35,7 @@ class AdminAuthController extends Controller
                 strtolower($user->email)
             );
 
-            return redirect()->route('admin.upload');
+            return redirect()->route('admin.analytics');
         }
 
 
