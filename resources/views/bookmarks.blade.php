@@ -267,22 +267,34 @@
         }
 
         function getDepartmentDetails(deptVal, courseVal, titleVal) {
-            const dept = (deptVal || '').toLowerCase();
-            const course = (courseVal || '').toLowerCase();
-            const title = (titleVal || '').toLowerCase();
+            const dept = (deptVal || '').toLowerCase().trim();
+            const course = (courseVal || '').toLowerCase().trim();
+            const title = (titleVal || '').toLowerCase().trim();
 
-            if (dept === 'nursing' || course === 'bsn' || title.includes('patient') || title.includes('nursing')) {
-                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
-            } else if (dept === 'marine' || course === 'bsmare' || title.includes('marine') || title.includes('vessel')) {
-                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
-            } else if (dept === 'it' || course === 'bsit' || title.includes('system') || title.includes('app') || title.includes('web')) {
+            // 1. Direct database department check (Highest Priority)
+            if (dept === 'it' || course === 'bsit') {
                 return { cover: 'IT.webp', name: 'Information Technology Department', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' };
-            } else if (dept === 'hospitality' || course === 'bshm' || title.includes('hotel') || title.includes('hospitality')) {
+            } else if (dept === 'marine' || course === 'bsmare') {
+                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
+            } else if (dept === 'nursing' || course === 'bsn') {
+                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+            } else if (dept === 'hospitality' || course === 'bshm') {
                 return { cover: 'HM.webp', name: 'Hospitality Management', badgeBg: 'bg-amber-50 text-amber-800 border-amber-200' };
-            } else if (dept === 'education' || course === 'bsed' || title.includes('teaching') || title.includes('education')) {
+            } else if (dept === 'education' || course === 'bsed') {
                 return { cover: 'EDUC.webp', name: 'Education Department', badgeBg: 'bg-purple-50 text-purple-700 border-purple-200' };
-            } else if (dept === 'criminology' || course === 'bsc' || title.includes('crime') || title.includes('criminology')) {
+            } else if (dept === 'criminology' || course === 'bsc') {
                 return { cover: 'CRIM.webp', name: 'Criminology Department', badgeBg: 'bg-red-50 text-red-700 border-red-200' };
+            }
+
+            // 2. Keyword heuristic fallback if department is unspecified
+            if (title.includes('patient') || title.includes('nursing')) {
+                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+            }
+            if (title.includes('marine') || title.includes('vessel')) {
+                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
+            }
+            if (title.includes('system') || title.includes('app') || title.includes('web') || title.includes('software')) {
+                return { cover: 'IT.webp', name: 'Information Technology Department', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' };
             }
 
             return { cover: 'IT.webp', name: 'Academic Research', badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20' };

@@ -36,35 +36,7 @@
             {{-- 2. SEARCH & FILTER SECTION --}}
             <section class="mb-8 space-y-4">
                 <form id="searchForm" class="space-y-3">
-                    
-                    {{-- Search Mode Switcher (Keyword vs Semantic AI) --}}
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Search Mode:</span>
-                        <div class="inline-flex rounded-xl bg-slate-200/70 p-1 border border-gray-300">
-                            <button
-                                type="button"
-                                id="modeKeywordBtn"
-                                onclick="setSearchMode('keyword')"
-                                class="rounded-lg px-3 py-1 text-xs font-bold bg-white text-[#700000] shadow-sm transition flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                                <span>Keyword</span>
-                            </button>
-                            <button
-                                type="button"
-                                id="modeSemanticBtn"
-                                onclick="setSearchMode('semantic')"
-                                class="rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                                </svg>
-                                <span>Semantic AI</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    {{-- Search Input Bar --}}
+                    {{-- Search Input Bar (Google Scholar Style Hybrid Search) --}}
                     <div class="flex flex-col sm:flex-row gap-3">
                         <div class="relative flex-1">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
@@ -75,14 +47,18 @@
                             <input
                                 id="searchInput"
                                 type="search"
-                                placeholder="Search by topic, author, keywords, or department..."
+                                placeholder="Search by thesis title, author, keywords, topics, or concepts..."
                                 class="w-full rounded-2xl border border-gray-300 bg-white pl-10 pr-4 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-sm transition">
                         </div>
                         <button
                             type="submit"
-                            class="rounded-2xl bg-[#700000] px-7 py-3 text-xs md:text-sm font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md shrink-0 flex items-center justify-center gap-2">
+                            class="rounded-2xl bg-[#700000] px-7 py-3 text-xs md:text-sm font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md shrink-0 flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
                             <span>Search</span>
                         </button>
+                    </div>
                     </div>
 
                     {{-- 3. QUICK FILTER & SORT TOOLBAR --}}
@@ -332,7 +308,6 @@
         let currentCitationDoc = null;
         let savedBookmarkIds = new Set();
         let toastTimeout = null;
-        let currentSearchMode = 'keyword';
 
         const documentsList = document.getElementById('documentsList');
         const searchForm = document.getElementById('searchForm');
@@ -340,26 +315,6 @@
         const deptFilter = document.getElementById('deptFilter');
         const sortFilter = document.getElementById('sortFilter');
         const docCountBadge = document.getElementById('docCountBadge');
-
-        // Switch between Keyword search and Semantic AI search mode
-        function setSearchMode(mode) {
-            currentSearchMode = mode;
-            const kwBtn = document.getElementById('modeKeywordBtn');
-            const semBtn = document.getElementById('modeSemanticBtn');
-            const input = document.getElementById('searchInput');
-
-            if (mode === 'semantic') {
-                semBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold bg-[#700000] text-[#FFD700] shadow-sm transition flex items-center gap-1.5';
-                kwBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5';
-                input.placeholder = 'Ask or describe concepts (e.g., "maritime innovation" or "fall detection for older adults")...';
-            } else {
-                kwBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold bg-white text-[#700000] shadow-sm transition flex items-center gap-1.5';
-                semBtn.className = 'rounded-lg px-3 py-1 text-xs font-bold text-gray-600 hover:text-gray-900 transition flex items-center gap-1.5';
-                input.placeholder = 'Search by topic, author, keywords, or department...';
-            }
-
-            fetchDocuments(input.value);
-        }
 
         // Trigger search when Department or Sort dropdown changes
         function onFilterChange() {
@@ -414,46 +369,58 @@
 
         // Return cover art and styling based on department
         function getDepartmentDetails(deptVal, courseVal, titleVal) {
-            const dept = (deptVal || '').toLowerCase();
-            const course = (courseVal || '').toLowerCase();
-            const title = (titleVal || '').toLowerCase();
+            const dept = (deptVal || '').toLowerCase().trim();
+            const course = (courseVal || '').toLowerCase().trim();
+            const title = (titleVal || '').toLowerCase().trim();
 
-            if (dept === 'nursing' || course === 'bsn' || title.includes('patient') || title.includes('nursing')) {
-                return {
-                    cover: 'NURSING.webp',
-                    name: 'Nursing Department',
-                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                };
-            } else if (dept === 'marine' || course === 'bsmare' || title.includes('marine') || title.includes('vessel')) {
-                return {
-                    cover: 'MARINE.webp',
-                    name: 'Marine Engineering Department',
-                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
-                };
-            } else if (dept === 'it' || course === 'bsit' || title.includes('system') || title.includes('app') || title.includes('web')) {
+            // 1. Direct database department check (Highest Priority)
+            if (dept === 'it' || course === 'bsit') {
                 return {
                     cover: 'IT.webp',
                     name: 'Information Technology Department',
                     badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
                 };
-            } else if (dept === 'hospitality' || course === 'bshm' || title.includes('hotel') || title.includes('hospitality')) {
+            } else if (dept === 'marine' || course === 'bsmare') {
+                return {
+                    cover: 'MARINE.webp',
+                    name: 'Marine Engineering Department',
+                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
+                };
+            } else if (dept === 'nursing' || course === 'bsn') {
+                return {
+                    cover: 'NURSING.webp',
+                    name: 'Nursing Department',
+                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                };
+            } else if (dept === 'hospitality' || course === 'bshm') {
                 return {
                     cover: 'HM.webp',
                     name: 'Hospitality Management',
                     badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
                 };
-            } else if (dept === 'education' || course === 'bsed' || title.includes('teaching') || title.includes('education')) {
+            } else if (dept === 'education' || course === 'bsed') {
                 return {
                     cover: 'EDUC.webp',
                     name: 'Education Department',
                     badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
                 };
-            } else if (dept === 'criminology' || course === 'bsc' || title.includes('crime') || title.includes('criminology')) {
+            } else if (dept === 'criminology' || course === 'bsc') {
                 return {
                     cover: 'CRIM.webp',
                     name: 'Criminology Department',
                     badgeBg: 'bg-red-50 text-red-700 border-red-200'
                 };
+            }
+
+            // 2. Keyword heuristic fallback if department is unspecified
+            if (title.includes('patient') || title.includes('nursing')) {
+                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+            }
+            if (title.includes('marine') || title.includes('vessel')) {
+                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
+            }
+            if (title.includes('system') || title.includes('app') || title.includes('web') || title.includes('software')) {
+                return { cover: 'IT.webp', name: 'Information Technology Department', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' };
             }
 
             return {
@@ -659,7 +626,6 @@
                 // Add search query if provided
                 if (search && search.trim()) {
                     url.searchParams.set('search', search.trim());
-                    url.searchParams.set('search_type', currentSearchMode);
                 }
 
                 // Add department filter
@@ -928,16 +894,10 @@
 
         // Initial load on page ready
         async function init() {
-            // Apply student's saved preferences
+            // Apply student's saved department preference
             const savedDept = localStorage.getItem('sac_preferred_dept');
-            if (savedDept) {
-                const deptFilter = document.getElementById('departmentFilter');
-                if (deptFilter) deptFilter.value = savedDept;
-            }
-
-            const savedEngine = localStorage.getItem('sac_preferred_engine');
-            if (savedEngine === 'semantic') {
-                setSearchMode('semantic');
+            if (savedDept && deptFilter) {
+                deptFilter.value = savedDept;
             }
 
             await fetchBookmarkIds();

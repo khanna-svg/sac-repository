@@ -16,11 +16,8 @@ Route::post('/login/send-code', [AuthController::class, 'sendCode'])
 Route::post('/login/verify-code', [AuthController::class, 'verifyCode'])
     ->middleware('throttle:10,1');
 
-Route::post('/login/reset', function (Request $request) {
-    $request->session()->forget('pending_email');
-
-    return redirect('/login');
-})->name('login.reset');
+Route::post('/login/reset', [AuthController::class, 'resetLogin'])
+    ->name('login.reset');
 
 Route::post('/admin/login', [AdminAuthController::class, 'login'])
     ->middleware('throttle:5,1');
@@ -28,17 +25,19 @@ Route::post('/admin/login', [AdminAuthController::class, 'login'])
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
 
+// Direct Routing: Directs logged-in users to their dashboard, guests to login
 Route::get('/', function () {
-    try {
-        $recentTheses = \App\Models\Document::latest()->take(3)->get();
-        $totalCount = \App\Models\Document::count();
-        $deptCount = \App\Models\Document::distinct('department')->count('department');
-    } catch (\Throwable $e) {
-        $recentTheses = collect([]);
-        $totalCount = 0;
-        $deptCount = 0;
+    $email = session('sac_user_email');
+    $role = session('sac_user_role');
+
+    if ($email && str_ends_with(strtolower($email), '@sac.edu.ph')) {
+        if ($role === 'admin') {
+            return redirect()->route('admin.upload');
+        }
+        return redirect()->route('documents');
     }
-    return view('landing', compact('recentTheses', 'totalCount', 'deptCount'));
+
+    return redirect()->route('login');
 })->name('home');
 
 Route::get('/home', function () {

@@ -168,25 +168,78 @@ class DocumentController extends Controller
 
     /**
      * Search & Filter Theses
-     * Retrieves theses for students based on search keywords,
-     * semantic AI similarity, department filter, and sort order.
+     * Google Scholar-Style Hybrid Search: Combines exact keyword matching with
+     * Gemini vector semantic AI, ranking the most relevant theses at the top.
      */
     public function index(Request $request)
     {
         try {
             $search = trim((string) $request->input('search', ''));
-            $searchType = $request->input('search_type', 'keyword');
             $department = trim((string) $request->input('department', ''));
             $sort = trim((string) $request->input('sort', 'latest'));
 
-            // 1. SEMANTIC AI SEARCH MODE (Uses Google Gemini Vector Embeddings)
-            if ($search !== '' && $searchType === 'semantic') {
-                try {
-                    $geminiService = app(\App\Services\GeminiService::class);
-                    $queryEmbedding = $geminiService->generateEmbedding($search);
+            // 1. BASE QUERY WITHOUT SEARCH (Standard Filter & Sort)
+            if ($search === '') {
+                $query = Document::query();
+
+                if ($department !== '' && $department !== 'all') {
+                    $query->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
+                }
+
+                if ($sort === 'oldest') {
+                    $query->orderBy('id', 'asc');
+                } elseif ($sort === 'title_asc') {
+                    $query->orderBy('title', 'asc');
+                } elseif ($sort === 'title_desc') {
+                    $query->orderBy('title', 'desc');
+                } else {
+                    $query->latest();
+                }
+
+                return response()->json($query->get());
+            }
+
+            // 2. GOOGLE SCHOLAR-STYLE HYBRID SEARCH (Keyword Match + Vector Semantic AI)
+            $searchTerm = '%' . strtolower($search) . '%';
+            $keywordDocs = collect([]);
+            $semanticDocIds = [];
+            $similarityMap = [];
+
+            // A. Search by Keywords (Title, Author, Department, Abstract, Course Code)
+            $keywordQuery = Document::query()
+                ->where(function ($q) use ($searchTerm) {
+                    $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(department) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(course_code) LIKE ?', [$searchTerm])
+                        ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
+                });
+
+            if ($department !== '' && $department !== 'all') {
+                $keywordQuery->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
+            }
+
+            $keywordDocs = $keywordQuery->get();
+            foreach ($keywordDocs as $doc) {
+                // Exact title / author matches get high relevance scores
+                $titleLower = strtolower($doc->title);
+                $authorLower = strtolower($doc->author);
+                $searchLower = strtolower($search);
+                
+                if (str_contains($titleLower, $searchLower) || str_contains($authorLower, $searchLower)) {
+                    $similarityMap[$doc->id] = 98;
+                } else {
+                    $similarityMap[$doc->id] = 90;
+                }
+            }
+
+            // B. Search by Vector Semantic AI (pgvector Cosine Distance via Gemini)
+            try {
+                $geminiService = app(\App\Services\GeminiService::class);
+                $queryEmbedding = $geminiService->generateEmbedding($search);
+                if (!empty($queryEmbedding)) {
                     $embeddingString = '[' . implode(',', $queryEmbedding) . ']';
 
-                    // Find nearest thesis chunks using pgvector cosine distance
                     $similarChunks = DB::select("
                         SELECT
                             dc.document_id,
@@ -195,85 +248,58 @@ class DocumentController extends Controller
                         WHERE dc.embedding IS NOT NULL
                         GROUP BY dc.document_id
                         ORDER BY distance ASC
-                        LIMIT 20
+                        LIMIT 25
                     ", [$embeddingString]);
 
-                    if (!empty($similarChunks)) {
-                        $docIds = array_column($similarChunks, 'document_id');
-                        $distanceMap = [];
-                        foreach ($similarChunks as $row) {
-                            $distanceMap[$row->document_id] = (float) $row->distance;
-                        }
-
-                        $docQuery = Document::whereIn('id', $docIds);
-
-                        // Filter by department if selected
-                        if ($department !== '' && $department !== 'all') {
-                            $docQuery->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
-                        }
-
-                        $documents = $docQuery->get();
-
-                        // Convert distance to percentage match (e.g. 95% Match)
-                        $sortedDocs = $documents->map(function ($doc) use ($distanceMap) {
-                            $distance = $distanceMap[$doc->id] ?? 1.0;
-                            $similarity = max(10, min(99, round((1 - ($distance / 2)) * 100)));
-                            $doc->similarity_score = $similarity;
-                            return $doc;
-                        });
-
-                        // Apply sorting
-                        if ($sort === 'title_asc') {
-                            $sortedDocs = $sortedDocs->sortBy('title');
-                        } elseif ($sort === 'title_desc') {
-                            $sortedDocs = $sortedDocs->sortByDesc('title');
-                        } elseif ($sort === 'oldest') {
-                            $sortedDocs = $sortedDocs->sortBy('id');
+                    foreach ($similarChunks as $chunk) {
+                        $docId = (int) $chunk->document_id;
+                        $distance = (float) $chunk->distance;
+                        $score = max(10, min(99, round((1 - ($distance / 2)) * 100)));
+                        
+                        // If already matched by keyword, boost score!
+                        if (isset($similarityMap[$docId])) {
+                            $similarityMap[$docId] = min(99, $similarityMap[$docId] + 5);
                         } else {
-                            // Default: Highest similarity match first
-                            $sortedDocs = $sortedDocs->sortByDesc('similarity_score');
+                            $similarityMap[$docId] = $score;
+                            $semanticDocIds[] = $docId;
                         }
-
-                        return response()->json($sortedDocs->values());
                     }
-                } catch (\Throwable $e) {
-                    Log::warning('Semantic search fallback: ' . $e->getMessage());
                 }
+            } catch (\Throwable $e) {
+                Log::warning('Hybrid Search Semantic phase fallback: ' . $e->getMessage());
             }
 
-            // 2. STANDARD KEYWORD & FILTER QUERY
-            $query = Document::query();
-
-            // Text search in Title, Author, Department, Course, or Abstract
-            if ($search !== '') {
-                $searchTerm = '%' . strtolower($search) . '%';
-                $query->where(function ($q) use ($searchTerm) {
-                    $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
-                        ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
-                        ->orWhereRaw('LOWER(department) LIKE ?', [$searchTerm])
-                        ->orWhereRaw('LOWER(course_code) LIKE ?', [$searchTerm])
-                        ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
-                });
-            }
-
-            // Filter by department
-            if ($department !== '' && $department !== 'all') {
-                $query->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
-            }
-
-            // Sort order (Newest, Oldest, Title A-Z, Title Z-A)
-            if ($sort === 'oldest') {
-                $query->orderBy('id', 'asc');
-            } elseif ($sort === 'title_asc') {
-                $query->orderBy('title', 'asc');
-            } elseif ($sort === 'title_desc') {
-                $query->orderBy('title', 'desc');
+            // C. Fetch any semantic-only documents
+            if (!empty($semanticDocIds)) {
+                $semanticQuery = Document::whereIn('id', $semanticDocIds);
+                if ($department !== '' && $department !== 'all') {
+                    $semanticQuery->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
+                }
+                $semanticDocs = $semanticQuery->get();
+                $allResults = $keywordDocs->concat($semanticDocs)->unique('id');
             } else {
-                // Default: Newest first
-                $query->latest();
+                $allResults = $keywordDocs;
             }
 
-            return response()->json($query->get());
+            // Attach similarity scores
+            $rankedDocs = $allResults->map(function ($doc) use ($similarityMap) {
+                $doc->similarity_score = $similarityMap[$doc->id] ?? null;
+                return $doc;
+            });
+
+            // D. Apply Sorting
+            if ($sort === 'oldest') {
+                $rankedDocs = $rankedDocs->sortBy('id');
+            } elseif ($sort === 'title_asc') {
+                $rankedDocs = $rankedDocs->sortBy('title');
+            } elseif ($sort === 'title_desc') {
+                $rankedDocs = $rankedDocs->sortByDesc('title');
+            } else {
+                // Default: Highest relevance/similarity score first
+                $rankedDocs = $rankedDocs->sortByDesc('similarity_score');
+            }
+
+            return response()->json($rankedDocs->values());
         } catch (\Throwable $e) {
             Log::error('DocumentController index error: ' . $e->getMessage());
             return response()->json(Document::latest()->get());
