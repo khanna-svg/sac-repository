@@ -293,13 +293,8 @@
             /* =========================================================
                ADD AI MESSAGE
             ========================================================== */
-            function addAIMessage(answer, sources) {
+            function addAIMessage(answer) {
                 conversationHistory.push({ role: 'assistant', content: answer });
-
-                sources =
-                    Array.isArray(sources) ?
-                    sources :
-                    [];
 
                 const wrapper =
                     document.createElement('div');
@@ -307,210 +302,40 @@
                 wrapper.className =
                     'flex items-start gap-3';
 
-
                 let formattedAnswer =
                     escapeHtml(answer);
-
 
                 if (
                     typeof marked !== 'undefined' &&
                     marked &&
                     typeof marked.parse === 'function'
                 ) {
-
                     formattedAnswer =
                         marked.parse(answer);
-
                 }
 
-
                 wrapper.innerHTML = `
-
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center shadow-md">
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] shrink-0 flex items-center justify-center shadow-md">
                     <svg class="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                     </svg>
                 </div>
 
                 <div class="max-w-xl md:max-w-3xl flex-1">
-
                     <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3.5 shadow-sm">
-
                         <div class="text-sm text-gray-800 ai-answer leading-relaxed prose prose-sm max-w-none">
                             ${formattedAnswer}
                         </div>
-
-                        ${
-                            sources.length > 0
-                            ? `
-                                <div class="mt-4 pt-3 border-t border-gray-100">
-
-                                    <p class="text-xs font-bold text-[#700000] mb-2 flex items-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5 text-[#700000] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                                        </svg>
-                                        <span>Referenced Theses</span>
-                                    </p>
-
-                                    <div class="space-y-2 source-list"></div>
-
-                                </div>
-                            `
-                            : ''
-                        }
-
                     </div>
 
                     <div class="text-[10px] md:text-xs text-[#700000] mt-1.5 font-semibold">
                         AI Thesis Assistant
                     </div>
-
                 </div>
             `;
 
-
-                /* =====================================================
-                   SOURCES
-                ====================================================== */
-
-                if (sources.length > 0) {
-
-                    const sourceList =
-                        wrapper.querySelector('.source-list');
-
-
-                    if (sourceList) {
-
-                        sources.forEach(function(source) {
-
-                            if (!source) {
-                                return;
-                            }
-
-
-                            const sourceElement =
-                                document.createElement('div');
-
-
-                            sourceElement.className =
-                                'text-xs text-gray-700 bg-slate-50 border border-gray-200 rounded-xl p-2.5 flex items-center justify-between gap-3';
-
-
-                            const title =
-                                source.document_title ||
-                                (
-                                    'Thesis #' +
-                                    (
-                                        source.document_id ??
-                                        'Unknown'
-                                    )
-                                );
-
-
-                            const author =
-                                source.document_author ?
-                                'by ' +
-                                source.document_author :
-                                '';
-
-
-                            let similarity = null;
-
-
-                            if (
-                                source.similarity !== undefined &&
-                                source.similarity !== null
-                            ) {
-
-                                similarity =
-                                    Math.round(
-                                        Number(
-                                            source.similarity
-                                        ) * 100
-                                    );
-
-                            }
-
-
-                            let documentId = '';
-
-
-                            if (
-                                source.document_id !== undefined &&
-                                source.document_id !== null
-                            ) {
-
-                                documentId =
-                                    encodeURIComponent(
-                                        String(
-                                            source.document_id
-                                        )
-                                    );
-
-                            }
-
-
-                            sourceElement.innerHTML = `
-
-                            <div class="flex-1 min-w-0">
-
-                                <p class="font-bold text-gray-900 truncate">
-                                    ${escapeHtml(title)}
-                                </p>
-
-                                <p class="text-[11px] text-gray-500 truncate">
-                                    ${escapeHtml(author)}
-                                </p>
-
-                            </div>
-
-                            <div class="flex items-center gap-2 shrink-0">
-
-                                ${
-                                    similarity !== null &&
-                                    !Number.isNaN(similarity)
-                                    ? `
-                                        <span class="text-[10px] font-bold text-[#700000] bg-[#700000]/10 px-2 py-0.5 rounded-md">
-                                            ${similarity}% match
-                                        </span>
-                                    `
-                                    : ''
-                                }
-
-                                ${
-                                    documentId
-                                    ? `
-                                        <a
-                                            href="/backend/documents/${documentId}/view"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            class="rounded-lg bg-[#700000] px-2.5 py-1 text-[11px] font-bold text-[#FFD700] hover:bg-[#800000]"
-                                        >
-                                            View PDF
-                                        </a>
-                                    `
-                                    : ''
-                                }
-
-                            </div>
-                        `;
-
-
-                            sourceList.appendChild(
-                                sourceElement
-                            );
-
-                        });
-
-                    }
-
-                }
-
-
                 chatMessages.appendChild(wrapper);
-
                 scrollToBottom();
-
             }
 
 
@@ -774,8 +599,7 @@
 
                         addAIMessage(
                             data?.answer ||
-                            'No answer was generated.',
-                            data?.sources || []
+                            'No answer was generated.'
                         );
 
 
