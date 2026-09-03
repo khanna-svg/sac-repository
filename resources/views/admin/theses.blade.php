@@ -25,8 +25,8 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-base sm:text-lg font-bold text-[#700000] leading-tight">Manage Uploaded Theses</h1>
-                    <p class="text-xs text-gray-500">Edit metadata, fix departments, or remove outdated documents</p>
+                    <h1 class="text-base sm:text-lg font-bold text-[#700000] leading-tight">Manage Uploaded Thesis</h1>
+                    <p class="text-xs text-gray-500">Edit or Remove documents</p>
                 </div>
             </div>
 
@@ -39,7 +39,7 @@
         </header>
 
         <!-- Main Content Area -->
-        <main class="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
+        <main class="flex-1 p-4 sm:p-8 max-w-[1600px] w-full mx-auto space-y-6">
 
             <!-- Search and Filter Bar -->
             <div class="rounded-3xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -79,27 +79,24 @@
 
             <!-- Theses Table Container -->
             <div class="rounded-3xl border border-gray-200 bg-white shadow-xs overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-gray-200 bg-slate-50/80 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                                <th class="py-3.5 px-4 sm:px-6">Document</th>
-                                <th class="py-3.5 px-4">Author(s)</th>
-                                <th class="py-3.5 px-4">Department & Program</th>
-                                <th class="py-3.5 px-4 text-center">AI Vectors</th>
-                                <th class="py-3.5 px-4 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="thesesTableBody" class="divide-y divide-gray-100 text-xs sm:text-sm">
-                            <tr>
-                                <td colspan="5" class="py-12 text-center text-gray-500">
-                                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#700000] border-t-transparent mb-2"></div>
-                                    <p class="font-medium">Loading repository theses...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <table class="w-full text-left border-collapse table-auto">
+                    <thead>
+                        <tr class="border-b border-gray-200 bg-slate-50/80 text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                            <th class="py-4 px-4 sm:px-6 w-[45%]">Document</th>
+                            <th class="py-4 px-4 w-[25%]">Author(s)</th>
+                            <th class="py-4 px-4 w-[18%]">Department & Program</th>
+                            <th class="py-4 px-4 sm:pr-6 text-right w-[12%]">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="thesesTableBody" class="divide-y divide-gray-100 text-xs sm:text-sm">
+                        <tr>
+                            <td colspan="4" class="py-12 text-center text-gray-500">
+                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#700000] border-t-transparent mb-2"></div>
+                                <p class="font-medium">Loading repository theses...</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
         </main>
@@ -115,7 +112,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
                         </svg>
                     </div>
-                    <h3 class="text-lg font-bold text-gray-900">Edit Thesis Metadata</h3>
+                    <h3 class="text-lg font-bold text-gray-900">Edit Thesis</h3>
                 </div>
                 <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 transition p-1 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -195,7 +192,7 @@
                 <strong id="deleteDocTitle" class="text-gray-800 font-semibold"></strong>?
             </p>
             <p class="mt-1 text-[11px] text-rose-600 font-medium">
-                This will remove the PDF document, all vector embeddings, and student bookmarks.
+                This will remove the PDF document.
             </p>
             <div class="mt-6 flex items-center justify-center gap-3">
                 <button type="button" onclick="closeDeleteModal()" class="w-1/2 rounded-xl border border-gray-300 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition cursor-pointer">
@@ -260,7 +257,7 @@
 
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="5" class="py-12 text-center text-gray-500">
+                    <td colspan="4" class="py-12 text-center text-gray-500">
                         <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#700000] border-t-transparent mb-2"></div>
                         <p class="font-medium">Loading repository theses...</p>
                     </td>
@@ -288,7 +285,7 @@
                 console.error(err);
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="py-10 text-center text-rose-600 font-semibold">
+                        <td colspan="4" class="py-10 text-center text-rose-600 font-semibold">
                             Failed to load theses from server.
                         </td>
                     </tr>
@@ -310,7 +307,7 @@
             if (theses.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="5" class="py-12 text-center text-gray-400">
+                        <td colspan="4" class="py-12 text-center text-gray-400">
                             No theses match your current search or filter criteria.
                         </td>
                     </tr>
@@ -322,37 +319,31 @@
                 const deptKey = (doc.department || 'it').toLowerCase();
                 const deptInfo = deptNames[deptKey] || { name: doc.department, badge: 'bg-gray-100 text-gray-700 border-gray-200', cover: 'IT.webp' };
                 const formattedDate = doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
-                const chunkCount = doc.chunks_count ?? 0;
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition">
-                        <td class="py-3.5 px-4 sm:px-6">
-                            <div class="flex items-center gap-3">
+                        <td class="py-4 px-4 sm:px-6">
+                            <div class="flex items-center gap-3.5">
                                 <div class="w-10 h-14 rounded-lg bg-slate-100 border border-gray-200 overflow-hidden shrink-0 shadow-2xs">
                                     <img src="${COVERS_BASE_URL}/${deptInfo.cover}" class="w-full h-full object-cover" alt="Cover" onerror="this.src='${COVERS_BASE_URL}/IT.webp'">
                                 </div>
-                                <div class="min-w-0 max-w-sm sm:max-w-md">
-                                    <h4 class="font-bold text-gray-900 truncate leading-snug" title="${escapeHtml(doc.title)}">
+                                <div class="min-w-0 flex-1">
+                                    <h4 class="font-bold text-gray-900 leading-snug" title="${escapeHtml(doc.title)}">
                                         ${escapeHtml(doc.title)}
                                     </h4>
                                     <p class="text-[11px] text-gray-400 mt-0.5">Uploaded: ${formattedDate}</p>
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3.5 px-4 font-medium text-gray-700 max-w-xs truncate" title="${escapeHtml(doc.author)}">
+                        <td class="py-4 px-4 font-medium text-gray-700" title="${escapeHtml(doc.author)}">
                             ${escapeHtml(doc.author)}
                         </td>
-                        <td class="py-3.5 px-4 whitespace-nowrap">
+                        <td class="py-4 px-4 whitespace-nowrap">
                             <span class="rounded-lg border px-2.5 py-1 text-[11px] font-bold ${deptInfo.badge}">
                                 ${deptInfo.name} (${(doc.course_code || '').toUpperCase()})
                             </span>
                         </td>
-                        <td class="py-3.5 px-4 text-center">
-                            <span class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-mono font-bold text-slate-700">
-                                ${chunkCount} chunks
-                            </span>
-                        </td>
-                        <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                        <td class="py-4 px-4 sm:pr-6 text-right whitespace-nowrap">
                             <div class="inline-flex items-center gap-1.5">
                                 <a href="/documents/${doc.id}" target="_blank" title="View Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
