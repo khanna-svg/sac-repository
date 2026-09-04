@@ -57,36 +57,36 @@
                 {{-- Department & Degree Badges --}}
                 @php
                 $departmentNames = [
-                    'nursing' => 'Nursing Department',
-                    'marine' => 'Marine Engineering Department',
-                    'it' => 'Information Technology Department',
-                    'hospitality' => 'Hospitality Management',
-                    'education' => 'Education Department',
-                    'criminology' => 'Criminology Department',
+                'nursing' => 'Nursing Department',
+                'marine' => 'Marine Engineering Department',
+                'it' => 'Information Technology Department',
+                'hospitality' => 'Hospitality Management',
+                'education' => 'Education Department',
+                'criminology' => 'Criminology Department',
                 ];
 
                 $courseNames = [
-                    'bsn' => 'BS in Nursing (BSN)',
-                    'bsmare' => 'BS in Marine Engineering (BSMarE)',
-                    'bsit' => 'BS in Information Technology (BSIT)',
-                    'bshm' => 'BS in Hospitality Management (BSHM)',
-                    'bsed' => 'Bachelor of Secondary Education (BSED)',
-                    'bsc' => 'BS in Criminology (BSC)',
+                'bsn' => 'BS in Nursing (BSN)',
+                'bsmare' => 'BS in Marine Engineering (BSMarE)',
+                'bsit' => 'BS in Information Technology (BSIT)',
+                'bshm' => 'BS in Hospitality Management (BSHM)',
+                'bsed' => 'Bachelor of Secondary Education (BSED)',
+                'bsc' => 'BS in Criminology (BSC)',
                 ];
 
                 $coverMap = [
-                    'nursing' => 'NURSING',
-                    'bsn' => 'NURSING',
-                    'marine' => 'MARINE',
-                    'bsmare' => 'MARINE',
-                    'it' => 'IT',
-                    'bsit' => 'IT',
-                    'hospitality' => 'HM',
-                    'bshm' => 'HM',
-                    'education' => 'EDUC',
-                    'bsed' => 'EDUC',
-                    'criminology' => 'CRIM',
-                    'bsc' => 'CRIM',
+                'nursing' => 'NURSING',
+                'bsn' => 'NURSING',
+                'marine' => 'MARINE',
+                'bsmare' => 'MARINE',
+                'it' => 'IT',
+                'bsit' => 'IT',
+                'hospitality' => 'HM',
+                'bshm' => 'HM',
+                'education' => 'EDUC',
+                'bsed' => 'EDUC',
+                'criminology' => 'CRIM',
+                'bsc' => 'CRIM',
                 ];
 
                 $deptKey = strtolower($document->department ?? '');
@@ -151,7 +151,7 @@
                             type="button"
                             onclick="openAiDrawer()"
                             class="rounded-xl bg-white border border-gray-300 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 shadow-sm cursor-pointer">
-                            <svg class="w-3.5 h-3.5 shrink-0 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                             </svg>
                             <span>Ask AI About This</span>
@@ -176,7 +176,7 @@
                         Abstract
                     </button>
                     <button id="tabFullTextBtn" onclick="switchViewTab('fulltext')" class="py-3 px-5 text-sm font-bold border-b-2 border-transparent text-gray-500 hover:text-gray-800 transition">
-                        Full Text Content
+                        Full Text
                     </button>
                 </div>
 
@@ -197,14 +197,11 @@
                             <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000]">
                                 Full Text Content
                             </h2>
-                            <span class="rounded-md bg-red-50 text-[#700000] border border-red-200/60 px-2 py-0.5 text-[10px] font-extrabold uppercase">
-                                Protected Read-Only
-                            </span>
                         </div>
 
                         @if($document->chunks && $document->chunks->count() > 0)
                         <span class="rounded-lg bg-slate-100 px-3 py-1 text-xs font-semibold text-gray-600">
-                            {{ $document->chunks->count() }} Pages Extracted
+                            {{ $document->chunks->count() }} Pages
                         </span>
                         @endif
                     </div>
@@ -226,62 +223,62 @@
                             {{-- Formatted Academic Manuscript Text --}}
                             <div class="text-xs sm:text-sm text-gray-800 leading-relaxed font-sans space-y-3.5">
                                 @php
-                                    $rawText = str_replace(["\r\n", "\r"], "\n", $chunk->chunk_text);
-                                    $rawParagraphs = preg_split('/\n\s*\n/', $rawText);
-                                    
-                                    // If no double newlines, group lines intelligently
-                                    if (count($rawParagraphs) <= 1 && str_contains($rawText, "\n")) {
-                                        $lines = explode("\n", $rawText);
-                                        $grouped = [];
-                                        $current = '';
-                                        foreach ($lines as $line) {
-                                            $trimmed = trim($line);
-                                            if ($trimmed === '') continue;
-                                            
-                                            $isHeading = (
-                                                strlen($trimmed) < 70 && (
-                                                    mb_strtoupper($trimmed) === $trimmed || 
-                                                    preg_match('/^(Chapter|Approval|Table of|List of|Abstract|Acknowledgement|References|Bibliography|Appendix|A Capstone|Presented to|In Partial|Bachelor of|By|Panel of)/i', $trimmed)
-                                                )
-                                            );
-                                            
-                                            if ($isHeading) {
-                                                if ($current !== '') {
-                                                    $grouped[] = $current;
-                                                    $current = '';
-                                                }
-                                                $grouped[] = '##HEADING##' . $trimmed;
-                                            } else {
-                                                if ($current !== '') {
-                                                    $current .= ' ' . $trimmed;
-                                                } else {
-                                                    $current = $trimmed;
-                                                }
-                                            }
-                                        }
-                                        if ($current !== '') $grouped[] = $current;
-                                        if (!empty($grouped)) $rawParagraphs = $grouped;
-                                    }
-                                @endphp
+                                $rawText = str_replace(["\r\n", "\r"], "\n", $chunk->chunk_text);
+                                $rawParagraphs = preg_split('/\n\s*\n/', $rawText);
 
-                                @foreach($rawParagraphs as $para)
-                                    @php $cleanPara = trim($para); @endphp
-                                    @if($cleanPara !== '')
-                                        @if(str_starts_with($cleanPara, '##HEADING##'))
-                                            <h3 class="text-center font-bold text-xs sm:text-sm text-gray-900 tracking-wider uppercase my-3 py-1">
-                                                {{ substr($cleanPara, 11) }}
-                                            </h3>
-                                        @elseif(strlen($cleanPara) < 60 && (mb_strtoupper($cleanPara) === $cleanPara || preg_match('/^(Chapter|Approval|Table of|List of|Abstract|Acknowledgement|References|By)/i', $cleanPara)))
-                                            <h3 class="text-center font-bold text-xs sm:text-sm text-gray-900 tracking-wider uppercase my-3 py-1">
-                                                {{ $cleanPara }}
-                                            </h3>
+                                // If no double newlines, group lines intelligently
+                                if (count($rawParagraphs) <= 1 && str_contains($rawText, "\n" )) {
+                                    $lines=explode("\n", $rawText);
+                                    $grouped=[];
+                                    $current='' ;
+                                    foreach ($lines as $line) {
+                                    $trimmed=trim($line);
+                                    if ($trimmed==='' ) continue;
+
+                                    $isHeading=(
+                                    strlen($trimmed) < 70 && (
+                                    mb_strtoupper($trimmed)===$trimmed ||
+                                    preg_match('/^(Chapter|Approval|Table of|List of|Abstract|Acknowledgement|References|Bibliography|Appendix|A Capstone|Presented to|In Partial|Bachelor of|By|Panel of)/i', $trimmed)
+                                    )
+                                    );
+
+                                    if ($isHeading) {
+                                    if ($current !=='' ) {
+                                    $grouped[]=$current;
+                                    $current='' ;
+                                    }
+                                    $grouped[]='##HEADING##' . $trimmed;
+                                    } else {
+                                    if ($current !=='' ) {
+                                    $current .=' ' . $trimmed;
+                                    } else {
+                                    $current=$trimmed;
+                                    }
+                                    }
+                                    }
+                                    if ($current !=='' ) $grouped[]=$current;
+                                    if (!empty($grouped)) $rawParagraphs=$grouped;
+                                    }
+                                    @endphp
+
+                                    @foreach($rawParagraphs as $para)
+                                    @php $cleanPara=trim($para); @endphp
+                                    @if($cleanPara !=='' )
+                                    @if(str_starts_with($cleanPara, '##HEADING##' ))
+                                    <h3 class="text-center font-bold text-xs sm:text-sm text-gray-900 tracking-wider uppercase my-3 py-1">
+                                    {{ substr($cleanPara, 11) }}
+                                    </h3>
+                                    @elseif(strlen($cleanPara) < 60 && (mb_strtoupper($cleanPara)===$cleanPara || preg_match('/^(Chapter|Approval|Table of|List of|Abstract|Acknowledgement|References|By)/i', $cleanPara)))
+                                        <h3 class="text-center font-bold text-xs sm:text-sm text-gray-900 tracking-wider uppercase my-3 py-1">
+                                        {{ $cleanPara }}
+                                        </h3>
                                         @else
-                                            <p class="text-justify indent-6 sm:indent-8 leading-relaxed text-gray-800">
-                                                {{ $cleanPara }}
-                                            </p>
+                                        <p class="text-justify indent-6 sm:indent-8 leading-relaxed text-gray-800">
+                                            {{ $cleanPara }}
+                                        </p>
                                         @endif
-                                    @endif
-                                @endforeach
+                                        @endif
+                                        @endforeach
                             </div>
                         </div>
                         @endforeach
@@ -290,7 +287,7 @@
                     <div class="rounded-2xl bg-amber-50 border border-amber-200 p-6 text-center text-sm text-amber-800">
                         <p class="font-bold">Full text extraction is processed in the secure reader.</p>
                         <button onclick="openSecurePdfReader('/backend/documents/{{ $document->id }}/view')" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#800000]">
-                            <span>Open Protected PDF Reader</span>
+                            <span>View PDF</span>
                         </button>
                     </div>
                     @endif
@@ -311,9 +308,6 @@
         {{-- Top Reader Header --}}
         <div class="flex items-center justify-between px-4 md:px-6 py-3 bg-[#500000] text-white border-b border-[#700000] shadow-md shrink-0">
             <div class="flex items-center gap-3 min-w-0 pr-4">
-                <span class="rounded bg-amber-400/20 text-[#FFD700] border border-[#FFD700]/30 px-2.5 py-0.5 text-[10px] font-extrabold uppercase shrink-0">
-                    Protected Read-Only
-                </span>
                 <h3 class="text-xs md:text-sm font-bold text-white truncate">
                     {{ $document->title }}
                 </h3>
@@ -400,7 +394,7 @@
     <aside
         id="aiDrawer"
         class="fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] md:w-[460px] bg-white border-l border-gray-200 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out translate-x-full">
-        
+
         <!-- Drawer Header -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-white">
             <div class="flex items-center gap-2.5 min-w-0 pr-2">
@@ -427,12 +421,14 @@
 
         <!-- Chat Conversation Feed -->
         <div id="aiDrawerMessages" class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-slate-50/60">
-            
+
             <!-- Initial Greeting & Quick Question Chips (YouTube Style) -->
             <div id="aiInitialCard" class="space-y-3.5">
                 <div class="flex items-start gap-2.5">
-                    <div class="w-6 h-6 rounded-lg bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 text-xs font-bold mt-0.5 shadow-2xs">
-                        ✨
+                    <div class="w-8 h-8 rounded-xl bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                        </svg>
                     </div>
                     <div class="flex-1">
                         <p class="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
@@ -497,7 +493,7 @@
                     placeholder="Ask a question..."
                     autocomplete="off"
                     class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-12 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
-                
+
                 <button
                     id="aiDrawerSendBtn"
                     type="submit"
@@ -509,7 +505,7 @@
                 </button>
             </form>
             <p class="text-[9px] text-gray-400 text-center mt-1.5">
-                Grounded in St. Anthony's College research • Powered by Gemini
+                St. Anthony's College research • Powered by Gemini
             </p>
         </div>
 
@@ -586,9 +582,16 @@
             return div.innerHTML;
         }
 
-        // Continuous Scrollable PDF Reader state
+        // Continuous Scrollable PDF Reader with On-Scroll Lazy Loading
         let pdfDoc = null;
         let currentScale = 1.3;
+        let pageObserver = null;
+        let renderedPages = new Set();
+        let renderingPages = new Set();
+        let pageDimensions = {
+            width: 600,
+            height: 800
+        };
 
         // Open Secure Scrollable Reader Modal
         async function openSecurePdfReader() {
@@ -600,6 +603,13 @@
             modal.classList.add('flex');
             loader.classList.remove('hidden');
             pagesWrapper.innerHTML = '';
+            renderedPages.clear();
+            renderingPages.clear();
+
+            if (pageObserver) {
+                pageObserver.disconnect();
+                pageObserver = null;
+            }
 
             try {
                 // Fetch temporary signed URL from backend JSON endpoint
@@ -616,8 +626,26 @@
                 pdfDoc = await loadingTask.promise;
                 document.getElementById('pageCount').textContent = `${pdfDoc.numPages} Pages`;
 
-                // Render all pages in vertical scroll sequence
-                await renderAllPages();
+                // Calculate reference dimensions from page 1
+                const firstPage = await pdfDoc.getPage(1);
+                const firstViewport = firstPage.getViewport({
+                    scale: currentScale
+                });
+                pageDimensions.width = firstViewport.width;
+                pageDimensions.height = firstViewport.height;
+
+                // Build lightweight placeholders for all pages instantly (< 0.1s)
+                createPagePlaceholders();
+
+                // Setup IntersectionObserver for on-scroll lazy rendering
+                setupPageObserver();
+
+                // Immediately render the first 2 pages for instant viewing
+                renderPage(1);
+                if (pdfDoc.numPages >= 2) {
+                    renderPage(2);
+                }
+
                 loader.classList.add('hidden');
             } catch (err) {
                 console.error('Error loading secure PDF:', err);
@@ -631,18 +659,87 @@
             }
         }
 
-        // Render all PDF pages vertically as HTML5 Canvas elements
-        async function renderAllPages() {
+        // Create lightweight placeholder cards for all pages
+        function createPagePlaceholders() {
             if (!pdfDoc) return;
             const pagesWrapper = document.getElementById('pdfPagesWrapper');
             pagesWrapper.innerHTML = '';
 
-            for (let num = 1; num <= pdfDoc.numPages; num++) {
-                const page = await pdfDoc.getPage(num);
-                const viewport = page.getViewport({ scale: currentScale });
+            const fragment = document.createDocumentFragment();
 
+            for (let num = 1; num <= pdfDoc.numPages; num++) {
                 const card = document.createElement('div');
-                card.className = 'flex flex-col items-center bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-300 w-full max-w-full';
+                card.id = `pdf-page-${num}`;
+                card.dataset.pageNumber = num;
+                card.className = 'pdf-page-card flex flex-col items-center bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-300 w-full max-w-full relative transition-all';
+                card.style.minHeight = `${pageDimensions.height}px`;
+
+                card.innerHTML = `
+                    <div class="page-placeholder flex-1 flex flex-col items-center justify-center w-full bg-slate-50 text-gray-400 py-16" style="min-height: ${pageDimensions.height - 35}px;">
+                        <div class="flex flex-col items-center gap-2">
+                            <svg class="w-6 h-6 text-gray-300 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-[11px] font-mono text-gray-400 font-medium">Page ${num}</span>
+                        </div>
+                    </div>
+                    <div class="page-footer w-full py-1.5 bg-slate-100 border-t border-gray-200 text-center text-[10px] sm:text-xs font-semibold text-gray-500 tracking-wider uppercase font-mono">
+                        Page ${num} of ${pdfDoc.numPages}
+                    </div>
+                `;
+
+                fragment.appendChild(card);
+            }
+
+            pagesWrapper.appendChild(fragment);
+            document.getElementById('zoomPercent').textContent = Math.round((currentScale / 1.3) * 100) + '%';
+        }
+
+        // Setup IntersectionObserver to render pages as they scroll into view
+        function setupPageObserver() {
+            if (pageObserver) {
+                pageObserver.disconnect();
+            }
+
+            const scrollContainer = document.getElementById('pdfScrollContainer');
+
+            pageObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const pageNum = parseInt(entry.target.dataset.pageNumber, 10);
+                        if (pageNum && !renderedPages.has(pageNum) && !renderingPages.has(pageNum)) {
+                            renderPage(pageNum);
+                        }
+                    }
+                });
+            }, {
+                root: scrollContainer,
+                rootMargin: '450px 0px', // Pre-fetch 450px before scrolling onto the page
+                threshold: 0.01
+            });
+
+            document.querySelectorAll('.pdf-page-card').forEach((card) => {
+                pageObserver.observe(card);
+            });
+        }
+
+        // Render a single PDF page into its card
+        async function renderPage(num) {
+            if (!pdfDoc || renderedPages.has(num) || renderingPages.has(num)) return;
+            renderingPages.add(num);
+
+            const card = document.getElementById(`pdf-page-${num}`);
+            if (!card) {
+                renderingPages.delete(num);
+                return;
+            }
+
+            try {
+                const page = await pdfDoc.getPage(num);
+                const viewport = page.getViewport({
+                    scale: currentScale
+                });
 
                 const canvas = document.createElement('canvas');
                 canvas.className = 'block max-w-full h-auto';
@@ -654,44 +751,100 @@
                     canvasContext: ctx,
                     viewport: viewport
                 };
+
                 await page.render(renderContext).promise;
 
-                const pageFooter = document.createElement('div');
-                pageFooter.className = 'w-full py-1.5 bg-slate-100 border-t border-gray-200 text-center text-[10px] sm:text-xs font-semibold text-gray-500 tracking-wider uppercase font-mono';
-                pageFooter.textContent = `Page ${num} of ${pdfDoc.numPages}`;
+                // Replace placeholder with the rendered canvas
+                const placeholder = card.querySelector('.page-placeholder');
+                const existingCanvas = card.querySelector('canvas');
+                const footer = card.querySelector('.page-footer');
 
-                card.appendChild(canvas);
-                card.appendChild(pageFooter);
-                pagesWrapper.appendChild(card);
+                if (existingCanvas) {
+                    existingCanvas.remove();
+                }
+                if (placeholder) {
+                    placeholder.remove();
+                }
+
+                card.insertBefore(canvas, footer);
+                card.style.minHeight = `${viewport.height}px`;
+
+                renderedPages.add(num);
+            } catch (err) {
+                console.error(`Error rendering page ${num}:`, err);
+            } finally {
+                renderingPages.delete(num);
             }
-
-            document.getElementById('zoomPercent').textContent = Math.round((currentScale / 1.3) * 100) + '%';
         }
 
-        // Zoom In (Scales all pages)
+        // Zoom In (Scales currently visible pages and placeholders)
         async function onZoomIn() {
             if (currentScale >= 2.5) return;
             currentScale += 0.2;
-            const loader = document.getElementById('pdfLoader');
-            loader.classList.remove('hidden');
-            await renderAllPages();
-            loader.classList.add('hidden');
+            await reScalePages();
         }
 
-        // Zoom Out (Scales all pages)
+        // Zoom Out
         async function onZoomOut() {
             if (currentScale <= 0.7) return;
             currentScale -= 0.2;
-            const loader = document.getElementById('pdfLoader');
-            loader.classList.remove('hidden');
-            await renderAllPages();
-            loader.classList.add('hidden');
+            await reScalePages();
+        }
+
+        // Re-calculate dimensions and re-render on zoom change
+        async function reScalePages() {
+            if (!pdfDoc) return;
+            document.getElementById('zoomPercent').textContent = Math.round((currentScale / 1.3) * 100) + '%';
+
+            // Get updated dimensions from page 1
+            const firstPage = await pdfDoc.getPage(1);
+            const firstViewport = firstPage.getViewport({
+                scale: currentScale
+            });
+            pageDimensions.width = firstViewport.width;
+            pageDimensions.height = firstViewport.height;
+
+            // Clear rendered sets and re-render currently visible pages
+            renderedPages.clear();
+            renderingPages.clear();
+
+            document.querySelectorAll('.pdf-page-card').forEach((card) => {
+                card.style.minHeight = `${pageDimensions.height}px`;
+                const canvas = card.querySelector('canvas');
+                if (canvas) canvas.remove();
+                if (!card.querySelector('.page-placeholder')) {
+                    const num = card.dataset.pageNumber;
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'page-placeholder flex-1 flex flex-col items-center justify-center w-full bg-slate-50 text-gray-400 py-16';
+                    placeholder.style.minHeight = `${pageDimensions.height - 35}px`;
+                    placeholder.innerHTML = `
+                        <div class="flex flex-col items-center gap-2">
+                            <svg class="w-6 h-6 text-gray-300 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-[11px] font-mono text-gray-400 font-medium">Page ${num}</span>
+                        </div>
+                    `;
+                    const footer = card.querySelector('.page-footer');
+                    card.insertBefore(placeholder, footer);
+                }
+            });
+
+            // Trigger observer check by refreshing observer
+            setupPageObserver();
         }
 
         function closeSecurePdfReader() {
             const modal = document.getElementById('securePdfModal');
             modal.classList.add('hidden');
             modal.classList.remove('flex');
+            if (pageObserver) {
+                pageObserver.disconnect();
+                pageObserver = null;
+            }
+            renderedPages.clear();
+            renderingPages.clear();
             pdfDoc = null;
         }
 
@@ -844,7 +997,9 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({ document_id: currentDocId })
+                    body: JSON.stringify({
+                        document_id: currentDocId
+                    })
                 });
                 const data = await res.json();
                 updateBookmarkBtnState(data.bookmarked);
@@ -958,9 +1113,9 @@
                 }
 
                 aiBubble.innerHTML = `
-                    <div class="w-6 h-6 rounded-lg bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 text-xs font-bold mt-0.5 shadow-2xs">
-                        ✨
-                    </div>
+                    <svg class="w-3.5 h-3.5 shrink-0 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                    </svg>
                     <div class="flex-1 max-w-[90%] bg-white border border-gray-200 rounded-2xl rounded-tl-xs p-3.5 shadow-sm text-xs sm:text-sm text-gray-800 leading-relaxed space-y-2">
                         ${formattedAnswer}
                     </div>

@@ -59,57 +59,57 @@
                             <span>Search</span>
                         </button>
                     </div>
-                    </div>
+        </div>
 
-                    {{-- 3. QUICK FILTER & SORT TOOLBAR --}}
-                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
-                        <div class="flex items-center gap-3 flex-wrap">
-                            {{-- Department Filter Dropdown --}}
-                            <div class="flex items-center gap-1.5">
-                                <label for="deptFilter" class="text-xs font-bold text-gray-500">Department:</label>
-                                <select
-                                    id="deptFilter"
-                                    onchange="onFilterChange()"
-                                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
-                                    <option value="all">All Departments</option>
-                                    <option value="it">Information Technology (BSIT)</option>
-                                    <option value="marine">Marine Engineering (BSMarE)</option>
-                                    <option value="nursing">Nursing & Healthcare (BSN)</option>
-                                    <option value="business">Business & Accountancy (CBA)</option>
-                                    <option value="education">Teacher Education (CTE)</option>
-                                    <option value="criminology">Criminology / Arts & Sciences</option>
-                                </select>
-                            </div>
+        {{-- 3. QUICK FILTER & SORT TOOLBAR --}}
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div class="flex items-center gap-3 flex-wrap">
+                {{-- Department Filter Dropdown --}}
+                <div class="flex items-center gap-1.5">
+                    <label for="deptFilter" class="text-xs font-bold text-gray-500">Department:</label>
+                    <select
+                        id="deptFilter"
+                        onchange="onFilterChange()"
+                        class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
+                        <option value="all">All Departments</option>
+                        <option value="it">Information Technology (BSIT)</option>
+                        <option value="marine">Marine Engineering (BSMarE)</option>
+                        <option value="nursing">Nursing & Healthcare (BSN)</option>
+                        <option value="business">Business & Accountancy (CBA)</option>
+                        <option value="education">Teacher Education (CTE)</option>
+                        <option value="criminology">Criminology / Arts & Sciences</option>
+                    </select>
+                </div>
 
-                            {{-- Sort By Dropdown --}}
-                            <div class="flex items-center gap-1.5">
-                                <label for="sortFilter" class="text-xs font-bold text-gray-500">Sort By:</label>
-                                <select
-                                    id="sortFilter"
-                                    onchange="onFilterChange()"
-                                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
-                                    <option value="latest">Newest First</option>
-                                    <option value="oldest">Oldest First</option>
-                                    <option value="title_asc">Title (A – Z)</option>
-                                    <option value="title_desc">Title (Z – A)</option>
-                                </select>
-                            </div>
-                        </div>
+                {{-- Sort By Dropdown --}}
+                <div class="flex items-center gap-1.5">
+                    <label for="sortFilter" class="text-xs font-bold text-gray-500">Sort By:</label>
+                    <select
+                        id="sortFilter"
+                        onchange="onFilterChange()"
+                        class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
+                        <option value="latest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="title_asc">Title (A – Z)</option>
+                        <option value="title_desc">Title (Z – A)</option>
+                    </select>
+                </div>
+            </div>
 
-                        {{-- Total Documents Count Badge --}}
-                        <div id="docCountBadge" class="text-xs font-semibold text-gray-500">
-                            Showing results...
-                        </div>
-                    </div>
-                </form>
-            </section>
+            {{-- Total Documents Count Badge --}}
+            <div id="docCountBadge" class="text-xs font-semibold text-gray-500">
+                Showing results...
+            </div>
+        </div>
+        </form>
+        </section>
 
-            {{-- 4. THESIS CARDS LIST CONTAINER --}}
-            <section id="documentsList" class="space-y-4">
-                <p class="text-center text-sm text-gray-500 py-10">
-                    Loading thesis repository...
-                </p>
-            </section>
+        {{-- 4. THESIS CARDS LIST CONTAINER --}}
+        <section id="documentsList" class="space-y-4">
+            <p class="text-center text-sm text-gray-500 py-10">
+                Loading thesis repository...
+            </p>
+        </section>
 
         </div>
     </main>
@@ -183,7 +183,7 @@
     <aside
         id="aiDrawer"
         class="fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] md:w-[460px] bg-white border-l border-gray-200 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out translate-x-full">
-        
+
         <!-- Drawer Header -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-white">
             <div class="flex items-center gap-2.5 min-w-0 pr-2">
@@ -210,12 +210,14 @@
 
         <!-- Chat Conversation Feed -->
         <div id="aiDrawerMessages" class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-slate-50/60">
-            
+
             <!-- Initial Greeting & Quick Question Chips (YouTube Style) -->
             <div id="aiInitialCard" class="space-y-3.5">
                 <div class="flex items-start gap-2.5">
-                    <div class="w-6 h-6 rounded-lg bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 text-xs font-bold mt-0.5 shadow-2xs">
-                        ✨
+                    <div class="w-8 h-8 rounded-xl bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                        </svg>
                     </div>
                     <div class="flex-1">
                         <p class="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
@@ -280,7 +282,7 @@
                     placeholder="Ask a question..."
                     autocomplete="off"
                     class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-12 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
-                
+
                 <button
                     id="aiDrawerSendBtn"
                     type="submit"
@@ -292,7 +294,7 @@
                 </button>
             </form>
             <p class="text-[9px] text-gray-400 text-center mt-1.5">
-                Grounded in St. Anthony's College research • Powered by Gemini
+                St. Anthony's College research • Powered by Gemini
             </p>
         </div>
 
@@ -414,13 +416,25 @@
 
             // 2. Keyword heuristic fallback if department is unspecified
             if (title.includes('patient') || title.includes('nursing')) {
-                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+                return {
+                    cover: 'NURSING.webp',
+                    name: 'Nursing Department',
+                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                };
             }
             if (title.includes('marine') || title.includes('vessel')) {
-                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
+                return {
+                    cover: 'MARINE.webp',
+                    name: 'Marine Engineering Department',
+                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
+                };
             }
             if (title.includes('system') || title.includes('app') || title.includes('web') || title.includes('software')) {
-                return { cover: 'IT.webp', name: 'Information Technology Department', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' };
+                return {
+                    cover: 'IT.webp',
+                    name: 'Information Technology Department',
+                    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
+                };
             }
 
             return {
@@ -444,11 +458,7 @@
                         <p class="mt-1 text-xs text-gray-500">Try adjusting your search terms or department filters.</p>
                     </div>
                 `;
-                if (docCountBadge) docCountBadge.textContent = '0 Theses Found';
-                return;
             }
-
-            if (docCountBadge) docCountBadge.textContent = `${documents.length} Theses Available`;
 
             documentsList.innerHTML = documents.map((doc, idx) => {
                 const details = getDepartmentDetails(doc.department, doc.course_code, doc.title);
@@ -534,7 +544,7 @@
                                         onclick="openDocAiDrawer(${idx})"
                                         class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 cursor-pointer"
                                     >
-                                        <svg class="w-3.5 h-3.5 shrink-0 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                                         </svg>
                                         <span>Ask AI</span>
@@ -622,7 +632,7 @@
             documentsList.innerHTML = `<p class="text-center text-sm text-gray-500 py-10">Searching documents...</p>`;
             try {
                 const url = new URL('/backend/documents', window.location.origin);
-                
+
                 // Add search query if provided
                 if (search && search.trim()) {
                     url.searchParams.set('search', search.trim());

@@ -32,10 +32,6 @@ class GeminiService
         }
     }
 
-    /**
-     * 1. Generate a single vector embedding (768 numbers).
-     * Used by Semantic Search when a student types a search query.
-     */
     public function generateEmbedding(string $text): array
     {
         $response = Http::timeout(10)
