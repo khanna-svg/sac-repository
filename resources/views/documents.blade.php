@@ -95,11 +95,6 @@
                     </select>
                 </div>
             </div>
-
-            {{-- Total Documents Count Badge --}}
-            <div id="docCountBadge" class="text-xs font-semibold text-gray-500">
-                Showing results...
-            </div>
         </div>
         </form>
         </section>
