@@ -320,6 +320,12 @@
                 const deptInfo = deptNames[deptKey] || { name: doc.department, badge: 'bg-gray-100 text-gray-700 border-gray-200', cover: 'IT.webp' };
                 const formattedDate = doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
 
+                const statusBadge = doc.status === 'approved'
+                    ? '<span class="inline-block rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700 ml-2">Published</span>'
+                    : (doc.status === 'resubmit'
+                        ? '<span class="inline-block rounded-md bg-rose-50 border border-rose-200 px-2 py-0.5 text-[10px] font-bold text-rose-700 ml-2">Needs Resubmission</span>'
+                        : '<span class="inline-block rounded-md bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-700 ml-2">Pending Review</span>');
+
                 return `
                     <tr class="hover:bg-slate-50/80 transition">
                         <td class="py-4 px-4 sm:px-6">
@@ -331,7 +337,10 @@
                                     <h4 class="font-bold text-gray-900 leading-snug" title="${escapeHtml(doc.title)}">
                                         ${escapeHtml(doc.title)}
                                     </h4>
-                                    <p class="text-[11px] text-gray-400 mt-0.5">Uploaded: ${formattedDate}</p>
+                                    <div class="flex items-center flex-wrap gap-1 mt-0.5">
+                                        <span class="text-[11px] text-gray-400">Uploaded: ${formattedDate}</span>
+                                        ${statusBadge}
+                                    </div>
                                 </div>
                             </div>
                         </td>

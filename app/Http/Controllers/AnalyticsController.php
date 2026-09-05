@@ -31,31 +31,34 @@ class AnalyticsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // 1. Total Metrics
-        $totalTheses = Document::count();
-        $totalPages = DocumentChunk::count();
+        // 1. Total Metrics (Only published/approved theses)
+        $totalTheses = Document::where('status', 'approved')->count();
+        $totalPages = DocumentChunk::whereHas('document', fn($q) => $q->where('status', 'approved'))->count();
         $totalBookmarks = Bookmark::count();
-        $totalDepartments = Document::whereNotNull('department')->distinct('department')->count('department');
+        $totalDepartments = Document::where('status', 'approved')->whereNotNull('department')->distinct('department')->count('department');
 
         // 2. Department Breakdown
-        $departmentStats = Document::select('department', DB::raw('count(*) as count'))
+        $departmentStats = Document::where('status', 'approved')
+            ->select('department', DB::raw('count(*) as count'))
             ->whereNotNull('department')
             ->groupBy('department')
             ->orderByDesc('count')
             ->get();
 
         // 3. Course Code Breakdown
-        $courseStats = Document::select('course_code', DB::raw('count(*) as count'))
+        $courseStats = Document::where('status', 'approved')
+            ->select('course_code', DB::raw('count(*) as count'))
             ->whereNotNull('course_code')
             ->groupBy('course_code')
             ->orderByDesc('count')
             ->get();
 
         // 4. Yearly Output Trend
-        $yearlyStats = Document::select(
-            DB::raw("COALESCE(TO_CHAR(created_at, 'YYYY'), '2026') as year"),
-            DB::raw('count(*) as count')
-        )
+        $yearlyStats = Document::where('status', 'approved')
+            ->select(
+                DB::raw("COALESCE(TO_CHAR(created_at, 'YYYY'), '2026') as year"),
+                DB::raw('count(*) as count')
+            )
             ->groupBy('year')
             ->orderBy('year', 'asc')
             ->get();
