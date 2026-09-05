@@ -85,6 +85,7 @@ class ChatController extends Controller
                 FROM document_chunks dc
                 INNER JOIN documents d ON d.id = dc.document_id
                 WHERE dc.embedding IS NOT NULL
+                  AND d.status = 'approved'
                 {$docFilterSql}
                 ORDER BY
                     dc.embedding OPERATOR(extensions.<=>)
@@ -95,7 +96,7 @@ class ChatController extends Controller
             // Step 3: Handle case when no thesis chunks exist yet
             if (empty($chunks)) {
                 if ($documentId) {
-                    $doc = DB::table('documents')->where('id', $documentId)->first();
+                    $doc = DB::table('documents')->where('id', $documentId)->where('status', 'approved')->first();
                     if ($doc) {
                         $contextText = "Thesis Title: {$doc->title}\nAuthor: {$doc->author}\nDepartment: {$doc->department}\nAbstract:\n{$doc->abstract}";
                         $answer = $this->geminiService->generateChatResponse($userQuestion, $contextText, $history);

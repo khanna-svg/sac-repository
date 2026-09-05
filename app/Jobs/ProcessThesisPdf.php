@@ -97,7 +97,8 @@ class ProcessThesisPdf implements ShouldQueue
                 "{$supabaseUrl}/storage/v1/object/" .
                 "{$bucketName}/{$cleanFilePath}";
 
-            $response = Http::timeout(120)
+            $response = Http::withoutVerifying()
+                ->timeout(120)
                 ->withHeaders([
                     'apikey' =>
                         $supabaseKey,

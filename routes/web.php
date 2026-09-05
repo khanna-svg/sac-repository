@@ -103,7 +103,26 @@ Route::middleware('sac.auth')->group(function () {
         [\App\Http\Controllers\ChatController::class, 'ask']
     );
 
+    // Student Thesis Submission
+    Route::get('/student/submit', [\App\Http\Controllers\StudentSubmissionController::class, 'showForm'])
+        ->name('student.submit');
+    Route::post('/backend/student/upload-url', [\App\Http\Controllers\StudentSubmissionController::class, 'createUploadUrl']);
+    Route::post('/backend/student/submit', [\App\Http\Controllers\StudentSubmissionController::class, 'store']);
+
+    // Student In-App Notifications
+    Route::get('/backend/notifications', [\App\Http\Controllers\NotificationController::class, 'index']);
+    Route::post('/backend/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead']);
+    Route::post('/backend/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
+
     Route::middleware([RequireSacAdmin::class])->group(function () {
+
+        // Admin Thesis Submissions Review & Moderation Queue
+        Route::get('/admin/submissions', [\App\Http\Controllers\AdminSubmissionController::class, 'indexView'])
+            ->name('admin.submissions');
+        Route::get('/backend/admin/submissions', [\App\Http\Controllers\AdminSubmissionController::class, 'list']);
+        Route::post('/backend/admin/submissions/{document}/approve', [\App\Http\Controllers\AdminSubmissionController::class, 'approve']);
+        Route::post('/backend/admin/submissions/{document}/reject', [\App\Http\Controllers\AdminSubmissionController::class, 'reject']);
+        Route::get('/backend/admin/submissions/{document}/download', [\App\Http\Controllers\AdminSubmissionController::class, 'download']);
 
         Route::get('/admin/theses', function () {
             return view('admin.theses');
