@@ -924,10 +924,10 @@
             let styleLabel = 'IEEE Style Format';
 
             if (preferredStyle === 'apa') {
-                styleLabel = 'APA 7th Edition Format';
+                styleLabel = 'IEEE Style Format';
                 text = `${docAuthor} (${docYear}). ${docTitle} [Undergraduate thesis, St. Anthony's College]. SAC Institutional Research Repository.`;
             } else if (preferredStyle === 'mla') {
-                styleLabel = 'MLA 9th Edition Format';
+                styleLabel = 'IEEE Style Format';
                 text = `${docAuthor}. "${docTitle}." Undergraduate thesis, St. Anthony's College, ${docYear}.`;
             } else {
                 styleLabel = 'IEEE Style Format';
