@@ -707,10 +707,10 @@
             let styleLabel = 'IEEE Style Format';
 
             if (preferredStyle === 'apa') {
-                styleLabel = 'APA 7th Edition Format';
+                styleLabel = 'IEEE Style Format';
                 citation = `${author} (${year}). ${title} [Undergraduate thesis, St. Anthony's College]. SAC Institutional Research Repository.`;
             } else if (preferredStyle === 'mla') {
-                styleLabel = 'MLA 9th Edition Format';
+                styleLabel = 'IEEE Style Format';
                 citation = `${author}. "${title}." Undergraduate thesis, St. Anthony's College, ${year}.`;
             } else {
                 styleLabel = 'IEEE Style Format';
