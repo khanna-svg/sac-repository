@@ -405,6 +405,8 @@
                 const details = getDepartmentDetails(doc.department, doc.course_code, doc.title);
                 const isLongAbstract = (doc.abstract || '').length > 200;
                 const truncatedAbstract = isLongAbstract ? doc.abstract.substring(0, 200) + '...' : doc.abstract;
+                const rawDate = doc.publication_date || doc.created_at;
+                const pubDateStr = rawDate ? new Date(rawDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
 
                 return `
                     <article class="relative flex flex-col md:flex-row gap-5 rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-[#700000]/30 transition">
@@ -434,6 +436,7 @@
                                 <span class="font-bold text-[#700000]">St. Anthony's College</span>
                                 <span class="text-gray-300">•</span>
                                 <span class="text-gray-700">${escapeHtml(details.name)}</span>
+                                ${pubDateStr ? `<span class="text-gray-300">•</span><span class="text-gray-500 font-medium">${pubDateStr}</span>` : ''}
                             </div>
 
                             <h3 class="mt-2.5 text-base md:text-lg font-bold text-gray-900 transition">
@@ -709,7 +712,8 @@
             if (!currentCitationDoc) return;
             const author = currentCitationDoc.author || 'Author, A.';
             const cleanTitle = (currentCitationDoc.title || 'Untitled Thesis').trim().replace(/\.$/, '');
-            const year = currentCitationDoc.created_at ? new Date(currentCitationDoc.created_at).getFullYear() : new Date().getFullYear();
+            const dateVal = currentCitationDoc.publication_date || currentCitationDoc.created_at;
+            const year = dateVal ? new Date(dateVal).getFullYear() : new Date().getFullYear();
             const deptName = getFullDeptName(currentCitationDoc.department, currentCitationDoc.course, currentCitationDoc.title);
 
             let citation = '';

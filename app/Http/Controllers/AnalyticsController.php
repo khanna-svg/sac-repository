@@ -53,7 +53,7 @@ class AnalyticsController extends Controller
 
         // 4. Yearly Output Trend
         $yearlyStats = Document::select(
-            DB::raw("COALESCE(TO_CHAR(created_at, 'YYYY'), '2026') as year"),
+            DB::raw("COALESCE(TO_CHAR(publication_date, 'YYYY'), TO_CHAR(created_at, 'YYYY'), '2026') as year"),
             DB::raw('count(*) as count')
         )
             ->groupBy('year')
@@ -82,7 +82,7 @@ class AnalyticsController extends Controller
             return redirect('/documents');
         }
 
-        $theses = Document::withCount('chunks')->latest()->get();
+        $theses = Document::withCount('chunks')->orderByRaw('COALESCE(publication_date, created_at::date) desc')->latest()->get();
         $filename = 'SAC_Thesis_Repository_Report_' . date('Y-m-d') . '.csv';
 
         $headers = [
@@ -90,7 +90,7 @@ class AnalyticsController extends Controller
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
             'Pragma' => 'no-cache',
             'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
-            'Expires' => '0',
+            'Expires' => '0'
         ];
 
         $callback = function () use ($theses) {
@@ -106,6 +106,7 @@ class AnalyticsController extends Controller
                 'Department',
                 'Course / Program',
                 'Indexed Pages',
+                'Publication Date',
                 'Date Uploaded',
                 'Abstract'
             ]);
@@ -118,6 +119,7 @@ class AnalyticsController extends Controller
                     strtoupper($thesis->department ?? 'N/A'),
                     strtoupper($thesis->course_code ?? 'N/A'),
                     $thesis->chunks_count ?? 0,
+                    $thesis->publication_date ? $thesis->publication_date->format('Y-m-d') : ($thesis->created_at ? $thesis->created_at->format('Y-m-d') : 'N/A'),
                     $thesis->created_at ? $thesis->created_at->format('Y-m-d H:i') : 'N/A',
                     preg_replace('/\s+/', ' ', trim($thesis->abstract ?? ''))
                 ]);

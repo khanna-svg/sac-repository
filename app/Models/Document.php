@@ -15,8 +15,13 @@ class Document extends Model
         'abstract',
         'department',
         'course_code',
+        'publication_date',
         'file_path',
         'file_url',
+    ];
+
+    protected $casts = [
+        'publication_date' => 'date',
     ];
 
     public function chunks()

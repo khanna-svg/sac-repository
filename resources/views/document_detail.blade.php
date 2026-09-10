@@ -142,7 +142,7 @@
                     @endif
 
                     <span class="text-gray-300">•</span>
-                    <span class="text-gray-500">{{ $document->created_at ? $document->created_at->format('F Y') : 'Recent' }}</span>
+                    <span class="text-gray-500">{{ $document->publication_date ? $document->publication_date->format('F Y') : ($document->created_at ? $document->created_at->format('F Y') : 'Recent') }}</span>
                 </div>
 
                 {{-- Book Cover & Title Header Row --}}
@@ -1172,9 +1172,13 @@
             if (tabApa) tabApa.className = style === 'apa' ? activeClass : inactiveClass;
             if (tabMla) tabMla.className = style === 'mla' ? activeClass : inactiveClass;
 
-            const deptAttr = dataElement ? dataElement.getAttribute('data-department') : '';
-            const courseAttr = dataElement ? dataElement.getAttribute('data-course') : '';
-            const deptName = getFullDeptName(deptAttr, courseAttr, docTitle);
+            const docTitle = {!! json_encode($document->title) !!};
+            const docAuthor = {!! json_encode($document->author) !!};
+            const docDept = {!! json_encode($document->department) !!};
+            const docCourse = {!! json_encode($document->course_code) !!};
+            const docYear = {!! json_encode($document->publication_date ? $document->publication_date->format('Y') : ($document->created_at ? $document->created_at->format('Y') : date('Y'))) !!};
+
+            const deptName = getFullDeptName(docDept, docCourse, docTitle);
             const cleanTitle = (docTitle || 'Untitled Thesis').trim().replace(/\.$/, '');
 
             let citation = '';

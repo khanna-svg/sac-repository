@@ -162,6 +162,11 @@
                 </div>
 
                 <div>
+                    <label for="editPublicationDate" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Publication / Defense Date</label>
+                    <input id="editPublicationDate" type="date" required class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
+                </div>
+
+                <div>
                     <label for="editAbstract" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Abstract</label>
                     <textarea id="editAbstract" rows="4" class="w-full rounded-xl border border-gray-300 bg-white p-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] leading-relaxed"></textarea>
                 </div>
@@ -319,6 +324,7 @@
                 const deptKey = (doc.department || 'it').toLowerCase();
                 const deptInfo = deptNames[deptKey] || { name: doc.department, cover: 'IT.webp' };
                 const formattedDate = doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
+                const pubDateFormatted = doc.publication_date ? new Date(doc.publication_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : formattedDate;
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition">
@@ -331,7 +337,7 @@
                                     <h4 class="font-bold text-gray-900 leading-snug" title="${escapeHtml(doc.title)}">
                                         ${escapeHtml(doc.title)}
                                     </h4>
-                                    <p class="text-[11px] text-gray-400 mt-0.5">Uploaded: ${formattedDate}</p>
+                                    <p class="text-[11px] text-gray-500 mt-0.5"><span class="font-semibold text-gray-700">Published:</span> ${pubDateFormatted}</p>
                                 </div>
                             </div>
                         </td>
@@ -391,6 +397,8 @@
             handleEditDeptChange(deptKey);
             
             document.getElementById('editCourseCode').value = (doc.course_code || 'bsit').toLowerCase();
+            const pubDateStr = doc.publication_date ? doc.publication_date.split('T')[0] : (doc.created_at ? doc.created_at.split('T')[0] : '');
+            document.getElementById('editPublicationDate').value = pubDateStr;
             document.getElementById('editAbstract').value = doc.abstract || '';
 
             const modal = document.getElementById('editModal');
@@ -425,6 +433,7 @@
                         author: document.getElementById('editAuthor').value.trim(),
                         department: document.getElementById('editDepartment').value,
                         course_code: document.getElementById('editCourseCode').value,
+                        publication_date: document.getElementById('editPublicationDate').value,
                         abstract: document.getElementById('editAbstract').value.trim(),
                     })
                 });

@@ -140,7 +140,7 @@
 
                         <div>
                             <label for="course_code" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">
-                                Degree Program <span class="text-rose-600"></span>
+                                Degree Program <span class="text-rose-600">*</span>
                             </label>
                             <select
                                 id="course_code"
@@ -156,6 +156,20 @@
                                 <option value="bsc">BS in Criminology (BSC)</option>
                             </select>
                         </div>
+                    </div>
+
+                    <!-- Publication / Defense Date -->
+                    <div>
+                        <label for="publication_date" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">
+                            Publication / Defense Date <span class="text-rose-600">*</span>
+                        </label>
+                        <input
+                            type="date"
+                            id="publication_date"
+                            name="publication_date"
+                            value="{{ date('Y-m-d') }}"
+                            required
+                            class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
                     </div>
 
                     <!-- Abstract -->
@@ -496,6 +510,7 @@
                         author: document.getElementById('author').value.trim(),
                         department: document.getElementById('department').value,
                         course_code: document.getElementById('course_code').value,
+                        publication_date: document.getElementById('publication_date').value,
                         abstract: document.getElementById('abstract').value.trim(),
                         file_path: urlData.path,
                         chunks: extractedChunks

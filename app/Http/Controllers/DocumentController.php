@@ -214,13 +214,13 @@ class DocumentController extends Controller
                 }
 
                 if ($sort === 'oldest') {
-                    $query->orderBy('id', 'asc');
+                    $query->orderByRaw('COALESCE(publication_date, created_at::date) asc')->orderBy('id', 'asc');
                 } elseif ($sort === 'title_asc') {
                     $query->orderBy('title', 'asc');
                 } elseif ($sort === 'title_desc') {
                     $query->orderBy('title', 'desc');
                 } else {
-                    $query->latest();
+                    $query->orderByRaw('COALESCE(publication_date, created_at::date) desc')->latest();
                 }
 
                 return response()->json($query->get());
@@ -679,11 +679,15 @@ class DocumentController extends Controller
                     'message' => 'Invalid thesis file path.',
                 ], 400);
             }
+            $rawPubDate = $request->input('publication_date');
+            $publicationDate = !empty($rawPubDate) ? \Carbon\Carbon::parse($rawPubDate)->toDateString() : now()->toDateString();
+
             $document = Document::create([
                 'title' => $title,
                 'author' => $author,
                 'department' => $department,
                 'course_code' => $courseCode,
+                'publication_date' => $publicationDate,
                 'abstract' => $abstract,
                 'file_path' => $filePath,
                 'file_url' => '',
@@ -860,6 +864,9 @@ class DocumentController extends Controller
                 );
             }
 
+            $rawPubDate = $request->input('publication_date');
+            $publicationDate = !empty($rawPubDate) ? \Carbon\Carbon::parse($rawPubDate)->toDateString() : now()->toDateString();
+
             $document =
                 Document::create([
                     'title' =>
@@ -881,6 +888,9 @@ class DocumentController extends Controller
                     $request->input(
                         'course_code'
                     ),
+
+                    'publication_date' =>
+                    $publicationDate,
 
                     'abstract' =>
                     $request->input(
@@ -1169,7 +1179,7 @@ class DocumentController extends Controller
                 $this->applyDepartmentFilter($query, $department);
             }
 
-            $documents = $query->latest()->get();
+            $documents = $query->orderByRaw('COALESCE(publication_date, created_at::date) desc')->latest()->get();
 
             return response()->json([
                 'error' => false,
@@ -1194,6 +1204,7 @@ class DocumentController extends Controller
                 'author' => ['required', 'string', 'max:500'],
                 'department' => ['required', 'string', 'max:100'],
                 'course_code' => ['required', 'string', 'max:50'],
+                'publication_date' => ['nullable', 'date'],
                 'abstract' => ['nullable', 'string'],
             ]);
 
@@ -1202,6 +1213,7 @@ class DocumentController extends Controller
                 'author' => trim($validated['author']),
                 'department' => strtolower(trim($validated['department'])),
                 'course_code' => strtolower(trim($validated['course_code'])),
+                'publication_date' => !empty($validated['publication_date']) ? \Carbon\Carbon::parse($validated['publication_date'])->toDateString() : $document->publication_date,
                 'abstract' => isset($validated['abstract']) ? trim($validated['abstract']) : $document->abstract,
             ]);
 
