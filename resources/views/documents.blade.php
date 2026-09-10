@@ -8,6 +8,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <style>
+        /* Antigravity-Style Right AI Sidebar Squeeze Layout */
+        @media (min-width: 1024px) {
+            html.ai-drawer-open main,
+            html.ai-drawer-open #mainContent {
+                margin-right: 440px !important;
+            }
+            html.ai-drawer-open #aiDrawerBackdrop {
+                display: none !important;
+                pointer-events: none !important;
+            }
+            #aiDrawer {
+                width: 440px !important;
+            }
+        }
+        @media (min-width: 1440px) {
+            html.ai-drawer-open main,
+            html.ai-drawer-open #mainContent {
+                margin-right: 480px !important;
+            }
+            #aiDrawer {
+                width: 480px !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
@@ -16,7 +42,7 @@
     @include('partials.sidebar')
 
     {{-- MAIN PAGE CONTENT --}}
-    <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-16 md:pt-10">
+    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-16 md:pt-10">
         <div class="mx-auto max-w-5xl">
 
             {{-- 1. PAGE HEADER --}}
@@ -75,6 +101,7 @@
                         <option value="it">Information Technology (BSIT)</option>
                         <option value="marine">Marine Engineering (BSMarE)</option>
                         <option value="nursing">Nursing & Healthcare (BSN)</option>
+                        <option value="hospitality">Hospitality Management (BSHM)</option>
                         <option value="business">Business & Accountancy (CBA)</option>
                         <option value="education">Teacher Education (CTE)</option>
                         <option value="criminology">Criminology / Arts & Sciences</option>
@@ -121,40 +148,66 @@
         </div>
     </div>
 
-    {{-- IEEE CITATION MODAL --}}
+    {{-- ACADEMIC CITATION MODAL (IEEE, APA 7th, MLA 9th) --}}
     <div id="citationModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl transition-all">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
                 <div class="flex items-center gap-2.5">
-                    <svg class="w-5 h-5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
-                    </svg>
-                    <h3 class="text-base md:text-lg font-bold text-gray-900">IEEE Citation</h3>
+                    <div class="w-8 h-8 rounded-xl bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-sm">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900">Academic Citation</h3>
+                        <p class="text-[11px] text-gray-500">Official reference format for research papers</p>
+                    </div>
                 </div>
-                <button onclick="closeCitationModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition">
+                <button onclick="closeCitationModal()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
 
-            <div class="mt-4">
+            <div class="mt-4 space-y-3">
                 <p id="modalDocTitle" class="text-xs font-bold text-[#700000] truncate"></p>
-                <div class="mt-4 flex rounded-xl bg-slate-100 p-1 border border-gray-200">
-                    <div class="w-full py-1.5 text-xs font-bold rounded-lg bg-white text-[#700000] shadow-sm text-center">
-                        IEEE Standard Format
-                    </div>
+                <!-- Style Tabs -->
+                <div class="flex rounded-2xl bg-slate-100 p-1 border border-gray-200 gap-1">
+                    <button
+                        id="citeTabIeee"
+                        type="button"
+                        onclick="switchCitationStyle('ieee')"
+                        class="flex-1 py-2 text-xs font-bold rounded-xl transition shadow-xs bg-white text-[#700000]">
+                        IEEE (Standard)
+                    </button>
+                    <button
+                        id="citeTabApa"
+                        type="button"
+                        onclick="switchCitationStyle('apa')"
+                        class="flex-1 py-2 text-xs font-bold rounded-xl transition text-gray-600 hover:text-gray-900">
+                        APA 7th
+                    </button>
+                    <button
+                        id="citeTabMla"
+                        type="button"
+                        onclick="switchCitationStyle('mla')"
+                        class="flex-1 py-2 text-xs font-bold rounded-xl transition text-gray-600 hover:text-gray-900">
+                        MLA 9th
+                    </button>
                 </div>
-                <div class="mt-4 rounded-2xl border border-gray-200 bg-slate-50 p-4">
-                    <p id="citationText" class="text-xs md:text-sm text-gray-800 leading-relaxed font-mono select-all break-words"></p>
+
+                <!-- Formatted Citation Output Box -->
+                <div class="rounded-2xl border border-gray-200 bg-slate-50/80 p-4 relative">
+                    <p id="citationText" class="text-xs md:text-sm text-gray-800 leading-relaxed font-mono select-all break-words" title="Click to select all"></p>
                 </div>
             </div>
 
             <div class="mt-6 flex items-center justify-end gap-3">
-                <button onclick="closeCitationModal()" class="rounded-xl px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 transition">
+                <button onclick="closeCitationModal()" class="rounded-xl px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 transition cursor-pointer">
                     Close
                 </button>
-                <button id="copyCitationBtn" onclick="copyCitationToClipboard()" class="rounded-xl bg-[#700000] px-5 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md flex items-center gap-1.5">
+                <button id="copyCitationBtn" onclick="copyCitationToClipboard()" class="rounded-xl bg-[#700000] px-5 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md flex items-center gap-1.5 cursor-pointer">
                     <svg id="copyBtnIcon" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
@@ -167,17 +220,17 @@
     {{-- =========================================================
          RIGHT-SIDE AI RESEARCH ASSISTANT DRAWER (YOUTUBE / GEMINI STYLE)
     ========================================================== --}}
-    <!-- Mobile Backdrop for AI Drawer -->
+    <!-- Mobile Backdrop for AI Drawer (Only on mobile where screen cannot squeeze) -->
     <div
         id="aiDrawerBackdrop"
         onclick="closeDocAiDrawer()"
-        class="fixed inset-0 z-50 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-300 md:hidden">
+        class="fixed inset-0 z-40 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden">
     </div>
 
-    <!-- Right-Side AI Drawer -->
+    <!-- Right-Side AI Drawer (Antigravity-Style Squeezable Side Panel) -->
     <aside
         id="aiDrawer"
-        class="fixed inset-y-0 right-0 z-50 w-full sm:w-[420px] md:w-[460px] bg-white border-l border-gray-200 shadow-2xl flex flex-col transition-transform duration-300 ease-in-out translate-x-full">
+        class="fixed inset-y-0 right-0 z-40 w-full sm:w-[420px] lg:w-[440px] xl:w-[480px] bg-white border-l border-gray-200 shadow-xl flex flex-col transition-transform duration-300 ease-in-out translate-x-full">
 
         <!-- Drawer Header -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-white">
@@ -679,49 +732,236 @@
             fetchDocuments(searchInput.value);
         });
 
-        // Open IEEE Citation Modal
+        const deptNamesMap = {
+            'it': 'Information Technology',
+            'computer': 'Computer Studies',
+            'marine': 'Marine Engineering',
+            'nursing': 'Nursing',
+            'hospitality': 'Hospitality Management',
+            'education': 'Teacher Education',
+            'criminology': 'Criminal Justice Education',
+            'business': 'Business Administration',
+            'arts': 'Arts and Sciences'
+        };
+
+        function getFullDeptName(deptCode, courseCode, titleText) {
+            const cleanDept = (deptCode || '').toLowerCase().trim();
+            const cleanCourse = (courseCode || '').toLowerCase().trim();
+            const cleanTitle = (titleText || '').toLowerCase().trim();
+
+            if (cleanDept === 'it' || cleanCourse === 'bsit' || cleanTitle.includes('system') || cleanTitle.includes('app') || cleanTitle.includes('web') || cleanTitle.includes('software')) {
+                return 'Information Technology';
+            }
+            if (cleanDept === 'marine' || cleanCourse === 'bsmare' || cleanTitle.includes('marine') || cleanTitle.includes('vessel')) {
+                return 'Marine Engineering';
+            }
+            if (cleanDept === 'nursing' || cleanCourse === 'bsn' || cleanTitle.includes('patient') || cleanTitle.includes('nursing')) {
+                return 'Nursing';
+            }
+            if (cleanDept === 'hospitality' || cleanCourse === 'bshm') {
+                return 'Hospitality Management';
+            }
+            if (cleanDept === 'education' || cleanCourse === 'bsed') {
+                return 'Teacher Education';
+            }
+            if (cleanDept === 'criminology' || cleanCourse === 'bsc') {
+                return 'Criminal Justice Education';
+            }
+            for (const [k, v] of Object.entries(deptNamesMap)) {
+                if (cleanDept.includes(k)) return v;
+            }
+            if (deptCode && deptCode.trim()) {
+                return deptCode.charAt(0).toUpperCase() + deptCode.slice(1);
+            }
+            return 'Information Technology';
+        }
+
+        function formatIeeeAuthors(authorStr) {
+            if (!authorStr || !authorStr.trim()) return 'Anonymous';
+            let rawList = [];
+            if (authorStr.includes(';') || authorStr.toLowerCase().includes(' and ') || authorStr.includes('&')) {
+                rawList = authorStr.split(/;| and | & /i).map(s => s.trim()).filter(Boolean);
+            } else {
+                const parts = authorStr.split(',').map(s => s.trim()).filter(Boolean);
+                if (parts.length === 2 && !parts[0].includes(' ') && !parts[1].includes(' ')) {
+                    rawList = [authorStr];
+                } else {
+                    rawList = parts;
+                }
+            }
+
+            const compoundPrefixes = ['dela', 'delos', 'de', 'del', 'san', 'santa', 'von', 'van', 'al', 'da'];
+
+            const formatted = rawList.map(name => {
+                let trimmed = name.trim();
+                if (!trimmed) return '';
+                let first = '', last = '';
+                if (trimmed.includes(',')) {
+                    const split = trimmed.split(',').map(s => s.trim());
+                    last = split[0];
+                    first = split.slice(1).join(' ');
+                } else {
+                    const tokens = trimmed.split(/\s+/);
+                    if (tokens.length === 1) return tokens[0];
+                    if (tokens.length >= 3 && compoundPrefixes.includes(tokens[tokens.length - 2].toLowerCase())) {
+                        last = tokens.slice(tokens.length - 2).join(' ');
+                        first = tokens.slice(0, -2).join(' ');
+                    } else {
+                        last = tokens[tokens.length - 1];
+                        first = tokens.slice(0, -1).join(' ');
+                    }
+                }
+                const initials = first.split(/\s+/).map(t => {
+                    const clean = t.replace(/[^A-Za-z]/g, '');
+                    return clean ? clean[0].toUpperCase() + '.' : '';
+                }).filter(Boolean).join(' ');
+
+                return initials ? `${initials} ${last}` : last;
+            }).filter(Boolean);
+
+            if (formatted.length === 0) return 'Anonymous';
+            if (formatted.length === 1) return formatted[0];
+            if (formatted.length === 2) return `${formatted[0]} and ${formatted[1]}`;
+            if (formatted.length <= 6) {
+                return `${formatted.slice(0, -1).join(', ')}, and ${formatted[formatted.length - 1]}`;
+            }
+            return `${formatted[0]} et al.`;
+        }
+
+        function formatApaAuthors(authorStr) {
+            if (!authorStr || !authorStr.trim()) return 'Anonymous';
+            let rawList = [];
+            if (authorStr.includes(';') || authorStr.toLowerCase().includes(' and ') || authorStr.includes('&')) {
+                rawList = authorStr.split(/;| and | & /i).map(s => s.trim()).filter(Boolean);
+            } else {
+                const parts = authorStr.split(',').map(s => s.trim()).filter(Boolean);
+                if (parts.length === 2 && !parts[0].includes(' ') && !parts[1].includes(' ')) {
+                    rawList = [authorStr];
+                } else {
+                    rawList = parts;
+                }
+            }
+
+            const compoundPrefixes = ['dela', 'delos', 'de', 'del', 'san', 'santa', 'von', 'van', 'al', 'da'];
+
+            const formatted = rawList.map(name => {
+                let trimmed = name.trim();
+                if (!trimmed) return '';
+                let first = '', last = '';
+                if (trimmed.includes(',')) {
+                    const split = trimmed.split(',').map(s => s.trim());
+                    last = split[0];
+                    first = split.slice(1).join(' ');
+                } else {
+                    const tokens = trimmed.split(/\s+/);
+                    if (tokens.length === 1) return tokens[0];
+                    if (tokens.length >= 3 && compoundPrefixes.includes(tokens[tokens.length - 2].toLowerCase())) {
+                        last = tokens.slice(tokens.length - 2).join(' ');
+                        first = tokens.slice(0, -2).join(' ');
+                    } else {
+                        last = tokens[tokens.length - 1];
+                        first = tokens.slice(0, -1).join(' ');
+                    }
+                }
+                const initials = first.split(/\s+/).map(t => {
+                    const clean = t.replace(/[^A-Za-z]/g, '');
+                    return clean ? clean[0].toUpperCase() + '.' : '';
+                }).filter(Boolean).join(' ');
+
+                return initials ? `${last}, ${initials}` : last;
+            }).filter(Boolean);
+
+            if (formatted.length === 0) return 'Anonymous';
+            if (formatted.length === 1) return formatted[0];
+            if (formatted.length === 2) return `${formatted[0]}, & ${formatted[1]}`;
+            if (formatted.length <= 20) {
+                return `${formatted.slice(0, -1).join(', ')}, & ${formatted[formatted.length - 1]}`;
+            }
+            return `${formatted.slice(0, 19).join(', ')}, ... ${formatted[formatted.length - 1]}`;
+        }
+
+        function formatMlaAuthors(authorStr) {
+            if (!authorStr || !authorStr.trim()) return 'Anonymous';
+            let rawList = [];
+            if (authorStr.includes(';') || authorStr.toLowerCase().includes(' and ') || authorStr.includes('&')) {
+                rawList = authorStr.split(/;| and | & /i).map(s => s.trim()).filter(Boolean);
+            } else {
+                const parts = authorStr.split(',').map(s => s.trim()).filter(Boolean);
+                if (parts.length === 2 && !parts[0].includes(' ') && !parts[1].includes(' ')) {
+                    rawList = [authorStr];
+                } else {
+                    rawList = parts;
+                }
+            }
+
+            if (rawList.length === 0) return 'Anonymous';
+            function toLastFirst(trimmed) {
+                if (trimmed.includes(',')) return trimmed;
+                const tokens = trimmed.split(/\s+/);
+                if (tokens.length === 1) return tokens[0];
+                return `${tokens[tokens.length - 1]}, ${tokens.slice(0, -1).join(' ')}`;
+            }
+
+            if (rawList.length === 1) return toLastFirst(rawList[0]);
+            if (rawList.length === 2) return `${toLastFirst(rawList[0])}, and ${rawList[1]}`;
+            return `${toLastFirst(rawList[0])}, et al.`;
+        }
+
+        let currentCitationStyle = 'ieee';
+
+        function switchCitationStyle(style) {
+            currentCitationStyle = style;
+            localStorage.setItem('sac_preferred_citation', style);
+
+            const tabIeee = document.getElementById('citeTabIeee');
+            const tabApa = document.getElementById('citeTabApa');
+            const tabMla = document.getElementById('citeTabMla');
+            const citationP = document.getElementById('citationText');
+
+            const activeClass = 'flex-1 py-2 text-xs font-bold rounded-xl transition shadow-xs bg-white text-[#700000]';
+            const inactiveClass = 'flex-1 py-2 text-xs font-bold rounded-xl transition text-gray-600 hover:text-gray-900';
+
+            if (tabIeee) tabIeee.className = style === 'ieee' ? activeClass : inactiveClass;
+            if (tabApa) tabApa.className = style === 'apa' ? activeClass : inactiveClass;
+            if (tabMla) tabMla.className = style === 'mla' ? activeClass : inactiveClass;
+
+            if (!currentCitationDoc) return;
+            const author = currentCitationDoc.author || 'Author, A.';
+            const cleanTitle = (currentCitationDoc.title || 'Untitled Thesis').trim().replace(/\.$/, '');
+            const year = currentCitationDoc.created_at ? new Date(currentCitationDoc.created_at).getFullYear() : new Date().getFullYear();
+            const deptName = getFullDeptName(currentCitationDoc.department, currentCitationDoc.course, currentCitationDoc.title);
+
+            let citation = '';
+            if (style === 'apa') {
+                const apaAuthors = formatApaAuthors(author);
+                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. SAC Institutional Research Repository.`;
+            } else if (style === 'mla') {
+                const mlaAuthors = formatMlaAuthors(author);
+                citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate thesis, St. Anthony's College, ${year}.`;
+            } else {
+                const ieeeAuthors = formatIeeeAuthors(author);
+                citation = `[1] ${ieeeAuthors}, "${cleanTitle}," B.S. thesis, Dept. of ${deptName}, St. Anthony's College, San Jose, Antique, Philippines, ${year}.`;
+            }
+
+            if (citationP) citationP.textContent = citation;
+            resetCopyButton();
+        }
+
+        // Open Academic Citation Modal
         function openCitationModal(index) {
             currentCitationDoc = allDocuments[index];
             if (!currentCitationDoc) return;
             document.getElementById('modalDocTitle').textContent = currentCitationDoc.title;
-            generateCitationText();
+            const preferredStyle = localStorage.getItem('sac_preferred_citation') || 'ieee';
+            switchCitationStyle(preferredStyle);
             document.getElementById('citationModal').classList.remove('hidden');
             document.getElementById('citationModal').classList.add('flex');
         }
 
-        // Close IEEE Citation Modal
+        // Close Academic Citation Modal
         function closeCitationModal() {
             document.getElementById('citationModal').classList.add('hidden');
             document.getElementById('citationModal').classList.remove('flex');
-        }
-
-        // Build standard citation string based on student preference
-        function generateCitationText() {
-            if (!currentCitationDoc) return;
-            const author = currentCitationDoc.author || 'Author, A.';
-            const title = currentCitationDoc.title || 'Untitled Thesis';
-            const year = currentCitationDoc.created_at ? new Date(currentCitationDoc.created_at).getFullYear() : new Date().getFullYear();
-            const preferredStyle = localStorage.getItem('sac_preferred_citation') || 'ieee';
-
-            let citation = '';
-            let styleLabel = 'IEEE Style Format';
-
-            if (preferredStyle === 'apa') {
-                styleLabel = 'IEEE Style Format';
-                citation = `${author} (${year}). ${title} [Undergraduate thesis, St. Anthony's College]. SAC Institutional Research Repository.`;
-            } else if (preferredStyle === 'mla') {
-                styleLabel = 'IEEE Style Format';
-                citation = `${author}. "${title}." Undergraduate thesis, St. Anthony's College, ${year}.`;
-            } else {
-                styleLabel = 'IEEE Style Format';
-                citation = `${author}, "${title}," Undergraduate thesis, St. Anthony's College, San Jose, Antique, ${year}.`;
-            }
-
-            const styleHeader = document.querySelector('#citationModal .bg-white.text-\\[\\#700000\\]');
-            if (styleHeader) styleHeader.textContent = styleLabel;
-
-            document.getElementById('citationText').textContent = citation;
-            resetCopyButton();
         }
 
         // Copy citation text to clipboard
@@ -766,11 +1006,14 @@
 
             const drawer = document.getElementById('aiDrawer');
             const backdrop = document.getElementById('aiDrawerBackdrop');
-            if (!drawer || !backdrop) return;
+            if (!drawer) return;
 
+            document.documentElement.classList.add('ai-drawer-open');
             drawer.classList.remove('translate-x-full');
-            backdrop.classList.remove('opacity-0', 'pointer-events-none');
-            backdrop.classList.add('opacity-100');
+            if (backdrop) {
+                backdrop.classList.remove('opacity-0', 'pointer-events-none');
+                backdrop.classList.add('opacity-100');
+            }
 
             setTimeout(() => {
                 if (input) input.focus();
@@ -780,11 +1023,14 @@
         function closeDocAiDrawer() {
             const drawer = document.getElementById('aiDrawer');
             const backdrop = document.getElementById('aiDrawerBackdrop');
-            if (!drawer || !backdrop) return;
+            if (!drawer) return;
 
+            document.documentElement.classList.remove('ai-drawer-open');
             drawer.classList.add('translate-x-full');
-            backdrop.classList.remove('opacity-100');
-            backdrop.classList.add('opacity-0', 'pointer-events-none');
+            if (backdrop) {
+                backdrop.classList.remove('opacity-100');
+                backdrop.classList.add('opacity-0', 'pointer-events-none');
+            }
         }
 
         async function sendDocQuickQuestion(questionText) {
@@ -858,8 +1104,10 @@
                 }
 
                 aiBubble.innerHTML = `
-                    <div class="w-6 h-6 rounded-lg bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 text-xs font-bold mt-0.5 shadow-2xs">
-                        ✨
+                    <div class="w-6 h-6 rounded-lg bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                        </svg>
                     </div>
                     <div class="flex-1 max-w-[90%] bg-white border border-gray-200 rounded-2xl rounded-tl-xs p-3.5 shadow-sm text-xs sm:text-sm text-gray-800 leading-relaxed space-y-2">
                         ${formattedAnswer}

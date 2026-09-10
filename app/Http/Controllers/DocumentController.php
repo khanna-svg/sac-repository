@@ -12,9 +12,7 @@ use Illuminate\Support\Str;
 
 class DocumentController extends Controller
 {
-    /**
-     * Generate a temporary signed URL and redirect directly to Supabase PDF.
-     */
+
     public function viewPdf(Request $request, Document $document)
     {
         $baseUrl = rtrim(
@@ -113,9 +111,6 @@ class DocumentController extends Controller
         }
     }
 
-    /**
-     * Return direct temporary signed URL JSON for in-app PDF canvas reader.
-     */
     public function getSignedUrl(Document $document)
     {
         $baseUrl = rtrim((string) config('services.supabase.url', env('SUPABASE_URL')), '/');
@@ -166,11 +161,44 @@ class DocumentController extends Controller
         }
     }
 
-    /**
-     * Search & Filter Theses
-     * Google Scholar-Style Hybrid Search: Combines exact keyword matching with
-     * Gemini vector semantic AI, ranking the most relevant theses at the top.
-     */
+    protected function applyDepartmentFilter($query, string $department): void
+    {
+        $dept = strtolower(trim($department));
+        if ($dept === '' || $dept === 'all') {
+            return;
+        }
+
+        $query->where(function ($q) use ($dept) {
+            if ($dept === 'it' || $dept === 'bsit') {
+                $q->whereRaw('LOWER(department) = ?', ['it'])
+                  ->orWhereRaw('LOWER(course_code) = ?', ['bsit'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%information technology%']);
+            } elseif ($dept === 'hospitality' || $dept === 'bshm') {
+                $q->whereRaw('LOWER(department) LIKE ?', ['%hospitality%'])
+                  ->orWhereRaw('LOWER(course_code) = ?', ['bshm']);
+            } elseif ($dept === 'marine' || $dept === 'bsmare') {
+                $q->whereRaw('LOWER(department) LIKE ?', ['%marine%'])
+                  ->orWhereRaw('LOWER(course_code) = ?', ['bsmare']);
+            } elseif ($dept === 'nursing' || $dept === 'bsn') {
+                $q->whereRaw('LOWER(department) LIKE ?', ['%nursing%'])
+                  ->orWhereRaw('LOWER(course_code) = ?', ['bsn']);
+            } elseif ($dept === 'education' || $dept === 'bsed') {
+                $q->whereRaw('LOWER(department) LIKE ?', ['%education%'])
+                  ->orWhereRaw('LOWER(course_code) = ?', ['bsed']);
+            } elseif ($dept === 'criminology' || $dept === 'bsc') {
+                $q->whereRaw('LOWER(department) LIKE ?', ['%criminology%'])
+                  ->orWhereRaw('LOWER(course_code) = ?', ['bsc']);
+            } elseif ($dept === 'business' || $dept === 'cba') {
+                $q->whereRaw('LOWER(department) LIKE ?', ['%business%'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%accountancy%'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%cba%']);
+            } else {
+                $q->whereRaw('LOWER(department) = ?', [$dept])
+                  ->orWhereRaw('LOWER(course_code) = ?', [$dept]);
+            }
+        });
+    }
+
     public function index(Request $request)
     {
         try {
@@ -178,12 +206,11 @@ class DocumentController extends Controller
             $department = trim((string) $request->input('department', ''));
             $sort = trim((string) $request->input('sort', 'latest'));
 
-            // 1. BASE QUERY WITHOUT SEARCH (Standard Filter & Sort)
             if ($search === '') {
                 $query = Document::query();
 
                 if ($department !== '' && $department !== 'all') {
-                    $query->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
+                    $this->applyDepartmentFilter($query, $department);
                 }
 
                 if ($sort === 'oldest') {
@@ -199,13 +226,11 @@ class DocumentController extends Controller
                 return response()->json($query->get());
             }
 
-            // 2. GOOGLE SCHOLAR-STYLE HYBRID SEARCH (Keyword Match + Vector Semantic AI)
             $searchTerm = '%' . strtolower($search) . '%';
             $keywordDocs = collect([]);
             $semanticDocIds = [];
             $similarityMap = [];
 
-            // A. Search by Keywords (Title, Author, Department, Abstract, Course Code)
             $keywordQuery = Document::query()
                 ->where(function ($q) use ($searchTerm) {
                     $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
@@ -216,12 +241,11 @@ class DocumentController extends Controller
                 });
 
             if ($department !== '' && $department !== 'all') {
-                $keywordQuery->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
+                $this->applyDepartmentFilter($keywordQuery, $department);
             }
 
             $keywordDocs = $keywordQuery->get();
             foreach ($keywordDocs as $doc) {
-                // Exact title / author matches get high relevance scores
                 $titleLower = strtolower($doc->title);
                 $authorLower = strtolower($doc->author);
                 $searchLower = strtolower($search);
@@ -233,7 +257,6 @@ class DocumentController extends Controller
                 }
             }
 
-            // B. Search by Vector Semantic AI (pgvector Cosine Distance via Gemini)
             try {
                 $geminiService = app(\App\Services\GeminiService::class);
                 $queryEmbedding = $geminiService->generateEmbedding($search);
@@ -256,7 +279,6 @@ class DocumentController extends Controller
                         $distance = (float) $chunk->distance;
                         $score = max(10, min(99, round((1 - ($distance / 2)) * 100)));
                         
-                        // If already matched by keyword, boost score!
                         if (isset($similarityMap[$docId])) {
                             $similarityMap[$docId] = min(99, $similarityMap[$docId] + 5);
                         } else {
@@ -269,11 +291,10 @@ class DocumentController extends Controller
                 Log::warning('Hybrid Search Semantic phase fallback: ' . $e->getMessage());
             }
 
-            // C. Fetch any semantic-only documents
             if (!empty($semanticDocIds)) {
                 $semanticQuery = Document::whereIn('id', $semanticDocIds);
                 if ($department !== '' && $department !== 'all') {
-                    $semanticQuery->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
+                    $this->applyDepartmentFilter($semanticQuery, $department);
                 }
                 $semanticDocs = $semanticQuery->get();
                 $allResults = $keywordDocs->concat($semanticDocs)->unique('id');
@@ -281,13 +302,11 @@ class DocumentController extends Controller
                 $allResults = $keywordDocs;
             }
 
-            // Attach similarity scores
             $rankedDocs = $allResults->map(function ($doc) use ($similarityMap) {
                 $doc->similarity_score = $similarityMap[$doc->id] ?? null;
                 return $doc;
             });
 
-            // D. Apply Sorting
             if ($sort === 'oldest') {
                 $rankedDocs = $rankedDocs->sortBy('id');
             } elseif ($sort === 'title_asc') {
@@ -295,7 +314,6 @@ class DocumentController extends Controller
             } elseif ($sort === 'title_desc') {
                 $rankedDocs = $rankedDocs->sortByDesc('title');
             } else {
-                // Default: Highest relevance/similarity score first
                 $rankedDocs = $rankedDocs->sortByDesc('similarity_score');
             }
 
@@ -365,10 +383,6 @@ class DocumentController extends Controller
         }
     }
 
-
-    /**
-     * Generate signed Supabase upload URL.
-     */
     public function createUploadUrl(Request $request)
     {
         if (
@@ -643,14 +657,6 @@ class DocumentController extends Controller
         }
     }
 
-
-    /**
-     * Save thesis metadata after signed upload.
-     *
-     * IMPORTANT:
-     * dispatchSync() is intentionally used here.
-     *
-     */
     public function storeFromSignedUrl(Request $request)
     {
         try {
@@ -685,7 +691,6 @@ class DocumentController extends Controller
             $document->update([
                 'file_url' => "/backend/documents/{$document->id}/view",
             ]);
-            // If frontend extracted chunks via PDF.js, insert them immediately
             if (is_array($chunks) && !empty($chunks)) {
                 $now = now();
                 $insertData = [];
@@ -704,13 +709,11 @@ class DocumentController extends Controller
                     }
                 }
                 if (!empty($insertData)) {
-                    // Insert in chunks of 100 to avoid query size limits
                     foreach (array_chunk($insertData, 100) as $batch) {
                         DB::table('document_chunks')->insert($batch);
                     }
                 }
             } else {
-                // Fallback: If no client chunks, run server extraction job
                 ProcessThesisPdf::dispatchSync($document);
             }
             $totalChunks = DB::table('document_chunks')
@@ -734,10 +737,6 @@ class DocumentController extends Controller
         }
     }
 
-
-    /**
-     * Direct file streaming upload.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -900,9 +899,6 @@ class DocumentController extends Controller
                 "/backend/documents/{$document->id}/view",
             ]);
 
-            /*
-             * Process immediately.
-             */
             ProcessThesisPdf::dispatchSync(
                 $document
             );
@@ -947,22 +943,6 @@ class DocumentController extends Controller
         }
     }
 
-
-    /**
-     * Generate embeddings for existing chunks.
-     *
-     * This is important for your OLD thesis documents.
-     *
-     * Example:
-     *
-     * 288 chunks
-     * 0 embeddings
-     *
-     * Calling this endpoint will gradually change that to:
-     *
-     * 288 chunks
-     * 288 embeddings
-     */
     public function generateEmbeddings(
         Request $request,
         $id
@@ -1167,10 +1147,6 @@ class DocumentController extends Controller
             );
         }
     }
-
-    /**
-     * Admin Thesis Management: List all theses with search & department filter
-     */
     public function adminList(Request $request)
     {
         try {
@@ -1190,7 +1166,7 @@ class DocumentController extends Controller
             }
 
             if ($department !== '' && $department !== 'all') {
-                $query->whereRaw('LOWER(department) LIKE ?', ['%' . strtolower($department) . '%']);
+                $this->applyDepartmentFilter($query, $department);
             }
 
             $documents = $query->latest()->get();
@@ -1208,9 +1184,6 @@ class DocumentController extends Controller
         }
     }
 
-    /**
-     * Admin Thesis Management: Update metadata (Title, Author, Department, Degree Program, Abstract)
-     */
     public function update(Request $request, $id)
     {
         try {
@@ -1246,16 +1219,12 @@ class DocumentController extends Controller
         }
     }
 
-    /**
-     * Admin Thesis Management: Delete thesis and cascade delete chunks and bookmarks
-     */
     public function destroy($id)
     {
         try {
             $document = Document::findOrFail($id);
             $title = $document->title;
 
-            // Delete storage file if path is present in Supabase Storage
             if (!empty($document->file_path)) {
                 try {
                     $baseUrl = rtrim((string) env('SUPABASE_URL'), '/');
@@ -1273,7 +1242,6 @@ class DocumentController extends Controller
                 }
             }
 
-            // DB foreign key cascade automatically cleans up document_chunks and bookmarks
             $document->delete();
 
             return response()->json([

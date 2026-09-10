@@ -5,23 +5,14 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-/**
- * GeminiService
- * This service handles all communications between our Laravel system and Google's Gemini AI API.
- * It is responsible for:
- * 1. Creating vector embeddings (for semantic search & RAG retrieval).
- * 2. Generating answers to research questions (for the AI Research Assistant).
- */
 class GeminiService
 {
     protected string $apiKey;
     protected string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
 
-    // Model used for creating vector embeddings (768 dimensions)
     protected string $embeddingModel = 'gemini-embedding-001';
 
-    // Model used for generating chatbot answers
-    protected string $generationModel = 'gemini-3.5-flash';
+    protected string $generationModel = 'gemini-3.5-flash-lite';
 
     public function __construct()
     {
@@ -70,10 +61,6 @@ class GeminiService
         return array_map('floatval', $values);
     }
 
-    /**
-     * 2. Generate vector embeddings for multiple text chunks in batch.
-     * Used when an Admin uploads a thesis PDF to index all pages at once.
-     */
     public function generateEmbeddings(array $texts): array
     {
         if (empty($texts)) {
@@ -131,11 +118,6 @@ class GeminiService
         return $result;
     }
 
-    /**
-     * 3. Generate AI Answer (RAG)
-     * Takes the user's question and relevant thesis excerpts, then instructs Gemini
-     * to formulate a grounded, citation-ready response.
-     */
     public function generateAnswer(string $userQuestion, string $contextText): string
     {
         // Strict system prompt to avoid hallucinations
@@ -150,7 +132,6 @@ class GeminiService
             "--- USER QUESTION ---\n" .
             $userQuestion;
 
-        // Multi-model fast fallback array to prevent timeouts
         $modelsToTry = [$this->generationModel, 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -188,10 +169,6 @@ class GeminiService
         throw new \Exception('Google AI is currently experiencing high demand. Please try asking again in a moment.');
     }
 
-    /**
-     * 4. Generate Multi-Turn Conversational AI Answer (RAG with Memory)
-     * Maintains conversation context while grounding answers on retrieved thesis passages.
-     */
     public function generateChatResponse(string $userQuestion, string $contextText, array $history = []): string
     {
         $systemInstruction = "You are an expert AI Research Assistant for St. Anthony's College Institutional Research Repository.\n" .
@@ -202,7 +179,6 @@ class GeminiService
 
         $contents = [];
 
-        // Add sanitized history (max 8 past turns)
         $recentHistory = array_slice($history, -8);
         foreach ($recentHistory as $turn) {
             $role = (isset($turn['role']) && ($turn['role'] === 'assistant' || $turn['role'] === 'model')) ? 'model' : 'user';
@@ -217,7 +193,6 @@ class GeminiService
             }
         }
 
-        // Current turn grounded with retrieved thesis context
         $currentPrompt = "--- RETRIEVED THESIS CONTEXT ---\n" .
             $contextText .
             "\n\n--- CURRENT STUDENT QUESTION ---\n" .
@@ -262,7 +237,6 @@ class GeminiService
             }
         }
 
-        // Fallback to standard generateAnswer
         return $this->generateAnswer($userQuestion, $contextText);
     }
 }

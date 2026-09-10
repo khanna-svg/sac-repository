@@ -26,7 +26,7 @@
                     AI Assistant
                 </h1>
                 <p class="mt-0.5 text-xs md:text-sm text-gray-500">
-                    Ask questions with multi-turn conversation memory.
+                    Ask thesis related questions.
                 </p>
             </div>
 
@@ -50,8 +50,10 @@
             <!-- INITIAL AI MESSAGE -->
             <div class="flex items-start gap-3">
 
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center text-sm md:text-base font-bold shadow-md">
-                    AI
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                    </svg>
                 </div>
 
                 <div class="max-w-3xl">
@@ -165,8 +167,10 @@
                 chatMessages.innerHTML = `
                     <!-- INITIAL AI MESSAGE -->
                     <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] shrink-0 flex items-center justify-center text-sm md:text-base font-bold shadow-md">
-                            AI
+                        <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] shrink-0 flex items-center justify-center shadow-md">
+                            <svg class="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                            </svg>
                         </div>
                         <div class="max-w-3xl">
                             <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
