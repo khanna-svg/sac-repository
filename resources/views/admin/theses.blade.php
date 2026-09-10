@@ -227,12 +227,12 @@
         };
 
         const deptNames = {
-            it: { name: 'Information Technology', badge: 'bg-blue-50 text-blue-700 border-blue-200', cover: 'IT.webp' },
-            marine: { name: 'Marine Engineering', badge: 'bg-sky-50 text-sky-700 border-sky-200', cover: 'MARINE.webp' },
-            nursing: { name: 'Nursing', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', cover: 'NURSING.webp' },
-            hospitality: { name: 'Hospitality Management', badge: 'bg-amber-50 text-amber-800 border-amber-200', cover: 'HM.webp' },
-            education: { name: 'Education', badge: 'bg-purple-50 text-purple-700 border-purple-200', cover: 'EDUC.webp' },
-            criminology: { name: 'Criminology', badge: 'bg-red-50 text-red-700 border-red-200', cover: 'CRIM.webp' }
+            it: { name: 'Information Technology', cover: 'IT.webp' },
+            marine: { name: 'Marine Engineering', cover: 'MARINE.webp' },
+            nursing: { name: 'Nursing', cover: 'NURSING.webp' },
+            hospitality: { name: 'Hospitality Management', cover: 'HM.webp' },
+            education: { name: 'Education', cover: 'EDUC.webp' },
+            criminology: { name: 'Criminology', cover: 'CRIM.webp' }
         };
 
         function showToast(message, isSuccess = true) {
@@ -317,7 +317,7 @@
 
             tbody.innerHTML = theses.map(doc => {
                 const deptKey = (doc.department || 'it').toLowerCase();
-                const deptInfo = deptNames[deptKey] || { name: doc.department, badge: 'bg-gray-100 text-gray-700 border-gray-200', cover: 'IT.webp' };
+                const deptInfo = deptNames[deptKey] || { name: doc.department, cover: 'IT.webp' };
                 const formattedDate = doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
 
                 return `
@@ -338,10 +338,8 @@
                         <td class="py-4 px-4 font-medium text-gray-700" title="${escapeHtml(doc.author)}">
                             ${escapeHtml(doc.author)}
                         </td>
-                        <td class="py-4 px-4 whitespace-nowrap">
-                            <span class="rounded-lg border px-2.5 py-1 text-[11px] font-bold ${deptInfo.badge}">
-                                ${deptInfo.name} (${(doc.course_code || '').toUpperCase()})
-                            </span>
+                        <td class="py-4 px-4 whitespace-nowrap text-xs text-gray-700 font-medium">
+                            ${escapeHtml(deptInfo.name)} (${(doc.course_code || '').toUpperCase()})
                         </td>
                         <td class="py-4 px-4 sm:pr-6 text-right whitespace-nowrap">
                             <div class="inline-flex items-center gap-1.5">
