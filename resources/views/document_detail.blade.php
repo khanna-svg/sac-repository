@@ -55,7 +55,7 @@
         data-author="{{ $document->author }}"
         data-department="{{ $document->department ?? '' }}"
         data-course="{{ $document->course_code ?? '' }}"
-        data-year="{{ $document->created_at ? $document->created_at->format('Y') : date('Y') }}"
+        data-year="{{ $document->publication_date ? $document->publication_date->format('Y') : ($document->created_at ? $document->created_at->format('Y') : date('Y')) }}"
         class="hidden"></div>
 
     <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-16 md:pt-10">
@@ -177,7 +177,7 @@
                             <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                             </svg>
-                            <span>Cite (IEEE)</span>
+                            <span>Citation</span>
                         </button>
 
                         {{-- Ask AI Button (Opens Right-Side AI Drawer) --}}
@@ -587,7 +587,7 @@
                         type="button"
                         onclick="switchCitationStyle('ieee')"
                         class="flex-1 py-2 text-xs font-bold rounded-xl transition shadow-xs bg-white text-[#700000]">
-                        IEEE (Standard)
+                        IEEE
                     </button>
                     <button
                         id="citeTabApa"
@@ -633,6 +633,8 @@
         const currentDocId = dataElement ? parseInt(dataElement.getAttribute('data-id'), 10) : null;
         const docTitle = dataElement ? dataElement.getAttribute('data-title') : 'Untitled Thesis';
         const docAuthor = dataElement ? dataElement.getAttribute('data-author') : 'Unknown Author';
+        const docDept = dataElement ? dataElement.getAttribute('data-department') : '';
+        const docCourse = dataElement ? dataElement.getAttribute('data-course') : '';
         const docYear = dataElement ? dataElement.getAttribute('data-year') : new Date().getFullYear().toString();
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
         let toastTimeout = null;
@@ -1172,12 +1174,6 @@
             if (tabApa) tabApa.className = style === 'apa' ? activeClass : inactiveClass;
             if (tabMla) tabMla.className = style === 'mla' ? activeClass : inactiveClass;
 
-            const docTitle = {!! json_encode($document->title) !!};
-            const docAuthor = {!! json_encode($document->author) !!};
-            const docDept = {!! json_encode($document->department) !!};
-            const docCourse = {!! json_encode($document->course_code) !!};
-            const docYear = {!! json_encode($document->publication_date ? $document->publication_date->format('Y') : ($document->created_at ? $document->created_at->format('Y') : date('Y'))) !!};
-
             const deptName = getFullDeptName(docDept, docCourse, docTitle);
             const cleanTitle = (docTitle || 'Untitled Thesis').trim().replace(/\.$/, '');
 
@@ -1209,16 +1205,35 @@
         }
 
         function copyCitation() {
-            navigator.clipboard.writeText(document.getElementById('citationText').textContent).then(() => {
-                const btnText = document.getElementById('copyBtnText');
-                const btnIcon = document.getElementById('copyBtnIcon');
-                btnText.textContent = 'Copied!';
-                btnIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />`;
+            const text = document.getElementById('citationText')?.textContent || '';
+            const btnText = document.getElementById('copyBtnText');
+            const btnIcon = document.getElementById('copyBtnIcon');
+
+            const onSuccess = () => {
+                if (btnText) btnText.textContent = 'Copied!';
+                if (btnIcon) btnIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />`;
                 setTimeout(() => {
-                    btnText.textContent = 'Copy Citation';
-                    btnIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />`;
+                    if (btnText) btnText.textContent = 'Copy Citation';
+                    if (btnIcon) btnIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />`;
                 }, 2000);
-            });
+            };
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(onSuccess).catch(() => fallbackCopy(text, onSuccess));
+            } else {
+                fallbackCopy(text, onSuccess);
+            }
+        }
+
+        function fallbackCopy(text, cb) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.opacity = '0';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); if (cb) cb(); } catch (e) {}
+            document.body.removeChild(ta);
         }
 
         async function checkInitialBookmark(docId) {
