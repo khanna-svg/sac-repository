@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Theses - SAC Thesis Repository</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="https://sac.campus-erp.com/Student/images/sac.png" type="image/png">
 </head>
@@ -210,6 +214,46 @@
         </div>
     </div>
 
+    <!-- Secure In-App PDF Preview Reader Modal -->
+    <div id="pdfReaderModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/80 backdrop-blur-xs p-2 sm:p-4">
+        <div class="w-full max-w-5xl h-[92vh] rounded-3xl bg-slate-900 text-white flex flex-col overflow-hidden shadow-2xl border border-white/10">
+            <!-- Modal Top Bar -->
+            <div class="flex items-center justify-between px-6 py-3.5 border-b border-white/10 bg-slate-950">
+                <div class="min-w-0 pr-4">
+                    <h3 id="pdfPreviewTitle" class="text-xs sm:text-sm font-bold truncate text-gray-100">Thesis Manuscript Preview</h3>
+                    <p id="pdfPreviewPageCount" class="text-[11px] text-amber-300 font-mono">Loading pages...</p>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                    <a
+                        id="pdfModalDownloadLink"
+                        href="#"
+                        target="_blank"
+                        title="Download Softcopy"
+                        class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#FFD700] transition flex items-center gap-1.5 text-xs font-bold">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                        <span class="hidden sm:inline">Download</span>
+                    </a>
+                    <button type="button" onclick="closePdfReaderModal()" class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- PDF Viewer Canvas Container with On-Scroll Lazy Loading -->
+            <div id="pdfViewerScroll" class="flex-1 overflow-y-auto p-4 flex flex-col items-center gap-6 bg-slate-900 relative">
+                <div id="pdfViewerLoading" class="py-12 flex flex-col items-center justify-center gap-2">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#FFD700] border-t-transparent"></div>
+                    <span class="text-xs text-gray-400">Rendering manuscript pages...</span>
+                </div>
+                <div id="pdfCanvasWrapper" class="flex flex-col items-center gap-6 w-full max-w-3xl"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- FLOATING TOAST -->
     <div id="adminToast" class="fixed bottom-6 right-6 z-50 hidden rounded-2xl bg-gray-900 px-4 py-3 text-xs font-semibold text-white shadow-2xl transition-all items-center gap-2">
         <span id="adminToastIcon">✓</span>
@@ -356,12 +400,12 @@
                         </td>
                         <td class="py-4 px-4 sm:pr-6 text-right whitespace-nowrap">
                             <div class="inline-flex items-center gap-1.5">
-                                <a href="/documents/${doc.id}" target="_blank" title="View Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
+                                <button type="button" onclick="openPdfReader(${doc.id})" title="View Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
-                                </a>
+                                </button>
                                 <button type="button" onclick="openEditModal(${doc.id})" title="Edit Metadata" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
@@ -518,9 +562,122 @@
                 .replace(/'/g, '&#039;');
         }
 
+        // In-App PDF Reader Modal with on-scroll lazy loading
+        let previewPdfDoc = null;
+        let previewObserver = null;
+        let renderedPreviewPages = new Set();
+
+        async function openPdfReader(id) {
+            const doc = allTheses.find(t => t.id === id);
+            const title = doc ? doc.title : 'Thesis Manuscript Preview';
+
+            const modal = document.getElementById('pdfReaderModal');
+            const wrapper = document.getElementById('pdfCanvasWrapper');
+            const loader = document.getElementById('pdfViewerLoading');
+            const downloadLink = document.getElementById('pdfModalDownloadLink');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            loader.classList.remove('hidden');
+            wrapper.innerHTML = '';
+            renderedPreviewPages.clear();
+            if (previewObserver) previewObserver.disconnect();
+
+            document.getElementById('pdfPreviewTitle').textContent = title;
+            document.getElementById('pdfPreviewPageCount').textContent = 'Loading pages...';
+            downloadLink.href = `/backend/documents/${id}/view?download=1`;
+
+            try {
+                const res = await fetch(`/backend/documents/${id}/signed-url`);
+                if (!res.ok) throw new Error('Could not obtain signed PDF link');
+                const data = await res.json();
+
+                previewPdfDoc = await pdfjsLib.getDocument(data.url).promise;
+                document.getElementById('pdfPreviewPageCount').textContent = `${previewPdfDoc.numPages} Pages`;
+
+                // Build placeholders for all pages
+                const frag = document.createDocumentFragment();
+                for (let num = 1; num <= previewPdfDoc.numPages; num++) {
+                    const card = document.createElement('div');
+                    card.id = `preview-page-${num}`;
+                    card.dataset.pageNum = num;
+                    card.className = 'flex flex-col items-center bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-700 w-full max-w-full';
+                    card.style.minHeight = '750px';
+                    card.innerHTML = `
+                        <div class="flex-1 flex items-center justify-center py-20 text-gray-400">
+                            <span class="text-xs font-mono">Page ${num}</span>
+                        </div>
+                        <div class="w-full py-1 bg-slate-800 text-center text-[10px] text-gray-400 font-mono">
+                            Page ${num} of ${previewPdfDoc.numPages}
+                        </div>
+                    `;
+                    frag.appendChild(card);
+                }
+                wrapper.appendChild(frag);
+
+                // Setup observer
+                const scrollContainer = document.getElementById('pdfViewerScroll');
+                previewObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const pNum = parseInt(entry.target.dataset.pageNum, 10);
+                            if (pNum && !renderedPreviewPages.has(pNum)) {
+                                renderPreviewPage(pNum);
+                            }
+                        }
+                    });
+                }, { root: scrollContainer, rootMargin: '400px 0px', threshold: 0.01 });
+
+                document.querySelectorAll('#pdfCanvasWrapper > div').forEach(c => previewObserver.observe(c));
+
+                // Render first page immediately
+                renderPreviewPage(1);
+                loader.classList.add('hidden');
+            } catch (err) {
+                console.error(err);
+                loader.innerHTML = '<p class="text-rose-400 text-xs">Unable to preview PDF.</p>';
+            }
+        }
+
+        async function renderPreviewPage(num) {
+            if (!previewPdfDoc || renderedPreviewPages.has(num)) return;
+            renderedPreviewPages.add(num);
+
+            try {
+                const page = await previewPdfDoc.getPage(num);
+                const viewport = page.getViewport({ scale: 1.2 });
+                const card = document.getElementById(`preview-page-${num}`);
+                if (!card) return;
+
+                const canvas = document.createElement('canvas');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+                canvas.className = 'block max-w-full h-auto';
+
+                await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+
+                card.innerHTML = '';
+                card.appendChild(canvas);
+                const footer = document.createElement('div');
+                footer.className = 'w-full py-1 bg-slate-800 text-center text-[10px] text-gray-400 font-mono';
+                footer.textContent = `Page ${num} of ${previewPdfDoc.numPages}`;
+                card.appendChild(footer);
+            } catch (e) {
+                console.error(`Error rendering preview page ${num}:`, e);
+            }
+        }
+
+        function closePdfReaderModal() {
+            document.getElementById('pdfReaderModal').classList.add('hidden');
+            document.getElementById('pdfReaderModal').classList.remove('flex');
+            if (previewObserver) previewObserver.disconnect();
+            previewPdfDoc = null;
+        }
+
         // Global Escape Listener
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
+                closePdfReaderModal();
                 closeEditModal();
                 closeDeleteModal();
             }
