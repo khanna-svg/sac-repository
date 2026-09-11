@@ -356,6 +356,7 @@
         const COVERS_BASE_URL = "{{ asset('images/covers') }}";
 
         let allDocuments = [];
+        let currentSearchQuery = '';
         let currentCitationDoc = null;
         let savedBookmarkIds = new Set();
         let toastTimeout = null;
@@ -411,6 +412,53 @@
             const div = document.createElement('div');
             div.textContent = value ?? '';
             return div.innerHTML;
+        }
+
+        // Highlight matching search keywords in title and abstract
+        function highlightKeywords(text, query) {
+            if (!text) return '';
+            if (!query || !query.trim()) return escapeHtml(text);
+
+            const stopWords = new Set([
+                'a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'or', 
+                'is', 'are', 'was', 'were', 'by', 'with', 'from', 'as', 'it', 'its', 
+                'be', 'this', 'that', 'into', 'about', 'than', 'then', 'so', 'such'
+            ]);
+
+            const rawTerms = query
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, ' ')
+                .trim()
+                .split(/\s+/)
+                .filter(t => t.length >= 2 && !stopWords.has(t));
+
+            const terms = rawTerms.length > 0 
+                ? rawTerms 
+                : query.toLowerCase().replace(/[^\w\s-]/g, ' ').trim().split(/\s+/).filter(t => t.length >= 2);
+
+            if (terms.length === 0) return escapeHtml(text);
+
+            const termSet = new Set();
+            terms.forEach(t => {
+                termSet.add(t);
+                if (t.endsWith('s') && t.length > 3) {
+                    termSet.add(t.slice(0, -1));
+                }
+            });
+
+            const sortedTerms = [...termSet].sort((a, b) => b.length - a.length);
+            const pattern = sortedTerms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+            const regex = new RegExp(`(\\b(?:${pattern})\\w*)`, 'gi');
+
+            const parts = text.split(regex);
+            return parts.map(part => {
+                if (!part) return '';
+                const isMatch = sortedTerms.some(t => new RegExp(`^${t}`, 'i').test(part));
+                if (isMatch) {
+                    return `<mark class="bg-amber-100 text-gray-900 font-semibold px-0.5 rounded">${escapeHtml(part)}</mark>`;
+                }
+                return escapeHtml(part);
+            }).join('');
         }
 
         function handleImageError(imageElement) {
@@ -543,6 +591,7 @@
 
                         <div class="flex-1 min-w-0 pr-8">
                             <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 font-semibold">
+                                ${doc.similarity_score ? `<span class="font-bold text-[#700000]">${doc.similarity_score}% Similarity</span><span class="text-gray-300">•</span>` : ''}
                                 <span class="font-bold text-[#700000]">St. Anthony's College</span>
                                 <span class="text-gray-300">•</span>
                                 <span class="text-gray-700">${escapeHtml(details.name)}</span>
@@ -551,7 +600,7 @@
 
                             <h3 class="mt-2.5 text-base md:text-lg font-bold text-gray-900 transition">
                                 <a href="/documents/${doc.id}" class="hover:text-[#700000] hover:underline cursor-pointer">
-                                    ${escapeHtml(doc.title)}
+                                    ${highlightKeywords(doc.title, currentSearchQuery)}
                                 </a>
                             </h3>
 
@@ -560,9 +609,9 @@
                             </p>
 
                             <div class="mt-3 text-xs md:text-sm text-gray-600 leading-relaxed">
-                                <span id="abstract-short-${doc.id}">${escapeHtml(truncatedAbstract)}</span>
+                                <span id="abstract-short-${doc.id}">${highlightKeywords(truncatedAbstract, currentSearchQuery)}</span>
                                 ${isLongAbstract ? `
-                                    <span id="abstract-full-${doc.id}" class="hidden">${escapeHtml(doc.abstract)}</span>
+                                    <span id="abstract-full-${doc.id}" class="hidden">${highlightKeywords(doc.abstract, currentSearchQuery)}</span>
                                     <button type="button" onclick="toggleAbstract(${doc.id})" id="abstract-btn-${doc.id}" class="ml-1 text-xs font-bold text-[#700000] hover:underline">
                                         Read More
                                     </button>
@@ -673,6 +722,7 @@
 
         // Fetch theses from backend with Search, Department filter, and Sort order
         async function fetchDocuments(search = '') {
+            currentSearchQuery = (search || '').trim();
             documentsList.innerHTML = `<p class="text-center text-sm text-gray-500 py-10">Searching documents...</p>`;
             try {
                 const url = new URL('/backend/documents', window.location.origin);
@@ -748,6 +798,7 @@
         // Auto reset sort when search input is cleared
         searchInput.addEventListener('input', () => {
             if (!searchInput.value.trim()) {
+                currentSearchQuery = '';
                 updateSortOptionsForSearch(false);
                 fetchDocuments('');
             }

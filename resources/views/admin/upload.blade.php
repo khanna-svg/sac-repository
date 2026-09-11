@@ -161,13 +161,13 @@
                     <!-- Publication / Defense Date -->
                     <div>
                         <label for="publication_date" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">
-                            Publication / Defense Date <span class="text-rose-600">*</span>
+                            Academic Year <span class="text-rose-600">*</span>
                         </label>
                         <input
-                            type="date"
+                            type="month"
                             id="publication_date"
                             name="publication_date"
-                            value="{{ date('Y-m-d') }}"
+                            value="{{ date('Y-m') }}"
                             required
                             class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
                     </div>

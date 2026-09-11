@@ -25,7 +25,8 @@ class GeminiService
 
     public function generateEmbedding(string $text): array
     {
-        $response = Http::timeout(10)
+        $response = Http::withoutVerifying()
+            ->timeout(10)
             ->withHeaders([
                 'Content-Type' => 'application/json',
                 'x-goog-api-key' => $this->apiKey,
@@ -80,7 +81,8 @@ class GeminiService
             ];
         }
 
-        $response = Http::timeout(180)
+        $response = Http::withoutVerifying()
+            ->timeout(180)
             ->withHeaders([
                 'Content-Type' => 'application/json',
                 'x-goog-api-key' => $this->apiKey,
@@ -136,7 +138,8 @@ class GeminiService
 
         foreach (array_unique($modelsToTry) as $modelName) {
             try {
-                $response = Http::timeout(8)
+                $response = Http::withoutVerifying()
+                    ->timeout(8)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
@@ -209,7 +212,8 @@ class GeminiService
 
         foreach (array_unique($modelsToTry) as $modelName) {
             try {
-                $response = Http::timeout(12)
+                $response = Http::withoutVerifying()
+                    ->timeout(12)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,

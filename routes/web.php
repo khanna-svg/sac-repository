@@ -88,6 +88,15 @@ Route::middleware('sac.auth')->group(function () {
     Route::get('/bookmarks', [\App\Http\Controllers\BookmarkController::class, 'indexView'])
         ->name('bookmarks');
 
+    Route::get('/similarity', function () {
+        return view('similarity');
+    })->name('similarity');
+
+    Route::post(
+        '/backend/similarity/check',
+        [\App\Http\Controllers\SimilarityController::class, 'check']
+    );
+
     Route::get(
         '/backend/documents/{document}/view',
         [DocumentController::class, 'viewPdf']
