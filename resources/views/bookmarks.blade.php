@@ -8,6 +8,10 @@
     <title>Saved / Bookmarks - SAC Thesis Repository</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
 
     <style>
         /* Antigravity-Style Right AI Sidebar Squeeze Layout */
@@ -145,6 +149,89 @@
                     <span id="copyBtnText">Copy Citation</span>
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+         PROTECTED SECURE PDF READER MODAL (CONTINUOUS SCROLLABLE CANVAS)
+    ========================================================== -->
+    <div
+        id="securePdfModal"
+        class="fixed inset-0 z-50 hidden bg-slate-950/95 backdrop-blur-md flex-col select-none"
+        oncontextmenu="return false;">
+
+        <!-- Top Reader Header -->
+        <div class="flex items-center justify-between px-4 md:px-6 py-3 bg-[#500000] text-white border-b border-[#700000] shadow-md shrink-0">
+            <div class="flex items-center gap-3 min-w-0 pr-4">
+                <h3 id="securePdfDocTitle" class="text-xs md:text-sm font-bold text-white truncate">
+                    Protected Thesis Manuscript
+                </h3>
+            </div>
+
+            <!-- Reader Controls (Total Pages, Zoom, Close) -->
+            <div class="flex items-center gap-2 shrink-0">
+                <!-- Total Pages Badge -->
+                <div class="flex items-center bg-black/40 rounded-xl px-3 py-1 border border-white/10 text-xs">
+                    <span id="pageCount" class="text-amber-200 font-mono text-[11px]">Loading...</span>
+                </div>
+
+                <!-- Zoom Controls -->
+                <div class="hidden sm:flex items-center gap-1 bg-black/40 rounded-xl px-2 py-1 border border-white/10 text-xs">
+                    <button
+                        type="button"
+                        onclick="onZoomOut()"
+                        class="p-1 rounded hover:bg-white/20 text-white cursor-pointer"
+                        title="Zoom Out">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" />
+                        </svg>
+                    </button>
+                    <span id="zoomPercent" class="px-1 text-[11px] font-mono text-gray-300">100%</span>
+                    <button
+                        type="button"
+                        onclick="onZoomIn()"
+                        class="p-1 rounded hover:bg-white/20 text-white cursor-pointer"
+                        title="Zoom In">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Close Reader Button -->
+                <button
+                    type="button"
+                    onclick="closeSecurePdfReader()"
+                    class="rounded-xl p-1.5 bg-white/10 hover:bg-white/20 text-white transition ml-2 cursor-pointer"
+                    title="Close (Esc)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Security Policy Sub-header -->
+        <div class="bg-black/60 text-amber-200/90 text-[10px] sm:text-xs py-1 px-4 text-center border-b border-white/5 flex items-center justify-center gap-2 shrink-0">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+            <span>St. Anthony's College Protected Document • Copying, printing, and downloading are prohibited by institutional policy.</span>
+        </div>
+
+        <!-- Continuous Vertical Scrollable Canvas Container -->
+        <div id="pdfScrollContainer" class="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center relative bg-slate-900 scroll-smooth">
+            <!-- Loading Spinner -->
+            <div id="pdfLoader" class="sticky top-20 flex flex-col items-center justify-center gap-3 bg-slate-950/90 p-6 rounded-2xl border border-white/10 z-20 shadow-2xl">
+                <svg class="w-8 h-8 animate-spin text-[#FFD700]" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <p class="text-xs font-semibold text-amber-200">Loading protected manuscript...</p>
+            </div>
+
+            <!-- Pages Canvas List -->
+            <div id="pdfPagesWrapper" class="flex flex-col items-center gap-6 w-full max-w-3xl"></div>
         </div>
     </div>
 
@@ -468,22 +555,22 @@
                                     <button
                                         type="button"
                                         onclick="openBookmarkAiDrawer(${idx})"
-                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 cursor-pointer">
-                                        <svg class="w-3.5 h-3.5 shrink-0 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        class="group rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 cursor-pointer">
+                                        <svg class="w-3.5 h-3.5 shrink-0 text-[#700000] group-hover:text-[#FFD700] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                                         </svg>
                                         <span>Ask AI</span>
                                     </button>
 
-                                    <a
-                                        href="/backend/documents/${doc.id}/view"
-                                        target="_blank"
-                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-gray-100 transition flex items-center gap-1.5">
+                                    <button
+                                        type="button"
+                                        onclick="openSecurePdfReader(${idx})"
+                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 cursor-pointer">
                                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                                         </svg>
-                                        <span>View PDF</span>
-                                    </a>
+                                        <span>View PDF (Protected)</span>
+                                    </button>
                                 </div>
                             </div>
 
@@ -917,11 +1004,256 @@
             }
         }
 
+        // =========================================================
+        // PROTECTED SECURE PDF VIEWER (CONTINUOUS SCROLLABLE CANVAS)
+        // =========================================================
+        let pdfDoc = null;
+        let currentScale = 1.3;
+        let pageObserver = null;
+        let renderedPages = new Set();
+        let renderingPages = new Set();
+        let pageDimensions = { width: 600, height: 800 };
+
+        async function openSecurePdfReader(idx) {
+            const doc = bookmarkedDocuments[idx];
+            if (!doc) return;
+
+            const modal = document.getElementById('securePdfModal');
+            const loader = document.getElementById('pdfLoader');
+            const pagesWrapper = document.getElementById('pdfPagesWrapper');
+            const titleElem = document.getElementById('securePdfDocTitle');
+
+            if (titleElem) titleElem.textContent = doc.title || 'Protected Thesis Manuscript';
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            loader.classList.remove('hidden');
+            pagesWrapper.innerHTML = '';
+            renderedPages.clear();
+            renderingPages.clear();
+
+            if (pageObserver) {
+                pageObserver.disconnect();
+                pageObserver = null;
+            }
+
+            try {
+                const res = await fetch(`/backend/documents/${doc.id}/signed-url`);
+                if (!res.ok) throw new Error('Could not obtain secure PDF link');
+                const data = await res.json();
+                if (!data.url) throw new Error('Invalid PDF URL');
+
+                const loadingTask = pdfjsLib.getDocument({
+                    url: data.url,
+                    cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
+                    cMapPacked: true
+                });
+                pdfDoc = await loadingTask.promise;
+                document.getElementById('pageCount').textContent = `${pdfDoc.numPages} Pages`;
+
+                const firstPage = await pdfDoc.getPage(1);
+                const firstViewport = firstPage.getViewport({ scale: currentScale });
+                pageDimensions.width = firstViewport.width;
+                pageDimensions.height = firstViewport.height;
+
+                createPagePlaceholders();
+                setupPageObserver();
+
+                renderPage(1);
+                if (pdfDoc.numPages >= 2) {
+                    renderPage(2);
+                }
+
+                loader.classList.add('hidden');
+            } catch (err) {
+                console.error('Error loading secure PDF:', err);
+                loader.innerHTML = `
+                    <div class="p-6 text-center text-red-400 bg-slate-900 rounded-2xl border border-red-500/30 max-w-sm mx-auto">
+                        <p class="font-bold text-sm">Unable to render protected PDF</p>
+                        <p class="text-xs text-gray-400 mt-1">Please try again later or check your network connection.</p>
+                        <button onclick="closeSecurePdfReader()" class="mt-4 px-4 py-2 rounded-xl bg-[#700000] text-[#FFD700] font-bold text-xs cursor-pointer">Close Reader</button>
+                    </div>
+                `;
+            }
+        }
+
+        function createPagePlaceholders() {
+            if (!pdfDoc) return;
+            const pagesWrapper = document.getElementById('pdfPagesWrapper');
+            pagesWrapper.innerHTML = '';
+
+            const fragment = document.createDocumentFragment();
+
+            for (let num = 1; num <= pdfDoc.numPages; num++) {
+                const card = document.createElement('div');
+                card.id = `pdf-page-${num}`;
+                card.dataset.pageNumber = num;
+                card.className = 'pdf-page-card flex flex-col items-center bg-white shadow-2xl rounded-xl overflow-hidden border border-gray-300 w-full max-w-full relative transition-all';
+                card.style.minHeight = `${pageDimensions.height}px`;
+
+                card.innerHTML = `
+                    <div class="page-placeholder flex-1 flex flex-col items-center justify-center w-full bg-slate-50 text-gray-400 py-16" style="min-height: ${pageDimensions.height - 35}px;">
+                        <div class="flex flex-col items-center gap-2">
+                            <svg class="w-6 h-6 text-gray-300 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-[11px] font-mono text-gray-400 font-medium">Page ${num}</span>
+                        </div>
+                    </div>
+                    <div class="page-footer w-full py-1.5 bg-slate-100 border-t border-gray-200 text-center text-[10px] sm:text-xs font-semibold text-gray-500 tracking-wider uppercase font-mono">
+                        Page ${num} of ${pdfDoc.numPages}
+                    </div>
+                `;
+
+                fragment.appendChild(card);
+            }
+
+            pagesWrapper.appendChild(fragment);
+            document.getElementById('zoomPercent').textContent = Math.round((currentScale / 1.3) * 100) + '%';
+        }
+
+        function setupPageObserver() {
+            if (pageObserver) {
+                pageObserver.disconnect();
+            }
+
+            const scrollContainer = document.getElementById('pdfScrollContainer');
+
+            pageObserver = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        const pageNum = parseInt(entry.target.dataset.pageNumber, 10);
+                        if (pageNum && !renderedPages.has(pageNum) && !renderingPages.has(pageNum)) {
+                            renderPage(pageNum);
+                        }
+                    }
+                });
+            }, {
+                root: scrollContainer,
+                rootMargin: '450px 0px',
+                threshold: 0.01
+            });
+
+            document.querySelectorAll('.pdf-page-card').forEach((card) => {
+                pageObserver.observe(card);
+            });
+        }
+
+        async function renderPage(num) {
+            if (!pdfDoc || renderedPages.has(num) || renderingPages.has(num)) return;
+            renderingPages.add(num);
+
+            const card = document.getElementById(`pdf-page-${num}`);
+            if (!card) {
+                renderingPages.delete(num);
+                return;
+            }
+
+            try {
+                const page = await pdfDoc.getPage(num);
+                const viewport = page.getViewport({ scale: currentScale });
+
+                const canvas = document.createElement('canvas');
+                canvas.className = 'block max-w-full h-auto';
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const ctx = canvas.getContext('2d');
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+
+                await page.render(renderContext).promise;
+
+                const placeholder = card.querySelector('.page-placeholder');
+                const existingCanvas = card.querySelector('canvas');
+                const footer = card.querySelector('.page-footer');
+
+                if (existingCanvas) existingCanvas.remove();
+                if (placeholder) placeholder.remove();
+
+                card.insertBefore(canvas, footer);
+                card.style.minHeight = `${viewport.height}px`;
+
+                renderedPages.add(num);
+            } catch (err) {
+                console.error(`Error rendering page ${num}:`, err);
+            } finally {
+                renderingPages.delete(num);
+            }
+        }
+
+        async function onZoomIn() {
+            if (currentScale >= 2.5) return;
+            currentScale += 0.2;
+            await reScalePages();
+        }
+
+        async function onZoomOut() {
+            if (currentScale <= 0.7) return;
+            currentScale -= 0.2;
+            await reScalePages();
+        }
+
+        async function reScalePages() {
+            if (!pdfDoc) return;
+            document.getElementById('zoomPercent').textContent = Math.round((currentScale / 1.3) * 100) + '%';
+
+            const firstPage = await pdfDoc.getPage(1);
+            const firstViewport = firstPage.getViewport({ scale: currentScale });
+            pageDimensions.width = firstViewport.width;
+            pageDimensions.height = firstViewport.height;
+
+            renderedPages.clear();
+            renderingPages.clear();
+
+            document.querySelectorAll('.pdf-page-card').forEach((card) => {
+                card.style.minHeight = `${pageDimensions.height}px`;
+                const canvas = card.querySelector('canvas');
+                if (canvas) canvas.remove();
+                if (!card.querySelector('.page-placeholder')) {
+                    const num = card.dataset.pageNumber;
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'page-placeholder flex-1 flex flex-col items-center justify-center w-full bg-slate-50 text-gray-400 py-16';
+                    placeholder.style.minHeight = `${pageDimensions.height - 35}px`;
+                    placeholder.innerHTML = `
+                        <div class="flex flex-col items-center gap-2">
+                            <svg class="w-6 h-6 text-gray-300 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span class="text-[11px] font-mono text-gray-400 font-medium">Page ${num}</span>
+                        </div>
+                    `;
+                    const footer = card.querySelector('.page-footer');
+                    card.insertBefore(placeholder, footer);
+                }
+            });
+
+            setupPageObserver();
+        }
+
+        function closeSecurePdfReader() {
+            const modal = document.getElementById('securePdfModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            if (pageObserver) {
+                pageObserver.disconnect();
+                pageObserver = null;
+            }
+            pdfDoc = null;
+        }
+
         // Global Escape Listener
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeCitationModal();
                 closeBookmarkAiDrawer();
+                closeSecurePdfReader();
             }
         });
 
