@@ -82,36 +82,6 @@
             <!-- Error Alert Message Container -->
             <div id="uploadMessage" class="hidden"></div>
 
-            <!-- Assisted Student Submission Review Banner (Visible when ?from_submission is present) -->
-            <div id="submissionBanner" class="hidden rounded-3xl border border-amber-200 bg-amber-50/80 p-5 shadow-xs">
-                <div class="flex items-start gap-3.5">
-                    <span class="p-2.5 rounded-2xl bg-amber-200 text-amber-900 shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                        </svg>
-                    </span>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex flex-wrap items-center justify-between gap-2">
-                            <h3 class="text-xs sm:text-sm font-bold text-amber-950 flex items-center gap-2">
-                                <span>Assisted Submission Publishing Mode</span>
-                                <span class="rounded-full bg-amber-200/80 border border-amber-300 px-2 py-0.5 text-[10px] font-black text-amber-900 uppercase tracking-wide">
-                                    Submission #<span id="submissionIdText"></span>
-                                </span>
-                            </h3>
-                            <a href="{{ route('admin.submissions') }}" class="text-xs font-bold text-amber-800 hover:text-amber-950 underline flex items-center gap-1">
-                                <span>Return to Queue</span>
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                </svg>
-                            </a>
-                        </div>
-                        <p class="text-xs text-amber-800/90 mt-1 leading-relaxed">
-                            Pre-filled from student submission by <strong id="studentNameText" class="font-bold text-amber-950"></strong> (<span id="studentEmailText" class="font-mono text-[11px]"></span>). The softcopy manuscript and metadata have been populated. Please verify all information and set the official <strong class="font-bold text-amber-950">Academic Year / Month</strong> publication date before publishing.
-                        </p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Main Upload Form Card -->
             <section class="rounded-3xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
                 
@@ -520,14 +490,6 @@
                     filePreviewCard.classList.remove('hidden');
                     filePreviewCard.classList.add('flex');
                 }
-
-                // Show assisted submission banner
-                document.getElementById('submissionIdText').textContent = data.id;
-                document.getElementById('studentNameText').textContent = data.submitted_by_name || 'Student';
-                document.getElementById('studentEmailText').textContent = data.submitted_by_email || '';
-                const banner = document.getElementById('submissionBanner');
-                if (banner) banner.classList.remove('hidden');
-
             } catch (err) {
                 console.error('Error prefilling from submission:', err);
             }
@@ -669,8 +631,6 @@
                 uploadForm.reset();
                 filePreviewCard.classList.add('hidden');
                 filePreviewCard.classList.remove('flex');
-                const banner = document.getElementById('submissionBanner');
-                if (banner) banner.classList.add('hidden');
 
                 openSuccessModal(`"${thesisTitle}" has been officially published and indexed in the repository.`);
 
