@@ -408,7 +408,7 @@
                                     onclick="openPdfReader(${sub.id}, '${escapeHtml(sub.title).replace(/'/g, "\\'")}')"
                                     title="View / Preview PDF Manuscript"
                                     aria-label="View PDF"
-                                    class="p-2 rounded-xl border border-gray-200 text-gray-600 hover:text-[#700000] hover:bg-slate-100 hover:border-gray-300 transition cursor-pointer shadow-2xs">
+                                    class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -421,7 +421,7 @@
                                     target="_blank"
                                     title="Download PDF Softcopy for Turnitin / Grammarly check"
                                     aria-label="Download PDF for Turnitin"
-                                    class="p-2 rounded-xl border border-blue-200 bg-blue-50/50 text-blue-700 hover:bg-blue-100 hover:border-blue-300 transition cursor-pointer shadow-2xs">
+                                    class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                                     </svg>
@@ -433,7 +433,7 @@
                                     onclick="approveSubmission(${sub.id}, '${escapeHtml(sub.title).replace(/'/g, "\\'")}')"
                                     title="Approve & Proceed to Upload Form"
                                     aria-label="Approve & Proceed to Upload"
-                                    class="p-2 rounded-xl border border-emerald-200 bg-emerald-50/60 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300 transition cursor-pointer shadow-2xs">
+                                    class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                     </svg>
@@ -445,7 +445,7 @@
                                     onclick="openResubmitModal(${sub.id}, '${escapeHtml(sub.title).replace(/'/g, "\\'")}', '${escapeHtml(sub.admin_notes || '').replace(/'/g, "\\'")}')"
                                     title="Request Resubmission with Notes (Turnitin / Revisions)"
                                     aria-label="Request Resubmission"
-                                    class="p-2 rounded-xl border border-amber-200 bg-amber-50/60 text-amber-700 hover:bg-amber-100 hover:border-amber-300 transition cursor-pointer shadow-2xs">
+                                    class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                                     </svg>
