@@ -56,6 +56,33 @@
                             Search, cite, and view published St. Anthony's College thesis documents.
                         </p>
                     </div>
+
+                    {{-- Student Notifications Bell & Dropdown --}}
+                    <div class="relative shrink-0">
+                        <button
+                            type="button"
+                            id="notifBellBtn"
+                            onclick="toggleNotificationDropdown()"
+                            class="px-3.5 py-2 rounded-2xl border border-gray-200 bg-white hover:bg-slate-50 text-gray-700 text-xs font-bold transition flex items-center gap-2 shadow-2xs relative cursor-pointer">
+                            <svg class="w-4 h-4 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                            </svg>
+                            <span class="hidden sm:inline">Notifications</span>
+                            <span id="notifBadge" class="hidden rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-black text-white">0</span>
+                        </button>
+
+                        <div
+                            id="notifDropdown"
+                            class="hidden absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl bg-white p-4 shadow-2xl border border-gray-200 z-50 transition-all">
+                            <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-2">
+                                <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Submission Updates</h3>
+                                <button onclick="markAllNotificationsAsRead()" class="text-[10px] font-semibold text-[#700000] hover:underline cursor-pointer">Mark all as read</button>
+                            </div>
+                            <div id="notifList" class="max-h-72 overflow-y-auto divide-y divide-gray-100 text-xs">
+                                <p class="py-4 text-center text-gray-400">Loading notifications...</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -1218,10 +1245,80 @@
             }
         });
 
+        // Notifications Dropdown and Fetch
+        async function fetchNotifications() {
+            try {
+                const res = await fetch('/backend/notifications');
+                if (!res.ok) return;
+                const data = await res.json();
+                const badge = document.getElementById('notifBadge');
+                const list = document.getElementById('notifList');
+                if (!badge || !list) return;
+
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+
+                if (data.notifications.length === 0) {
+                    list.innerHTML = '<p class="py-4 text-center text-gray-400">No notifications yet.</p>';
+                    return;
+                }
+
+                list.innerHTML = data.notifications.map(n => {
+                    const iconColor = n.type === 'approved' ? 'text-emerald-500' : (n.type === 'resubmit' ? 'text-rose-500' : 'text-amber-500');
+                    const timeAgo = n.created_at ? new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+                    return `
+                        <div class="py-2.5 space-y-1 ${!n.is_read ? 'bg-amber-50/40 p-2 rounded-xl' : ''}">
+                            <div class="flex items-center justify-between gap-1">
+                                <h4 class="font-bold text-gray-900 ${iconColor} flex items-center gap-1.5">
+                                    <span>${n.title}</span>
+                                </h4>
+                                <span class="text-[9px] text-gray-400 shrink-0 font-mono">${timeAgo}</span>
+                            </div>
+                            <p class="text-[11px] text-gray-700 leading-snug whitespace-pre-line">${n.message}</p>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to fetch notifications:', e);
+            }
+        }
+
+        function toggleNotificationDropdown() {
+            const dd = document.getElementById('notifDropdown');
+            if (!dd) return;
+            dd.classList.toggle('hidden');
+            if (!dd.classList.contains('hidden')) {
+                fetchNotifications();
+            }
+        }
+
+        async function markAllNotificationsAsRead() {
+            try {
+                await fetch('/backend/notifications/read-all', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrfToken }
+                });
+                fetchNotifications();
+            } catch (e) {}
+        }
+
+        document.addEventListener('click', function(e) {
+            const dd = document.getElementById('notifDropdown');
+            const btn = document.getElementById('notifBellBtn');
+            if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) {
+                dd.classList.add('hidden');
+            }
+        });
+
         // Initial load on page ready
         async function init() {
             await fetchBookmarkIds();
             await fetchDocuments();
+            fetchNotifications();
         }
 
         init();

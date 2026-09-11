@@ -69,7 +69,8 @@ class DocumentController extends Controller
             $payload['download'] = $safeFilename;
         }
         try {
-            $response = Http::timeout(30)
+            $response = Http::withoutVerifying()
+                ->timeout(30)
                 ->withHeaders([
                     'Authorization' => "Bearer {$key}",
                     'apikey' => $key,
@@ -127,7 +128,8 @@ class DocumentController extends Controller
         $signUrl = "{$baseUrl}/storage/v1/object/sign/{$encodedBucket}/{$encodedPath}";
 
         try {
-            $response = Http::timeout(20)
+            $response = Http::withoutVerifying()
+                ->timeout(20)
                 ->withHeaders([
                     'Authorization' => "Bearer {$key}",
                     'apikey' => $key,
@@ -206,8 +208,10 @@ class DocumentController extends Controller
             $department = trim((string) $request->input('department', ''));
             $sort = trim((string) $request->input('sort', 'latest'));
 
+            $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+
             if ($search === '') {
-                $query = Document::query();
+                $query = Document::query()->where($approvedScope);
 
                 if ($department !== '' && $department !== 'all') {
                     $this->applyDepartmentFilter($query, $department);
@@ -232,6 +236,7 @@ class DocumentController extends Controller
             $similarityMap = [];
 
             $keywordQuery = Document::query()
+                ->where($approvedScope)
                 ->where(function ($q) use ($searchTerm) {
                     $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
                         ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
@@ -268,7 +273,9 @@ class DocumentController extends Controller
                             dc.document_id,
                             MIN(dc.embedding OPERATOR(extensions.<=>) ?::extensions.vector) AS distance
                         FROM document_chunks dc
+                        INNER JOIN documents d ON d.id = dc.document_id
                         WHERE dc.embedding IS NOT NULL
+                          AND (d.status = 'approved' OR d.status IS NULL)
                         GROUP BY dc.document_id
                         ORDER BY distance ASC
                         LIMIT 25
@@ -292,7 +299,7 @@ class DocumentController extends Controller
             }
 
             if (!empty($semanticDocIds)) {
-                $semanticQuery = Document::whereIn('id', $semanticDocIds);
+                $semanticQuery = Document::whereIn('id', $semanticDocIds)->where($approvedScope);
                 if ($department !== '' && $department !== 'all') {
                     $this->applyDepartmentFilter($semanticQuery, $department);
                 }
@@ -320,66 +327,34 @@ class DocumentController extends Controller
             return response()->json($rankedDocs->values());
         } catch (\Throwable $e) {
             Log::error('DocumentController index error: ' . $e->getMessage());
-            return response()->json(Document::latest()->get());
+            $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+            return response()->json(Document::where($approvedScope)->latest()->get());
         }
     }
 
     public function show($id)
     {
         try {
+            $document = Document::with([
+                'chunks' => function ($query) {
+                    $query->select('id', 'document_id', 'page_number', 'chunk_text')
+                        ->orderBy('page_number', 'asc');
+                }
+            ])->findOrFail($id);
 
-            $document =
-                Document::with([
-                    'chunks' => function ($query) {
+            // Access check: If unapproved, allow only admin or the student submitter
+            $userRole = session('sac_user_role');
+            $userEmail = strtolower((string) session('sac_user_email'));
+            if ($document->status !== 'approved' && $userRole !== 'admin' && strtolower((string) $document->submitted_by_email) !== $userEmail) {
+                abort(403, 'This thesis manuscript is currently undergoing review and is not publicly accessible.');
+            }
 
-                        $query
-                            ->select(
-                                'id',
-                                'document_id',
-                                'page_number',
-                                'chunk_text'
-                            )
-                            ->orderBy(
-                                'page_number',
-                                'asc'
-                            );
-                    }
-                ])
-                ->findOrFail($id);
-
-            return view(
-                'document_detail',
-                [
-                    'document' =>
-                    $document,
-                ]
-            );
+            return view('document_detail', [
+                'document' => $document,
+            ]);
         } catch (\Throwable $e) {
-
-            Log::error(
-                'Document detail error',
-                [
-                    'message' =>
-                    $e->getMessage(),
-
-                    'file' =>
-                    $e->getFile(),
-
-                    'line' =>
-                    $e->getLine(),
-                ]
-            );
-
-            return response()->json(
-                [
-                    'status' =>
-                    'Error loading document',
-
-                    'message' =>
-                    $e->getMessage(),
-                ],
-                500
-            );
+            Log::error('Document detail error: ' . $e->getMessage());
+            abort(404, 'Thesis document not found or inaccessible.');
         }
     }
 
@@ -512,7 +487,8 @@ class DocumentController extends Controller
                 "{$baseUrl}/storage/v1/object/upload/sign/{$encodedBucket}/{$encodedPath}";
 
             $response =
-                Http::timeout(30)
+                Http::withoutVerifying()
+                ->timeout(30)
                 ->withHeaders([
                     'Authorization' =>
                     "Bearer {$key}",
@@ -819,7 +795,8 @@ class DocumentController extends Controller
                 );
 
             $response =
-                Http::timeout(120)
+                Http::withoutVerifying()
+                ->timeout(120)
                 ->withHeaders([
                     'Authorization' =>
                     "Bearer {$key}",
@@ -1242,7 +1219,7 @@ class DocumentController extends Controller
                     $baseUrl = rtrim((string) env('SUPABASE_URL'), '/');
                     $serviceKey = (string) (env('SUPABASE_SERVICE_ROLE_KEY') ?: env('SUPABASE_PUBLISHABLE_KEY'));
                     if ($baseUrl && $serviceKey) {
-                        Http::withHeaders([
+                        Http::withoutVerifying()->withHeaders([
                             'apikey' => $serviceKey,
                             'Authorization' => "Bearer {$serviceKey}",
                         ])->delete("{$baseUrl}/storage/v1/object/theses", [

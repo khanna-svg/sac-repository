@@ -31,31 +31,36 @@ class AnalyticsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // 1. Total Metrics
-        $totalTheses = Document::count();
-        $totalPages = DocumentChunk::count();
+        // 1. Total Metrics (Only published/approved theses)
+        $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+
+        $totalTheses = Document::where($approvedScope)->count();
+        $totalPages = DocumentChunk::whereHas('document', $approvedScope)->count();
         $totalBookmarks = Bookmark::count();
-        $totalDepartments = Document::whereNotNull('department')->distinct('department')->count('department');
+        $totalDepartments = Document::where($approvedScope)->whereNotNull('department')->distinct('department')->count('department');
 
         // 2. Department Breakdown
-        $departmentStats = Document::select('department', DB::raw('count(*) as count'))
+        $departmentStats = Document::where($approvedScope)
+            ->select('department', DB::raw('count(*) as count'))
             ->whereNotNull('department')
             ->groupBy('department')
             ->orderByDesc('count')
             ->get();
 
         // 3. Course Code Breakdown
-        $courseStats = Document::select('course_code', DB::raw('count(*) as count'))
+        $courseStats = Document::where($approvedScope)
+            ->select('course_code', DB::raw('count(*) as count'))
             ->whereNotNull('course_code')
             ->groupBy('course_code')
             ->orderByDesc('count')
             ->get();
 
         // 4. Yearly Output Trend
-        $yearlyStats = Document::select(
-            DB::raw("COALESCE(TO_CHAR(publication_date, 'YYYY'), TO_CHAR(created_at, 'YYYY'), '2026') as year"),
-            DB::raw('count(*) as count')
-        )
+        $yearlyStats = Document::where($approvedScope)
+            ->select(
+                DB::raw("COALESCE(TO_CHAR(publication_date, 'YYYY'), TO_CHAR(created_at, 'YYYY'), '2026') as year"),
+                DB::raw('count(*) as count')
+            )
             ->groupBy('year')
             ->orderBy('year', 'asc')
             ->get();

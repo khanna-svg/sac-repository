@@ -100,7 +100,7 @@
         <a
             href="/admin/theses"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
-                {{ request()->is('admin/theses')
+                {{ request()->is('admin/theses*')
                     ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                     : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -109,11 +109,34 @@
             <span>Manage Thesis</span>
         </a>
 
-        <!-- Admin: Upload Thesis -->
+        <!-- Admin: Review Student Submissions -->
+        <a
+            href="/admin/submissions"
+            class="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition
+                {{ request()->is('admin/submissions*')
+                    ? 'bg-[#D4AF37] text-[#700000] shadow-md'
+                    : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
+            <div class="flex items-center gap-3 min-w-0">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span class="truncate">Review Submissions</span>
+            </div>
+            @php
+                $sidebarPendingCount = \App\Models\Document::whereNotNull('submitted_by_email')->where('status', 'pending')->count();
+            @endphp
+            @if($sidebarPendingCount > 0)
+                <span class="ml-2 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-black text-rose-950 animate-pulse">
+                    {{ $sidebarPendingCount }}
+                </span>
+            @endif
+        </a>
+
+        <!-- Admin: Direct Upload Thesis -->
         <a
             href="/admin/upload"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
-                {{ request()->is('admin/upload')
+                {{ request()->is('admin/upload*')
                     ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                     : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -139,7 +162,7 @@
         <a
             href="/documents"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
-                {{ request()->is('documents')
+                {{ request()->is('documents*')
                     ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                     : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -152,7 +175,7 @@
         <a
             href="/similarity"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
-                {{ request()->is('similarity')
+                {{ request()->is('similarity*')
                     ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                     : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -161,11 +184,24 @@
             <span>Similarity Checker</span>
         </a>
 
+        <!-- Upload a Thesis (Student Submission) -->
+        <a
+            href="/student/submit"
+            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
+                {{ request()->is('student/submit*')
+                    ? 'bg-[#D4AF37] text-[#700000] shadow-md'
+                    : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            <span>Upload a Thesis</span>
+        </a>
+
         <!-- Saved / Bookmarks -->
         <a
             href="/bookmarks"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
-                {{ request()->is('bookmarks')
+                {{ request()->is('bookmarks*')
                     ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                     : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -178,7 +214,7 @@
         <a
             href="/graph"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
-                {{ request()->is('graph')
+                {{ request()->is('graph*')
                     ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                     : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -191,7 +227,7 @@
         <a
             href="/chat"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
-            {{ request()->is('chat')
+            {{ request()->is('chat*')
                 ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                 : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
