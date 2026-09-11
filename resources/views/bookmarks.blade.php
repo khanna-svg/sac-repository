@@ -16,23 +16,29 @@
     <style>
         /* Antigravity-Style Right AI Sidebar Squeeze Layout */
         @media (min-width: 1024px) {
+
             html.ai-drawer-open main,
             html.ai-drawer-open #mainContent {
                 margin-right: 440px !important;
             }
+
             html.ai-drawer-open #aiDrawerBackdrop {
                 display: none !important;
                 pointer-events: none !important;
             }
+
             #aiDrawer {
                 width: 440px !important;
             }
         }
+
         @media (min-width: 1440px) {
+
             html.ai-drawer-open main,
             html.ai-drawer-open #mainContent {
                 margin-right: 480px !important;
             }
+
             #aiDrawer {
                 width: 480px !important;
             }
@@ -249,7 +255,7 @@
     <aside
         id="aiDrawer"
         class="fixed inset-y-0 right-0 z-40 w-full sm:w-[420px] lg:w-[440px] xl:w-[480px] bg-white border-l border-gray-200 shadow-xl flex flex-col transition-transform duration-300 ease-in-out translate-x-full">
-        
+
         <!-- Drawer Header -->
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-white">
             <div class="flex items-center gap-2.5 min-w-0 pr-2">
@@ -276,7 +282,7 @@
 
         <!-- Chat Conversation Feed -->
         <div id="aiDrawerMessages" class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4 bg-slate-50/60">
-            
+
             <!-- Initial Greeting & Quick Question Chips (YouTube Style) -->
             <div id="aiInitialCard" class="space-y-3.5">
                 <div class="flex items-start gap-2.5">
@@ -348,7 +354,7 @@
                     placeholder="Ask a question..."
                     autocomplete="off"
                     class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-12 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
-                
+
                 <button
                     id="aiDrawerSendBtn"
                     type="submit"
@@ -414,31 +420,71 @@
 
             // 1. Direct database department check (Highest Priority)
             if (dept === 'it' || course === 'bsit') {
-                return { cover: 'IT.webp', name: 'Information Technology Department', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' };
+                return {
+                    cover: 'IT.webp',
+                    name: 'Information Technology Department',
+                    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
+                };
             } else if (dept === 'marine' || course === 'bsmare') {
-                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
+                return {
+                    cover: 'MARINE.webp',
+                    name: 'Marine Engineering Department',
+                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
+                };
             } else if (dept === 'nursing' || course === 'bsn') {
-                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+                return {
+                    cover: 'NURSING.webp',
+                    name: 'Nursing Department',
+                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                };
             } else if (dept === 'hospitality' || course === 'bshm') {
-                return { cover: 'HM.webp', name: 'Hospitality Management', badgeBg: 'bg-amber-50 text-amber-800 border-amber-200' };
+                return {
+                    cover: 'HM.webp',
+                    name: 'Hospitality Management',
+                    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
+                };
             } else if (dept === 'education' || course === 'bsed') {
-                return { cover: 'EDUC.webp', name: 'Education Department', badgeBg: 'bg-purple-50 text-purple-700 border-purple-200' };
+                return {
+                    cover: 'EDUC.webp',
+                    name: 'Education Department',
+                    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
+                };
             } else if (dept === 'criminology' || course === 'bsc') {
-                return { cover: 'CRIM.webp', name: 'Criminology Department', badgeBg: 'bg-red-50 text-red-700 border-red-200' };
+                return {
+                    cover: 'CRIM.webp',
+                    name: 'Criminology Department',
+                    badgeBg: 'bg-red-50 text-red-700 border-red-200'
+                };
             }
 
             // 2. Keyword heuristic fallback if department is unspecified
             if (title.includes('patient') || title.includes('nursing')) {
-                return { cover: 'NURSING.webp', name: 'Nursing Department', badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
+                return {
+                    cover: 'NURSING.webp',
+                    name: 'Nursing Department',
+                    badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                };
             }
             if (title.includes('marine') || title.includes('vessel')) {
-                return { cover: 'MARINE.webp', name: 'Marine Engineering Department', badgeBg: 'bg-sky-50 text-sky-700 border-sky-200' };
+                return {
+                    cover: 'MARINE.webp',
+                    name: 'Marine Engineering Department',
+                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
+                };
             }
             if (title.includes('system') || title.includes('app') || title.includes('web') || title.includes('software')) {
-                return { cover: 'IT.webp', name: 'Information Technology Department', badgeBg: 'bg-blue-50 text-blue-700 border-blue-200' };
+                return {
+                    cover: 'IT.webp',
+                    name: 'Information Technology Department',
+                    badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
+                };
             }
 
-            return { cover: 'IT.webp', name: 'Academic Research', badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20' };
+            return {
+                cover: 'IT.webp',
+                name: 'Academic Research',
+                badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20'
+            };
         }
 
         async function toggleBookmark(docId) {
@@ -450,7 +496,9 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({ document_id: docId })
+                    body: JSON.stringify({
+                        document_id: docId
+                    })
                 });
 
                 if (res.ok) {
@@ -493,7 +541,10 @@
                 const isLongAbstract = (doc.abstract || '').length > 200;
                 const truncatedAbstract = isLongAbstract ? doc.abstract.substring(0, 200) + '...' : doc.abstract;
                 const rawDate = doc.publication_date || doc.created_at;
-                const pubDateStr = rawDate ? new Date(rawDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
+                const pubDateStr = rawDate ? new Date(rawDate).toLocaleDateString('en-US', {
+                    month: 'short',
+                    year: 'numeric'
+                }) : '';
 
                 return `
                     <article class="relative flex flex-col md:flex-row gap-5 rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-[#700000]/30 transition">
@@ -565,7 +616,7 @@
                                     <button
                                         type="button"
                                         onclick="openSecurePdfReader(${idx})"
-                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 cursor-pointer">
+                                        class="rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#850000] transition flex items-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                                         </svg>
@@ -666,7 +717,8 @@
             const formatted = rawList.map(name => {
                 let trimmed = name.trim();
                 if (!trimmed) return '';
-                let first = '', last = '';
+                let first = '',
+                    last = '';
                 if (trimmed.includes(',')) {
                     const split = trimmed.split(',').map(s => s.trim());
                     last = split[0];
@@ -718,7 +770,8 @@
             const formatted = rawList.map(name => {
                 let trimmed = name.trim();
                 if (!trimmed) return '';
-                let first = '', last = '';
+                let first = '',
+                    last = '';
                 if (trimmed.includes(',')) {
                     const split = trimmed.split(',').map(s => s.trim());
                     last = split[0];
@@ -766,6 +819,7 @@
             }
 
             if (rawList.length === 0) return 'Anonymous';
+
             function toLastFirst(trimmed) {
                 if (trimmed.includes(',')) return trimmed;
                 const tokens = trimmed.split(/\s+/);
@@ -1012,7 +1066,10 @@
         let pageObserver = null;
         let renderedPages = new Set();
         let renderingPages = new Set();
-        let pageDimensions = { width: 600, height: 800 };
+        let pageDimensions = {
+            width: 600,
+            height: 800
+        };
 
         async function openSecurePdfReader(idx) {
             const doc = bookmarkedDocuments[idx];
@@ -1052,7 +1109,9 @@
                 document.getElementById('pageCount').textContent = `${pdfDoc.numPages} Pages`;
 
                 const firstPage = await pdfDoc.getPage(1);
-                const firstViewport = firstPage.getViewport({ scale: currentScale });
+                const firstViewport = firstPage.getViewport({
+                    scale: currentScale
+                });
                 pageDimensions.width = firstViewport.width;
                 pageDimensions.height = firstViewport.height;
 
@@ -1152,7 +1211,9 @@
 
             try {
                 const page = await pdfDoc.getPage(num);
-                const viewport = page.getViewport({ scale: currentScale });
+                const viewport = page.getViewport({
+                    scale: currentScale
+                });
 
                 const canvas = document.createElement('canvas');
                 canvas.className = 'block max-w-full h-auto';
@@ -1202,7 +1263,9 @@
             document.getElementById('zoomPercent').textContent = Math.round((currentScale / 1.3) * 100) + '%';
 
             const firstPage = await pdfDoc.getPage(1);
-            const firstViewport = firstPage.getViewport({ scale: currentScale });
+            const firstViewport = firstPage.getViewport({
+                scale: currentScale
+            });
             pageDimensions.width = firstViewport.width;
             pageDimensions.height = firstViewport.height;
 
