@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ProcessThesisPdf;
 use App\Models\Document;
+use App\Models\ThesisNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -636,6 +637,7 @@ class DocumentController extends Controller
     public function storeFromSignedUrl(Request $request)
     {
         try {
+            $submissionId = $request->input('submission_id');
             $title = trim((string) $request->input('title'));
             $author = trim((string) $request->input('author'));
             $department = trim((string) $request->input('department'));
@@ -643,6 +645,7 @@ class DocumentController extends Controller
             $abstract = trim((string) $request->input('abstract'));
             $filePath = trim((string) $request->input('file_path'));
             $chunks = $request->input('chunks', []);
+
             if ($title === '' || $author === '' || $abstract === '' || $filePath === '') {
                 return response()->json([
                     'error' => true,
@@ -658,44 +661,100 @@ class DocumentController extends Controller
             $rawPubDate = $request->input('publication_date');
             $publicationDate = !empty($rawPubDate) ? \Carbon\Carbon::parse($rawPubDate)->toDateString() : now()->toDateString();
 
-            $document = Document::create([
-                'title' => $title,
-                'author' => $author,
-                'department' => $department,
-                'course_code' => $courseCode,
-                'publication_date' => $publicationDate,
-                'abstract' => $abstract,
-                'file_path' => $filePath,
-                'file_url' => '',
-            ]);
-            $document->update([
-                'file_url' => "/backend/documents/{$document->id}/view",
-            ]);
-            if (is_array($chunks) && !empty($chunks)) {
-                $now = now();
-                $insertData = [];
-                foreach ($chunks as $chunk) {
-                    $text = trim((string) ($chunk['text'] ?? ''));
-                    $page = (int) ($chunk['page'] ?? 1);
-                    if ($text !== '') {
-                        $insertData[] = [
-                            'document_id' => $document->id,
-                            'page_number' => $page,
-                            'chunk_text' => $text,
-                            'embedding' => null,
-                            'created_at' => $now,
-                            'updated_at' => $now,
-                        ];
+            if (!empty($submissionId)) {
+                $document = Document::findOrFail($submissionId);
+                $document->update([
+                    'title' => $title,
+                    'author' => $author,
+                    'department' => $department,
+                    'course_code' => $courseCode,
+                    'publication_date' => $publicationDate,
+                    'abstract' => $abstract,
+                    'file_path' => $filePath,
+                    'file_url' => "/backend/documents/{$document->id}/view",
+                    'status' => 'approved',
+                    'admin_notes' => null,
+                ]);
+
+                // If new chunks provided, replace existing chunks
+                if (is_array($chunks) && !empty($chunks)) {
+                    DB::table('document_chunks')->where('document_id', $document->id)->delete();
+                    $now = now();
+                    $insertData = [];
+                    foreach ($chunks as $chunk) {
+                        $text = trim((string) ($chunk['text'] ?? ''));
+                        $page = (int) ($chunk['page'] ?? 1);
+                        if ($text !== '') {
+                            $insertData[] = [
+                                'document_id' => $document->id,
+                                'page_number' => $page,
+                                'chunk_text' => $text,
+                                'embedding' => null,
+                                'created_at' => $now,
+                                'updated_at' => $now,
+                            ];
+                        }
+                    }
+                    if (!empty($insertData)) {
+                        foreach (array_chunk($insertData, 100) as $batch) {
+                            DB::table('document_chunks')->insert($batch);
+                        }
                     }
                 }
-                if (!empty($insertData)) {
-                    foreach (array_chunk($insertData, 100) as $batch) {
-                        DB::table('document_chunks')->insert($batch);
-                    }
+
+                // Dispatch approval notification to student
+                if ($document->submitted_by_email) {
+                    ThesisNotification::create([
+                        'user_email' => $document->submitted_by_email,
+                        'title' => '🎉 Congratulations your thesis was approved',
+                        'message' => "Congratulations! Your thesis \"{$document->title}\" has been approved and is now officially published in the St. Anthony's College Repository.",
+                        'type' => 'approved',
+                        'document_id' => $document->id,
+                        'is_read' => false,
+                    ]);
                 }
             } else {
-                ProcessThesisPdf::dispatchSync($document);
+                $document = Document::create([
+                    'title' => $title,
+                    'author' => $author,
+                    'department' => $department,
+                    'course_code' => $courseCode,
+                    'publication_date' => $publicationDate,
+                    'abstract' => $abstract,
+                    'file_path' => $filePath,
+                    'file_url' => '',
+                    'status' => 'approved',
+                ]);
+                $document->update([
+                    'file_url' => "/backend/documents/{$document->id}/view",
+                ]);
+                if (is_array($chunks) && !empty($chunks)) {
+                    $now = now();
+                    $insertData = [];
+                    foreach ($chunks as $chunk) {
+                        $text = trim((string) ($chunk['text'] ?? ''));
+                        $page = (int) ($chunk['page'] ?? 1);
+                        if ($text !== '') {
+                            $insertData[] = [
+                                'document_id' => $document->id,
+                                'page_number' => $page,
+                                'chunk_text' => $text,
+                                'embedding' => null,
+                                'created_at' => $now,
+                                'updated_at' => $now,
+                            ];
+                        }
+                    }
+                    if (!empty($insertData)) {
+                        foreach (array_chunk($insertData, 100) as $batch) {
+                            DB::table('document_chunks')->insert($batch);
+                        }
+                    }
+                } else {
+                    ProcessThesisPdf::dispatchSync($document);
+                }
             }
+
             $totalChunks = DB::table('document_chunks')
                 ->where('document_id', $document->id)
                 ->count();

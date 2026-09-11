@@ -429,12 +429,12 @@
                                     </svg>
                                 </a>
 
-                                <!-- 3. Approve & Publish to Repository (SVG Icon) -->
+                                <!-- 3. Approve & Proceed to Upload (SVG Icon) -->
                                 <button
                                     type="button"
                                     onclick="approveSubmission(${sub.id}, '${escapeHtml(sub.title).replace(/'/g, "\\'")}')"
-                                    title="Approve & Publish to Repository"
-                                    aria-label="Approve and Publish"
+                                    title="Approve & Proceed to Upload Form"
+                                    aria-label="Approve & Proceed to Upload"
                                     class="p-2 rounded-xl border border-emerald-200 bg-emerald-50/60 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300 transition cursor-pointer shadow-2xs">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -459,29 +459,9 @@
             }).join('');
         }
 
-        // Approve & Publish action
-        async function approveSubmission(id, title) {
-            if (!confirm(`Are you sure you want to APPROVE and PUBLISH "${title}" to the public repository?`)) {
-                return;
-            }
-
-            try {
-                const res = await fetch(`/backend/admin/submissions/${id}/approve`, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    }
-                });
-                const data = await res.json();
-                if (!res.ok || data.error) throw new Error(data.message || 'Failed to approve thesis');
-
-                showToast('🎉 Thesis approved and published to repository! Student notified.', true);
-                fetchSubmissions();
-            } catch (err) {
-                console.error(err);
-                showToast(err.message || 'Error approving thesis', false);
-            }
+        // Approve & Proceed to Upload action
+        function approveSubmission(id, title) {
+            window.location.href = `/admin/upload?from_submission=${id}`;
         }
 
         // Resubmission Modal logic

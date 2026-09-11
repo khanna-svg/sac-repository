@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Document;
 use App\Models\ThesisNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -93,6 +94,37 @@ class AdminSubmissionController extends Controller
             'error' => false,
             'message' => 'Thesis approved and published to repository successfully.',
             'document' => $document,
+            'redirect_url' => '/admin/upload?from_submission=' . $document->id,
+        ]);
+    }
+
+    /**
+     * Return submission data to pre-fill admin upload form.
+     */
+    public function prefill($id)
+    {
+        $document = Document::findOrFail($id);
+
+        $chunkCount = DB::table('document_chunks')
+            ->where('document_id', $document->id)
+            ->count();
+
+        return response()->json([
+            'id' => $document->id,
+            'title' => $document->title,
+            'author' => $document->author,
+            'department' => $document->department,
+            'course_code' => $document->course_code,
+            'abstract' => $document->abstract,
+            'publication_date' => $document->publication_date
+                ? \Carbon\Carbon::parse($document->publication_date)->format('Y-m')
+                : now()->format('Y-m'),
+            'file_path' => $document->file_path,
+            'file_name' => basename($document->file_path),
+            'submitted_by_name' => $document->submitted_by_name,
+            'submitted_by_email' => $document->submitted_by_email,
+            'status' => $document->status,
+            'chunks_count' => $chunkCount,
         ]);
     }
 

@@ -132,6 +132,7 @@ Route::middleware('sac.auth')->group(function () {
         Route::post('/backend/admin/submissions/{document}/approve', [\App\Http\Controllers\AdminSubmissionController::class, 'approve']);
         Route::post('/backend/admin/submissions/{document}/reject', [\App\Http\Controllers\AdminSubmissionController::class, 'reject']);
         Route::get('/backend/admin/submissions/{document}/download', [\App\Http\Controllers\AdminSubmissionController::class, 'download']);
+        Route::get('/backend/admin/submissions/{document}/prefill', [\App\Http\Controllers\AdminSubmissionController::class, 'prefill']);
 
         Route::get('/admin/theses', function () {
             return view('admin.theses');

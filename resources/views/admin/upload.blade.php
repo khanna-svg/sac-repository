@@ -82,6 +82,36 @@
             <!-- Error Alert Message Container -->
             <div id="uploadMessage" class="hidden"></div>
 
+            <!-- Assisted Student Submission Review Banner (Visible when ?from_submission is present) -->
+            <div id="submissionBanner" class="hidden rounded-3xl border border-amber-200 bg-amber-50/80 p-5 shadow-xs">
+                <div class="flex items-start gap-3.5">
+                    <span class="p-2.5 rounded-2xl bg-amber-200 text-amber-900 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                        </svg>
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <h3 class="text-xs sm:text-sm font-bold text-amber-950 flex items-center gap-2">
+                                <span>Assisted Submission Publishing Mode</span>
+                                <span class="rounded-full bg-amber-200/80 border border-amber-300 px-2 py-0.5 text-[10px] font-black text-amber-900 uppercase tracking-wide">
+                                    Submission #<span id="submissionIdText"></span>
+                                </span>
+                            </h3>
+                            <a href="{{ route('admin.submissions') }}" class="text-xs font-bold text-amber-800 hover:text-amber-950 underline flex items-center gap-1">
+                                <span>Return to Queue</span>
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>
+                            </a>
+                        </div>
+                        <p class="text-xs text-amber-800/90 mt-1 leading-relaxed">
+                            Pre-filled from student submission by <strong id="studentNameText" class="font-bold text-amber-950"></strong> (<span id="studentEmailText" class="font-mono text-[11px]"></span>). The softcopy manuscript and metadata have been populated. Please verify all information and set the official <strong class="font-bold text-amber-950">Academic Year / Month</strong> publication date before publishing.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Main Upload Form Card -->
             <section class="rounded-3xl border border-gray-200 bg-white p-6 sm:p-8 shadow-sm">
                 
@@ -325,6 +355,10 @@
             'criminology': 'bsc'
         };
 
+        let submissionId = null;
+        let prefilledFilePath = null;
+        let prefilledChunksCount = 0;
+
         function handleDepartmentChange(selectedDepartment) {
             const courseSelect = document.getElementById('course_code');
             if (courseMapping[selectedDepartment]) {
@@ -334,6 +368,7 @@
 
         function handleFileSelected(file) {
             if (!file) return;
+            prefilledFilePath = null; // Admin explicitly selected a new file
             document.getElementById('previewFileName').textContent = file.name;
             document.getElementById('previewFileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
             filePreviewCard.classList.remove('hidden');
@@ -343,6 +378,8 @@
         function clearSelectedFile(e) {
             e.stopPropagation();
             document.getElementById('pdf').value = '';
+            prefilledFilePath = null;
+            document.getElementById('pdf').setAttribute('required', 'required');
             filePreviewCard.classList.add('hidden');
             filePreviewCard.classList.remove('flex');
         }
@@ -443,10 +480,63 @@
             return chunks;
         }
 
+        // Check for ?from_submission query parameter to pre-fill form
+        async function checkPrefill() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const fromSub = urlParams.get('from_submission');
+            if (!fromSub) return;
+
+            try {
+                const res = await fetch(`/backend/admin/submissions/${fromSub}/prefill`);
+                if (!res.ok) throw new Error('Failed to load submission data');
+                const data = await res.json();
+
+                submissionId = data.id;
+                prefilledFilePath = data.file_path;
+                prefilledChunksCount = data.chunks_count || 0;
+
+                // Populate form fields
+                document.getElementById('title').value = data.title || '';
+                document.getElementById('author').value = data.author || '';
+                if (data.department) {
+                    document.getElementById('department').value = data.department.toLowerCase();
+                    handleDepartmentChange(data.department.toLowerCase());
+                }
+                if (data.course_code) {
+                    document.getElementById('course_code').value = data.course_code.toLowerCase();
+                }
+                if (data.publication_date) {
+                    document.getElementById('publication_date').value = data.publication_date;
+                }
+                document.getElementById('abstract').value = data.abstract || '';
+
+                // If manuscript already in Supabase, make file input optional and show badge
+                if (data.file_path) {
+                    document.getElementById('pdf').removeAttribute('required');
+                    document.getElementById('previewFileName').textContent = data.file_name || 'Student_Manuscript.pdf';
+                    document.getElementById('previewFileSize').textContent = prefilledChunksCount > 0
+                        ? `${prefilledChunksCount} pages extracted (Softcopy in Supabase)`
+                        : 'Student Manuscript (Softcopy in Supabase)';
+                    filePreviewCard.classList.remove('hidden');
+                    filePreviewCard.classList.add('flex');
+                }
+
+                // Show assisted submission banner
+                document.getElementById('submissionIdText').textContent = data.id;
+                document.getElementById('studentNameText').textContent = data.submitted_by_name || 'Student';
+                document.getElementById('studentEmailText').textContent = data.submitted_by_email || '';
+                const banner = document.getElementById('submissionBanner');
+                if (banner) banner.classList.remove('hidden');
+
+            } catch (err) {
+                console.error('Error prefilling from submission:', err);
+            }
+        }
+
         uploadForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const file = document.getElementById('pdf').files[0];
-            if (!file) {
+            if (!file && !prefilledFilePath) {
                 showErrorAlert('Missing PDF file', 'Please select a PDF manuscript file to upload.');
                 return;
             }
@@ -463,41 +553,66 @@
             progressContainer.style.display = 'block';
 
             try {
-                // 1. Extract text from all pages in browser (1-2 seconds)
-                updateProgress(5, 'Extracting full text from PDF...');
-                const extractedChunks = await extractPdfText(file);
+                let finalFilePath = prefilledFilePath;
+                let extractedChunks = [];
 
-                // 2. Get Supabase Signed Upload URL
-                updateProgress(35, 'Requesting upload authorization...');
-                const urlRes = await fetch('/backend/documents/upload-url', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken
-                    },
-                    body: JSON.stringify({ filename: file.name })
-                });
-                const urlData = await urlRes.json();
-                if (!urlRes.ok || urlData.error) {
-                    throw new Error(urlData.message || 'Failed to prepare upload URL');
+                if (file) {
+                    // 1. Extract text from new PDF in browser (1-2 seconds)
+                    updateProgress(5, 'Extracting full text from PDF...');
+                    extractedChunks = await extractPdfText(file);
+
+                    // 2. Get Supabase Signed Upload URL
+                    updateProgress(35, 'Requesting upload authorization...');
+                    const urlRes = await fetch('/backend/documents/upload-url', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({ filename: file.name })
+                    });
+                    const urlData = await urlRes.json();
+                    if (!urlRes.ok || urlData.error) {
+                        throw new Error(urlData.message || 'Failed to prepare upload URL');
+                    }
+
+                    // 3. Upload PDF directly to Supabase Storage
+                    updateProgress(45, 'Uploading PDF to Supabase Storage...');
+                    const bucketName = "{{ config('services.supabase.bucket', env('SUPABASE_STORAGE_BUCKET', 'thesis')) }}";
+                    const { error: uploadError } = await supabaseClient
+                        .storage
+                        .from(bucketName)
+                        .uploadToSignedUrl(urlData.path, urlData.token, file, {
+                            contentType: 'application/pdf'
+                        });
+
+                    if (uploadError) throw uploadError;
+                    finalFilePath = urlData.path;
+                } else {
+                    updateProgress(45, 'Reusing student manuscript softcopy...');
                 }
 
-                // 3. Upload PDF directly to Supabase Storage
-                updateProgress(45, 'Uploading PDF to Supabase Storage...');
-                const bucketName = "{{ config('services.supabase.bucket', env('SUPABASE_STORAGE_BUCKET', 'thesis')) }}";
-                const { error: uploadError } = await supabaseClient
-                    .storage
-                    .from(bucketName)
-                    .uploadToSignedUrl(urlData.path, urlData.token, file, {
-                        contentType: 'application/pdf'
-                    });
-
-                if (uploadError) throw uploadError;
-
                 // 4. Save Document Metadata & all page chunks
-                updateProgress(60, 'Saving thesis document and page chunks...');
+                updateProgress(60, 'Saving thesis document and publishing...');
                 const thesisTitle = document.getElementById('title').value.trim();
+                const payload = {
+                    title: thesisTitle,
+                    author: document.getElementById('author').value.trim(),
+                    department: document.getElementById('department').value,
+                    course_code: document.getElementById('course_code').value,
+                    publication_date: document.getElementById('publication_date').value,
+                    abstract: document.getElementById('abstract').value.trim(),
+                    file_path: finalFilePath,
+                };
+
+                if (submissionId) {
+                    payload.submission_id = submissionId;
+                }
+                if (extractedChunks.length > 0) {
+                    payload.chunks = extractedChunks;
+                }
+
                 const metadataResponse = await fetch('/backend/documents/store-signed', {
                     method: 'POST',
                     headers: {
@@ -505,16 +620,7 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({
-                        title: thesisTitle,
-                        author: document.getElementById('author').value.trim(),
-                        department: document.getElementById('department').value,
-                        course_code: document.getElementById('course_code').value,
-                        publication_date: document.getElementById('publication_date').value,
-                        abstract: document.getElementById('abstract').value.trim(),
-                        file_path: urlData.path,
-                        chunks: extractedChunks
-                    })
+                    body: JSON.stringify(payload)
                 });
 
                 const metadataData = await metadataResponse.json();
@@ -527,7 +633,9 @@
                 // 5. Generate AI Embeddings in Batches of 20
                 let remaining = 1;
                 let totalProcessed = 0;
-                const totalChunks = extractedChunks.length;
+                const totalChunks = extractedChunks.length > 0
+                    ? extractedChunks.length
+                    : (metadataData.total_chunks || prefilledChunksCount || 1);
 
                 while (remaining > 0) {
                     const embRes = await fetch(`/documents/${docId}/generate-embeddings`, {
@@ -561,8 +669,10 @@
                 uploadForm.reset();
                 filePreviewCard.classList.add('hidden');
                 filePreviewCard.classList.remove('flex');
+                const banner = document.getElementById('submissionBanner');
+                if (banner) banner.classList.add('hidden');
 
-                openSuccessModal(`"${thesisTitle}" has been uploaded and indexed successfully.`);
+                openSuccessModal(`"${thesisTitle}" has been officially published and indexed in the repository.`);
 
             } catch (err) {
                 showErrorAlert('Upload Failed', err.message || 'There was a problem uploading the thesis.');
@@ -576,6 +686,9 @@
                 `;
             }
         });
+
+        // Initialize prefill check on page load
+        checkPrefill();
     </script>
 </body>
 
