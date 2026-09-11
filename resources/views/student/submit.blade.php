@@ -66,7 +66,7 @@
                             <span>Repository</span>
                         </a>
                         <span>/</span>
-                        <span class="text-gray-400">Upload Manuscript</span>
+                        <span class="text-gray-400">Upload Thesis</span>
                     </nav>
                     <h1 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2.5">
                         <span class="p-2 rounded-2xl bg-[#700000] text-[#FFD700] shadow-xs inline-flex">
@@ -283,7 +283,7 @@
                                 </svg>
                                 <h3 class="text-sm font-bold text-gray-900">My Submissions</h3>
                             </div>
-                            <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-mono font-bold text-slate-700">
+                            <span class="px-2.5 py-0.5 text-xs font-mono font-bold text-slate-700">
                                 {{ count($submissions) }} total
                             </span>
                         </div>

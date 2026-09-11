@@ -71,7 +71,7 @@
                         <option value="criminology">Criminology Department (BSC)</option>
                     </select>
 
-                    <span id="thesesCountBadge" class="rounded-xl bg-slate-100 border border-gray-200 px-3 py-2 text-xs font-bold text-gray-600 whitespace-nowrap">
+                    <span id="thesesCountBadge" class="text-xs font-bold text-gray-500 whitespace-nowrap px-1">
                         Loading...
                     </span>
                 </div>

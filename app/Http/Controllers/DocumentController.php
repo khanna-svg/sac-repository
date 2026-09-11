@@ -1199,7 +1199,11 @@ class DocumentController extends Controller
             $search = trim((string) $request->input('search', ''));
             $department = trim((string) $request->input('department', ''));
 
-            $query = Document::query()->withCount('chunks');
+            $query = Document::query()->withCount('chunks')
+                ->where(function ($q) {
+                    $q->where('status', 'approved')
+                        ->orWhereNull('status');
+                });
 
             if ($search !== '') {
                 $searchTerm = '%' . strtolower($search) . '%';
