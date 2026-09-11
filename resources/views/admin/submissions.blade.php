@@ -59,33 +59,33 @@
                         type="button"
                         onclick="switchTab('pending')"
                         id="tab-pending"
-                        class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-white text-[#700000] shadow-xs">
+                        class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#700000] shadow-xs">
                         <span>Pending Review</span>
-                        <span id="badge-pending" class="rounded-full bg-[#700000] px-1.5 py-0.5 text-[10px] font-black text-[#FFD700]">0</span>
+                        <span class="font-normal opacity-80">(<span id="badge-pending">0</span>)</span>
                     </button>
                     <button
                         type="button"
                         onclick="switchTab('approved')"
                         id="tab-approved"
-                        class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-gray-600 hover:text-gray-900">
+                        class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900">
                         <span>Approved</span>
-                        <span id="badge-approved" class="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-black text-gray-700">0</span>
+                        <span class="font-normal opacity-80">(<span id="badge-approved">0</span>)</span>
                     </button>
                     <button
                         type="button"
                         onclick="switchTab('resubmit')"
                         id="tab-resubmit"
-                        class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-gray-600 hover:text-gray-900">
+                        class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900">
                         <span>Needs Resubmission</span>
-                        <span id="badge-resubmit" class="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-black text-gray-700">0</span>
+                        <span class="font-normal opacity-80">(<span id="badge-resubmit">0</span>)</span>
                     </button>
                     <button
                         type="button"
                         onclick="switchTab('all')"
                         id="tab-all"
-                        class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-gray-600 hover:text-gray-900">
+                        class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900">
                         <span>All</span>
-                        <span id="badge-all" class="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-black text-gray-700">0</span>
+                        <span class="font-normal opacity-80">(<span id="badge-all">0</span>)</span>
                     </button>
                 </div>
 
@@ -245,12 +245,12 @@
         let toastTimeout = null;
 
         const deptNames = {
-            'it': { name: 'Information Technology', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-            'nursing': { name: 'Nursing', badge: 'bg-rose-50 text-rose-700 border-rose-200' },
-            'marine': { name: 'Marine Engineering', badge: 'bg-blue-50 text-blue-700 border-blue-200' },
-            'hospitality': { name: 'Hospitality Management', badge: 'bg-amber-50 text-amber-700 border-amber-200' },
-            'education': { name: 'Education', badge: 'bg-purple-50 text-purple-700 border-purple-200' },
-            'criminology': { name: 'Criminology', badge: 'bg-slate-100 text-slate-700 border-slate-300' }
+            'it': 'Information Technology',
+            'nursing': 'Nursing',
+            'marine': 'Marine Engineering',
+            'hospitality': 'Hospitality Management',
+            'education': 'Education',
+            'criminology': 'Criminology'
         };
 
         function escapeHtml(value) {
@@ -288,11 +288,11 @@
         function switchTab(tab) {
             currentTab = tab;
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = 'tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-gray-600 hover:text-gray-900';
+                btn.className = 'tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900';
             });
             const activeBtn = document.getElementById(`tab-${tab}`);
             if (activeBtn) {
-                activeBtn.className = 'tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-white text-[#700000] shadow-xs';
+                activeBtn.className = 'tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#700000] shadow-xs';
             }
             fetchSubmissions();
         }
@@ -356,14 +356,14 @@
 
             tbody.innerHTML = submissions.map(sub => {
                 const deptKey = (sub.department || 'it').toLowerCase();
-                const deptInfo = deptNames[deptKey] || { name: sub.department, badge: 'bg-gray-100 text-gray-700 border-gray-200' };
+                const deptName = deptNames[deptKey] || sub.department || 'N/A';
                 const formattedDate = sub.created_at ? new Date(sub.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
 
-                const statusBadge = sub.status === 'approved' 
-                    ? '<span class="rounded-lg border px-2.5 py-1 text-[11px] font-bold bg-emerald-50 text-emerald-700 border-emerald-200">Approved</span>'
+                const statusText = sub.status === 'approved' 
+                    ? 'Approved' 
                     : (sub.status === 'resubmit' 
-                        ? '<span class="rounded-lg border px-2.5 py-1 text-[11px] font-bold bg-rose-50 text-rose-700 border-rose-200">Needs Resubmit</span>'
-                        : '<span class="rounded-lg border px-2.5 py-1 text-[11px] font-bold bg-amber-50 text-amber-700 border-amber-200">Pending Review</span>');
+                        ? 'Needs Resubmit' 
+                        : 'Pending Review');
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition">
@@ -389,15 +389,13 @@
                         </td>
 
                         <!-- Department & Program -->
-                        <td class="py-4 px-4 whitespace-nowrap">
-                            <span class="rounded-lg border px-2.5 py-1 text-[11px] font-bold ${deptInfo.badge}">
-                                ${deptInfo.name} (${(sub.course_code || '').toUpperCase()})
-                            </span>
+                        <td class="py-4 px-4 whitespace-nowrap text-xs text-gray-700 font-medium">
+                            ${escapeHtml(deptName)} (${escapeHtml((sub.course_code || '').toUpperCase())})
                         </td>
 
-                        <!-- Status Badge -->
-                        <td class="py-4 px-4 text-center whitespace-nowrap">
-                            ${statusBadge}
+                        <!-- Status -->
+                        <td class="py-4 px-4 text-center whitespace-nowrap text-xs text-gray-700 font-medium">
+                            ${statusText}
                         </td>
 
                         <!-- Actions (STRICTLY SVG ICONS, NO TEXT!) -->

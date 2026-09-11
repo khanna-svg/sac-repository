@@ -326,11 +326,9 @@
                 const formattedDate = doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A';
                 const pubDateFormatted = doc.publication_date ? new Date(doc.publication_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : formattedDate;
 
-                const statusBadge = doc.status === 'approved'
-                    ? '<span class="inline-block rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-700 ml-2">Published</span>'
-                    : (doc.status === 'resubmit'
-                        ? '<span class="inline-block rounded-md bg-rose-50 border border-rose-200 px-2 py-0.5 text-[10px] font-bold text-rose-700 ml-2">Needs Resubmission</span>'
-                        : '<span class="inline-block rounded-md bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-bold text-amber-700 ml-2">Pending Review</span>');
+                const statusBadge = (doc.status === 'resubmit'
+                    ? '<span class="text-[11px] text-gray-500 font-medium ml-2">· Needs Resubmission</span>'
+                    : (doc.status === 'pending' ? '<span class="text-[11px] text-gray-500 font-medium ml-2">· Pending Review</span>' : ''));
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition">
