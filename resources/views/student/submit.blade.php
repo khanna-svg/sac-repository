@@ -92,7 +92,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                         </svg>
                         <span>Notifications</span>
-                        <span id="notifBadge" class="hidden rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-black text-white">0</span>
+                        <span id="notifBadge" class="hidden w-2 h-2 rounded-full bg-rose-600 shrink-0"></span>
                     </button>
 
                     <!-- Notifications Dropdown Box -->
@@ -141,7 +141,7 @@
                                 id="author"
                                 name="author"
                                 required
-                                placeholder="e.g. Charmie Lou A. Abayon, Maria Victoria S. Peria, Jomar Rhey D. Requirme"
+                                placeholder="e.g. John Doe, Jane Smith"
                                 class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
                             <p class="text-[11px] text-gray-400 mt-1">Separate multiple authors with commas.</p>
                         </div>
@@ -578,7 +578,6 @@
                 const list = document.getElementById('notifList');
 
                 if (data.unread_count > 0) {
-                    badge.textContent = data.unread_count;
                     badge.classList.remove('hidden');
                 } else {
                     badge.classList.add('hidden');
