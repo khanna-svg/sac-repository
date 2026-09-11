@@ -131,31 +131,19 @@
                                 class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-3 text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs font-medium">
                         </div>
 
-                        <!-- Authors: Group Leader & Members -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label for="leader_name" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Lead Author / Leader <span class="text-rose-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="leader_name"
-                                    name="leader_name"
-                                    required
-                                    placeholder="e.g. Kurt Russel C. Calderon"
-                                    class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
-                            </div>
-                            <div>
-                                <label for="members" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Co-Authors / Members
-                                </label>
-                                <input
-                                    type="text"
-                                    id="members"
-                                    name="members"
-                                    placeholder="e.g. Juan Dela Cruz, Maria Santos"
-                                    class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
-                            </div>
+                        <!-- Author(s) -->
+                        <div>
+                            <label for="author" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                                Author(s) <span class="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="author"
+                                name="author"
+                                required
+                                placeholder="e.g. Charmie Lou A. Abayon, Maria Victoria S. Peria, Jomar Rhey D. Requirme"
+                                class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
+                            <p class="text-[11px] text-gray-400 mt-1">Separate multiple authors with commas.</p>
                         </div>
 
                         <!-- Academic Department & Degree Program -->
@@ -550,8 +538,7 @@
                     },
                     body: JSON.stringify({
                         title: document.getElementById('title').value.trim(),
-                        leader_name: document.getElementById('leader_name').value.trim(),
-                        members: document.getElementById('members').value.trim(),
+                        author: document.getElementById('author').value.trim(),
                         department: document.getElementById('department').value,
                         course_code: document.getElementById('course_code').value,
                         abstract: document.getElementById('abstract').value.trim(),

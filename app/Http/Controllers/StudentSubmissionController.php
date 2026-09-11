@@ -133,7 +133,8 @@ class StudentSubmissionController extends Controller
 
         $request->validate([
             'title' => ['required', 'string', 'max:500'],
-            'leader_name' => ['required', 'string', 'max:255'],
+            'author' => ['nullable', 'string', 'max:500'],
+            'leader_name' => ['nullable', 'string', 'max:255'],
             'members' => ['nullable', 'string', 'max:500'],
             'department' => ['required', 'string'],
             'course_code' => ['required', 'string'],
@@ -142,9 +143,26 @@ class StudentSubmissionController extends Controller
         ]);
 
         $title = trim($request->title);
-        $leaderName = trim($request->leader_name);
-        $members = trim((string) $request->members);
-        $author = $leaderName . ($members !== '' ? ', ' . $members : '');
+        $authorInput = trim((string) $request->input('author', ''));
+        $leaderName = trim((string) $request->input('leader_name', ''));
+        $members = trim((string) $request->input('members', ''));
+
+        if ($authorInput !== '') {
+            $author = $authorInput;
+            $parts = explode(',', $authorInput);
+            $submittedByName = trim($parts[0]);
+        } else {
+            $author = $leaderName . ($members !== '' ? ', ' . $members : '');
+            $submittedByName = $leaderName;
+        }
+
+        if ($author === '') {
+            return response()->json([
+                'error' => true,
+                'message' => 'Please provide the author(s) of the thesis.',
+            ], 422);
+        }
+
         $department = strtolower(trim($request->department));
         $courseCode = strtolower(trim($request->course_code));
         $abstract = trim($request->abstract);
@@ -161,7 +179,7 @@ class StudentSubmissionController extends Controller
                 'file_path' => $filePath,
                 'file_url' => '',
                 'status' => 'pending',
-                'submitted_by_name' => $leaderName,
+                'submitted_by_name' => $submittedByName,
                 'submitted_by_email' => $email,
                 'admin_notes' => null,
             ]);
