@@ -60,13 +60,13 @@
                 <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Theses</p>
                     <p id="statTotalTheses" class="text-3xl md:text-4xl font-extrabold text-[#700000] mt-1.5">--</p>
-                    <p class="text-xs text-gray-500 mt-1">Total published theses across all departments</p>
+                    <p class="text-xs text-gray-500 mt-1">Total published theses</p>
                 </div>
 
                 <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                     <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Departments</p>
                     <p id="statTotalDepts" class="text-3xl md:text-4xl font-extrabold text-[#700000] mt-1.5">--</p>
-                    <p class="text-xs text-gray-500 mt-1">Academic departments participating in research</p>
+                    <p class="text-xs text-gray-500 mt-1">Total departments</p>
                 </div>
             </div>
 
