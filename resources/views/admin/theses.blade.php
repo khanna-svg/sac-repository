@@ -23,14 +23,9 @@
         <!-- Top Header Navigation -->
         <header class="sticky top-0 z-20 border-b border-gray-200 bg-white/95 backdrop-blur-md px-4 sm:px-8 py-4 shadow-xs flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#700000] text-[#FFD700] shadow-md shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                    </svg>
-                </div>
                 <div>
-                    <h1 class="text-base sm:text-lg font-bold text-[#700000] leading-tight">Manage Uploaded Thesis</h1>
-                    <p class="text-xs text-gray-500">Edit or Remove documents</p>
+                    <h1 class="text-2xl md:text-3xl font-bold text-[#700000]">Manage Uploaded Thesis</h1>
+                    <p class="text-xs text-gray-500">View, Edit, or Remove documents</p>
                 </div>
             </div>
 
@@ -166,7 +161,7 @@
                 </div>
 
                 <div>
-                    <label for="editPublicationDate" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Publication / Defense Date (Month & Year)</label>
+                    <label for="editPublicationDate" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Academic Year</label>
                     <input id="editPublicationDate" type="month" required class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
                 </div>
 

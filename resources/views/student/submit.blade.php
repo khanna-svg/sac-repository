@@ -68,12 +68,7 @@
                         <span>/</span>
                         <span class="text-gray-400">Upload Thesis</span>
                     </nav>
-                    <h1 class="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2.5">
-                        <span class="p-2 rounded-2xl bg-[#700000] text-[#FFD700] shadow-xs inline-flex">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                            </svg>
-                        </span>
+                    <h1 class="text-2xl md:text-3xl font-bold text-[#700000]">
                         Submit Thesis for Review
                     </h1>
                     <p class="text-xs text-gray-500 mt-1">
@@ -120,7 +115,7 @@
                         <!-- Research Title -->
                         <div>
                             <label for="title" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Research Title <span class="text-rose-500">*</span>
+                                Research Title
                             </label>
                             <input
                                 type="text"
@@ -134,7 +129,7 @@
                         <!-- Author(s) -->
                         <div>
                             <label for="author" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Author(s) <span class="text-rose-500">*</span>
+                                Author(s)
                             </label>
                             <input
                                 type="text"
@@ -150,7 +145,7 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label for="department" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Department <span class="text-rose-500">*</span>
+                                    Department
                                 </label>
                                 <select
                                     id="department"
@@ -169,7 +164,7 @@
                             </div>
                             <div>
                                 <label for="course_code" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                    Degree Program <span class="text-rose-500">*</span>
+                                    Degree Program
                                 </label>
                                 <select
                                     id="course_code"
@@ -184,7 +179,7 @@
                         <!-- Abstract -->
                         <div>
                             <label for="abstract" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                Research Abstract <span class="text-rose-500">*</span>
+                                Abstract
                             </label>
                             <textarea
                                 id="abstract"
@@ -198,7 +193,7 @@
                         <!-- PDF Manuscript File Upload Dropzone -->
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                                PDF Softcopy Manuscript <span class="text-rose-500">*</span>
+                                 Upload PDF File
                             </label>
                             
                             <div
@@ -222,7 +217,7 @@
                                         Click or drag PDF manuscript file here
                                     </p>
                                     <p class="text-[11px] text-gray-400 mt-1">
-                                        PDF format up to 50MB • Ensure preliminary pages and references are intact
+                                        Supports standard PDF documents up to 50 MB
                                     </p>
                                 </div>
                             </div>

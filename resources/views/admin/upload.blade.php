@@ -70,7 +70,7 @@
             <!-- Page Title Header -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-gray-200 pb-4">
                 <div>
-                    <h1 class="text-2xl sm:text-3xl font-extrabold text-[#700000] tracking-tight">
+                    <h1 class="text-2xl md:text-3xl font-bold text-[#700000]">
                         Upload Thesis
                     </h1>
                     <p class="mt-1 text-xs md:text-sm text-gray-600">
@@ -175,7 +175,7 @@
                     <!-- Abstract -->
                     <div>
                         <label for="abstract" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">
-                            Abstract <span class="text-rose-600"></span>
+                            Abstract
                         </label>
                         <textarea
                             id="abstract"
@@ -189,7 +189,7 @@
                     <!-- PDF Manuscript File (Interactive Dropzone) -->
                     <div>
                         <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">
-                            Upload PDF File <span class="text-rose-600"></span>
+                            Upload PDF File
                         </label>
 
                         <!-- Drag & Drop Container -->

@@ -53,7 +53,7 @@
                             Thesis Repository
                         </h1>
                         <p class="mt-1 text-xs md:text-sm text-gray-500">
-                            Search, cite, and view published St. Anthony's College thesis documents.
+                            Published St. Anthony's College thesis documents.
                         </p>
                     </div>
 
