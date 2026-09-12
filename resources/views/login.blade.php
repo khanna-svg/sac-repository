@@ -25,7 +25,7 @@
                 >
             </div>
             <h1 class="text-xl sm:text-2xl font-black text-[#FFD700] drop-shadow-md tracking-wide">St. Anthony's College</h1>
-            <p class="mt-1 text-xs sm:text-sm text-gray-200 font-bold uppercase tracking-wider">Institutional Research Repository</p>
+            <p class="mt-1 text-xs sm:text-sm text-gray-200 font-bold uppercase tracking-wider">Thesis Repository</p>
         </div>
 
         <!-- Role Toggle Tabs -->
@@ -151,7 +151,6 @@
                         placeholder="••••••••" 
                         required 
                         class="w-full rounded-2xl border border-white/30 bg-white/90 px-4 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-900 placeholder-gray-500 outline-none focus:border-[#FFD700] focus:ring-2 focus:ring-[#FFD700] transition shadow-inner">
-                </div>
 
                 <button 
                     type="submit" 
@@ -161,6 +160,12 @@
             </form>
         </div>
     </main>
+
+    <div>
+        <footer class="absolute bottom-4 inset-x-0 text-center text-xs text-white/60 drop-shadow-sm px-4">
+            <p>© 2026 St. Anthony's College • Thesis Repository</p>
+        </footer>
+    </div>
 
     <script>
         function switchLoginMode(mode) {
