@@ -347,7 +347,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" class="py-12 text-center text-gray-400">
-                            No thesis submissions found for this tab.
+                            No thesis submissions.
                         </td>
                     </tr>
                 `;
