@@ -140,7 +140,7 @@
 
                         <div>
                             <label for="course_code" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">
-                                Degree Program <span class="text-rose-600">*</span>
+                                Degree Program
                             </label>
                             <select
                                 id="course_code"
@@ -161,7 +161,7 @@
                     <!-- Publication / Defense Date -->
                     <div>
                         <label for="publication_date" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">
-                            Academic Year <span class="text-rose-600">*</span>
+                            Academic Year
                         </label>
                         <input
                             type="month"
