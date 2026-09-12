@@ -285,10 +285,23 @@ class DocumentController extends Controller
                     foreach ($similarChunks as $chunk) {
                         $docId = (int) $chunk->document_id;
                         $distance = (float) $chunk->distance;
-                        $score = max(10, min(99, round((1 - ($distance / 2)) * 100)));
-                        
+
+                        // Calibrate cosine distance for natural language embeddings:
+                        // distance <= 0.12 => 90%-99% (near duplicate)
+                        // distance <= 0.22 => 70%-89% (high similarity)
+                        // distance <= 0.32 => 45%-69% (moderate overlap / related tech)
+                        // distance <= 0.38 => 25%-44% (weak similarity)
+                        // distance > 0.38 => unrelated (< 20%)
+                        $normalized = 1 - (($distance - 0.08) / 0.40);
+                        $score = max(5, min(99, (int) round($normalized * 100)));
+
+                        // Only consider as semantically relevant if distance <= 0.38 (score >= 25%)
+                        if ($distance > 0.38) {
+                            continue;
+                        }
+
                         if (isset($similarityMap[$docId])) {
-                            $similarityMap[$docId] = min(99, $similarityMap[$docId] + 5);
+                            $similarityMap[$docId] = max($similarityMap[$docId], $score);
                         } else {
                             $similarityMap[$docId] = $score;
                             $semanticDocIds[] = $docId;
