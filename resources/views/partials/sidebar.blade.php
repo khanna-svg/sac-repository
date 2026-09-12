@@ -144,19 +144,6 @@
             </svg>
             <span>Upload Documents</span>
         </a>
-
-        <!-- Admin: Proposal Similarity Checker -->
-        <a
-            href="/similarity"
-            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
-                {{ request()->is('similarity')
-                    ? 'bg-[#D4AF37] text-[#700000] shadow-md'
-                    : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-            </svg>
-            <span>Similarity Checker</span>
-        </a>
         @else
         <!-- Documents & Search -->
         <a
@@ -169,19 +156,6 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
             <span>Documents & Search</span>
-        </a>
-
-        <!-- Proposal Similarity Checker -->
-        <a
-            href="/similarity"
-            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
-                {{ request()->is('similarity*')
-                    ? 'bg-[#D4AF37] text-[#700000] shadow-md'
-                    : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-            </svg>
-            <span>Similarity Checker</span>
         </a>
 
         <!-- Upload a Thesis (Student Submission) -->
