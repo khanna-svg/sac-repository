@@ -66,32 +66,61 @@ class ChatController extends Controller
             $embeddingVector = '[' . implode(',', $embedding) . ']';
 
             $documentId = $request->input('document_id');
-            $docFilterSql = $documentId ? "AND dc.document_id = ?" : "";
-            $bindings = $documentId 
-                ? [$embeddingVector, $documentId, $embeddingVector]
-                : [$embeddingVector, $embeddingVector];
 
-            // Step 2: Search database for top 5 closest matching thesis text chunks
-            $chunks = DB::select("
-                SELECT
-                    dc.chunk_text,
-                    dc.document_id,
-                    d.title AS document_title,
-                    d.author AS document_author,
-                    1 - (
+            // Step 2: Search database for top matching thesis text chunks
+            if ($documentId) {
+                // Scoped search for a single document (Brave-style drawer)
+                $chunks = DB::select("
+                    SELECT
+                        dc.chunk_text,
+                        dc.document_id,
+                        d.title AS document_title,
+                        d.author AS document_author,
+                        1 - (
+                            dc.embedding OPERATOR(extensions.<=>)
+                            ?::extensions.vector
+                        ) AS similarity
+                    FROM document_chunks dc
+                    INNER JOIN documents d ON d.id = dc.document_id
+                    WHERE dc.embedding IS NOT NULL
+                      AND d.status = 'approved'
+                      AND dc.document_id = ?
+                    ORDER BY
                         dc.embedding OPERATOR(extensions.<=>)
-                        ?::extensions.vector
-                    ) AS similarity
-                FROM document_chunks dc
-                INNER JOIN documents d ON d.id = dc.document_id
-                WHERE dc.embedding IS NOT NULL
-                  AND d.status = 'approved'
-                {$docFilterSql}
-                ORDER BY
-                    dc.embedding OPERATOR(extensions.<=>)
-                    ?::extensions.vector ASC
-                LIMIT 5
-            ", $bindings);
+                        ?::extensions.vector ASC
+                    LIMIT 6
+                ", [$embeddingVector, $documentId, $embeddingVector]);
+            } else {
+                // Global repository search (Floating AI Assistant):
+                // Uses window partitioning (rn <= 2) to ensure a single large thesis
+                // does not crowd out other relevant theses in the results.
+                $chunks = DB::select("
+                    WITH ranked_chunks AS (
+                        SELECT
+                            dc.chunk_text,
+                            dc.document_id,
+                            d.title AS document_title,
+                            d.author AS document_author,
+                            1 - (
+                                dc.embedding OPERATOR(extensions.<=>)
+                                ?::extensions.vector
+                            ) AS similarity,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY dc.document_id
+                                ORDER BY dc.embedding OPERATOR(extensions.<=>) ?::extensions.vector ASC
+                            ) as rn
+                        FROM document_chunks dc
+                        INNER JOIN documents d ON d.id = dc.document_id
+                        WHERE dc.embedding IS NOT NULL
+                          AND d.status = 'approved'
+                    )
+                    SELECT chunk_text, document_id, document_title, document_author, similarity
+                    FROM ranked_chunks
+                    WHERE rn <= 2
+                    ORDER BY similarity DESC
+                    LIMIT 8
+                ", [$embeddingVector, $embeddingVector]);
+            }
 
             // Step 3: Handle case when no thesis chunks exist yet
             if (empty($chunks)) {
