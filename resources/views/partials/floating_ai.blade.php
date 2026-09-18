@@ -60,9 +60,6 @@
                 <h3 class="text-xs sm:text-sm font-bold text-white tracking-wide truncate flex items-center gap-1.5">
                     <span>SAC AI Assistant</span>
                 </h3>
-                <p class="text-[10px] text-white/80 font-medium truncate flex items-center gap-1">
-                    <span>• Research Copilot</span>
-                </p>
             </div>
         </div>
 

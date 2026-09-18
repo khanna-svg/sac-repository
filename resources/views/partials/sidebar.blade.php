@@ -26,17 +26,16 @@
     }
 </style>
 
-<!-- Floating Sidebar Toggle Button with SAC Logo (Shows on Mobile & when Desktop Sidebar is Collapsed) -->
+<!-- Floating Sidebar Toggle Button with Menu Icon (Shows on Mobile & when Desktop Sidebar is Collapsed) -->
 <button
     id="sidebarFloatingToggle"
     type="button"
     title="Open Navigation"
-    aria-label="Toggle Sidebar"
-    class="fixed top-3 left-3 z-40 rounded-2xl bg-[#700000] p-1.5 border-2 border-[#FFD700] shadow-xl hover:bg-[#850000] focus:outline-none md:hidden transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer flex items-center justify-center group">
-    <img
-        src="https://sac.campus-erp.com/Student/images/sac.png"
-        alt="St. Anthony's College Logo"
-        class="h-8 w-8 object-contain group-hover:rotate-6 transition-transform duration-300">
+    aria-label="Toggle Navigation Menu"
+    class="fixed top-3 left-3 z-40 rounded-2xl bg-[#700000] p-2.5 border-2 border-[#FFD700] shadow-xl hover:bg-[#850000] text-[#FFD700] hover:text-white focus:outline-none md:hidden transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer flex items-center justify-center group">
+    <svg class="h-6 w-6 transition-transform duration-200 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+    </svg>
 </button>
 
 <!-- Mobile Dark Overlay Backdrop -->
