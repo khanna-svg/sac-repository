@@ -22,7 +22,9 @@ class KnowledgeGraphController extends Controller
      */
     public function data(Request $request): JsonResponse
     {
-        $documents = Document::all();
+        $documents = Document::where('status', 'approved')
+            ->orWhereNull('status')
+            ->get();
 
         $nodes = [];
         $edges = [];
@@ -66,6 +68,10 @@ class KnowledgeGraphController extends Controller
                         'author' => $doc->author ?? 'Unknown Author',
                         'department' => $doc->department ?? 'General',
                         'course_code' => $doc->course_code ?? 'N/A',
+                        'academic_level' => $doc->academic_level ?? 'Undergraduate',
+                        'research_category' => $doc->research_category ?? 'General Research',
+                        'methodology' => $doc->methodology ?? 'N/A',
+                        'keywords' => $doc->keywords ?? '',
                         'abstract' => $doc->abstract ?? 'No abstract provided.',
                         'view_url' => '/documents/' . $doc->id,
                         'pdf_url' => '/backend/documents/' . $doc->id . '/view'
@@ -111,7 +117,7 @@ class KnowledgeGraphController extends Controller
                     'from' => $docNodeId,
                     'to' => $deptNodeId,
                     'label' => 'department',
-                    'color' => ['color' => '#93c5fd', 'highlight' => '#3b82f6'],
+                    'color' => ['color' => '#93c5fa', 'highlight' => '#3b82f6'],
                     'arrows' => 'to',
                     'smooth' => ['type' => 'cubicBezier']
                 ];
@@ -206,6 +212,183 @@ class KnowledgeGraphController extends Controller
                         'arrows' => 'to'
                     ];
                 }
+            }
+
+            // 5. Research Topics / Keywords Nodes
+            if (!empty($doc->keywords)) {
+                $rawKeywords = is_array($doc->keywords)
+                    ? $doc->keywords
+                    : preg_split('/[,;]/', (string) $doc->keywords);
+
+                foreach ($rawKeywords as $kw) {
+                    $cleanKw = trim($kw);
+                    if (strlen($cleanKw) < 2) {
+                        continue;
+                    }
+
+                    $kwNodeId = 'kw_' . md5(strtolower($cleanKw));
+
+                    if (!isset($nodeTracker[$kwNodeId])) {
+                        $nodes[] = [
+                            'id' => $kwNodeId,
+                            'label' => ucwords($cleanKw),
+                            'group' => 'keyword',
+                            'shape' => 'ellipse',
+                            'color' => [
+                                'background' => '#7c3aed',
+                                'border' => '#c084fc',
+                                'highlight' => [
+                                    'background' => '#6d28d9',
+                                    'border' => '#d8b4fe'
+                                ]
+                            ],
+                            'font' => [
+                                'color' => '#FFFFFF',
+                                'size' => 11,
+                                'bold' => true
+                            ],
+                            'meta' => [
+                                'type' => 'keyword',
+                                'name' => $cleanKw
+                            ]
+                        ];
+                        $nodeTracker[$kwNodeId] = true;
+                    }
+
+                    $edges[] = [
+                        'from' => $docNodeId,
+                        'to' => $kwNodeId,
+                        'label' => 'topic',
+                        'color' => ['color' => '#c084fc', 'highlight' => '#7c3aed'],
+                        'arrows' => 'to'
+                    ];
+                }
+            }
+
+            // 6. Methodology Node
+            if (!empty($doc->methodology)) {
+                $cleanMethod = trim($doc->methodology);
+                $methodNodeId = 'method_' . md5(strtolower($cleanMethod));
+
+                if (!isset($nodeTracker[$methodNodeId])) {
+                    $nodes[] = [
+                        'id' => $methodNodeId,
+                        'label' => $cleanMethod,
+                        'group' => 'methodology',
+                        'shape' => 'triangle',
+                        'size' => 18,
+                        'color' => [
+                            'background' => '#0891b2',
+                            'border' => '#67e8f9',
+                            'highlight' => [
+                                'background' => '#0e7490',
+                                'border' => '#a5f3fc'
+                            ]
+                        ],
+                        'font' => [
+                            'color' => '#FFFFFF',
+                            'size' => 11,
+                            'bold' => true
+                        ],
+                        'meta' => [
+                            'type' => 'methodology',
+                            'name' => $cleanMethod
+                        ]
+                    ];
+                    $nodeTracker[$methodNodeId] = true;
+                }
+
+                $edges[] = [
+                    'from' => $docNodeId,
+                    'to' => $methodNodeId,
+                    'label' => 'method',
+                    'color' => ['color' => '#67e8f9', 'highlight' => '#0891b2'],
+                    'arrows' => 'to'
+                ];
+            }
+
+            // 7. Research Category Node
+            if (!empty($doc->research_category)) {
+                $cleanCat = trim($doc->research_category);
+                $catNodeId = 'cat_' . md5(strtolower($cleanCat));
+
+                if (!isset($nodeTracker[$catNodeId])) {
+                    $nodes[] = [
+                        'id' => $catNodeId,
+                        'label' => $cleanCat,
+                        'group' => 'research_category',
+                        'shape' => 'box',
+                        'margin' => 6,
+                        'color' => [
+                            'background' => '#c026d3',
+                            'border' => '#f0abfc',
+                            'highlight' => [
+                                'background' => '#a21caf',
+                                'border' => '#f5d0fe'
+                            ]
+                        ],
+                        'font' => [
+                            'color' => '#FFFFFF',
+                            'size' => 11,
+                            'bold' => true
+                        ],
+                        'meta' => [
+                            'type' => 'research_category',
+                            'name' => $cleanCat
+                        ]
+                    ];
+                    $nodeTracker[$catNodeId] = true;
+                }
+
+                $edges[] = [
+                    'from' => $docNodeId,
+                    'to' => $catNodeId,
+                    'label' => 'category',
+                    'color' => ['color' => '#f0abfc', 'highlight' => '#c026d3'],
+                    'arrows' => 'to'
+                ];
+            }
+
+            // 8. Academic Level Node
+            if (!empty($doc->academic_level)) {
+                $cleanLevel = trim($doc->academic_level);
+                $levelNodeId = 'level_' . md5(strtolower($cleanLevel));
+
+                if (!isset($nodeTracker[$levelNodeId])) {
+                    $nodes[] = [
+                        'id' => $levelNodeId,
+                        'label' => $cleanLevel . ' Level',
+                        'group' => 'academic_level',
+                        'shape' => 'star',
+                        'size' => 18,
+                        'color' => [
+                            'background' => '#ea580c',
+                            'border' => '#fdba74',
+                            'highlight' => [
+                                'background' => '#c2410c',
+                                'border' => '#fed7aa'
+                            ]
+                        ],
+                        'font' => [
+                            'color' => '#FFFFFF',
+                            'size' => 11,
+                            'bold' => true
+                        ],
+                        'meta' => [
+                            'type' => 'academic_level',
+                            'name' => $cleanLevel
+                        ]
+                    ];
+                    $nodeTracker[$levelNodeId] = true;
+                }
+
+                $edges[] = [
+                    'from' => $docNodeId,
+                    'to' => $levelNodeId,
+                    'label' => 'level',
+                    'color' => ['color' => '#fdba74', 'highlight' => '#ea580c'],
+                    'arrows' => 'to'
+                ];
             }
         }
 

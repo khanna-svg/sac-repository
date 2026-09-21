@@ -13,19 +13,19 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
+    {{-- SAC PORTAL TOP HEADER --}}
+    @include('partials.header', ['title' => 'DASHBOARD'])
+
     @include('partials.sidebar')
 
-    <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-16 md:pt-10">
+    <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-20 md:pt-28">
         <div class="mx-auto max-w-6xl space-y-8">
 
-            <!-- Header & Export Action Bar -->
+            <!-- Sub-Header & Export Action Bar -->
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-200 pb-4">
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-[#700000]">
-                        <span>Research Analytics Dashboard</span>
-                    </h1>
-                    <p class="mt-1 text-xs md:text-sm text-gray-500">
-                        Institutional research output, departmental breakdown, and student bookmark metrics.
+                    <p class="text-xs md:text-sm text-gray-500 font-medium">
+                        Institutional research output, academic program breakdown, and student metrics.
                     </p>
                 </div>
 
@@ -53,30 +53,14 @@
             </div>
 
             <!-- Key Institutional Metrics -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Theses</p>
-                    <p id="statTotalTheses" class="text-3xl md:text-4xl font-extrabold text-[#700000] mt-1.5">--</p>
-                    <p class="text-xs text-gray-500 mt-1">Total published theses</p>
-                </div>
-
-                <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Departments</p>
-                    <p id="statTotalDepts" class="text-3xl md:text-4xl font-extrabold text-[#700000] mt-1.5">--</p>
-                    <p class="text-xs text-gray-500 mt-1">Total departments</p>
-                </div>
+            <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Theses</p>
+                <p id="statTotalTheses" class="text-3xl md:text-4xl font-extrabold text-[#700000] mt-1.5">--</p>
+                <p class="text-xs text-gray-500 mt-1">Total published theses in repository</p>
             </div>
 
             <!-- Charts Row -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Department Distribution (Doughnut) -->
-                <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <h3 class="text-sm font-bold text-gray-900 mb-4">Research Output by Department</h3>
-                    <div class="h-64 flex items-center justify-center">
-                        <canvas id="deptChart"></canvas>
-                    </div>
-                </div>
-
                 <!-- Degree Program Breakdown (Bar) -->
                 <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
                     <h3 class="text-sm font-bold text-gray-900 mb-4">Theses by Academic Program</h3>
@@ -84,13 +68,13 @@
                         <canvas id="courseChart"></canvas>
                     </div>
                 </div>
-            </div>
 
-            <!-- Yearly Trend Line Chart -->
-            <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                <h3 class="text-sm font-bold text-gray-900 mb-4">Annual Research Publication Growth</h3>
-                <div class="h-72">
-                    <canvas id="yearlyChart"></canvas>
+                <!-- Yearly Trend Line Chart -->
+                <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
+                    <h3 class="text-sm font-bold text-gray-900 mb-4">Annual Research Publication Growth</h3>
+                    <div class="h-64">
+                        <canvas id="yearlyChart"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -118,22 +102,6 @@
                     document.getElementById('statTotalBookmarks').textContent = data.metrics.total_bookmarks;
                 }
 
-                // Color palettes mapped by department and degree program
-                const deptColorMap = {
-                    'IT': '#700000',
-                    'INFORMATION TECHNOLOGY': '#700000',
-                    'EDUCATION': '#0284c7',
-                    'TEACHER EDUCATION': '#0284c7',
-                    'MARINE': '#059669',
-                    'MARINE ENGINEERING': '#059669',
-                    'NURSING': '#d97706',
-                    'HOSPITALITY': '#7c3aed',
-                    'HOSPITALITY MANAGEMENT': '#7c3aed',
-                    'CRIMINOLOGY': '#dc2626',
-                    'BUSINESS': '#ca8a04',
-                    'ACCOUNTANCY': '#ca8a04'
-                };
-
                 const courseColorMap = {
                     'BSIT': '#700000',
                     'BSED': '#0284c7',
@@ -148,25 +116,6 @@
                 };
 
                 const defaultPalette = ['#700000', '#0284c7', '#059669', '#d97706', '#7c3aed', '#dc2626', '#ca8a04'];
-
-                // 2. Department Doughnut Chart
-                const deptLabels = data.departments.map(d => d.department.toUpperCase());
-                const deptCounts = data.departments.map(d => d.count);
-                const deptColors = deptLabels.map((lbl, idx) => deptColorMap[lbl] || defaultPalette[idx % defaultPalette.length]);
-
-                new Chart(document.getElementById('deptChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: deptLabels.length ? deptLabels : ['Information Technology', 'Education', 'Marine Engineering', 'Nursing'],
-                        datasets: [{
-                            data: deptCounts.length ? deptCounts : [1, 0, 0, 0],
-                            backgroundColor: deptColors.length ? deptColors : defaultPalette,
-                            borderWidth: 2,
-                            borderColor: '#ffffff'
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false }
-                });
 
                 // 3. Course Bar Chart (Matching Department Colors)
                 const courseLabels = data.courses.map(c => c.course_code.toUpperCase());

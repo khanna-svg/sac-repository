@@ -243,4 +243,84 @@ class GeminiService
 
         return $this->generateAnswer($userQuestion, $contextText);
     }
+
+    public function extractProposalConcepts(string $proposalText): array
+    {
+        $truncated = mb_substr($proposalText, 0, 4500);
+
+        $prompt = "You are an institutional academic research assistant. Analyze the following thesis concept proposal text and output a JSON object with these EXACT keys:
+- \"title\": Estimated or extracted title of the proposed study (string)
+- \"summary\": A concise 2-sentence synthesis of the core research problem, proposed solution/system, and methodology (string)
+- \"topics\": An array of 4 to 6 specific academic keywords or technology domains (array of strings, e.g. [\"Machine Learning\", \"Agriculture\", \"IoT\"])
+- \"embedding_query\": A dense 80-120 word paragraph summarizing the scientific/technical domain, problem, and methodology to be converted to vector embeddings for semantic literature matching.
+
+Respond with ONLY valid JSON (no markdown formatting, no code fences, no explanations).
+
+Proposal Text:
+" . $truncated;
+
+        $modelsToTry = [$this->generationModel, 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
+
+        foreach (array_unique($modelsToTry) as $modelName) {
+            try {
+                $response = Http::withoutVerifying()
+                    ->timeout(12)
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'x-goog-api-key' => $this->apiKey,
+                    ])
+                    ->post(
+                        "{$this->baseUrl}/models/{$modelName}:generateContent",
+                        [
+                            'contents' => [
+                                [
+                                    'role' => 'user',
+                                    'parts' => [
+                                        ['text' => $prompt],
+                                    ],
+                                ],
+                            ],
+                        ]
+                    );
+
+                if ($response->successful()) {
+                    $rawJson = $response->json('candidates.0.content.parts.0.text');
+                    if ($rawJson) {
+                        $clean = trim($rawJson);
+                        // Strip code blocks if any
+                        if (str_starts_with($clean, '```json')) {
+                            $clean = substr($clean, 7);
+                        } elseif (str_starts_with($clean, '```')) {
+                            $clean = substr($clean, 3);
+                        }
+                        if (str_ends_with($clean, '```')) {
+                            $clean = substr($clean, 0, -3);
+                        }
+                        $clean = trim($clean);
+
+                        $data = json_decode($clean, true);
+                        if (is_array($data) && !empty($data['summary'])) {
+                            return [
+                                'title' => (string) ($data['title'] ?? 'Concept Proposal'),
+                                'summary' => (string) ($data['summary'] ?? ''),
+                                'topics' => is_array($data['topics'] ?? null) ? $data['topics'] : [],
+                                'embedding_query' => (string) ($data['embedding_query'] ?? $data['summary']),
+                            ];
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Gemini extractProposalConcepts with {$modelName} failed: " . $e->getMessage());
+            }
+        }
+
+        // Fallback if AI synthesis fails
+        $cleanFallback = trim(preg_replace('/\s+/', ' ', $truncated));
+        return [
+            'title' => 'Concept Proposal',
+            'summary' => mb_substr($cleanFallback, 0, 220) . '...',
+            'topics' => ['Research Proposal', 'Literature Review'],
+            'embedding_query' => mb_substr($cleanFallback, 0, 1000),
+        ];
+    }
 }

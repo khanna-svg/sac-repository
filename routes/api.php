@@ -19,6 +19,11 @@ Route::middleware([
         'index',
     ]);
 
+    Route::post('/documents/search-proposal', [
+        DocumentController::class,
+        'searchByProposal',
+    ]);
+
 
     Route::get('/documents/{document}/view', [
         DocumentController::class,

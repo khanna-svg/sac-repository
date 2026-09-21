@@ -1,4 +1,3 @@
-<!-- Immediate script to prevent layout flash on desktop if collapsed -->
 <script>
     (function() {
         try {
@@ -10,79 +9,75 @@
 </script>
 
 <style>
-    /* Desktop Collapsed Sidebar State (Gemini AI Style) */
     @media (min-width: 768px) {
         html.sidebar-collapsed #sidebar {
             transform: translateX(-100%) !important;
+        }
+        html.sidebar-collapsed #sacTopHeader {
+            left: 0 !important;
+        }
+        html.sidebar-collapsed #headerSidebarToggle {
+            display: flex !important;
         }
         html.sidebar-collapsed main,
         html.sidebar-collapsed #mainContent,
         html.sidebar-collapsed div[class*="md:ml-64"] {
             margin-left: 0 !important;
         }
-        html.sidebar-collapsed #sidebarFloatingToggle {
-            display: flex !important;
-        }
     }
 </style>
-
-<!-- Floating Sidebar Toggle Button with Menu Icon (Shows on Mobile & when Desktop Sidebar is Collapsed) -->
-<button
-    id="sidebarFloatingToggle"
-    type="button"
-    title="Open Navigation"
-    aria-label="Toggle Navigation Menu"
-    class="fixed top-3 left-3 z-40 rounded-2xl bg-[#700000] p-2.5 border-2 border-[#FFD700] shadow-xl hover:bg-[#850000] text-[#FFD700] hover:text-white focus:outline-none md:hidden transition-all duration-300 hover:scale-110 active:scale-95 cursor-pointer flex items-center justify-center group">
-    <svg class="h-6 w-6 transition-transform duration-200 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-    </svg>
-</button>
 
 <!-- Mobile Dark Overlay Backdrop -->
 <div
     id="sidebarBackdrop"
-    class="fixed inset-0 z-40 bg-black/60 opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out md:hidden">
+    onclick="toggleSidebarGlobal()"
+    class="fixed inset-0 z-45 bg-black/60 opacity-0 pointer-events-none transition-opacity duration-300 ease-in-out md:hidden">
 </div>
 
-<!-- Sidebar Drawer -->
+<!-- Sidebar Drawer (Whole Full-Height Sidebar) -->
 <aside
     id="sidebar"
     class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-[#600000] bg-[#700000] text-white transition-all duration-300 ease-in-out -translate-x-full md:translate-x-0 shadow-2xl">
 
-    <!-- Sidebar Header -->
-    <div class="flex items-center justify-between border-b border-[#850000] px-4 py-4 bg-[#5b0000]">
-        <div class="flex items-center gap-2.5 min-w-0">
-            <img
-                src="https://sac.campus-erp.com/Student/images/sac.png"
-                alt="St. Anthony's College Logo"
-                class="h-[44px] w-[44px] object-contain shrink-0">
-            <div class="flex flex-col min-w-0">
-                <span class="font-bold text-[#FFC107] text-xs tracking-wide truncate">
-                    St. Anthony's College
+    <!-- Sidebar Brand & Collapse Header (Whole Sidebar Style) -->
+    <div class="h-16 md:h-20 px-3 sm:px-4 flex items-center justify-between gap-2 shrink-0 select-none bg-[#700000]">
+        <a href="{{ route('home') }}" class="flex items-center gap-2.5 group min-w-0 flex-1">
+            <img 
+                src="https://sac.campus-erp.com/Student/images/sac.png" 
+                alt="St. Anthony's College Logo" 
+                class="h-9 w-9 sm:h-11 sm:w-11 object-contain drop-shadow-md shrink-0 transition-transform group-hover:scale-105">
+            <div class="flex flex-col font-serif leading-none truncate">
+                <span class="text-xs sm:text-sm font-bold text-[#FFD700] tracking-tight group-hover:text-white transition truncate">
+                    St. Anthony's
                 </span>
-                <span class="text-[9px] text-white/80 font-medium tracking-wider uppercase truncate">
-                    IN SAC, WE CARE
+                <span class="text-[9px] sm:text-xs font-semibold text-amber-100/90 tracking-tight truncate">
+                    College, Inc.
                 </span>
             </div>
-        </div>
+        </a>
 
-        <!-- Collapse Button with '<' Chevron -->
+        <!-- Hamburger Collapse Button (Right Side of Logo & Name) -->
         <button
             id="sidebarCollapseBtn"
             type="button"
-            title="Hide Sidebar"
-            aria-label="Hide Sidebar"
-            class="rounded-xl p-2 text-amber-200 hover:bg-[#700000] hover:text-white transition cursor-pointer shrink-0">
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+            onclick="toggleSidebarGlobal()"
+            title="Toggle Navigation Menu"
+            aria-label="Toggle Navigation Menu"
+            class="rounded-xl p-1.5 text-[#FFD700] hover:bg-[#8d0000] hover:text-white transition cursor-pointer flex items-center justify-center shrink-0">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
         </button>
     </div>
 
     <!-- Navigation Links -->
     <nav class="flex-1 space-y-1.5 p-3 overflow-y-auto">
-        @if(session('sac_user_role') == 'admin')
-        <!-- Admin: Research Analytics -->
+        @php
+            $currentRole = session('sac_user_role');
+        @endphp
+
+        @if(in_array($currentRole, ['admin', 'coordinator']))
+        <!-- Analytics Dashboard (Admin & Coordinator) -->
         <a
             href="/admin/analytics"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
@@ -94,8 +89,10 @@
             </svg>
             <span>Dashboard</span>
         </a>
+        @endif
 
-        <!-- Admin: Manage Theses -->
+        @if(in_array($currentRole, ['admin', 'librarian', 'coordinator']))
+        <!-- Manage Theses (Admin, Librarian, Coordinator) -->
         <a
             href="/admin/theses"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
@@ -108,30 +105,22 @@
             <span>Manage Theses</span>
         </a>
 
-        <!-- Admin: Review Student Submissions -->
+        <!-- Review Student Submissions (Admin, Librarian, Coordinator) -->
         <a
             href="/admin/submissions"
-            class="flex items-center justify-between rounded-xl px-4 py-3 text-sm font-semibold transition
+            class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
                 {{ request()->is('admin/submissions*')
                     ? 'bg-[#D4AF37] text-[#700000] shadow-md'
                     : 'text-amber-100 hover:bg-[#8d0000] hover:text-[#FFD700]' }}">
-            <div class="flex items-center gap-3 min-w-0">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span class="truncate">Review Submissions</span>
-            </div>
-            @php
-                $sidebarPendingCount = \App\Models\Document::whereNotNull('submitted_by_email')->where('status', 'pending')->count();
-            @endphp
-            @if($sidebarPendingCount > 0)
-                <span class="ml-2 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-black text-rose-950 animate-pulse">
-                    {{ $sidebarPendingCount }}
-                </span>
-            @endif
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span class="truncate">Review Submissions</span>
         </a>
+        @endif
 
-        <!-- Admin: Direct Upload Thesis -->
+        @if(in_array($currentRole, ['admin', 'librarian']))
+        <!-- Direct Upload Thesis (Admin & Librarian) -->
         <a
             href="/admin/upload"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
@@ -143,7 +132,10 @@
             </svg>
             <span>Upload Documents</span>
         </a>
-        @else
+        @endif
+
+        @if(!in_array($currentRole, ['admin', 'librarian', 'coordinator']))
+        <!-- Student Navigation -->
         <!-- Documents & Search -->
         <a
             href="/documents"
@@ -198,17 +190,8 @@
         @endif
     </nav>
 
-    <!-- Sidebar Footer / Account Info -->
-    <div class="border-t border-[#850000] bg-[#5b0000] p-3">
-        <div class="mb-3 rounded-xl bg-[#4a0000] border border-[#7a0000] px-3 py-2.5">
-            <p class="text-[10px] font-semibold text-[#FFD700] uppercase tracking-wider">
-                Signed in as
-            </p>
-            <p class="mt-0.5 truncate text-xs font-medium text-white">
-                {{ session('sac_user_email') }}
-            </p>
-        </div>
-
+    <!-- Sidebar Footer / Sign Out -->
+    <div class="border-t border-[#700000] bg-[#5b0000] p-3 shrink-0">
         <!-- Logout Trigger Button -->
         <button
             type="button"
@@ -257,74 +240,61 @@
 </div>
 
 <script>
+    function toggleSidebarGlobal() {
+        const sidebar = document.getElementById('sidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (!sidebar) return;
+
+        if (window.innerWidth >= 768) {
+            document.documentElement.classList.toggle('sidebar-collapsed');
+            const isCollapsed = document.documentElement.classList.contains('sidebar-collapsed');
+            localStorage.setItem('sac_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+        } else {
+            const isHidden = sidebar.classList.contains('-translate-x-full');
+            if (isHidden) {
+                sidebar.classList.remove('-translate-x-full');
+                if (backdrop) {
+                    backdrop.classList.remove('opacity-0', 'pointer-events-none');
+                    backdrop.classList.add('opacity-100');
+                }
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                if (backdrop) {
+                    backdrop.classList.remove('opacity-100');
+                    backdrop.classList.add('opacity-0', 'pointer-events-none');
+                }
+            }
+        }
+    }
+
     function openLogoutModal() {
         const modal = document.getElementById('logoutModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
     }
 
     function closeLogoutModal() {
         const modal = document.getElementById('logoutModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
     }
 
     function confirmLogout() {
         document.getElementById('logoutForm').submit();
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        const sidebar = document.getElementById('sidebar');
-        const floatingToggle = document.getElementById('sidebarFloatingToggle');
-        const collapseBtn = document.getElementById('sidebarCollapseBtn');
-        const backdrop = document.getElementById('sidebarBackdrop');
-
-        if (!sidebar || !floatingToggle) return;
-
-        // Check if on desktop
-        function isDesktop() {
-            return window.innerWidth >= 768;
-        }
-
-        // Expand Sidebar (Show)
-        function expandSidebar() {
-            if (isDesktop()) {
-                document.documentElement.classList.remove('sidebar-collapsed');
-                localStorage.setItem('sac_sidebar_collapsed', 'false');
-            } else {
-                sidebar.classList.remove('-translate-x-full');
-                backdrop.classList.remove('opacity-0', 'pointer-events-none');
-                backdrop.classList.add('opacity-100');
-                floatingToggle.classList.add('hidden');
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar && window.innerWidth < 768 && !sidebar.classList.contains('-translate-x-full')) {
+                toggleSidebarGlobal();
             }
+            closeLogoutModal();
         }
-
-        // Collapse Sidebar (Hide)
-        function collapseSidebar() {
-            if (isDesktop()) {
-                document.documentElement.classList.add('sidebar-collapsed');
-                localStorage.setItem('sac_sidebar_collapsed', 'true');
-            } else {
-                sidebar.classList.add('-translate-x-full');
-                backdrop.classList.remove('opacity-100');
-                backdrop.classList.add('opacity-0', 'pointer-events-none');
-                floatingToggle.classList.remove('hidden');
-            }
-        }
-
-        // Event listeners
-        floatingToggle.addEventListener('click', expandSidebar);
-        if (collapseBtn) collapseBtn.addEventListener('click', collapseSidebar);
-        if (backdrop) backdrop.addEventListener('click', collapseSidebar);
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                if (!isDesktop()) {
-                    collapseSidebar();
-                }
-                closeLogoutModal();
-            }
-        });
     });
 </script>
 

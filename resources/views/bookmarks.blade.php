@@ -48,19 +48,19 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
+    {{-- SAC PORTAL TOP HEADER --}}
+    @include('partials.header', ['title' => 'BOOKMARKS'])
+
     @include('partials.sidebar')
 
-    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-16 md:pt-10">
+    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-20 md:pt-28">
         <div class="mx-auto max-w-5xl">
 
-            <!-- HEADER -->
+            <!-- SUB-HEADER -->
             <section class="mb-6 md:mb-8">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 class="text-2xl md:text-3xl font-bold text-[#700000] flex items-center gap-2.5">
-                            <span>Saved / Bookmarks</span>
-                        </h1>
-                        <p class="mt-1 text-xs md:text-sm text-gray-500">
+                        <p class="text-xs md:text-sm text-gray-500 font-medium">
                             Your saved thesis and capstone projects for quick reading and citation.
                         </p>
                     </div>

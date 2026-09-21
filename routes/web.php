@@ -31,8 +31,10 @@ Route::get('/', function () {
     $role = session('sac_user_role');
 
     if ($email && str_ends_with(strtolower($email), '@sac.edu.ph')) {
-        if ($role === 'admin') {
+        if ($role === 'coordinator' || $role === 'admin') {
             return redirect()->route('admin.analytics');
+        } elseif ($role === 'librarian') {
+            return redirect()->route('admin.submissions');
         }
         return redirect()->route('documents');
     }
@@ -47,16 +49,19 @@ Route::get('/home', function () {
 Route::middleware('sac.auth')->group(function () {
 
     Route::get('/dashboard', function () {
-        if (session('sac_user_role') === 'admin') {
-            return redirect()->route('admin.upload');
+        $role = session('sac_user_role');
+        if ($role === 'coordinator' || $role === 'admin') {
+            return redirect()->route('admin.analytics');
+        } elseif ($role === 'librarian') {
+            return redirect()->route('admin.submissions');
         }
         return redirect()->route('documents');
     })->name('dashboard');
 
     Route::get('/documents', function () {
-
-        if (session('sac_user_role') === 'admin') {
-            return redirect()->route('admin.upload');
+        $role = session('sac_user_role');
+        if (in_array($role, ['admin', 'librarian', 'coordinator'], true)) {
+            return redirect()->route('admin.theses');
         }
 
         return view('documents');
@@ -99,6 +104,11 @@ Route::middleware('sac.auth')->group(function () {
     );
 
     Route::post(
+        '/backend/documents/search-proposal',
+        [DocumentController::class, 'searchByProposal']
+    );
+
+    Route::post(
         '/backend/chat',
         [\App\Http\Controllers\ChatController::class, 'ask']
     );
@@ -137,6 +147,16 @@ Route::middleware('sac.auth')->group(function () {
         Route::put(
             '/backend/admin/theses/{document}',
             [DocumentController::class, 'update']
+        );
+
+        Route::post(
+            '/backend/admin/theses/{document}/archive',
+            [DocumentController::class, 'archive']
+        );
+
+        Route::post(
+            '/backend/admin/theses/{document}/restore',
+            [DocumentController::class, 'restore']
         );
 
         Route::delete(

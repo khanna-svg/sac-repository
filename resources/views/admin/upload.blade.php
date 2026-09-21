@@ -50,31 +50,29 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
+    {{-- SAC PORTAL TOP HEADER --}}
+    @include('partials.header', ['title' => 'UPLOAD THESIS'])
+
     @include('partials.sidebar')
 
-    <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-16 md:pt-10">
+    <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-20 md:pt-28">
         <div class="mx-auto max-w-4xl space-y-6">
 
-            <!-- Breadcrumb Navigation -->
-            <nav class="flex items-center gap-2 text-xs font-semibold text-gray-500">
-                <a href="{{ route('documents') }}" class="hover:text-[#700000] flex items-center gap-1.5 transition">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                    </svg>
-                    <span>Back to Repository</span>
-                </a>
-                <span>/</span>
-                <span class="text-gray-400">Upload Thesis</span>
-            </nav>
-
-            <!-- Page Title Header -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-gray-200 pb-4">
+            <!-- Breadcrumb & Subtitle -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-gray-200 pb-3">
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-[#700000]">
-                        Upload Thesis
-                    </h1>
-                    <p class="mt-1 text-xs md:text-sm text-gray-600">
-                        Upload and Publish to the repository.
+                    <nav class="flex items-center gap-2 text-xs font-semibold text-gray-500 mb-1">
+                        <a href="{{ route('documents') }}" class="hover:text-[#700000] flex items-center gap-1.5 transition">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                            </svg>
+                            <span>Back to Repository</span>
+                        </a>
+                        <span>/</span>
+                        <span class="text-gray-400">Upload Thesis</span>
+                    </nav>
+                    <p class="text-xs text-gray-500 font-medium">
+                        Upload and index published thesis manuscripts into the repository.
                     </p>
                 </div>
             </div>
@@ -621,7 +619,7 @@
                     const percent = 60 + Math.min(38, Math.round((totalProcessed / totalChunks) * 38));
                     updateProgress(
                         percent,
-                        `Generating AI embeddings (${totalProcessed}/${totalChunks} pages)...`
+                        `Uploading (${totalProcessed}/${totalChunks} pages)...`
                     );
 
                     if (embData.processed === 0 || remaining === 0) break;

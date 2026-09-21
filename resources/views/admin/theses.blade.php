@@ -16,29 +16,51 @@
 
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col antialiased">
 
+    {{-- SAC PORTAL TOP HEADER --}}
+    @include('partials.header', ['title' => 'MANAGE THESIS'])
+
     @include('partials.sidebar')
 
-    <div id="mainContent" class="md:ml-64 flex-1 transition-all duration-300 flex flex-col">
+    <div id="mainContent" class="md:ml-64 flex-1 transition-all duration-300 flex flex-col pt-16 md:pt-20">
 
-        <!-- Top Header Navigation -->
-        <header class="sticky top-0 z-20 border-b border-gray-200 bg-white/95 backdrop-blur-md px-4 sm:px-8 py-4 shadow-xs flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-[#700000]">Manage Uploaded Thesis</h1>
-                    <p class="text-xs text-gray-500">View, Edit, or Remove documents</p>
-                </div>
+        <!-- Top Action Bar -->
+        <div class="border-b border-gray-200 bg-white/95 backdrop-blur-md px-4 sm:px-8 py-3 shadow-xs flex items-center justify-between">
+            <div>
+                <p class="text-xs text-gray-500 font-medium">View, archive, restore, or manage repository manuscripts</p>
             </div>
 
-            <a href="/admin/upload" class="rounded-2xl bg-[#700000] hover:bg-[#850000] text-[#FFD700] px-4 py-2.5 text-xs font-bold transition shadow-md flex items-center gap-2">
+            <a href="/admin/upload" class="rounded-2xl bg-[#700000] hover:bg-[#850000] text-[#FFD700] px-4 py-2 text-xs font-bold transition shadow-md flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
                 <span>Upload New Thesis</span>
             </a>
-        </header>
+        </div>
 
         <!-- Main Content Area -->
         <main class="flex-1 p-4 sm:p-8 max-w-[1600px] w-full mx-auto space-y-6">
+
+            <!-- Tab Switcher: Published vs Archived -->
+            <div class="flex items-center justify-between border-b border-gray-200 pb-4">
+                <div class="inline-flex p-1.5 bg-slate-200/70 rounded-2xl gap-1">
+                    <button type="button" onclick="switchTab('published')" id="tabBtnPublished"
+                        class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs bg-[#700000] text-[#FFD700] cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                        </svg>
+                        <span>Published Theses</span>
+                        <span id="publishedTabBadge" class="ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#550000] text-amber-200">0</span>
+                    </button>
+                    <button type="button" onclick="switchTab('archived')" id="tabBtnArchived"
+                        class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-gray-600 hover:text-gray-900 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m16.5 0v-1.5a1.125 1.125 0 00-1.125-1.125H4.875A1.125 1.125 0 003.75 6v1.5m16.5 0H3.75m10.5 3.75h-4.5" />
+                        </svg>
+                        <span>Archived Theses</span>
+                        <span id="archivedTabBadge" class="ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-300 text-gray-700">0</span>
+                    </button>
+                </div>
+            </div>
 
             <!-- Search and Filter Bar -->
             <div class="rounded-3xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -91,7 +113,7 @@
                         <tr>
                             <td colspan="4" class="py-12 text-center text-gray-500">
                                 <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#700000] border-t-transparent mb-2"></div>
-                                <p class="font-medium">Loading repository theses...</p>
+                                <p class="font-medium">Loading theses repository...</p>
                             </td>
                         </tr>
                     </tbody>
@@ -182,7 +204,70 @@
         </div>
     </div>
 
-    <!-- DELETE CONFIRMATION MODAL -->
+    <!-- ARCHIVE CONFIRMATION MODAL -->
+    <div id="archiveModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl transition-all">
+            <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 ring-8 ring-amber-50/70">
+                <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m16.5 0v-1.5a1.125 1.125 0 00-1.125-1.125H4.875A1.125 1.125 0 003.75 6v1.5m16.5 0H3.75m10.5 3.75h-4.5" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900">Archive Thesis</h3>
+            <p class="mt-2 text-xs text-gray-600 leading-relaxed">
+                Are you sure you want to archive <br>
+                <strong id="archiveDocTitle" class="text-gray-900 font-semibold"></strong>?
+            </p>
+            <div class="mt-3 text-[11px] text-amber-800 bg-amber-50 rounded-2xl p-3 border border-amber-200 text-left space-y-1">
+                <p class="font-bold flex items-center gap-1.5 text-amber-900">
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
+                    <span>Storage Safe · Zero Extra Cost</span>
+                </p>
+                <p class="leading-relaxed text-amber-800">
+                    This manuscript will be moved to the <strong>Archived Theses</strong> tab and hidden from student repository search and the AI assistant. You can restore it anytime.
+                </p>
+            </div>
+            <div class="mt-6 flex items-center justify-center gap-3">
+                <button type="button" onclick="closeArchiveModal()" class="w-1/2 rounded-xl border border-gray-300 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition cursor-pointer">
+                    Cancel
+                </button>
+                <button type="button" id="confirmArchiveBtn" onclick="submitArchive()" class="w-1/2 rounded-xl bg-amber-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-amber-700 transition cursor-pointer flex items-center justify-center gap-1.5">
+                    <span>Archive Thesis</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESTORE CONFIRMATION MODAL -->
+    <div id="restoreModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="w-full max-w-md rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl transition-all">
+            <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 ring-8 ring-emerald-50/70">
+                <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                </svg>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900">Restore Thesis</h3>
+            <p class="mt-2 text-xs text-gray-600 leading-relaxed">
+                Restore <strong id="restoreDocTitle" class="text-gray-900 font-semibold"></strong> back to the published repository?
+            </p>
+            <div class="mt-3 text-[11px] text-emerald-800 bg-emerald-50 rounded-2xl p-3 border border-emerald-200 text-left">
+                <p class="leading-relaxed">
+                    This manuscript will immediately be republished. Students will be able to search and view it, and the AI chatbot will re-index it for answers.
+                </p>
+            </div>
+            <div class="mt-6 flex items-center justify-center gap-3">
+                <button type="button" onclick="closeRestoreModal()" class="w-1/2 rounded-xl border border-gray-300 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition cursor-pointer">
+                    Cancel
+                </button>
+                <button type="button" id="confirmRestoreBtn" onclick="submitRestore()" class="w-1/2 rounded-xl bg-emerald-700 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-800 transition cursor-pointer flex items-center justify-center gap-1.5">
+                    <span>Restore Thesis</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PERMANENT DELETE CONFIRMATION MODAL -->
     <div id="deleteModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm p-4">
         <div class="w-full max-w-sm rounded-3xl bg-white p-6 sm:p-8 text-center shadow-2xl transition-all">
             <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-50 text-rose-600 ring-8 ring-rose-50/70">
@@ -190,20 +275,20 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                 </svg>
             </div>
-            <h3 class="text-lg font-bold text-gray-900">Delete Thesis</h3>
-            <p class="mt-2 text-xs text-gray-500 leading-relaxed">
-                Are you sure you want to permanently delete <br>
-                <strong id="deleteDocTitle" class="text-gray-800 font-semibold"></strong>?
+            <h3 class="text-lg font-bold text-gray-900">Permanently Purge</h3>
+            <p class="mt-2 text-xs text-gray-600 leading-relaxed">
+                Permanently purge <br>
+                <strong id="deleteDocTitle" class="text-gray-900 font-semibold"></strong>?
             </p>
-            <p class="mt-1 text-[11px] text-rose-600 font-medium">
-                This will remove the PDF document.
+            <p class="mt-2 text-[11px] text-rose-700 bg-rose-50 rounded-2xl p-2.5 border border-rose-200 font-medium">
+                This will delete the database record and purge the PDF file from Supabase storage. This cannot be undone.
             </p>
             <div class="mt-6 flex items-center justify-center gap-3">
                 <button type="button" onclick="closeDeleteModal()" class="w-1/2 rounded-xl border border-gray-300 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition cursor-pointer">
                     Cancel
                 </button>
                 <button type="button" id="confirmDeleteBtn" onclick="submitDelete()" class="w-1/2 rounded-xl bg-rose-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-rose-700 transition cursor-pointer flex items-center justify-center gap-1.5">
-                    <span>Delete</span>
+                    <span>Purge Forever</span>
                 </button>
             </div>
         </div>
@@ -242,7 +327,7 @@
             <div id="pdfViewerScroll" class="flex-1 overflow-y-auto p-4 flex flex-col items-center gap-6 bg-slate-900 relative">
                 <div id="pdfViewerLoading" class="py-12 flex flex-col items-center justify-center gap-2">
                     <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#FFD700] border-t-transparent"></div>
-                    <span class="text-xs text-gray-400">Rendering manuscript pages...</span>
+                    <span class="text-xs text-gray-400">Loading pages...</span>
                 </div>
                 <div id="pdfCanvasWrapper" class="flex flex-col items-center gap-6 w-full max-w-3xl"></div>
             </div>
@@ -258,7 +343,10 @@
     <script>
         const COVERS_BASE_URL = "{{ asset('images/covers') }}";
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        let currentTab = 'published';
         let allTheses = [];
+        let pendingArchiveId = null;
+        let pendingRestoreId = null;
         let pendingDeleteId = null;
 
         const programMap = {
@@ -294,6 +382,32 @@
             }, 3000);
         }
 
+        function switchTab(tab) {
+            if (tab === currentTab) return;
+            currentTab = tab;
+
+            const btnPub = document.getElementById('tabBtnPublished');
+            const badgePub = document.getElementById('publishedTabBadge');
+            const btnArc = document.getElementById('tabBtnArchived');
+            const badgeArc = document.getElementById('archivedTabBadge');
+
+            if (tab === 'published') {
+                btnPub.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs bg-[#700000] text-[#FFD700] cursor-pointer';
+                badgePub.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#550000] text-amber-200';
+
+                btnArc.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-gray-600 hover:text-gray-900 cursor-pointer';
+                badgeArc.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-300 text-gray-700';
+            } else {
+                btnPub.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-gray-600 hover:text-gray-900 cursor-pointer';
+                badgePub.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-300 text-gray-700';
+
+                btnArc.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs bg-amber-600 text-white cursor-pointer';
+                badgeArc.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-800 text-amber-100';
+            }
+
+            loadTheses();
+        }
+
         async function loadTheses() {
             const tbody = document.getElementById('thesesTableBody');
             const deptFilter = document.getElementById('adminDeptFilter').value;
@@ -310,6 +424,7 @@
 
             try {
                 const url = new URL('/backend/admin/theses', window.location.origin);
+                url.searchParams.set('tab', currentTab);
                 if (search) url.searchParams.set('search', search);
                 if (deptFilter && deptFilter !== 'all') url.searchParams.set('department', deptFilter);
 
@@ -324,6 +439,12 @@
 
                 const data = await res.json();
                 allTheses = data.theses || [];
+                if (data.counts) {
+                    const pubEl = document.getElementById('publishedTabBadge');
+                    const arcEl = document.getElementById('archivedTabBadge');
+                    if (pubEl) pubEl.textContent = data.counts.published ?? 0;
+                    if (arcEl) arcEl.textContent = data.counts.archived ?? 0;
+                }
                 renderTable(allTheses);
             } catch (err) {
                 console.error(err);
@@ -346,13 +467,21 @@
         function renderTable(theses) {
             const tbody = document.getElementById('thesesTableBody');
             const countBadge = document.getElementById('thesesCountBadge');
-            countBadge.textContent = `${theses.length} Total Theses`;
+            countBadge.textContent = `${theses.length} ${currentTab === 'archived' ? 'Archived' : 'Published'} Total`;
 
             if (theses.length === 0) {
+                const emptyMsg = currentTab === 'archived' 
+                    ? 'No archived theses found. Active theses can be archived from the Published Theses tab.' 
+                    : 'No published theses match your current search or filter criteria.';
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="4" class="py-12 text-center text-gray-400">
-                            No theses match your current search or filter criteria.
+                        <td colspan="4" class="py-14 text-center text-gray-400">
+                            <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                </svg>
+                            </div>
+                            <p class="font-medium text-xs sm:text-sm text-gray-500">${emptyMsg}</p>
                         </td>
                     </tr>
                 `;
@@ -365,9 +494,47 @@
                 const formattedDate = doc.created_at ? new Date(doc.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'N/A';
                 const pubDateFormatted = doc.publication_date ? new Date(doc.publication_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : formattedDate;
 
-                const statusBadge = (doc.status === 'resubmit'
-                    ? '<span class="text-[11px] text-gray-500 font-medium ml-2">· Needs Resubmission</span>'
-                    : (doc.status === 'pending' ? '<span class="text-[11px] text-gray-500 font-medium ml-2">· Pending Review</span>' : ''));
+                const isArchived = currentTab === 'archived' || doc.status === 'archived';
+
+                const statusBadge = isArchived
+                    ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-800">`
+                    : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">`;
+
+                const actionButtons = !isArchived ? `
+                    <button type="button" onclick="openPdfReader(${doc.id})" title="View Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                    <button type="button" onclick="openEditModal(${doc.id})" title="Edit Metadata" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+                        </svg>
+                    </button>
+                    <button type="button" onclick="openArchiveModal(${doc.id})" title="Archive Thesis" class="p-2 rounded-xl border border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-300 transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m16.5 0v-1.5a1.125 1.125 0 00-1.125-1.125H4.875A1.125 1.125 0 003.75 6v1.5m16.5 0H3.75m10.5 3.75h-4.5" />
+                        </svg>
+                    </button>
+                ` : `
+                    <button type="button" onclick="openPdfReader(${doc.id})" title="View Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                    <button type="button" onclick="openRestoreModal(${doc.id})" title="Restore to Published" class="p-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300 transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                        </svg>
+                    </button>
+                    <button type="button" onclick="openDeleteModal(${doc.id})" title="Permanently Purge" class="p-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:border-rose-300 transition cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                        </svg>
+                    </button>
+                `;
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition">
@@ -380,7 +547,7 @@
                                     <h4 class="font-bold text-gray-900 leading-snug" title="${escapeHtml(doc.title)}">
                                         ${escapeHtml(doc.title)}
                                     </h4>
-                                    <div class="flex items-center flex-wrap gap-1 mt-0.5">
+                                    <div class="flex items-center flex-wrap gap-2 mt-1">
                                         <span class="text-[11px] text-gray-500"><span class="font-semibold text-gray-700">Uploaded:</span> ${pubDateFormatted}</span>
                                         ${statusBadge}
                                     </div>
@@ -395,22 +562,7 @@
                         </td>
                         <td class="py-4 px-4 sm:pr-6 text-right whitespace-nowrap">
                             <div class="inline-flex items-center gap-1.5">
-                                <button type="button" onclick="openPdfReader(${doc.id})" title="View Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                </button>
-                                <button type="button" onclick="openEditModal(${doc.id})" title="Edit Metadata" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 transition cursor-pointer">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
-                                    </svg>
-                                </button>
-                                <button type="button" onclick="openDeleteModal(${doc.id}, '${escapeHtml(doc.title)}')" title="Delete Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition cursor-pointer">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                                    </svg>
-                                </button>
+                                ${actionButtons}
                             </div>
                         </td>
                     </tr>
@@ -501,9 +653,109 @@
             }
         }
 
-        function openDeleteModal(docId, title) {
+        function openArchiveModal(docId) {
+            const doc = allTheses.find(d => d.id === docId);
+            if (!doc) return;
+            pendingArchiveId = docId;
+            document.getElementById('archiveDocTitle').textContent = `"${doc.title}"`;
+            const modal = document.getElementById('archiveModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeArchiveModal() {
+            pendingArchiveId = null;
+            const modal = document.getElementById('archiveModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function submitArchive() {
+            if (!pendingArchiveId) return;
+            const btn = document.getElementById('confirmArchiveBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span>Archiving...</span>';
+
+            try {
+                const res = await fetch(`/backend/admin/theses/${pendingArchiveId}/archive`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+
+                const data = await res.json();
+                if (!res.ok || data.error) {
+                    throw new Error(data.message || 'Failed to archive thesis.');
+                }
+
+                closeArchiveModal();
+                showToast('Thesis moved to Archived Theses!', true);
+                loadTheses();
+            } catch (err) {
+                console.error(err);
+                alert('Error archiving thesis: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Archive Thesis</span>';
+            }
+        }
+
+        function openRestoreModal(docId) {
+            const doc = allTheses.find(d => d.id === docId);
+            if (!doc) return;
+            pendingRestoreId = docId;
+            document.getElementById('restoreDocTitle').textContent = `"${doc.title}"`;
+            const modal = document.getElementById('restoreModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closeRestoreModal() {
+            pendingRestoreId = null;
+            const modal = document.getElementById('restoreModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        async function submitRestore() {
+            if (!pendingRestoreId) return;
+            const btn = document.getElementById('confirmRestoreBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span>Restoring...</span>';
+
+            try {
+                const res = await fetch(`/backend/admin/theses/${pendingRestoreId}/restore`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+
+                const data = await res.json();
+                if (!res.ok || data.error) {
+                    throw new Error(data.message || 'Failed to restore thesis.');
+                }
+
+                closeRestoreModal();
+                showToast('Thesis restored and published!', true);
+                loadTheses();
+            } catch (err) {
+                console.error(err);
+                alert('Error restoring thesis: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Restore Thesis</span>';
+            }
+        }
+
+        function openDeleteModal(docId) {
+            const doc = allTheses.find(d => d.id === docId);
+            if (!doc) return;
             pendingDeleteId = docId;
-            document.getElementById('deleteDocTitle').textContent = `"${title}"`;
+            document.getElementById('deleteDocTitle').textContent = `"${doc.title}"`;
             const modal = document.getElementById('deleteModal');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
@@ -520,7 +772,7 @@
             if (!pendingDeleteId) return;
             const btn = document.getElementById('confirmDeleteBtn');
             btn.disabled = true;
-            btn.textContent = 'Deleting...';
+            btn.innerHTML = '<span>Purging...</span>';
 
             try {
                 const res = await fetch(`/backend/admin/theses/${pendingDeleteId}`, {
@@ -533,18 +785,18 @@
 
                 const data = await res.json();
                 if (!res.ok || data.error) {
-                    throw new Error(data.message || 'Failed to delete thesis.');
+                    throw new Error(data.message || 'Failed to purge thesis.');
                 }
 
                 closeDeleteModal();
-                showToast('Thesis deleted permanently!', true);
+                showToast('Thesis permanently purged!', true);
                 loadTheses();
             } catch (err) {
                 console.error(err);
                 alert('Error deleting thesis: ' + err.message);
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'Delete';
+                btn.innerHTML = '<span>Purge Forever</span>';
             }
         }
 
@@ -674,6 +926,8 @@
             if (e.key === 'Escape') {
                 closePdfReaderModal();
                 closeEditModal();
+                closeArchiveModal();
+                closeRestoreModal();
                 closeDeleteModal();
             }
         });

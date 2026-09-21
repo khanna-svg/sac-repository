@@ -46,6 +46,9 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans select-none" oncontextmenu="return false;">
 
+    {{-- SAC PORTAL TOP HEADER --}}
+    @include('partials.header', ['title' => 'THESIS'])
+
     @include('partials.sidebar')
 
     {{-- Hidden Data Attributes for Safe JavaScript Access --}}
@@ -58,7 +61,7 @@
         data-year="{{ $document->publication_date ? $document->publication_date->format('Y') : ($document->created_at ? $document->created_at->format('Y') : date('Y')) }}"
         class="hidden"></div>
 
-    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-16 md:pt-10">
+    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-20 md:pt-28">
         <div class="mx-auto max-w-4xl">
 
             {{-- Breadcrumb Navigation --}}
@@ -216,10 +219,31 @@
 
                 {{-- Abstract Tab Content --}}
                 <div id="tabAbstractContent" class="space-y-6">
-                    <div>
-                        <h2 class="text-sm font-bold uppercase tracking-wider text-[#700000] mb-2 text-center">Abstract</h2>
-                        <div class="rounded-2xl bg-slate-50 border border-gray-200 p-5 text-sm text-gray-700 leading-relaxed font-sans text-center">
-                            {!! nl2br(e(preg_replace('/^[ \t]+/m', '', $document->abstract))) !!}
+                    <div class="rounded-3xl bg-slate-50 border border-gray-200 p-6 sm:p-10 md:p-12 shadow-2xs">
+                        <h2 class="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#700000] mb-8 text-center">
+                            Abstract
+                        </h2>
+                        <div class="max-w-3xl mx-auto space-y-6 text-sm sm:text-base text-gray-900 font-sans">
+                            @php
+                                $rawAbstract = trim((string) $document->abstract);
+                                $normalized = str_replace(["\r\n", "\r"], "\n", $rawAbstract);
+                                // Split only on genuine paragraph breaks (double newlines)
+                                $rawParas = preg_split('/\n\s*\n+/', $normalized);
+                                $paragraphs = [];
+                                foreach ($rawParas as $rp) {
+                                    // Merge wrapped single-line breaks from PDF into one continuous flowing paragraph
+                                    $merged = trim(preg_replace('/\s+/', ' ', $rp));
+                                    if ($merged !== '') {
+                                        $paragraphs[] = $merged;
+                                    }
+                                }
+                            @endphp
+
+                            @foreach($paragraphs as $para)
+                                <p class="indent-10 sm:indent-12 text-justify leading-relaxed sm:leading-loose text-gray-900" style="text-align: justify; text-justify: inter-word;">
+                                    {{ $para }}
+                                </p>
+                            @endforeach
                         </div>
                     </div>
                 </div>

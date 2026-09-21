@@ -8,15 +8,27 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RequireSacAdmin
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        if ($request->session()->get('sac_user_role') !== 'admin') {
+        $userRole = (string) $request->session()->get('sac_user_role');
+
+        // If no specific roles specified, allow any authorized staff role
+        if (empty($roles)) {
+            $roles = ['admin', 'librarian', 'coordinator'];
+        }
+
+        // 'admin' has universal access to all admin routes
+        if ($userRole === 'admin' || in_array($userRole, $roles, true)) {
+            return $next($request);
+        }
+
+        if ($request->expectsJson() || $request->is('backend/*')) {
             return response()->json([
                 'error' => true,
-                'message' => 'Unauthorized. Admin access required.',
+                'message' => 'Unauthorized. Required role: ' . implode(' or ', $roles),
             ], 403);
         }
 
-        return $next($request);
+        return redirect()->route('documents')->with('error', 'Unauthorized access.');
     }
 }

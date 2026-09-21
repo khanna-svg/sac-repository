@@ -43,6 +43,9 @@ class AuthController extends Controller
             $request->session()->regenerate();
             $request->session()->put('sac_user_email', $email);
             $request->session()->put('sac_user_role', 'student');
+            $dbUser = \App\Models\User::where('email', $email)->first();
+            $name = $dbUser?->name ?? ucwords(preg_replace('/[._-]+/', ' ', explode('@', $email)[0]));
+            $request->session()->put('sac_user_name', $name);
             return redirect()->route('documents');
         }
 
@@ -125,9 +128,13 @@ class AuthController extends Controller
             ]);
         }
 
+        $email = strtolower($user['email']);
         $request->session()->regenerate();
-        $request->session()->put('sac_user_email', strtolower($user['email']));
+        $request->session()->put('sac_user_email', $email);
         $request->session()->put('sac_user_role', 'student');
+        $dbUser = \App\Models\User::where('email', $email)->first();
+        $name = $dbUser?->name ?? ($user['user_metadata']['full_name'] ?? ($user['user_metadata']['name'] ?? ucwords(preg_replace('/[._-]+/', ' ', explode('@', $email)[0]))));
+        $request->session()->put('sac_user_name', $name);
         $request->session()->forget('pending_email');
 
         return redirect()->route('documents');

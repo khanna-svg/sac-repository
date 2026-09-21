@@ -20,21 +20,18 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
 
+    {{-- SAC PORTAL TOP HEADER --}}
+    @include('partials.header', ['title' => 'KNOWLEDGE GRAPH'])
+
     @include('partials.sidebar')
 
-    <main id="mainContent" class="md:ml-64 min-h-screen flex flex-col pt-14 md:pt-0 transition-all duration-300">
+    <main id="mainContent" class="md:ml-64 min-h-screen flex flex-col pt-16 md:pt-20 transition-all duration-300">
 
-        <!-- Top Header & Control Toolbar -->
-        <div class="border-b border-gray-200 bg-white px-4 md:px-8 py-3.5 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <!-- Top Control Toolbar & Subtitle -->
+        <div class="border-b border-gray-200 bg-white px-4 md:px-8 py-3 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
-                <h1 class="text-lg md:text-xl font-bold text-[#700000] flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-                    </svg>
-                    <span>Interactive Knowledge Graph</span>
-                </h1>
-                <p class="text-[11px] md:text-xs text-gray-500">
-                    Visually explore relationships between research topics, authors, and departments.
+                <p class="text-xs text-gray-500 font-medium">
+                    Visually explore relationships between research topics, authors, methodologies, and academic disciplines.
                 </p>
             </div>
 
@@ -56,7 +53,7 @@
                 <button
                     onclick="resetGraphView()"
                     title="Center & Fit View"
-                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-slate-50 transition shadow-sm flex items-center gap-1.5">
+                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-slate-50 transition shadow-sm flex items-center gap-1.5 cursor-pointer">
                     <svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0 0h4.5m-4.5 0L9 3.75M20.25 20.25v-4.5m0 0h-4.5m4.5 0L15 20.25M3.75 20.25h4.5m-4.5 0v-4.5m0 4.5L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9" />
                     </svg>
@@ -68,7 +65,7 @@
                     id="physicsToggleBtn"
                     onclick="togglePhysics()"
                     title="Toggle Node Physics"
-                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-slate-50 transition shadow-sm flex items-center gap-1.5">
+                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-slate-50 transition shadow-sm flex items-center gap-1.5 cursor-pointer">
                     <svg class="w-3.5 h-3.5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                     </svg>
@@ -78,19 +75,31 @@
         </div>
 
         <!-- Legend Banner -->
-        <div class="border-b border-gray-200 bg-slate-100/70 px-4 md:px-8 py-2 flex items-center gap-3 overflow-x-auto text-[11px] font-medium text-gray-600">
-            <span class="font-bold text-gray-700 uppercase tracking-wider text-[10px]">Legend:</span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs">
+        <div class="border-b border-gray-200 bg-slate-100/70 px-4 md:px-8 py-2 flex items-center gap-2.5 overflow-x-auto text-[11px] font-medium text-gray-600">
+            <span class="font-bold text-gray-700 uppercase tracking-wider text-[10px] shrink-0">Legend:</span>
+            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
                 <span class="w-2.5 h-2.5 rounded bg-[#700000]"></span> Thesis Papers
             </span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs">
-                <span class="w-2.5 h-2.5 rounded bg-[#1e3a8a]"></span> Departments
+            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#047857]"></span> Authors
             </span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#047857]"></span> Authors / Researchers
+            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#7c3aed]"></span> Topics & Keywords
             </span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs">
-                <span class="w-2.5 h-2.5 transform rotate-45 bg-[#b45309]"></span> Degree Programs
+            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span class="w-2.5 h-2.5 rounded-sm bg-[#0891b2]"></span> Methodology
+            </span>
+            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span class="w-2.5 h-2.5 rounded-sm bg-[#c026d3]"></span> Category
+            </span>
+            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#ea580c]"></span> Academic Level
+            </span>
+            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span class="w-2.5 h-2.5 transform rotate-45 bg-[#b45309]"></span> Degree Program
+            </span>
+            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span class="w-2.5 h-2.5 rounded bg-[#1e3a8a]"></span> Department
             </span>
         </div>
 
@@ -130,7 +139,7 @@
                             Thesis Details
                         </span>
                     </div>
-                    <button onclick="closeDetailsDrawer()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition">
+                    <button onclick="closeDetailsDrawer()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -154,6 +163,26 @@
                             <p class="text-[10px] font-bold text-gray-400 uppercase">Program</p>
                             <p id="drawerProgram" class="font-semibold text-gray-800 mt-0.5 truncate"></p>
                         </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-gray-200">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Level</p>
+                            <p id="drawerLevel" class="font-semibold text-gray-800 mt-0.5 truncate"></p>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-gray-200">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Category</p>
+                            <p id="drawerCategory" class="font-semibold text-gray-800 mt-0.5 truncate"></p>
+                        </div>
+                    </div>
+
+                    <!-- Methodology & Keywords -->
+                    <div class="space-y-2 pt-2 border-t border-gray-100 text-xs">
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-gray-200">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Methodology</p>
+                            <p id="drawerMethodology" class="font-semibold text-gray-800 mt-0.5"></p>
+                        </div>
+                        <div class="bg-slate-50 p-2.5 rounded-xl border border-gray-200">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase">Keywords</p>
+                            <p id="drawerKeywords" class="font-semibold text-indigo-700 mt-0.5"></p>
+                        </div>
                     </div>
 
                     <!-- Abstract -->
@@ -168,7 +197,7 @@
                     <a
                         id="drawerReadBtn"
                         href="#"
-                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] shadow-sm transition">
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] shadow-sm transition cursor-pointer">
                         <span>Read Full Thesis</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -275,9 +304,13 @@
             document.getElementById('drawerAuthor').textContent = meta.author ? 'By ' + meta.author : '';
             document.getElementById('drawerDept').textContent = meta.department || 'N/A';
             document.getElementById('drawerProgram').textContent = meta.course_code || 'N/A';
+            document.getElementById('drawerLevel').textContent = meta.academic_level || 'Undergraduate';
+            document.getElementById('drawerCategory').textContent = meta.research_category || 'General';
+            document.getElementById('drawerMethodology').textContent = meta.methodology || 'N/A';
+            document.getElementById('drawerKeywords').textContent = meta.keywords || 'None specified';
             document.getElementById('drawerAbstract').textContent = meta.abstract || 'No abstract available.';
-            document.getElementById('drawerReadBtn').href = meta.view_url || '#';
-            document.getElementById('drawerPdfBtn').href = meta.pdf_url || '#';
+            const readBtn = document.getElementById('drawerReadBtn');
+            if (readBtn) readBtn.href = meta.view_url || '#';
 
             const drawer = document.getElementById('detailsDrawer');
             drawer.classList.remove('translate-x-full');

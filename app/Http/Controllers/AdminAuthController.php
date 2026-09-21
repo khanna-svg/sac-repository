@@ -20,14 +20,14 @@ class AdminAuthController extends Controller
         if (
             $user &&
             Hash::check($request->password, $user->password) &&
-            $user->role === 'admin'
+            in_array($user->role, ['admin', 'librarian', 'coordinator'], true)
         ) {
 
             $request->session()->regenerate();
 
             $request->session()->put(
                 'sac_user_role',
-                'admin'
+                $user->role
             );
 
             $request->session()->put(
@@ -35,12 +35,23 @@ class AdminAuthController extends Controller
                 strtolower($user->email)
             );
 
+            $request->session()->put(
+                'sac_user_name',
+                $user->name ?? 'Administrator'
+            );
+
+            if ($user->role === 'coordinator') {
+                return redirect()->route('admin.analytics');
+            } elseif ($user->role === 'librarian') {
+                return redirect()->route('admin.submissions');
+            }
+
             return redirect()->route('admin.analytics');
         }
 
 
         return back()->withErrors([
-            'email' => 'Invalid admin credentials or account is not an admin.',
+            'email' => 'Invalid credentials or account is not authorized.',
         ]);
     }
 }

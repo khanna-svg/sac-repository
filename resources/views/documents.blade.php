@@ -38,60 +38,31 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
+    {{-- SAC PORTAL TOP HEADER --}}
+    @include('partials.header', ['title' => 'THESIS'])
+
     {{-- SIDEBAR NAVIGATION --}}
     @include('partials.sidebar')
 
     {{-- MAIN PAGE CONTENT --}}
-    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-16 md:pt-10">
+    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-20 md:pt-28">
         <div class="mx-auto max-w-5xl">
 
-            {{-- 1. PAGE HEADER --}}
+            {{-- 1. PAGE SUB-HEADER --}}
             <section class="mb-6 md:mb-8">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h1 class="text-2xl md:text-3xl font-bold text-[#700000]">
-                            Thesis Repository
-                        </h1>
-                        <p class="mt-1 text-xs md:text-sm text-gray-500">
-                            Published St. Anthony's College thesis documents.
-                        </p>
-                    </div>
-
-                    {{-- Student Notifications Bell & Dropdown --}}
-                    <div class="relative shrink-0">
-                        <button
-                            type="button"
-                            id="notifBellBtn"
-                            onclick="toggleNotificationDropdown()"
-                            class="px-3.5 py-2 rounded-2xl border border-gray-200 bg-white hover:bg-slate-50 text-gray-700 text-xs font-bold transition flex items-center gap-2 shadow-2xs relative cursor-pointer">
-                            <svg class="w-4 h-4 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-                            </svg>
-                            <span class="hidden sm:inline">Notifications</span>
-                            <span id="notifBadge" class="hidden w-2 h-2 rounded-full bg-rose-600 shrink-0"></span>
-                        </button>
-
-                        <div
-                            id="notifDropdown"
-                            class="hidden absolute right-0 mt-2 w-80 sm:w-96 rounded-3xl bg-white p-4 shadow-2xl border border-gray-200 z-50 transition-all">
-                            <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-2">
-                                <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Submission Updates</h3>
-                                <button onclick="markAllNotificationsAsRead()" class="text-[10px] font-semibold text-[#700000] hover:underline cursor-pointer">Mark all as read</button>
-                            </div>
-                            <div id="notifList" class="max-h-72 overflow-y-auto divide-y divide-gray-100 text-xs">
-                                <p class="py-4 text-center text-gray-400">Loading notifications...</p>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                    <p class="text-xs md:text-sm text-gray-500 font-medium">
+                        Published St. Anthony's College thesis documents.
+                    </p>
                 </div>
             </section>
 
             {{-- 2. SEARCH & FILTER SECTION --}}
             <section class="mb-8 space-y-4">
-                <form id="searchForm" class="space-y-3">
-                    {{-- Search Input Bar (Google Scholar Style Hybrid Search) --}}
+                <form id="searchForm" class="space-y-4">
+                    {{-- Search Input Bar (Google Scholar Style Hybrid Search with Proposal Upload) --}}
                     <div class="flex flex-col sm:flex-row gap-3">
-                        <div class="relative flex-1">
+                        <div class="relative flex-1" id="searchBarDropZone">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -100,62 +71,136 @@
                             <input
                                 id="searchInput"
                                 type="search"
-                                placeholder="Search by thesis title, author, keywords, topics, or concepts..."
-                                class="w-full rounded-2xl border border-gray-300 bg-white pl-10 pr-4 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-sm transition">
+                                placeholder="Search by thesis title, author, concepts... or attach a proposal"
+                                class="w-full rounded-2xl border border-gray-300 bg-white pl-10 pr-32 md:pr-36 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-sm transition">
+
+                            {{-- Hidden Proposal File Input --}}
+                            <input
+                                type="file"
+                                id="proposalFileInput"
+                                accept=".pdf,.docx,.doc,.txt"
+                                onchange="handleProposalFileSelected(event)"
+                                class="hidden">
+
+                            {{-- Attach Proposal Button inside Search Bar --}}
+                            <button
+                                type="button"
+                                id="uploadProposalBtn"
+                                onclick="triggerProposalUpload()"
+                                title="Upload a concept proposal (PDF, DOCX, TXT) to match related literature"
+                                class="absolute inset-y-0 right-2 my-auto h-8 px-2.5 rounded-xl border border-gray-200 bg-slate-50 hover:bg-[#700000]/10 hover:border-[#700000]/30 text-gray-600 hover:text-[#700000] transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer shadow-2xs">
+                                <svg class="w-3.5 h-3.5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.373L8.559 18.315a1.5 1.5 0 11-2.122-2.122L16.5 6.136" />
+                                </svg>
+                                <span>Upload File</span>
+                            </button>
                         </div>
                         <button
                             type="submit"
+                            id="searchSubmitBtn"
                             class="rounded-2xl bg-[#700000] px-7 py-3 text-xs md:text-sm font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md shrink-0 flex items-center justify-center gap-2 cursor-pointer">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
-                            <span>Search</span>
+                            <span id="searchSubmitBtnText">Search</span>
                         </button>
                     </div>
-        </div>
 
-        {{-- 3. QUICK FILTER & SORT TOOLBAR --}}
-        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
-            <div class="flex items-center gap-3 flex-wrap">
-                {{-- Department Filter Dropdown --}}
-                <div class="flex items-center gap-1.5">
-                    <label for="deptFilter" class="text-xs font-bold text-gray-500">Department:</label>
-                    <select
-                        id="deptFilter"
-                        onchange="onFilterChange()"
-                        class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
-                        <option value="all">All Departments</option>
-                        <option value="it">Information Technology (BSIT)</option>
-                        <option value="marine">Marine Engineering (BSMarE)</option>
-                        <option value="nursing">Nursing & Healthcare (BSN)</option>
-                        <option value="hospitality">Hospitality Management (BSHM)</option>
-                        <option value="business">Business & Accountancy (CBA)</option>
-                        <option value="education">Teacher Education (CTE)</option>
-                        <option value="criminology">Criminology / Arts & Sciences</option>
-                    </select>
-                </div>
+                    {{-- Attached Proposal File Chip --}}
+                    <div id="proposalFileChip" class="hidden flex items-center justify-between gap-3 p-3 bg-gradient-to-r from-[#700000]/5 to-amber-500/5 border border-[#700000]/25 rounded-2xl text-xs shadow-2xs">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <div class="w-7 h-7 rounded-xl bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-xs font-bold text-xs">
+                                📄
+                            </div>
+                            <div class="min-w-0">
+                                <p class="font-bold text-gray-900 truncate flex items-center gap-1.5">
+                                    <span id="proposalFileName">concept_proposal.pdf</span>
+                                    <span id="proposalFileSize" class="text-gray-400 font-normal text-[11px] shrink-0">(120 KB)</span>
+                                </p>
+                                <p class="text-[11px] text-[#700000] font-semibold">
+                                    Concept Proposal attached • Click "Match Literature" to discover related research
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onclick="clearProposalFile()"
+                            title="Remove proposal"
+                            class="p-1.5 rounded-xl border border-gray-200 bg-white hover:bg-rose-50 text-gray-400 hover:text-rose-600 transition shrink-0 cursor-pointer shadow-2xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
 
-                {{-- Sort By Dropdown --}}
-                <div class="flex items-center gap-1.5">
-                    <label for="sortFilter" class="text-xs font-bold text-gray-500">Sort By:</label>
-                    <select
-                        id="sortFilter"
-                        onchange="onFilterChange()"
-                        class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
-                        <option value="relevance" id="sortOptionRelevance" class="hidden">Best Match (Relevance)</option>
-                        <option value="latest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="title_asc">Title (A – Z)</option>
-                        <option value="title_desc">Title (Z – A)</option>
-                    </select>
+                    {{-- 3. QUICK FILTER & SORT TOOLBAR --}}
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2 pb-3 border-b border-gray-200/80">
+                        <div class="flex items-center gap-3 flex-wrap">
+                            {{-- Department Filter Dropdown --}}
+                            <div class="flex items-center gap-1.5">
+                                <label for="deptFilter" class="text-xs font-bold text-gray-500">Department:</label>
+                                <select
+                                    id="deptFilter"
+                                    onchange="onFilterChange()"
+                                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs cursor-pointer">
+                                    <option value="all">All Departments</option>
+                                    <option value="it">Information Technology (BSIT)</option>
+                                    <option value="marine">Marine Engineering (BSMarE)</option>
+                                    <option value="nursing">Nursing & Healthcare (BSN)</option>
+                                    <option value="hospitality">Hospitality Management (BSHM)</option>
+                                    <option value="business">Business & Accountancy (CBA)</option>
+                                    <option value="education">Teacher Education (CTE)</option>
+                                    <option value="criminology">Criminology / Arts & Sciences</option>
+                                </select>
+                            </div>
+
+                            {{-- Sort By Dropdown --}}
+                            <div class="flex items-center gap-1.5">
+                                <label for="sortFilter" class="text-xs font-bold text-gray-500">Sort By:</label>
+                                <select
+                                    id="sortFilter"
+                                    onchange="onFilterChange()"
+                                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs cursor-pointer">
+                                    <option value="relevance" id="sortOptionRelevance" class="hidden">Best Match (Relevance)</option>
+                                    <option value="latest">Newest First</option>
+                                    <option value="oldest">Oldest First</option>
+                                    <option value="title_asc">Title (A – Z)</option>
+                                    <option value="title_desc">Title (Z – A)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            {{-- 3.5. PROPOSAL AI ANALYSIS BANNER --}}
+            <div id="proposalAnalysisBanner" class="hidden mb-6 p-5 rounded-3xl bg-gradient-to-br from-[#700000]/5 via-amber-500/5 to-slate-50 border border-[#700000]/20 shadow-xs">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="space-y-1.5 flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2.5 py-0.5 rounded-full bg-[#700000] text-[#FFD700] text-[10px] font-extrabold uppercase tracking-wider shadow-2xs">
+                                💡 Concept Proposal Match
+                            </span>
+                            <span id="proposalBannerFileName" class="text-xs font-semibold text-gray-500 italic"></span>
+                        </div>
+                        <h3 id="proposalBannerTitle" class="text-sm md:text-base font-bold text-gray-900 leading-snug"></h3>
+                        <p id="proposalBannerSummary" class="text-xs text-gray-600 leading-relaxed"></p>
+                        <div id="proposalBannerTopics" class="flex flex-wrap items-center gap-1.5 pt-1"></div>
+                    </div>
+                    <button
+                        type="button"
+                        onclick="clearProposalResults()"
+                        class="px-3.5 py-2 rounded-2xl border border-gray-200 bg-white hover:bg-slate-100 text-gray-700 hover:text-red-600 text-xs font-bold transition shrink-0 shadow-2xs cursor-pointer flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span>Reset to All Theses</span>
+                    </button>
                 </div>
             </div>
-        </div>
-        </form>
-        </section>
 
-        {{-- 4. THESIS CARDS LIST CONTAINER --}}
-        <section id="documentsList" class="space-y-4">
+            {{-- 4. THESIS CARDS LIST CONTAINER --}}
+            <section id="documentsList" class="mt-6 space-y-4">
             <p class="text-center text-sm text-gray-500 py-10">
                 Loading thesis repository...
             </p>
@@ -387,6 +432,8 @@
         let currentCitationDoc = null;
         let savedBookmarkIds = new Set();
         let toastTimeout = null;
+        let selectedProposalFile = null;
+        let activeProposalResult = null;
 
         const documentsList = document.getElementById('documentsList');
         const searchForm = document.getElementById('searchForm');
@@ -397,7 +444,11 @@
 
         // Trigger search when Department or Sort dropdown changes
         function onFilterChange() {
-            fetchDocuments(searchInput.value);
+            if (selectedProposalFile) {
+                searchByProposalFile();
+            } else {
+                fetchDocuments(searchInput.value);
+            }
         }
 
         // Display floating toast message when bookmarking/unbookmarking
@@ -814,17 +865,211 @@
             }
         }
 
+        function triggerProposalUpload() {
+            const input = document.getElementById('proposalFileInput');
+            if (input) input.click();
+        }
+
+        function handleProposalFileSelected(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            processSelectedProposalFile(file);
+        }
+
+        function processSelectedProposalFile(file) {
+            const allowedExtensions = ['pdf', 'docx', 'doc', 'txt', 'md'];
+            const ext = (file.name.split('.').pop() || '').toLowerCase();
+            if (!allowedExtensions.includes(ext)) {
+                alert('Please upload a valid concept proposal document (.pdf, .docx, or .txt).');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File size exceeds the 10MB limit.');
+                return;
+            }
+
+            selectedProposalFile = file;
+
+            const chip = document.getElementById('proposalFileChip');
+            const nameEl = document.getElementById('proposalFileName');
+            const sizeEl = document.getElementById('proposalFileSize');
+            const submitBtnText = document.getElementById('searchSubmitBtnText');
+
+            if (nameEl) nameEl.textContent = file.name;
+            if (sizeEl) {
+                const sizeKb = Math.round(file.size / 1024);
+                sizeEl.textContent = sizeKb > 1024 ? `(${(sizeKb / 1024).toFixed(1)} MB)` : `(${sizeKb} KB)`;
+            }
+            if (chip) chip.classList.remove('hidden');
+            if (submitBtnText) submitBtnText.textContent = 'Match Literature';
+
+            showToast(`Proposal attached: ${file.name}`, true);
+        }
+
+        function clearProposalFile() {
+            selectedProposalFile = null;
+            const input = document.getElementById('proposalFileInput');
+            if (input) input.value = '';
+            const chip = document.getElementById('proposalFileChip');
+            if (chip) chip.classList.add('hidden');
+            const submitBtnText = document.getElementById('searchSubmitBtnText');
+            if (submitBtnText) submitBtnText.textContent = 'Search';
+        }
+
+        function clearProposalResults() {
+            clearProposalFile();
+            activeProposalResult = null;
+            const banner = document.getElementById('proposalAnalysisBanner');
+            if (banner) banner.classList.add('hidden');
+            fetchDocuments(searchInput.value || '');
+        }
+
+        async function searchByProposalFile() {
+            if (!selectedProposalFile) return;
+
+            // Show Proposal Analysis Loading State
+            documentsList.innerHTML = `
+                <div class="rounded-3xl border border-dashed border-[#700000]/30 bg-gradient-to-b from-[#700000]/5 to-amber-500/5 p-12 text-center">
+                    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white border border-[#700000]/20 text-[#700000] mb-4 shadow-sm animate-pulse">
+                        <svg class="w-7 h-7 text-[#700000] animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-base font-bold text-gray-900">Analyzing Your Concept Proposal</h3>
+                    <p class="mt-2 text-xs text-gray-600 max-w-md mx-auto leading-relaxed">
+                        Loading... Please wait while we analyze your proposal...
+                    </p>
+                    <div class="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#700000]/20 text-xs font-bold text-[#700000] shadow-2xs">
+                        <span>📄 ${escapeHtml(selectedProposalFile.name)}</span>
+                    </div>
+                </div>
+            `;
+
+            try {
+                const formData = new FormData();
+                formData.append('proposal_file', selectedProposalFile);
+                if (deptFilter && deptFilter.value !== 'all') {
+                    formData.append('department', deptFilter.value);
+                }
+                if (sortFilter && sortFilter.value) {
+                    formData.append('sort', sortFilter.value);
+                }
+                if (searchInput && searchInput.value.trim()) {
+                    formData.append('keywords', searchInput.value.trim());
+                }
+
+                const res = await fetch('/backend/documents/search-proposal', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: formData
+                });
+
+                if (res.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                const data = await res.json();
+                if (!res.ok || !data.success) {
+                    throw new Error(data.message || 'Failed to analyze proposal.');
+                }
+
+                activeProposalResult = data;
+                allDocuments = data.documents || [];
+
+                // Render Proposal Banner
+                const banner = document.getElementById('proposalAnalysisBanner');
+                const titleEl = document.getElementById('proposalBannerTitle');
+                const fileEl = document.getElementById('proposalBannerFileName');
+                const summaryEl = document.getElementById('proposalBannerSummary');
+                const topicsEl = document.getElementById('proposalBannerTopics');
+
+                if (banner && titleEl && summaryEl) {
+                    titleEl.textContent = data.title || 'Concept Proposal Analysis';
+                    if (fileEl) fileEl.textContent = `from ${data.filename}`;
+                    summaryEl.textContent = data.summary || 'Literature matched based on proposal vector similarity.';
+                    
+                    if (topicsEl) {
+                        if (Array.isArray(data.topics) && data.topics.length > 0) {
+                            topicsEl.innerHTML = data.topics.map(topic => `
+                                <span class="px-2.5 py-1 rounded-xl bg-white border border-[#700000]/20 text-[#700000] text-[11px] font-bold shadow-2xs">
+                                    # ${escapeHtml(topic)}
+                                </span>
+                            `).join('');
+                        } else {
+                            topicsEl.innerHTML = '';
+                        }
+                    }
+                    banner.classList.remove('hidden');
+                }
+
+                // Render matching documents
+                renderDocuments(allDocuments);
+
+                showToast(`Found ${allDocuments.length} literature matches!`, true);
+
+            } catch (err) {
+                console.error('searchByProposalFile error:', err);
+                documentsList.innerHTML = `
+                    <div class="rounded-3xl border border-red-200 bg-red-50 p-8 text-center text-sm text-red-700 space-y-2">
+                        <p class="font-bold">Proposal Analysis Failed</p>
+                        <p class="text-xs text-red-600">${escapeHtml(err.message)}</p>
+                        <button type="button" onclick="clearProposalResults()" class="mt-3 px-4 py-2 rounded-xl bg-[#700000] text-[#FFD700] text-xs font-bold hover:bg-[#800000] transition cursor-pointer">
+                            Back to All Theses
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Drag and drop onto search bar
+        const dropZone = document.getElementById('searchBarDropZone');
+        if (dropZone) {
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropZone.classList.add('ring-2', 'ring-[#700000]', 'ring-offset-2');
+                }, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    dropZone.classList.remove('ring-2', 'ring-[#700000]', 'ring-offset-2');
+                }, false);
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                if (files && files.length > 0) {
+                    processSelectedProposalFile(files[0]);
+                }
+            }, false);
+        }
+
         // Search Form Submit Listener
         searchForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const query = searchInput.value.trim();
-            updateSortOptionsForSearch(Boolean(query));
-            fetchDocuments(query);
+            if (selectedProposalFile) {
+                searchByProposalFile();
+            } else {
+                const query = searchInput.value.trim();
+                updateSortOptionsForSearch(Boolean(query));
+                fetchDocuments(query);
+            }
         });
 
         // Auto reset sort when search input is cleared
         searchInput.addEventListener('input', () => {
-            if (!searchInput.value.trim()) {
+            if (!searchInput.value.trim() && !selectedProposalFile) {
                 currentSearchQuery = '';
                 updateSortOptionsForSearch(false);
                 fetchDocuments('');
@@ -1245,79 +1490,10 @@
             }
         });
 
-        // Notifications Dropdown and Fetch
-        async function fetchNotifications() {
-            try {
-                const res = await fetch('/backend/notifications');
-                if (!res.ok) return;
-                const data = await res.json();
-                const badge = document.getElementById('notifBadge');
-                const list = document.getElementById('notifList');
-                if (!badge || !list) return;
-
-                if (data.unread_count > 0) {
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                }
-
-                if (data.notifications.length === 0) {
-                    list.innerHTML = '<p class="py-4 text-center text-gray-400">No notifications yet.</p>';
-                    return;
-                }
-
-                list.innerHTML = data.notifications.map(n => {
-                    const iconColor = n.type === 'approved' ? 'text-emerald-500' : (n.type === 'resubmit' ? 'text-rose-500' : 'text-amber-500');
-                    const timeAgo = n.created_at ? new Date(n.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-                    return `
-                        <div class="py-2.5 space-y-1 ${!n.is_read ? 'bg-amber-50/40 p-2 rounded-xl' : ''}">
-                            <div class="flex items-center justify-between gap-1">
-                                <h4 class="font-bold text-gray-900 ${iconColor} flex items-center gap-1.5">
-                                    <span>${n.title}</span>
-                                </h4>
-                                <span class="text-[9px] text-gray-400 shrink-0 font-mono">${timeAgo}</span>
-                            </div>
-                            <p class="text-[11px] text-gray-700 leading-snug whitespace-pre-line">${n.message}</p>
-                        </div>
-                    `;
-                }).join('');
-            } catch (e) {
-                console.error('Failed to fetch notifications:', e);
-            }
-        }
-
-        function toggleNotificationDropdown() {
-            const dd = document.getElementById('notifDropdown');
-            if (!dd) return;
-            dd.classList.toggle('hidden');
-            if (!dd.classList.contains('hidden')) {
-                fetchNotifications();
-            }
-        }
-
-        async function markAllNotificationsAsRead() {
-            try {
-                await fetch('/backend/notifications/read-all', {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': csrfToken }
-                });
-                fetchNotifications();
-            } catch (e) {}
-        }
-
-        document.addEventListener('click', function(e) {
-            const dd = document.getElementById('notifDropdown');
-            const btn = document.getElementById('notifBellBtn');
-            if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) {
-                dd.classList.add('hidden');
-            }
-        });
-
         // Initial load on page ready
         async function init() {
             await fetchBookmarkIds();
             await fetchDocuments();
-            fetchNotifications();
         }
 
         init();

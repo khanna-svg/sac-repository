@@ -236,33 +236,65 @@ class DocumentController extends Controller
             $semanticDocIds = [];
             $similarityMap = [];
 
-            $keywordQuery = Document::query()
-                ->where($approvedScope)
-                ->where(function ($q) use ($searchTerm) {
-                    $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
-                        ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
-                        ->orWhereRaw('LOWER(department) LIKE ?', [$searchTerm])
-                        ->orWhereRaw('LOWER(course_code) LIKE ?', [$searchTerm])
-                        ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
-                });
+            // Tokenize words (ignoring short noise particles)
+            $tokens = array_filter(
+                preg_split('/[\s,\.\-_]+/', strtolower($search)),
+                fn($w) => strlen(trim($w)) >= 3
+            );
+
+            // 1. Hybrid Multi-token Keyword Query
+            $keywordQuery = Document::query()->where($approvedScope);
+            $keywordQuery->where(function ($q) use ($searchTerm, $tokens) {
+                // Exact phrase match
+                $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(department) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(course_code) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
+
+                // Individual word token matches
+                foreach ($tokens as $token) {
+                    $tokenPattern = '%' . $token . '%';
+                    $q->orWhereRaw('LOWER(title) LIKE ?', [$tokenPattern])
+                      ->orWhereRaw('LOWER(abstract) LIKE ?', [$tokenPattern]);
+                }
+            });
 
             if ($department !== '' && $department !== 'all') {
                 $this->applyDepartmentFilter($keywordQuery, $department);
             }
 
             $keywordDocs = $keywordQuery->get();
+            $searchLower = strtolower($search);
+
             foreach ($keywordDocs as $doc) {
                 $titleLower = strtolower($doc->title);
                 $authorLower = strtolower($doc->author);
-                $searchLower = strtolower($search);
-                
+                $abstractLower = strtolower($doc->abstract ?? '');
+
                 if (str_contains($titleLower, $searchLower) || str_contains($authorLower, $searchLower)) {
                     $similarityMap[$doc->id] = 98;
-                } else {
+                } elseif (str_contains($abstractLower, $searchLower)) {
                     $similarityMap[$doc->id] = 90;
+                } else {
+                    $titleTokensMatched = 0;
+                    $abstractTokensMatched = 0;
+                    foreach ($tokens as $t) {
+                        if (str_contains($titleLower, $t)) $titleTokensMatched++;
+                        if (str_contains($abstractLower, $t)) $abstractTokensMatched++;
+                    }
+
+                    if ($titleTokensMatched > 0) {
+                        $ratio = $titleTokensMatched / max(1, count($tokens));
+                        $similarityMap[$doc->id] = (int) round(82 + ($ratio * 15)); // 82% to 97%
+                    } else {
+                        $ratio = $abstractTokensMatched / max(1, count($tokens));
+                        $similarityMap[$doc->id] = (int) round(60 + ($ratio * 15)); // 60% to 75%
+                    }
                 }
             }
 
+            // 2. Semantic Search via Gemini + Supabase pgvector
             try {
                 $geminiService = app(\App\Services\GeminiService::class);
                 $queryEmbedding = $geminiService->generateEmbedding($search);
@@ -279,29 +311,24 @@ class DocumentController extends Controller
                           AND (d.status = 'approved' OR d.status IS NULL)
                         GROUP BY dc.document_id
                         ORDER BY distance ASC
-                        LIMIT 25
+                        LIMIT 30
                     ", [$embeddingString]);
 
                     foreach ($similarChunks as $chunk) {
                         $docId = (int) $chunk->document_id;
                         $distance = (float) $chunk->distance;
 
-                        // Calibrate cosine distance for natural language embeddings:
-                        // distance <= 0.12 => 90%-99% (near duplicate)
-                        // distance <= 0.22 => 70%-89% (high similarity)
-                        // distance <= 0.32 => 45%-69% (moderate overlap / related tech)
-                        // distance <= 0.38 => 25%-44% (weak similarity)
-                        // distance > 0.38 => unrelated (< 20%)
-                        $normalized = 1 - (($distance - 0.08) / 0.40);
-                        $score = max(5, min(99, (int) round($normalized * 100)));
-
-                        // Only consider as semantically relevant if distance <= 0.38 (score >= 25%)
-                        if ($distance > 0.38) {
+                        // Include semantic matches up to distance 0.44
+                        if ($distance > 0.44) {
                             continue;
                         }
 
+                        $normalized = 1 - (($distance - 0.12) / 0.36);
+                        $score = max(25, min(99, (int) round($normalized * 100)));
+
                         if (isset($similarityMap[$docId])) {
-                            $similarityMap[$docId] = max($similarityMap[$docId], $score);
+                            // Boost if matched both keywords and semantic vector
+                            $similarityMap[$docId] = min(99, max($similarityMap[$docId], $score) + 5);
                         } else {
                             $similarityMap[$docId] = $score;
                             $semanticDocIds[] = $docId;
@@ -1211,12 +1238,18 @@ class DocumentController extends Controller
         try {
             $search = trim((string) $request->input('search', ''));
             $department = trim((string) $request->input('department', ''));
+            $tab = trim((string) $request->input('tab', 'published'));
 
-            $query = Document::query()->withCount('chunks')
-                ->where(function ($q) {
+            $query = Document::query()->withCount('chunks');
+
+            if ($tab === 'archived') {
+                $query->where('status', 'archived');
+            } else {
+                $query->where(function ($q) {
                     $q->where('status', 'approved')
                         ->orWhereNull('status');
                 });
+            }
 
             if ($search !== '') {
                 $searchTerm = '%' . strtolower($search) . '%';
@@ -1234,15 +1267,64 @@ class DocumentController extends Controller
 
             $documents = $query->orderByRaw('COALESCE(publication_date, created_at::date) desc')->latest()->get();
 
+            $publishedCount = Document::where(function ($q) {
+                $q->where('status', 'approved')
+                    ->orWhereNull('status');
+            })->count();
+
+            $archivedCount = Document::where('status', 'archived')->count();
+
             return response()->json([
                 'error' => false,
-                'theses' => $documents
+                'theses' => $documents,
+                'counts' => [
+                    'published' => $publishedCount,
+                    'archived' => $archivedCount,
+                ],
             ]);
         } catch (\Throwable $e) {
             Log::error('Admin thesis list error: ' . $e->getMessage());
             return response()->json([
                 'error' => true,
                 'message' => 'Failed to fetch theses: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function archive($id)
+    {
+        try {
+            $document = Document::findOrFail($id);
+            $document->update(['status' => 'archived']);
+
+            return response()->json([
+                'error' => false,
+                'message' => "Thesis '{$document->title}' has been archived and moved to Archived Theses."
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Admin thesis archive error: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Failed to archive thesis: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $document = Document::findOrFail($id);
+            $document->update(['status' => 'approved']);
+
+            return response()->json([
+                'error' => false,
+                'message' => "Thesis '{$document->title}' has been restored and republished."
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('Admin thesis restore error: ' . $e->getMessage());
+            return response()->json([
+                'error' => true,
+                'message' => 'Failed to restore thesis: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -1318,6 +1400,208 @@ class DocumentController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => 'Failed to delete thesis: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function searchByProposal(Request $request)
+    {
+        try {
+            $request->validate([
+                'proposal_file' => 'required|file|max:10240',
+            ]);
+
+            $file = $request->file('proposal_file');
+            if (!$file || !$file->isValid()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Uploaded file is invalid or missing.'
+                ], 422);
+            }
+
+            $extension = strtolower($file->getClientOriginalExtension());
+            $clientFilename = $file->getClientOriginalName();
+            $rawText = '';
+
+            if ($extension === 'pdf') {
+                try {
+                    $parser = new \Smalot\PdfParser\Parser();
+                    $pdf = $parser->parseFile($file->getRealPath());
+                    $rawText = $pdf->getText();
+                } catch (\Throwable $pdfErr) {
+                    Log::error('PDF parsing error: ' . $pdfErr->getMessage());
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Unable to read this PDF. Please ensure the document is not password-protected or corrupted.'
+                    ], 422);
+                }
+            } elseif ($extension === 'docx') {
+                try {
+                    if (class_exists('ZipArchive')) {
+                        $zip = new \ZipArchive();
+                        if ($zip->open($file->getRealPath()) === true) {
+                            $xml = $zip->getFromName('word/document.xml');
+                            if ($xml) {
+                                $xml = str_replace(['</w:r>', '</w:p>', '<w:tab/>', '<w:br/>', '<w:cr/>'], [' ', "\n", "\t", "\n", "\n"], $xml);
+                                $rawText = strip_tags($xml);
+                                $rawText = html_entity_decode($rawText, ENT_QUOTES | ENT_XML1, 'UTF-8');
+                            }
+
+                            if (empty(trim($rawText))) {
+                                for ($i = 0; $i < $zip->numFiles; $i++) {
+                                    $name = $zip->getNameIndex($i);
+                                    if (str_starts_with($name, 'word/') && str_ends_with($name, '.xml')) {
+                                        $subXml = $zip->getFromIndex($i);
+                                        if ($subXml) {
+                                            $subXml = str_replace(['</w:r>', '</w:p>', '<w:tab/>', '<w:br/>', '<w:cr/>'], [' ', "\n", "\t", "\n", "\n"], $subXml);
+                                            $rawText .= ' ' . strip_tags($subXml);
+                                        }
+                                    }
+                                }
+                                $rawText = html_entity_decode($rawText, ENT_QUOTES | ENT_XML1, 'UTF-8');
+                            }
+                            $zip->close();
+                        }
+                    }
+                } catch (\Throwable $docxErr) {
+                    Log::error('DOCX parsing error: ' . $docxErr->getMessage());
+                }
+
+                // Fallback: If ZipArchive failed or extracted no text, attempt binary regex extraction on <w:t> tags
+                if (empty(trim($rawText))) {
+                    try {
+                        $binary = file_get_contents($file->getRealPath());
+                        if ($binary !== false && preg_match_all('/<w:t[^>]*>(.*?)<\/w:t>/si', $binary, $matches)) {
+                            $rawText = implode(' ', $matches[1]);
+                            $rawText = html_entity_decode($rawText, ENT_QUOTES | ENT_XML1, 'UTF-8');
+                        }
+                    } catch (\Throwable $binErr) {
+                        Log::warning('DOCX binary fallback error: ' . $binErr->getMessage());
+                    }
+                }
+            } elseif (in_array($extension, ['txt', 'md', 'rtf'], true)) {
+                $rawText = file_get_contents($file->getRealPath());
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Unsupported file type (.{$extension}). Please upload a PDF, DOCX, or TXT file."
+                ], 422);
+            }
+
+            $cleanedText = trim(preg_replace('/\s+/', ' ', $rawText ?? ''));
+            if (mb_strlen($cleanedText) < 30) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The uploaded file does not contain enough readable text. If this is a scanned image PDF, please provide a text-based document.'
+                ], 422);
+            }
+
+            /** @var \App\Services\GeminiService $geminiService */
+            $geminiService = app(\App\Services\GeminiService::class);
+
+            // 1. Synthesize concepts from proposal
+            $conceptData = $geminiService->extractProposalConcepts($cleanedText);
+
+            // 2. Generate vector embedding for literature matching
+            $queryText = !empty($conceptData['embedding_query']) 
+                ? $conceptData['embedding_query'] 
+                : mb_substr($cleanedText, 0, 1500);
+
+            $queryEmbedding = $geminiService->generateEmbedding($queryText);
+            if (empty($queryEmbedding)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to generate vector representation for your proposal. Please try again.'
+                ], 500);
+            }
+
+            $embeddingString = '[' . implode(',', $queryEmbedding) . ']';
+
+            // 3. Search Supabase document_chunks using pgvector cosine distance
+            $similarChunks = DB::select("
+                SELECT
+                    dc.document_id,
+                    MIN(dc.embedding OPERATOR(extensions.<=>) ?::extensions.vector) AS distance
+                FROM document_chunks dc
+                INNER JOIN documents d ON d.id = dc.document_id
+                WHERE dc.embedding IS NOT NULL
+                  AND (d.status = 'approved' OR d.status IS NULL)
+                GROUP BY dc.document_id
+                ORDER BY distance ASC
+                LIMIT 35
+            ", [$embeddingString]);
+
+            $similarityMap = [];
+            $docIds = [];
+
+            foreach ($similarChunks as $chunk) {
+                $docId = (int) $chunk->document_id;
+                $distance = (float) $chunk->distance;
+
+                // Calibrated similarity for natural language proposal matching
+                $normalized = 1 - (($distance - 0.08) / 0.42);
+                $score = max(10, min(99, (int) round($normalized * 100)));
+
+                if ($distance <= 0.45) {
+                    $similarityMap[$docId] = $score;
+                    $docIds[] = $docId;
+                }
+            }
+
+            $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+            $department = trim((string) $request->input('department', ''));
+
+            if (!empty($docIds)) {
+                $query = Document::whereIn('id', $docIds)->where($approvedScope);
+                if ($department !== '' && $department !== 'all') {
+                    $this->applyDepartmentFilter($query, $department);
+                }
+                $matchedDocs = $query->get();
+            } else {
+                // If vector chunks yielded no matches under threshold, fallback to topic keyword search
+                $matchedDocs = collect([]);
+                if (!empty($conceptData['topics'])) {
+                    $topicQuery = Document::where($approvedScope);
+                    $topicQuery->where(function ($q) use ($conceptData) {
+                        foreach ($conceptData['topics'] as $topic) {
+                            $t = '%' . strtolower($topic) . '%';
+                            $q->orWhereRaw('LOWER(title) LIKE ?', [$t])
+                              ->orWhereRaw('LOWER(abstract) LIKE ?', [$t]);
+                        }
+                    });
+                    if ($department !== '' && $department !== 'all') {
+                        $this->applyDepartmentFilter($topicQuery, $department);
+                    }
+                    $matchedDocs = $topicQuery->limit(10)->get();
+                    foreach ($matchedDocs as $mDoc) {
+                        $similarityMap[$mDoc->id] = 60;
+                    }
+                }
+            }
+
+            $rankedDocs = $matchedDocs->map(function ($doc) use ($similarityMap) {
+                $doc->similarity_score = $similarityMap[$doc->id] ?? 50;
+                return $doc;
+            })->sortByDesc('similarity_score')->values();
+
+            return response()->json([
+                'success' => true,
+                'filename' => $clientFilename,
+                'title' => $conceptData['title'] ?? 'Concept Proposal',
+                'summary' => $conceptData['summary'] ?? '',
+                'topics' => $conceptData['topics'] ?? [],
+                'documents' => $rankedDocs,
+                'total' => $rankedDocs->count(),
+            ]);
+
+        } catch (\Throwable $e) {
+            Log::error('searchByProposal error: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error analyzing proposal: ' . $e->getMessage()
             ], 500);
         }
     }
