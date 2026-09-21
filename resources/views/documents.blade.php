@@ -60,19 +60,14 @@
             {{-- 2. SEARCH & FILTER SECTION --}}
             <section class="mb-8 space-y-4">
                 <form id="searchForm" class="space-y-4">
-                    {{-- Search Input Bar (Google Scholar Style Hybrid Search with Proposal Upload) --}}
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <div class="relative flex-1" id="searchBarDropZone">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </span>
+                    {{-- Sleek Pill Search Bar (Unified rounded-full input with embedded actions) --}}
+                    <div class="relative w-full rounded-full transition-all" id="searchBarDropZone">
+                        <div class="relative flex items-center w-full rounded-full border border-gray-300 bg-white shadow-xs hover:shadow-sm focus-within:shadow-md focus-within:border-[#700000] focus-within:ring-2 focus-within:ring-[#700000]/15 transition-all">
                             <input
                                 id="searchInput"
                                 type="search"
                                 placeholder="Search by thesis title, author, concepts... or attach a proposal"
-                                class="w-full rounded-2xl border border-gray-300 bg-white pl-10 pr-32 md:pr-36 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-sm transition">
+                                class="w-full rounded-full bg-transparent pl-5 sm:pl-7 pr-44 sm:pr-48 py-3.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none">
 
                             {{-- Hidden Proposal File Input --}}
                             <input
@@ -82,28 +77,35 @@
                                 onchange="handleProposalFileSelected(event)"
                                 class="hidden">
 
-                            {{-- Attach Proposal Button inside Search Bar --}}
-                            <button
-                                type="button"
-                                id="uploadProposalBtn"
-                                onclick="triggerProposalUpload()"
-                                title="Upload a concept proposal (PDF, DOCX, TXT) to match related literature"
-                                class="absolute inset-y-0 right-2 my-auto h-8 px-2.5 rounded-xl border border-gray-200 bg-slate-50 hover:bg-[#700000]/10 hover:border-[#700000]/30 text-gray-600 hover:text-[#700000] transition flex items-center gap-1.5 text-xs font-semibold cursor-pointer shadow-2xs">
-                                <svg class="w-3.5 h-3.5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.373L8.559 18.315a1.5 1.5 0 11-2.122-2.122L16.5 6.136" />
-                                </svg>
-                                <span>Upload File</span>
-                            </button>
+                            {{-- Right-side Actions inside the pill --}}
+                            <div class="absolute right-2 sm:right-3 flex items-center gap-1.5 sm:gap-2 shrink-0">
+                                {{-- Attach Proposal Button --}}
+                                <button
+                                    type="button"
+                                    id="uploadProposalBtn"
+                                    onclick="triggerProposalUpload()"
+                                    title="Upload a concept proposal (PDF, DOCX, TXT) to match related literature"
+                                    class="rounded-full border border-gray-200 bg-slate-50 hover:bg-[#700000]/10 hover:border-[#700000]/30 text-gray-600 hover:text-[#700000] px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs">
+                                    <svg class="w-3.5 h-3.5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.373L8.559 18.315a1.5 1.5 0 11-2.122-2.122L16.5 6.136" />
+                                    </svg>
+                                    <span>Upload File</span>
+                                </button>
+
+                                {{-- Search Submit Button (Magnifying glass on far right) --}}
+                                <button
+                                    type="submit"
+                                    id="searchSubmitBtn"
+                                    title="Search"
+                                    aria-label="Search"
+                                    class="p-2 sm:p-2.5 rounded-full text-gray-500 hover:text-[#700000] hover:bg-slate-100 active:scale-95 transition flex items-center justify-center cursor-pointer">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                                    </svg>
+                                    <span id="searchSubmitBtnText" class="sr-only">Search</span>
+                                </button>
+                            </div>
                         </div>
-                        <button
-                            type="submit"
-                            id="searchSubmitBtn"
-                            class="rounded-2xl bg-[#700000] px-7 py-3 text-xs md:text-sm font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md shrink-0 flex items-center justify-center gap-2 cursor-pointer">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <span id="searchSubmitBtnText">Search</span>
-                        </button>
                     </div>
 
                     {{-- Attached Proposal File Chip --}}
@@ -118,7 +120,7 @@
                                     <span id="proposalFileSize" class="text-gray-400 font-normal text-[11px] shrink-0">(120 KB)</span>
                                 </p>
                                 <p class="text-[11px] text-[#700000] font-semibold">
-                                    Concept Proposal attached • Click "Match Literature" to discover related research
+                                    Concept Proposal attached • Click the search icon or press Enter to discover related literature
                                 </p>
                             </div>
                         </div>
@@ -903,6 +905,11 @@
             }
             if (chip) chip.classList.remove('hidden');
             if (submitBtnText) submitBtnText.textContent = 'Match Literature';
+            const searchBtn = document.getElementById('searchSubmitBtn');
+            if (searchBtn) {
+                searchBtn.setAttribute('title', 'Match Literature');
+                searchBtn.classList.add('text-[#700000]', 'bg-[#700000]/10');
+            }
 
             showToast(`Proposal attached: ${file.name}`, true);
         }
@@ -915,6 +922,11 @@
             if (chip) chip.classList.add('hidden');
             const submitBtnText = document.getElementById('searchSubmitBtnText');
             if (submitBtnText) submitBtnText.textContent = 'Search';
+            const searchBtn = document.getElementById('searchSubmitBtn');
+            if (searchBtn) {
+                searchBtn.setAttribute('title', 'Search');
+                searchBtn.classList.remove('text-[#700000]', 'bg-[#700000]/10');
+            }
         }
 
         function clearProposalResults() {
