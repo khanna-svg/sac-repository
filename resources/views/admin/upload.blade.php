@@ -320,7 +320,9 @@
                 { code: 'bscrim', name: 'Bachelor of Science in Criminology (BSCrim)' }
             ],
             'dte': [
-                { code: 'bsed', name: 'Bachelor of Secondary Education Major in English, Mathematics, Science (BSED)' },
+                { code: 'bsed_english', name: 'Bachelor of Secondary Education Major in English' },
+                { code: 'bsed_math', name: 'Bachelor of Secondary Education Major in Mathematics' },
+                { code: 'bsed_science', name: 'Bachelor of Secondary Education Major in Science' },
                 { code: 'beed', name: 'Bachelor of Elementary Education (BEED)' }
             ],
             'eng': [

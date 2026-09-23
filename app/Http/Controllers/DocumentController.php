@@ -183,9 +183,10 @@ class DocumentController extends Controller
                   ->orWhereIn(DB::raw('LOWER(course_code)'), ['bscrim', 'bsc'])
                   ->orWhereRaw('LOWER(department) LIKE ?', ['%criminal justice%'])
                   ->orWhereRaw('LOWER(department) LIKE ?', ['%criminology%']);
-            } elseif (in_array($dept, ['dte', 'education', 'bsed', 'beed'])) {
+            } elseif (in_array($dept, ['dte', 'education', 'bsed', 'bsed_english', 'bsed_math', 'bsed_science', 'beed'])) {
                 $q->whereIn(DB::raw('LOWER(department)'), ['dte', 'education'])
-                  ->orWhereIn(DB::raw('LOWER(course_code)'), ['bsed', 'beed'])
+                  ->orWhereIn(DB::raw('LOWER(course_code)'), ['bsed', 'bsed_english', 'bsed_math', 'bsed_science', 'beed'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bsed%'])
                   ->orWhereRaw('LOWER(department) LIKE ?', ['%teacher education%'])
                   ->orWhereRaw('LOWER(department) LIKE ?', ['%education%']);
             } elseif (in_array($dept, ['eng', 'engineering', 'marine', 'bsce', 'bscpe', 'bsmare'])) {

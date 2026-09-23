@@ -116,7 +116,10 @@
                     'bshm' => 'Bachelor of Science in Hospitality Management (BSHM)',
                     'bscrim' => 'Bachelor of Science in Criminology (BSCrim)',
                     'bsc' => 'Bachelor of Science in Criminology (BSCrim)',
-                    'bsed' => 'Bachelor of Secondary Education Major in English, Mathematics, Science (BSED)',
+                    'bsed_english' => 'Bachelor of Secondary Education Major in English',
+                    'bsed_math' => 'Bachelor of Secondary Education Major in Mathematics',
+                    'bsed_science' => 'Bachelor of Secondary Education Major in Science',
+                    'bsed' => 'Bachelor of Secondary Education (BSED)',
                     'beed' => 'Bachelor of Elementary Education (BEED)',
                     'bsce' => 'Bachelor of Science in Civil Engineering (BSCE)',
                     'bscpe' => 'Bachelor of Science in Computer Engineering (BSCpE)',
@@ -138,6 +141,9 @@
                     'bsc' => 'CRIM',
                     'criminology' => 'CRIM',
                     'dte' => 'EDUC',
+                    'bsed_english' => 'EDUC',
+                    'bsed_math' => 'EDUC',
+                    'bsed_science' => 'EDUC',
                     'bsed' => 'EDUC',
                     'beed' => 'EDUC',
                     'education' => 'EDUC',
@@ -1063,7 +1069,7 @@
             if (['cjed', 'criminology'].includes(cleanDept) || ['bscrim', 'bsc'].includes(cleanCourse)) {
                 return 'Criminal Justice Education Department';
             }
-            if (['dte', 'education'].includes(cleanDept) || ['bsed', 'beed'].includes(cleanCourse)) {
+            if (['dte', 'education'].includes(cleanDept) || cleanCourse.startsWith('bsed') || cleanCourse === 'beed' || ['bsed', 'beed'].includes(cleanCourse)) {
                 return 'Department of Teacher Education';
             }
             if (['eng', 'engineering', 'marine'].includes(cleanDept) || ['bsce', 'bscpe', 'bsmare'].includes(cleanCourse)) {

@@ -565,7 +565,7 @@
                     name: 'Criminal Justice Education Department',
                     badgeBg: 'bg-red-50 text-red-700 border-red-200'
                 };
-            } else if (['dte', 'education'].includes(dept) || ['bsed', 'beed'].includes(course)) {
+            } else if (['dte', 'education'].includes(dept) || course.startsWith('bsed') || course === 'beed' || ['bsed', 'beed'].includes(course)) {
                 return {
                     cover: 'EDUC.webp',
                     name: 'Department of Teacher Education',
@@ -1151,7 +1151,7 @@
             if (['cjed', 'criminology'].includes(cleanDept) || ['bscrim', 'bsc'].includes(cleanCourse)) {
                 return 'Criminal Justice Education Department';
             }
-            if (['dte', 'education'].includes(cleanDept) || ['bsed', 'beed'].includes(cleanCourse)) {
+            if (['dte', 'education'].includes(cleanDept) || cleanCourse.startsWith('bsed') || cleanCourse === 'beed' || ['bsed', 'beed'].includes(cleanCourse)) {
                 return 'Department of Teacher Education';
             }
             if (['eng', 'engineering', 'marine'].includes(cleanDept) || ['bsce', 'bscpe', 'bsmare'].includes(cleanCourse)) {

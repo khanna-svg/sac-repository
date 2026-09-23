@@ -364,7 +364,9 @@
                 { code: 'bscrim', name: 'BSCRIM - Criminology' }
             ],
             dte: [
-                { code: 'bsed', name: 'BSED - Secondary Education' },
+                { code: 'bsed_english', name: 'BSED - Major in English' },
+                { code: 'bsed_math', name: 'BSED - Major in Mathematics' },
+                { code: 'bsed_science', name: 'BSED - Major in Science' },
                 { code: 'beed', name: 'BEED - Elementary Education' }
             ],
             eng: [
