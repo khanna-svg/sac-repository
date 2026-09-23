@@ -126,12 +126,13 @@
                                     onchange="handleDepartmentChange()"
                                     class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs font-semibold cursor-pointer">
                                     <option value="" disabled selected>Select Department</option>
-                                    <option value="it">Information Technology</option>
-                                    <option value="nursing">Nursing</option>
-                                    <option value="marine">Marine Engineering</option>
-                                    <option value="hospitality">Hospitality Management</option>
-                                    <option value="education">Education</option>
-                                    <option value="criminology">Criminology</option>
+                                    <option value="bused">Business Education Department</option>
+                                    <option value="cjed">Criminal Justice Education Department</option>
+                                    <option value="dte">Department of Teacher Education</option>
+                                    <option value="eng">Engineering Department</option>
+                                    <option value="itd">Information Technology Department</option>
+                                    <option value="lad">Liberal Arts Department</option>
+                                    <option value="nursing">Nursing Department</option>
                                 </select>
                             </div>
                             <div>
@@ -342,23 +343,31 @@
     <script>
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
         const deptPrograms = {
-            'it': [
-                { code: 'bsit', name: 'BS in Information Technology (BSIT)' }
+            'bused': [
+                { code: 'bsa', name: 'Bachelor of Science in Accountancy (BSA)' },
+                { code: 'bsais', name: 'Bachelor of Science in Accounting Information System (BSAIS)' },
+                { code: 'ba', name: 'Business Research (BA)' },
+                { code: 'bshm', name: 'Bachelor of Science in Hospitality Management (BSHM)' }
+            ],
+            'cjed': [
+                { code: 'bscrim', name: 'Bachelor of Science in Criminology (BSCrim)' }
+            ],
+            'dte': [
+                { code: 'bsed', name: 'Bachelor of Secondary Education Major in English, Mathematics, Science (BSED)' },
+                { code: 'beed', name: 'Bachelor of Elementary Education (BEED)' }
+            ],
+            'eng': [
+                { code: 'bsce', name: 'Bachelor of Science in Civil Engineering (BSCE)' },
+                { code: 'bscpe', name: 'Bachelor of Science in Computer Engineering (BSCpE)' }
+            ],
+            'itd': [
+                { code: 'bsit', name: 'Bachelor of Science in Information Technology (BSIT)' }
+            ],
+            'lad': [
+                { code: 'ab_philo', name: 'Bachelor of Arts in Philosophy (AB Philosophy)' }
             ],
             'nursing': [
-                { code: 'bsn', name: 'BS in Nursing (BSN)' }
-            ],
-            'marine': [
-                { code: 'bsmare', name: 'BS in Marine Engineering (BSMarE)' }
-            ],
-            'hospitality': [
-                { code: 'bshm', name: 'BS in Hospitality Management (BSHM)' }
-            ],
-            'education': [
-                { code: 'bsed', name: 'Bachelor of Secondary Education (BSED)' }
-            ],
-            'criminology': [
-                { code: 'bsc', name: 'BS in Criminology (BSC)' }
+                { code: 'bsn', name: 'Bachelor of Science in Nursing (BSN)' }
             ]
         };
 

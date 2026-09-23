@@ -84,12 +84,13 @@
                         onchange="loadTheses()"
                         class="w-full sm:w-56 rounded-2xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] transition font-medium shadow-2xs">
                         <option value="all">All Academic Departments</option>
-                        <option value="it">Information Technology (BSIT)</option>
-                        <option value="marine">Marine Engineering (BSMARE)</option>
-                        <option value="nursing">Nursing Department (BSN)</option>
-                        <option value="hospitality">Hospitality Management (BSHM)</option>
-                        <option value="education">Education Department (BSED)</option>
-                        <option value="criminology">Criminology Department (BSC)</option>
+                        <option value="bused">Business Education</option>
+                        <option value="cjed">Criminal Justice Education</option>
+                        <option value="dte">Teacher Education</option>
+                        <option value="eng">Engineering Department</option>
+                        <option value="itd">Information Technology</option>
+                        <option value="lad">Liberal Arts</option>
+                        <option value="nursing">Nursing Department</option>
                     </select>
 
                     <span id="thesesCountBadge" class="text-xs font-bold text-gray-500 whitespace-nowrap px-1">
@@ -160,24 +161,19 @@
                     <div>
                         <label for="editDepartment" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Department</label>
                         <select id="editDepartment" required onchange="handleEditDeptChange(this.value)" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
-                            <option value="it">Information Technology</option>
-                            <option value="marine">Marine Engineering</option>
-                            <option value="nursing">Nursing</option>
-                            <option value="hospitality">Hospitality Management</option>
-                            <option value="education">Education</option>
-                            <option value="criminology">Criminology</option>
+                            <option value="bused">Business Education Department</option>
+                            <option value="cjed">Criminal Justice Education Department</option>
+                            <option value="dte">Department of Teacher Education</option>
+                            <option value="eng">Engineering Department</option>
+                            <option value="itd">Information Technology Department</option>
+                            <option value="lad">Liberal Arts Department</option>
+                            <option value="nursing">Nursing Department</option>
                         </select>
                     </div>
 
                     <div>
                         <label for="editCourseCode" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Degree Program</label>
                         <select id="editCourseCode" required class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
-                            <option value="bsit">BSIT - Information Technology</option>
-                            <option value="bsmare">BSMARE - Marine Engineering</option>
-                            <option value="bsn">BSN - Nursing</option>
-                            <option value="bshm">BSHM - Hospitality Management</option>
-                            <option value="bsed">BSED - Secondary Education</option>
-                            <option value="bsc">BSC - Criminology</option>
                         </select>
                     </div>
                 </div>
@@ -275,20 +271,20 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                 </svg>
             </div>
-            <h3 class="text-lg font-bold text-gray-900">Permanently Purge</h3>
+            <h3 class="text-lg font-bold text-gray-900">Permanently Delete</h3>
             <p class="mt-2 text-xs text-gray-600 leading-relaxed">
-                Permanently purge <br>
+                Permanently Delete <br>
                 <strong id="deleteDocTitle" class="text-gray-900 font-semibold"></strong>?
             </p>
             <p class="mt-2 text-[11px] text-rose-700 bg-rose-50 rounded-2xl p-2.5 border border-rose-200 font-medium">
-                This will delete the database record and purge the PDF file from Supabase storage. This cannot be undone.
+                This will delete the database record and delete the PDF file from database storage. This cannot be undone.
             </p>
             <div class="mt-6 flex items-center justify-center gap-3">
                 <button type="button" onclick="closeDeleteModal()" class="w-1/2 rounded-xl border border-gray-300 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-100 transition cursor-pointer">
                     Cancel
                 </button>
                 <button type="button" id="confirmDeleteBtn" onclick="submitDelete()" class="w-1/2 rounded-xl bg-rose-600 py-2.5 text-xs font-bold text-white shadow-md hover:bg-rose-700 transition cursor-pointer flex items-center justify-center gap-1.5">
-                    <span>Purge Forever</span>
+                    <span>Delete</span>
                 </button>
             </div>
         </div>
@@ -349,22 +345,57 @@
         let pendingRestoreId = null;
         let pendingDeleteId = null;
 
+        const deptAliases = {
+            'it': 'itd',
+            'marine': 'eng',
+            'hospitality': 'bused',
+            'education': 'dte',
+            'criminology': 'cjed'
+        };
+
         const programMap = {
-            it: [{ code: 'bsit', name: 'BSIT - Information Technology' }],
-            marine: [{ code: 'bsmare', name: 'BSMARE - Marine Engineering' }],
-            nursing: [{ code: 'bsn', name: 'BSN - Nursing' }],
-            hospitality: [{ code: 'bshm', name: 'BSHM - Hospitality Management' }],
-            education: [{ code: 'bsed', name: 'BSED - Secondary Education' }],
-            criminology: [{ code: 'bsc', name: 'BSC - Criminology' }]
+            bused: [
+                { code: 'bsa', name: 'BSA - Accountancy' },
+                { code: 'bsais', name: 'BSAIS - Accounting Information System' },
+                { code: 'ba', name: 'BA - Business Research' },
+                { code: 'bshm', name: 'BSHM - Hospitality Management' }
+            ],
+            cjed: [
+                { code: 'bscrim', name: 'BSCRIM - Criminology' }
+            ],
+            dte: [
+                { code: 'bsed', name: 'BSED - Secondary Education' },
+                { code: 'beed', name: 'BEED - Elementary Education' }
+            ],
+            eng: [
+                { code: 'bsce', name: 'BSCE - Civil Engineering' },
+                { code: 'bscpe', name: 'BSCpE - Computer Engineering' }
+            ],
+            itd: [
+                { code: 'bsit', name: 'BSIT - Information Technology' }
+            ],
+            lad: [
+                { code: 'ab_philo', name: 'AB Philosophy - Philosophy' }
+            ],
+            nursing: [
+                { code: 'bsn', name: 'BSN - Nursing' }
+            ]
         };
 
         const deptNames = {
+            bused: { name: 'Business Education', cover: 'HM.webp' },
+            cjed: { name: 'Criminal Justice Education', cover: 'CRIM.webp' },
+            dte: { name: 'Teacher Education', cover: 'EDUC.webp' },
+            eng: { name: 'Engineering Department', cover: 'MARINE.webp' },
+            itd: { name: 'Information Technology', cover: 'IT.webp' },
+            lad: { name: 'Liberal Arts Department', cover: 'EDUC.webp' },
+            nursing: { name: 'Nursing Department', cover: 'NURSING.webp' },
+            // Legacy fallbacks
             it: { name: 'Information Technology', cover: 'IT.webp' },
-            marine: { name: 'Marine Engineering', cover: 'MARINE.webp' },
-            nursing: { name: 'Nursing', cover: 'NURSING.webp' },
-            hospitality: { name: 'Hospitality Management', cover: 'HM.webp' },
-            education: { name: 'Education', cover: 'EDUC.webp' },
-            criminology: { name: 'Criminology', cover: 'CRIM.webp' }
+            hospitality: { name: 'Business Education', cover: 'HM.webp' },
+            education: { name: 'Teacher Education', cover: 'EDUC.webp' },
+            criminology: { name: 'Criminal Justice Education', cover: 'CRIM.webp' },
+            marine: { name: 'Engineering Department', cover: 'MARINE.webp' }
         };
 
         function showToast(message, isSuccess = true) {
@@ -529,7 +560,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
                         </svg>
                     </button>
-                    <button type="button" onclick="openDeleteModal(${doc.id})" title="Permanently Purge" class="p-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:border-rose-300 transition cursor-pointer">
+                    <button type="button" onclick="openDeleteModal(${doc.id})" title="Permanently Delete" class="p-2 rounded-xl border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:border-rose-300 transition cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                         </svg>
@@ -571,9 +602,10 @@
         }
 
         function handleEditDeptChange(deptVal) {
+            const cleanDept = deptAliases[deptVal] || deptVal;
             const courseSelect = document.getElementById('editCourseCode');
             courseSelect.innerHTML = '';
-            const programs = programMap[deptVal] || programMap.it;
+            const programs = programMap[cleanDept] || programMap.itd || [];
             programs.forEach(prog => {
                 const opt = document.createElement('option');
                 opt.value = prog.code;
@@ -590,11 +622,19 @@
             document.getElementById('editTitle').value = doc.title || '';
             document.getElementById('editAuthor').value = doc.author || '';
             
-            const deptKey = (doc.department || 'it').toLowerCase();
+            const rawDept = (doc.department || 'itd').toLowerCase();
+            const deptKey = deptAliases[rawDept] || rawDept;
             document.getElementById('editDepartment').value = deptKey;
             handleEditDeptChange(deptKey);
             
-            document.getElementById('editCourseCode').value = (doc.course_code || 'bsit').toLowerCase();
+            const rawCourse = (doc.course_code || 'bsit').toLowerCase();
+            const courseSelect = document.getElementById('editCourseCode');
+            if (Array.from(courseSelect.options).some(o => o.value === rawCourse)) {
+                courseSelect.value = rawCourse;
+            } else if (courseSelect.options.length > 0) {
+                courseSelect.selectedIndex = 0;
+            }
+
             const pubDateStr = doc.publication_date ? doc.publication_date.substring(0, 7) : (doc.created_at ? doc.created_at.substring(0, 7) : '');
             document.getElementById('editPublicationDate').value = pubDateStr;
             document.getElementById('editAbstract').value = doc.abstract || '';
@@ -785,18 +825,18 @@
 
                 const data = await res.json();
                 if (!res.ok || data.error) {
-                    throw new Error(data.message || 'Failed to purge thesis.');
+                    throw new Error(data.message || 'Failed to delete thesis.');
                 }
 
                 closeDeleteModal();
-                showToast('Thesis permanently purged!', true);
+                showToast('Thesis permanently deleted!', true);
                 loadTheses();
             } catch (err) {
                 console.error(err);
                 alert('Error deleting thesis: ' + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '<span>Purge Forever</span>';
+                btn.innerHTML = '<span>Delete</span>';
             }
         }
 

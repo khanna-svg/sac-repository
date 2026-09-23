@@ -103,16 +103,20 @@
                 }
 
                 const courseColorMap = {
-                    'BSIT': '#700000',
-                    'BSED': '#0284c7',
-                    'BEED': '#0284c7',
-                    'BSMARE': '#059669',
-                    'BSN': '#d97706',
-                    'BSHM': '#7c3aed',
-                    'BSC': '#dc2626',
+                    'BSA': '#ca8a04',
+                    'BSAIS': '#d97706',
+                    'BA': '#eab308',
+                    'BSHM': '#f59e0b',
                     'BSCRIM': '#dc2626',
-                    'BSBA': '#ca8a04',
-                    'BSA': '#ca8a04'
+                    'BSC': '#dc2626',
+                    'BSED': '#9333ea',
+                    'BEED': '#a855f7',
+                    'BSCE': '#0891b2',
+                    'BSCPE': '#0284c7',
+                    'BSIT': '#2563eb',
+                    'AB_PHILO': '#4f46e5',
+                    'BSN': '#059669',
+                    'BSMARE': '#0d9488'
                 };
 
                 const defaultPalette = ['#700000', '#0284c7', '#059669', '#d97706', '#7c3aed', '#dc2626', '#ca8a04'];

@@ -94,36 +94,65 @@
                 {{-- Department & Degree Badges --}}
                 @php
                 $departmentNames = [
-                'nursing' => 'Nursing Department',
-                'marine' => 'Marine Engineering Department',
-                'it' => 'Information Technology Department',
-                'hospitality' => 'Hospitality Management',
-                'education' => 'Education Department',
-                'criminology' => 'Criminology Department',
+                    'bused' => 'Business Education Department',
+                    'cjed' => 'Criminal Justice Education Department',
+                    'dte' => 'Department of Teacher Education',
+                    'eng' => 'Engineering Department',
+                    'itd' => 'Information Technology Department',
+                    'lad' => 'Liberal Arts Department',
+                    'nursing' => 'Nursing Department',
+                    // Legacy fallbacks
+                    'it' => 'Information Technology Department',
+                    'marine' => 'Engineering Department',
+                    'hospitality' => 'Business Education Department',
+                    'education' => 'Department of Teacher Education',
+                    'criminology' => 'Criminal Justice Education Department',
                 ];
 
                 $courseNames = [
-                'bsn' => 'BS in Nursing (BSN)',
-                'bsmare' => 'BS in Marine Engineering (BSMarE)',
-                'bsit' => 'BS in Information Technology (BSIT)',
-                'bshm' => 'BS in Hospitality Management (BSHM)',
-                'bsed' => 'Bachelor of Secondary Education (BSED)',
-                'bsc' => 'BS in Criminology (BSC)',
+                    'bsa' => 'Bachelor of Science in Accountancy (BSA)',
+                    'bsais' => 'Bachelor of Science in Accounting Information System (BSAIS)',
+                    'ba' => 'Business Research (BA)',
+                    'bshm' => 'Bachelor of Science in Hospitality Management (BSHM)',
+                    'bscrim' => 'Bachelor of Science in Criminology (BSCrim)',
+                    'bsc' => 'Bachelor of Science in Criminology (BSCrim)',
+                    'bsed' => 'Bachelor of Secondary Education Major in English, Mathematics, Science (BSED)',
+                    'beed' => 'Bachelor of Elementary Education (BEED)',
+                    'bsce' => 'Bachelor of Science in Civil Engineering (BSCE)',
+                    'bscpe' => 'Bachelor of Science in Computer Engineering (BSCpE)',
+                    'bsit' => 'Bachelor of Science in Information Technology (BSIT)',
+                    'ab_philo' => 'Bachelor of Arts in Philosophy (AB Philosophy)',
+                    'bsn' => 'Bachelor of Science in Nursing (BSN)',
+                    'bsmare' => 'BS in Marine Engineering (BSMarE)',
                 ];
 
                 $coverMap = [
-                'nursing' => 'NURSING',
-                'bsn' => 'NURSING',
-                'marine' => 'MARINE',
-                'bsmare' => 'MARINE',
-                'it' => 'IT',
-                'bsit' => 'IT',
-                'hospitality' => 'HM',
-                'bshm' => 'HM',
-                'education' => 'EDUC',
-                'bsed' => 'EDUC',
-                'criminology' => 'CRIM',
-                'bsc' => 'CRIM',
+                    'bused' => 'HM',
+                    'bsa' => 'HM',
+                    'bsais' => 'HM',
+                    'ba' => 'HM',
+                    'bshm' => 'HM',
+                    'hospitality' => 'HM',
+                    'cjed' => 'CRIM',
+                    'bscrim' => 'CRIM',
+                    'bsc' => 'CRIM',
+                    'criminology' => 'CRIM',
+                    'dte' => 'EDUC',
+                    'bsed' => 'EDUC',
+                    'beed' => 'EDUC',
+                    'education' => 'EDUC',
+                    'eng' => 'MARINE',
+                    'bsce' => 'MARINE',
+                    'bscpe' => 'MARINE',
+                    'bsmare' => 'MARINE',
+                    'marine' => 'MARINE',
+                    'itd' => 'IT',
+                    'it' => 'IT',
+                    'bsit' => 'IT',
+                    'lad' => 'EDUC',
+                    'ab_philo' => 'EDUC',
+                    'nursing' => 'NURSING',
+                    'bsn' => 'NURSING',
                 ];
 
                 $deptKey = strtolower($document->department ?? '');
@@ -1006,15 +1035,21 @@
         }
 
         const deptNamesMap = {
-            'it': 'Information Technology',
-            'computer': 'Computer Studies',
-            'marine': 'Marine Engineering',
-            'nursing': 'Nursing',
-            'hospitality': 'Hospitality Management',
-            'education': 'Teacher Education',
-            'criminology': 'Criminal Justice Education',
-            'business': 'Business Administration',
-            'arts': 'Arts and Sciences'
+            'bused': 'Business Education Department',
+            'cjed': 'Criminal Justice Education Department',
+            'dte': 'Department of Teacher Education',
+            'eng': 'Engineering Department',
+            'itd': 'Information Technology Department',
+            'lad': 'Liberal Arts Department',
+            'nursing': 'Nursing Department',
+            'it': 'Information Technology Department',
+            'computer': 'Information Technology Department',
+            'marine': 'Engineering Department',
+            'hospitality': 'Business Education Department',
+            'education': 'Department of Teacher Education',
+            'criminology': 'Criminal Justice Education Department',
+            'business': 'Business Education Department',
+            'arts': 'Liberal Arts Department'
         };
 
         function getFullDeptName(deptCode, courseCode, titleText) {
@@ -1022,31 +1057,35 @@
             const cleanCourse = (courseCode || '').toLowerCase().trim();
             const cleanTitle = (titleText || '').toLowerCase().trim();
 
-            if (cleanDept === 'it' || cleanCourse === 'bsit' || cleanTitle.includes('system') || cleanTitle.includes('app') || cleanTitle.includes('web') || cleanTitle.includes('software')) {
-                return 'Information Technology';
+            if (['bused', 'bus.ed', 'business', 'hospitality'].includes(cleanDept) || ['bsa', 'bsais', 'ba', 'bshm'].includes(cleanCourse)) {
+                return 'Business Education Department';
             }
-            if (cleanDept === 'marine' || cleanCourse === 'bsmare' || cleanTitle.includes('marine') || cleanTitle.includes('vessel')) {
-                return 'Marine Engineering';
+            if (['cjed', 'criminology'].includes(cleanDept) || ['bscrim', 'bsc'].includes(cleanCourse)) {
+                return 'Criminal Justice Education Department';
+            }
+            if (['dte', 'education'].includes(cleanDept) || ['bsed', 'beed'].includes(cleanCourse)) {
+                return 'Department of Teacher Education';
+            }
+            if (['eng', 'engineering', 'marine'].includes(cleanDept) || ['bsce', 'bscpe', 'bsmare'].includes(cleanCourse)) {
+                return 'Engineering Department';
+            }
+            if (['itd', 'it', 'computer'].includes(cleanDept) || cleanCourse === 'bsit' || cleanTitle.includes('system') || cleanTitle.includes('app') || cleanTitle.includes('web') || cleanTitle.includes('software')) {
+                return 'Information Technology Department';
+            }
+            if (['lad', 'liberal_arts', 'arts'].includes(cleanDept) || ['ab_philo', 'ab_phil'].includes(cleanCourse)) {
+                return 'Liberal Arts Department';
             }
             if (cleanDept === 'nursing' || cleanCourse === 'bsn' || cleanTitle.includes('patient') || cleanTitle.includes('nursing')) {
-                return 'Nursing';
+                return 'Nursing Department';
             }
-            if (cleanDept === 'hospitality' || cleanCourse === 'bshm') {
-                return 'Hospitality Management';
-            }
-            if (cleanDept === 'education' || cleanCourse === 'bsed') {
-                return 'Teacher Education';
-            }
-            if (cleanDept === 'criminology' || cleanCourse === 'bsc') {
-                return 'Criminal Justice Education';
-            }
+
             for (const [k, v] of Object.entries(deptNamesMap)) {
                 if (cleanDept.includes(k)) return v;
             }
             if (deptCode && deptCode.trim()) {
                 return deptCode.charAt(0).toUpperCase() + deptCode.slice(1);
             }
-            return 'Information Technology';
+            return 'Information Technology Department';
         }
 
         function formatIeeeAuthors(authorStr) {

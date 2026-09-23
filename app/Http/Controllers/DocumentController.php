@@ -172,29 +172,41 @@ class DocumentController extends Controller
         }
 
         $query->where(function ($q) use ($dept) {
-            if ($dept === 'it' || $dept === 'bsit') {
-                $q->whereRaw('LOWER(department) = ?', ['it'])
-                  ->orWhereRaw('LOWER(course_code) = ?', ['bsit'])
-                  ->orWhereRaw('LOWER(department) LIKE ?', ['%information technology%']);
-            } elseif ($dept === 'hospitality' || $dept === 'bshm') {
-                $q->whereRaw('LOWER(department) LIKE ?', ['%hospitality%'])
-                  ->orWhereRaw('LOWER(course_code) = ?', ['bshm']);
-            } elseif ($dept === 'marine' || $dept === 'bsmare') {
-                $q->whereRaw('LOWER(department) LIKE ?', ['%marine%'])
-                  ->orWhereRaw('LOWER(course_code) = ?', ['bsmare']);
-            } elseif ($dept === 'nursing' || $dept === 'bsn') {
-                $q->whereRaw('LOWER(department) LIKE ?', ['%nursing%'])
-                  ->orWhereRaw('LOWER(course_code) = ?', ['bsn']);
-            } elseif ($dept === 'education' || $dept === 'bsed') {
-                $q->whereRaw('LOWER(department) LIKE ?', ['%education%'])
-                  ->orWhereRaw('LOWER(course_code) = ?', ['bsed']);
-            } elseif ($dept === 'criminology' || $dept === 'bsc') {
-                $q->whereRaw('LOWER(department) LIKE ?', ['%criminology%'])
-                  ->orWhereRaw('LOWER(course_code) = ?', ['bsc']);
-            } elseif ($dept === 'business' || $dept === 'cba') {
-                $q->whereRaw('LOWER(department) LIKE ?', ['%business%'])
-                  ->orWhereRaw('LOWER(department) LIKE ?', ['%accountancy%'])
-                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%cba%']);
+            if (in_array($dept, ['bused', 'bus.ed', 'bus_ed', 'business', 'hospitality', 'bsa', 'bsais', 'ba', 'bshm'])) {
+                $q->whereIn(DB::raw('LOWER(department)'), ['bused', 'bus.ed', 'bus_ed', 'business', 'hospitality'])
+                  ->orWhereIn(DB::raw('LOWER(course_code)'), ['bsa', 'bsais', 'ba', 'bshm'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%business%'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%accountan%'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%hospitality%']);
+            } elseif (in_array($dept, ['cjed', 'criminology', 'bscrim', 'bsc'])) {
+                $q->whereIn(DB::raw('LOWER(department)'), ['cjed', 'criminology'])
+                  ->orWhereIn(DB::raw('LOWER(course_code)'), ['bscrim', 'bsc'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%criminal justice%'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%criminology%']);
+            } elseif (in_array($dept, ['dte', 'education', 'bsed', 'beed'])) {
+                $q->whereIn(DB::raw('LOWER(department)'), ['dte', 'education'])
+                  ->orWhereIn(DB::raw('LOWER(course_code)'), ['bsed', 'beed'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%teacher education%'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%education%']);
+            } elseif (in_array($dept, ['eng', 'engineering', 'marine', 'bsce', 'bscpe', 'bsmare'])) {
+                $q->whereIn(DB::raw('LOWER(department)'), ['eng', 'engineering', 'marine'])
+                  ->orWhereIn(DB::raw('LOWER(course_code)'), ['bsce', 'bscpe', 'bsmare'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%engineering%'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%marine%']);
+            } elseif (in_array($dept, ['itd', 'it', 'computer', 'bsit'])) {
+                $q->whereIn(DB::raw('LOWER(department)'), ['itd', 'it'])
+                  ->orWhereIn(DB::raw('LOWER(course_code)'), ['bsit'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%information technology%'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%computer%']);
+            } elseif (in_array($dept, ['lad', 'liberal_arts', 'arts', 'ab_philo', 'ab_phil', 'philosophy'])) {
+                $q->whereIn(DB::raw('LOWER(department)'), ['lad', 'liberal_arts', 'arts'])
+                  ->orWhereIn(DB::raw('LOWER(course_code)'), ['ab_philo', 'ab_phil'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%liberal arts%'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%philosophy%']);
+            } elseif (in_array($dept, ['nursing', 'bsn'])) {
+                $q->whereIn(DB::raw('LOWER(department)'), ['nursing'])
+                  ->orWhereIn(DB::raw('LOWER(course_code)'), ['bsn'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%nursing%']);
             } else {
                 $q->whereRaw('LOWER(department) = ?', [$dept])
                   ->orWhereRaw('LOWER(course_code) = ?', [$dept]);

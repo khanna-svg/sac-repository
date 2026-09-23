@@ -418,18 +418,42 @@
             const course = (courseVal || '').toLowerCase().trim();
             const title = (titleVal || '').toLowerCase().trim();
 
-            // 1. Direct database department check (Highest Priority)
-            if (dept === 'it' || course === 'bsit') {
+            // 1. Direct database department/course check (Highest Priority)
+            if (['bused', 'bus.ed', 'bus_ed', 'business', 'hospitality'].includes(dept) || ['bsa', 'bsais', 'ba', 'bshm'].includes(course)) {
+                return {
+                    cover: 'HM.webp',
+                    name: 'Business Education Department',
+                    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
+                };
+            } else if (['cjed', 'criminology'].includes(dept) || ['bscrim', 'bsc'].includes(course)) {
+                return {
+                    cover: 'CRIM.webp',
+                    name: 'Criminal Justice Education Department',
+                    badgeBg: 'bg-red-50 text-red-700 border-red-200'
+                };
+            } else if (['dte', 'education'].includes(dept) || ['bsed', 'beed'].includes(course)) {
+                return {
+                    cover: 'EDUC.webp',
+                    name: 'Department of Teacher Education',
+                    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
+                };
+            } else if (['eng', 'engineering', 'marine'].includes(dept) || ['bsce', 'bscpe', 'bsmare'].includes(course)) {
+                return {
+                    cover: 'MARINE.webp',
+                    name: 'Engineering Department',
+                    badgeBg: 'bg-cyan-50 text-cyan-800 border-cyan-200'
+                };
+            } else if (['itd', 'it', 'computer'].includes(dept) || course === 'bsit') {
                 return {
                     cover: 'IT.webp',
                     name: 'Information Technology Department',
                     badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
                 };
-            } else if (dept === 'marine' || course === 'bsmare') {
+            } else if (['lad', 'liberal_arts', 'arts'].includes(dept) || ['ab_philo', 'ab_phil'].includes(course)) {
                 return {
-                    cover: 'MARINE.webp',
-                    name: 'Marine Engineering Department',
-                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
+                    cover: 'EDUC.webp',
+                    name: 'Liberal Arts Department',
+                    badgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200'
                 };
             } else if (dept === 'nursing' || course === 'bsn') {
                 return {
@@ -437,39 +461,49 @@
                     name: 'Nursing Department',
                     badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 };
-            } else if (dept === 'hospitality' || course === 'bshm') {
-                return {
-                    cover: 'HM.webp',
-                    name: 'Hospitality Management',
-                    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
-                };
-            } else if (dept === 'education' || course === 'bsed') {
-                return {
-                    cover: 'EDUC.webp',
-                    name: 'Education Department',
-                    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
-                };
-            } else if (dept === 'criminology' || course === 'bsc') {
-                return {
-                    cover: 'CRIM.webp',
-                    name: 'Criminology Department',
-                    badgeBg: 'bg-red-50 text-red-700 border-red-200'
-                };
             }
 
             // 2. Keyword heuristic fallback if department is unspecified
             if (title.includes('patient') || title.includes('nursing')) {
                 return {
                     cover: 'NURSING.webp',
-                    name: 'Nursing Department',
+                    name: 'Nursing Department (NURSING)',
                     badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 };
             }
-            if (title.includes('marine') || title.includes('vessel')) {
+            if (title.includes('civil') || title.includes('engineer') || title.includes('marine') || title.includes('vessel')) {
                 return {
                     cover: 'MARINE.webp',
-                    name: 'Marine Engineering Department',
-                    badgeBg: 'bg-sky-50 text-sky-700 border-sky-200'
+                    name: 'Engineering Department (ENG)',
+                    badgeBg: 'bg-cyan-50 text-cyan-800 border-cyan-200'
+                };
+            }
+            if (title.includes('criminology') || title.includes('police') || title.includes('crime')) {
+                return {
+                    cover: 'CRIM.webp',
+                    name: 'Criminal Justice Education Department (CJED)',
+                    badgeBg: 'bg-red-50 text-red-700 border-red-200'
+                };
+            }
+            if (title.includes('account') || title.includes('business') || title.includes('hotel') || title.includes('hospitality')) {
+                return {
+                    cover: 'HM.webp',
+                    name: 'Business Education Department',
+                    badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
+                };
+            }
+            if (title.includes('teach') || title.includes('educat') || title.includes('curriculum')) {
+                return {
+                    cover: 'EDUC.webp',
+                    name: 'Department of Teacher Education',
+                    badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
+                };
+            }
+            if (title.includes('philosophy') || title.includes('ethics') || title.includes('liberal')) {
+                return {
+                    cover: 'EDUC.webp',
+                    name: 'Liberal Arts Department',
+                    badgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200'
                 };
             }
             if (title.includes('system') || title.includes('app') || title.includes('web') || title.includes('software')) {
@@ -655,15 +689,21 @@
         }
 
         const deptNamesMap = {
-            'it': 'Information Technology',
-            'computer': 'Computer Studies',
-            'marine': 'Marine Engineering',
-            'nursing': 'Nursing',
-            'hospitality': 'Hospitality Management',
-            'education': 'Teacher Education',
-            'criminology': 'Criminal Justice Education',
-            'business': 'Business Administration',
-            'arts': 'Arts and Sciences'
+            'bused': 'Business Education Department',
+            'cjed': 'Criminal Justice Education Department',
+            'dte': 'Department of Teacher Education',
+            'eng': 'Engineering Department',
+            'itd': 'Information Technology Department',
+            'lad': 'Liberal Arts Department',
+            'nursing': 'Nursing Department',
+            'it': 'Information Technology Department',
+            'computer': 'Information Technology Department',
+            'marine': 'Engineering Department',
+            'hospitality': 'Business Education Department',
+            'education': 'Department of Teacher Education',
+            'criminology': 'Criminal Justice Education Department',
+            'business': 'Business Education Department',
+            'arts': 'Liberal Arts Department'
         };
 
         function getFullDeptName(deptCode, courseCode, titleText) {
@@ -671,31 +711,35 @@
             const cleanCourse = (courseCode || '').toLowerCase().trim();
             const cleanTitle = (titleText || '').toLowerCase().trim();
 
-            if (cleanDept === 'it' || cleanCourse === 'bsit' || cleanTitle.includes('system') || cleanTitle.includes('app') || cleanTitle.includes('web') || cleanTitle.includes('software')) {
-                return 'Information Technology';
+            if (['bused', 'bus.ed', 'business', 'hospitality'].includes(cleanDept) || ['bsa', 'bsais', 'ba', 'bshm'].includes(cleanCourse)) {
+                return 'Business Education Department';
             }
-            if (cleanDept === 'marine' || cleanCourse === 'bsmare' || cleanTitle.includes('marine') || cleanTitle.includes('vessel')) {
-                return 'Marine Engineering';
+            if (['cjed', 'criminology'].includes(cleanDept) || ['bscrim', 'bsc'].includes(cleanCourse)) {
+                return 'Criminal Justice Education Department';
+            }
+            if (['dte', 'education'].includes(cleanDept) || ['bsed', 'beed'].includes(cleanCourse)) {
+                return 'Department of Teacher Education';
+            }
+            if (['eng', 'engineering', 'marine'].includes(cleanDept) || ['bsce', 'bscpe', 'bsmare'].includes(cleanCourse)) {
+                return 'Engineering Department';
+            }
+            if (['itd', 'it', 'computer'].includes(cleanDept) || cleanCourse === 'bsit' || cleanTitle.includes('system') || cleanTitle.includes('app') || cleanTitle.includes('web') || cleanTitle.includes('software')) {
+                return 'Information Technology Department';
+            }
+            if (['lad', 'liberal_arts', 'arts'].includes(cleanDept) || ['ab_philo', 'ab_phil'].includes(cleanCourse)) {
+                return 'Liberal Arts Department';
             }
             if (cleanDept === 'nursing' || cleanCourse === 'bsn' || cleanTitle.includes('patient') || cleanTitle.includes('nursing')) {
-                return 'Nursing';
+                return 'Nursing Department';
             }
-            if (cleanDept === 'hospitality' || cleanCourse === 'bshm') {
-                return 'Hospitality Management';
-            }
-            if (cleanDept === 'education' || cleanCourse === 'bsed') {
-                return 'Teacher Education';
-            }
-            if (cleanDept === 'criminology' || cleanCourse === 'bsc') {
-                return 'Criminal Justice Education';
-            }
+
             for (const [k, v] of Object.entries(deptNamesMap)) {
                 if (cleanDept.includes(k)) return v;
             }
             if (deptCode && deptCode.trim()) {
                 return deptCode.charAt(0).toUpperCase() + deptCode.slice(1);
             }
-            return 'Information Technology';
+            return 'Information Technology Department (ITD)';
         }
 
         function formatIeeeAuthors(authorStr) {

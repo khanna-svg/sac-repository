@@ -238,12 +238,19 @@
         let toastTimeout = null;
 
         const deptNames = {
+            'bused': 'Business Education ',
+            'cjed': 'Criminal Justice Education',
+            'dte': 'Teacher Education',
+            'eng': 'Engineering Department',
+            'itd': 'Information Technology',
+            'lad': 'Liberal Arts Department',
+            'nursing': 'Nursing Department',
+            // Legacy fallbacks
             'it': 'Information Technology',
-            'nursing': 'Nursing',
-            'marine': 'Marine Engineering',
-            'hospitality': 'Hospitality Management',
-            'education': 'Education',
-            'criminology': 'Criminology'
+            'marine': 'Engineering Department',
+            'hospitality': 'Business Education',
+            'education': 'Teacher Education',
+            'criminology': 'Criminal Justice Education'
         };
 
         function escapeHtml(value) {

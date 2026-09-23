@@ -127,12 +127,13 @@
                                 onchange="handleDepartmentChange(this.value)"
                                 class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
                                 <option value="" disabled selected>Select Department</option>
-                                <option value="it">Information Technology Department</option>
-                                <option value="marine">Marine Engineering Department</option>
-                                <option value="nursing">Nursing Department</option>
-                                <option value="hospitality">Hospitality Management</option>
-                                <option value="education">Education Department</option>
-                                <option value="criminology">Criminology Department</option>
+                                <option value="bused">Business Education Department (BUSED)</option>
+                                <option value="cjed">Criminal Justice Education Department (CJED)</option>
+                                <option value="dte">Department of Teacher Education (DTE)</option>
+                                <option value="eng">Engineering Department (ENG)</option>
+                                <option value="itd">Information Technology Department (ITD)</option>
+                                <option value="lad">Liberal Arts Department (LAD)</option>
+                                <option value="nursing">Nursing Department (NURSING)</option>
                             </select>
                         </div>
 
@@ -146,12 +147,6 @@
                                 required
                                 class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
                                 <option value="" disabled selected>Select Program</option>
-                                <option value="bsit">BS in Information Technology (BSIT)</option>
-                                <option value="bsmare">BS in Marine Engineering (BSMarE)</option>
-                                <option value="bsn">BS in Nursing (BSN)</option>
-                                <option value="bshm">BS in Hospitality Management (BSHM)</option>
-                                <option value="bsed">Bachelor of Secondary Education (BSED)</option>
-                                <option value="bsc">BS in Criminology (BSC)</option>
                             </select>
                         </div>
                     </div>
@@ -314,23 +309,67 @@
         const dropzoneContainer = document.getElementById('dropzoneContainer');
         const filePreviewCard = document.getElementById('filePreviewCard');
 
-        const courseMapping = {
-            'nursing': 'bsn',
-            'marine': 'bsmare',
-            'it': 'bsit',
-            'hospitality': 'bshm',
-            'education': 'bsed',
-            'criminology': 'bsc'
+        const deptPrograms = {
+            'bused': [
+                { code: 'bsa', name: 'Bachelor of Science in Accountancy (BSA)' },
+                { code: 'bsais', name: 'Bachelor of Science in Accounting Information System (BSAIS)' },
+                { code: 'ba', name: 'Business Research (BA)' },
+                { code: 'bshm', name: 'Bachelor of Science in Hospitality Management (BSHM)' }
+            ],
+            'cjed': [
+                { code: 'bscrim', name: 'Bachelor of Science in Criminology (BSCrim)' }
+            ],
+            'dte': [
+                { code: 'bsed', name: 'Bachelor of Secondary Education Major in English, Mathematics, Science (BSED)' },
+                { code: 'beed', name: 'Bachelor of Elementary Education (BEED)' }
+            ],
+            'eng': [
+                { code: 'bsce', name: 'Bachelor of Science in Civil Engineering (BSCE)' },
+                { code: 'bscpe', name: 'Bachelor of Science in Computer Engineering (BSCpE)' }
+            ],
+            'itd': [
+                { code: 'bsit', name: 'Bachelor of Science in Information Technology (BSIT)' }
+            ],
+            'lad': [
+                { code: 'ab_philo', name: 'Bachelor of Arts in Philosophy (AB Philosophy)' }
+            ],
+            'nursing': [
+                { code: 'bsn', name: 'Bachelor of Science in Nursing (BSN)' }
+            ]
+        };
+
+        // Legacy department alias resolver for prefilled submission data
+        const deptAliasMap = {
+            'it': 'itd',
+            'marine': 'eng',
+            'hospitality': 'bused',
+            'education': 'dte',
+            'criminology': 'cjed'
         };
 
         let submissionId = null;
         let prefilledFilePath = null;
         let prefilledChunksCount = 0;
 
-        function handleDepartmentChange(selectedDepartment) {
+        function handleDepartmentChange(selectedDepartment, prefillCourse = null) {
+            const cleanDept = deptAliasMap[selectedDepartment] || selectedDepartment;
             const courseSelect = document.getElementById('course_code');
-            if (courseMapping[selectedDepartment]) {
-                courseSelect.value = courseMapping[selectedDepartment];
+            courseSelect.innerHTML = '<option value="" disabled selected>Select Program</option>';
+
+            const programs = deptPrograms[cleanDept];
+            if (programs && programs.length > 0) {
+                programs.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.code;
+                    opt.textContent = p.name;
+                    courseSelect.appendChild(opt);
+                });
+
+                if (prefillCourse && programs.some(p => p.code === prefillCourse)) {
+                    courseSelect.value = prefillCourse;
+                } else if (programs.length === 1) {
+                    courseSelect.selectedIndex = 1;
+                }
             }
         }
 
@@ -467,8 +506,9 @@
                 document.getElementById('title').value = data.title || '';
                 document.getElementById('author').value = data.author || '';
                 if (data.department) {
-                    document.getElementById('department').value = data.department.toLowerCase();
-                    handleDepartmentChange(data.department.toLowerCase());
+                    const mappedDept = deptAliasMap[data.department.toLowerCase()] || data.department.toLowerCase();
+                    document.getElementById('department').value = mappedDept;
+                    handleDepartmentChange(mappedDept, data.course_code ? data.course_code.toLowerCase() : null);
                 }
                 if (data.course_code) {
                     document.getElementById('course_code').value = data.course_code.toLowerCase();
