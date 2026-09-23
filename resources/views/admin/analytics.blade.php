@@ -64,7 +64,7 @@
                 <!-- Degree Program Breakdown (Bar) -->
                 <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
                     <h3 class="text-sm font-bold text-gray-900 mb-4">Theses by Academic Program</h3>
-                    <div class="h-64 flex items-center justify-center">
+                    <div id="courseChartContainer" class="h-64 flex items-center justify-center">
                         <canvas id="courseChart"></canvas>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                 <!-- Yearly Trend Line Chart -->
                 <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
                     <h3 class="text-sm font-bold text-gray-900 mb-4">Annual Research Publication Growth</h3>
-                    <div class="h-64">
+                    <div id="yearlyChartContainer" class="h-64 flex items-center justify-center">
                         <canvas id="yearlyChart"></canvas>
                     </div>
                 </div>
@@ -126,56 +126,83 @@
                 const courseCounts = data.courses.map(c => c.count);
                 const courseColors = courseLabels.map((lbl, idx) => courseColorMap[lbl] || defaultPalette[idx % defaultPalette.length]);
 
-                new Chart(document.getElementById('courseChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: courseLabels.length ? courseLabels : ['BSIT', 'BSED', 'BSMARE', 'BSN'],
-                        datasets: [{
-                            label: 'Theses Count',
-                            data: courseCounts.length ? courseCounts : [1, 0, 0, 0],
-                            backgroundColor: courseColors.length ? courseColors : defaultPalette,
-                            borderRadius: 6
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
+                const courseContainer = document.getElementById('courseChartContainer');
+                if (!courseLabels.length || data.metrics.total_theses === 0) {
+                    courseContainer.innerHTML = `
+                        <div class="flex flex-col items-center justify-center text-center p-6 text-gray-400">
+                            <svg class="w-9 h-9 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
+                            <p class="text-xs font-semibold text-gray-500">No published theses yet</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5">Program breakdown will display once theses are approved</p>
+                        </div>
+                    `;
+                } else {
+                    new Chart(document.getElementById('courseChart'), {
+                        type: 'bar',
+                        data: {
+                            labels: courseLabels,
+                            datasets: [{
+                                label: 'Theses Count',
+                                data: courseCounts,
+                                backgroundColor: courseColors,
+                                borderRadius: 6
+                            }]
                         },
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: { stepSize: 1 }
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: { stepSize: 1 }
+                                }
                             }
                         }
-                    }
-                });
+                    });
+                }
 
                 // 4. Yearly Line Chart
                 const yearLabels = data.yearly.map(y => y.year);
                 const yearCounts = data.yearly.map(y => y.count);
-                new Chart(document.getElementById('yearlyChart'), {
-                    type: 'line',
-                    data: {
-                        labels: yearLabels.length ? yearLabels : ['2024', '2025', '2026'],
-                        datasets: [{
-                            label: 'Theses Published',
-                            data: yearCounts.length ? yearCounts : [0, 0, 1],
-                            borderColor: '#700000',
-                            backgroundColor: 'rgba(112, 0, 0, 0.08)',
-                            fill: true,
-                            tension: 0.3,
-                            pointRadius: 5,
-                            pointBackgroundColor: '#FFD700',
-                            pointBorderColor: '#700000',
-                            pointBorderWidth: 2
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-                });
+                const yearlyContainer = document.getElementById('yearlyChartContainer');
+
+                if (!yearLabels.length || data.metrics.total_theses === 0) {
+                    yearlyContainer.innerHTML = `
+                        <div class="flex flex-col items-center justify-center text-center p-6 text-gray-400">
+                            <svg class="w-9 h-9 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
+                            </svg>
+                            <p class="text-xs font-semibold text-gray-500">No annual publication data yet</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5">Annual trends will plot as theses are published</p>
+                        </div>
+                    `;
+                } else {
+                    new Chart(document.getElementById('yearlyChart'), {
+                        type: 'line',
+                        data: {
+                            labels: yearLabels,
+                            datasets: [{
+                                label: 'Theses Published',
+                                data: yearCounts,
+                                borderColor: '#700000',
+                                backgroundColor: 'rgba(112, 0, 0, 0.08)',
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#FFD700',
+                                pointBorderColor: '#700000',
+                                pointBorderWidth: 2
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+                    });
+                }
 
             } catch (err) {
                 console.error('Analytics load error:', err);
