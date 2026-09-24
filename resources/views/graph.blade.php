@@ -31,7 +31,7 @@
         <div class="border-b border-gray-200 bg-white px-4 md:px-8 py-3 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
                 <p class="text-xs text-gray-500 font-medium">
-                    Visually explore relationships between research topics, authors, methodologies, and academic disciplines.
+                    Visually explore connections between research concepts, methodologies, and tech stacks across repository theses.
                 </p>
             </div>
 
@@ -42,8 +42,8 @@
                     <input
                         type="text"
                         id="graphSearchInput"
-                        placeholder="Highlight node or topic..."
-                        class="rounded-xl border border-gray-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-gray-800 focus:border-[#700000] focus:outline-none focus:ring-1 focus:ring-[#700000] w-44 md:w-56 transition">
+                        placeholder="Search concept, tech, or thesis..."
+                        class="rounded-xl border border-gray-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-gray-800 focus:border-[#700000] focus:outline-none focus:ring-1 focus:ring-[#700000] w-48 md:w-60 transition">
                     <svg class="w-3.5 h-3.5 absolute left-2.5 top-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -81,25 +81,13 @@
                 <span class="w-2.5 h-2.5 rounded bg-[#700000]"></span> Thesis Papers
             </span>
             <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#047857]"></span> Authors
+                <span class="w-2.5 h-2.5 rounded-full bg-[#7c3aed]"></span> Concepts & Topics
             </span>
             <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#7c3aed]"></span> Topics & Keywords
+                <span class="w-2.5 h-2.5 rounded-sm bg-[#0891b2]"></span> Methodology & Design
             </span>
             <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 rounded-sm bg-[#0891b2]"></span> Methodology
-            </span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 rounded-sm bg-[#c026d3]"></span> Category
-            </span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#ea580c]"></span> Academic Level
-            </span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 transform rotate-45 bg-[#b45309]"></span> Degree Program
-            </span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 rounded bg-[#1e3a8a]"></span> Department
+                <span class="w-2.5 h-2.5 rounded bg-[#059669]"></span> Tech Stack & Tools
             </span>
         </div>
 
@@ -127,7 +115,7 @@
                 <p class="text-xs text-gray-500 max-w-sm mt-1">Upload approved thesis documents to visualize the research repository network.</p>
             </div>
 
-            <!-- Slide-Out Thesis Details Drawer -->
+            <!-- Slide-Out Details Drawer -->
             <div
                 id="detailsDrawer"
                 class="absolute top-0 right-0 bottom-0 w-80 md:w-96 bg-white border-l border-gray-200 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-20 flex flex-col">
@@ -135,7 +123,7 @@
                 <!-- Drawer Header -->
                 <div class="border-b border-gray-100 p-4 bg-slate-50 flex items-center justify-between">
                     <div class="flex items-center gap-2">
-                        <span id="drawerBadge" class="text-xs font-bold text-[#700000] uppercase tracking-wider">
+                        <span id="drawerBadge" class="text-xs font-bold text-[#700000] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 border border-amber-200">
                             Thesis Details
                         </span>
                     </div>
@@ -150,50 +138,45 @@
                 <div class="p-5 flex-1 overflow-y-auto space-y-4">
                     <div>
                         <h2 id="drawerTitle" class="text-sm md:text-base font-bold text-gray-900 leading-snug"></h2>
-                        <p id="drawerAuthor" class="text-xs text-gray-600 mt-1 font-medium"></p>
+                        <p id="drawerSubtitle" class="text-xs text-gray-600 mt-1 font-medium"></p>
                     </div>
 
-                    <!-- Meta Tags -->
-                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 text-xs">
-                        <div class="bg-slate-50 p-2.5 rounded-xl border border-gray-200">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Department</p>
-                            <p id="drawerDept" class="font-semibold text-gray-800 mt-0.5 truncate"></p>
+                    <!-- THESIS-ONLY METADATA SECTIONS -->
+                    <div id="drawerThesisSections" class="space-y-3 pt-2 border-t border-gray-100 text-xs">
+                        <!-- Concepts -->
+                        <div class="bg-purple-50/70 p-3 rounded-xl border border-purple-100">
+                            <p class="text-[10px] font-bold text-purple-700 uppercase tracking-wider">Research Concepts</p>
+                            <div id="drawerConcepts" class="flex flex-wrap gap-1.5 mt-1.5"></div>
                         </div>
-                        <div class="bg-slate-50 p-2.5 rounded-xl border border-gray-200">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Program</p>
-                            <p id="drawerProgram" class="font-semibold text-gray-800 mt-0.5 truncate"></p>
-                        </div>
-                        <div class="bg-slate-50 p-2.5 rounded-xl border border-gray-200">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Level</p>
-                            <p id="drawerLevel" class="font-semibold text-gray-800 mt-0.5 truncate"></p>
-                        </div>
-                        <div class="bg-slate-50 p-2.5 rounded-xl border border-gray-200">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Category</p>
-                            <p id="drawerCategory" class="font-semibold text-gray-800 mt-0.5 truncate"></p>
-                        </div>
-                    </div>
 
-                    <!-- Methodology & Keywords -->
-                    <div class="space-y-2 pt-2 border-t border-gray-100 text-xs">
-                        <div class="bg-slate-50 p-2.5 rounded-xl border border-gray-200">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Methodology</p>
-                            <p id="drawerMethodology" class="font-semibold text-gray-800 mt-0.5"></p>
+                        <!-- Methodology -->
+                        <div class="bg-cyan-50/70 p-3 rounded-xl border border-cyan-100">
+                            <p class="text-[10px] font-bold text-cyan-800 uppercase tracking-wider">Methodology & Design</p>
+                            <div id="drawerMethodologies" class="flex flex-wrap gap-1.5 mt-1.5"></div>
                         </div>
-                        <div class="bg-slate-50 p-2.5 rounded-xl border border-gray-200">
-                            <p class="text-[10px] font-bold text-gray-400 uppercase">Keywords</p>
-                            <p id="drawerKeywords" class="font-semibold text-indigo-700 mt-0.5"></p>
+
+                        <!-- Tech Stack & Tools -->
+                        <div class="bg-emerald-50/70 p-3 rounded-xl border border-emerald-100">
+                            <p class="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Tech Stack & Tools Used</p>
+                            <div id="drawerTechStack" class="flex flex-wrap gap-1.5 mt-1.5"></div>
+                        </div>
+
+                        <!-- Abstract -->
+                        <div class="pt-2">
+                            <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Abstract</h4>
+                            <div class="max-h-48 overflow-y-auto rounded-xl bg-slate-50 p-3 text-xs text-gray-600 leading-relaxed border border-gray-200" id="drawerAbstract"></div>
                         </div>
                     </div>
 
-                    <!-- Abstract -->
-                    <div class="pt-2 border-t border-gray-100">
-                        <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Abstract</h4>
-                        <div class="max-h-48 overflow-y-auto rounded-xl bg-slate-50 p-3 text-xs text-gray-600 leading-relaxed border border-gray-200" id="drawerAbstract"></div>
+                    <!-- NON-THESIS NODE SECTION (CONNECTED THESES LIST) -->
+                    <div id="drawerConnectedSection" class="hidden pt-2 border-t border-gray-100">
+                        <h4 id="drawerConnectedHeading" class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Connected Research Theses</h4>
+                        <div id="drawerConnectedList" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
 
-                <!-- Drawer Action Footer -->
-                <div class="border-t border-gray-200 p-4 bg-slate-50">
+                <!-- Drawer Action Footer (For Thesis) -->
+                <div id="drawerFooter" class="border-t border-gray-200 p-4 bg-slate-50">
                     <a
                         id="drawerReadBtn"
                         href="#"
@@ -250,12 +233,12 @@
                     physics: {
                         solver: 'forceAtlas2Based',
                         forceAtlas2Based: {
-                            gravitationalConstant: -50,
-                            centralGravity: 0.01,
-                            springLength: 100,
+                            gravitationalConstant: -40,
+                            centralGravity: 0.008,
+                            springLength: 120,
                             springConstant: 0.08
                         },
-                        stabilization: { iterations: 150 }
+                        stabilization: { iterations: 160 }
                     },
                     interaction: {
                         hover: true,
@@ -267,12 +250,12 @@
 
                 network = new vis.Network(container, graphData, options);
 
-                // Click event on nodes
+                // Click event on any node
                 network.on('click', function(params) {
                     if (params.nodes.length > 0) {
                         const nodeId = params.nodes[0];
                         const node = graphData.nodes.get(nodeId);
-                        if (node && node.meta && node.meta.type === 'thesis') {
+                        if (node && node.meta) {
                             openDetailsDrawer(node.meta);
                         } else {
                             closeDetailsDrawer();
@@ -300,19 +283,113 @@
         }
 
         function openDetailsDrawer(meta) {
-            document.getElementById('drawerTitle').textContent = meta.full_title || 'Untitled Thesis';
-            document.getElementById('drawerAuthor').textContent = meta.author ? 'By ' + meta.author : '';
-            document.getElementById('drawerDept').textContent = meta.department || 'N/A';
-            document.getElementById('drawerProgram').textContent = meta.course_code || 'N/A';
-            document.getElementById('drawerLevel').textContent = meta.academic_level || 'Undergraduate';
-            document.getElementById('drawerCategory').textContent = meta.research_category || 'General';
-            document.getElementById('drawerMethodology').textContent = meta.methodology || 'N/A';
-            document.getElementById('drawerKeywords').textContent = meta.keywords || 'None specified';
-            document.getElementById('drawerAbstract').textContent = meta.abstract || 'No abstract available.';
-            const readBtn = document.getElementById('drawerReadBtn');
-            if (readBtn) readBtn.href = meta.view_url || '#';
-
             const drawer = document.getElementById('detailsDrawer');
+            const drawerBadge = document.getElementById('drawerBadge');
+            const drawerTitle = document.getElementById('drawerTitle');
+            const drawerSubtitle = document.getElementById('drawerSubtitle');
+            const thesisSections = document.getElementById('drawerThesisSections');
+            const connectedSection = document.getElementById('drawerConnectedSection');
+            const connectedList = document.getElementById('drawerConnectedList');
+            const connectedHeading = document.getElementById('drawerConnectedHeading');
+            const drawerFooter = document.getElementById('drawerFooter');
+            const readBtn = document.getElementById('drawerReadBtn');
+
+            if (meta.type === 'thesis') {
+                // THESIS NODE DETAILS
+                drawerBadge.textContent = 'THESIS DETAILS';
+                drawerBadge.className = 'text-xs font-bold text-[#700000] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 border border-amber-200';
+                
+                drawerTitle.textContent = meta.full_title || 'Untitled Thesis';
+                drawerSubtitle.textContent = meta.author ? 'By ' + meta.author : 'SAC Researchers';
+
+                // Render Concept Pills
+                const conceptsContainer = document.getElementById('drawerConcepts');
+                conceptsContainer.innerHTML = '';
+                (meta.concepts || []).forEach(c => {
+                    const pill = document.createElement('span');
+                    pill.className = 'inline-block px-2.5 py-1 rounded-lg bg-purple-100 text-purple-800 text-[11px] font-semibold border border-purple-200';
+                    pill.textContent = c;
+                    conceptsContainer.appendChild(pill);
+                });
+                if ((meta.concepts || []).length === 0) {
+                    conceptsContainer.innerHTML = '<span class="text-gray-400 italic text-[11px]">General research topic</span>';
+                }
+
+                // Render Methodology Pills
+                const methodsContainer = document.getElementById('drawerMethodologies');
+                methodsContainer.innerHTML = '';
+                (meta.methodologies || []).forEach(m => {
+                    const pill = document.createElement('span');
+                    pill.className = 'inline-block px-2.5 py-1 rounded-lg bg-cyan-100 text-cyan-800 text-[11px] font-semibold border border-cyan-200';
+                    pill.textContent = m;
+                    methodsContainer.appendChild(pill);
+                });
+
+                // Render Tech Stack Pills
+                const techContainer = document.getElementById('drawerTechStack');
+                techContainer.innerHTML = '';
+                (meta.tech_stack || []).forEach(t => {
+                    const pill = document.createElement('span');
+                    pill.className = 'inline-block px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-semibold border border-emerald-200';
+                    pill.textContent = t;
+                    techContainer.appendChild(pill);
+                });
+                if ((meta.tech_stack || []).length === 0) {
+                    techContainer.innerHTML = '<span class="text-gray-400 italic text-[11px]">Standard scholarly documentation</span>';
+                }
+
+                document.getElementById('drawerAbstract').textContent = meta.abstract || 'No abstract available.';
+
+                if (readBtn) readBtn.href = meta.view_url || '#';
+
+                thesisSections.classList.remove('hidden');
+                connectedSection.classList.add('hidden');
+                drawerFooter.classList.remove('hidden');
+
+            } else {
+                // CONCEPT / METHODOLOGY / TECH STACK NODE DETAILS
+                let badgeLabel = 'RESEARCH CONCEPT';
+                let badgeClass = 'text-xs font-bold text-purple-700 uppercase tracking-wider px-2 py-0.5 rounded bg-purple-50 border border-purple-200';
+
+                if (meta.type === 'methodology') {
+                    badgeLabel = 'RESEARCH METHODOLOGY';
+                    badgeClass = 'text-xs font-bold text-cyan-800 uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-50 border border-cyan-200';
+                } else if (meta.type === 'tech_stack') {
+                    badgeLabel = 'TECH STACK & TOOLS';
+                    badgeClass = 'text-xs font-bold text-emerald-800 uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200';
+                }
+
+                drawerBadge.textContent = badgeLabel;
+                drawerBadge.className = badgeClass;
+
+                drawerTitle.textContent = meta.name || 'Research Topic';
+                const count = (meta.theses || []).length;
+                drawerSubtitle.textContent = `Connected with ${count} repository thesis paper${count === 1 ? '' : 's'}`;
+
+                connectedHeading.textContent = `Papers using this ${meta.type === 'concept' ? 'concept' : (meta.type === 'methodology' ? 'methodology' : 'tech stack')}`;
+
+                connectedList.innerHTML = '';
+                (meta.theses || []).forEach(t => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-slate-50 hover:bg-slate-100 p-3 rounded-xl border border-gray-200 transition';
+                    card.innerHTML = `
+                        <p class="text-xs font-bold text-gray-900 leading-snug line-clamp-2">${t.title}</p>
+                        <p class="text-[11px] text-gray-500 mt-1">${t.author || 'SAC Researchers'}</p>
+                        <a href="${t.view_url}" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#700000] hover:underline mt-2">
+                            <span>View Thesis Paper</span>
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                            </svg>
+                        </a>
+                    `;
+                    connectedList.appendChild(card);
+                });
+
+                thesisSections.classList.add('hidden');
+                connectedSection.classList.remove('hidden');
+                drawerFooter.classList.add('hidden');
+            }
+
             drawer.classList.remove('translate-x-full');
         }
 
@@ -353,8 +430,8 @@
             graphData.nodes.forEach(n => {
                 const label = (n.label || '').toLowerCase();
                 const full = (n.meta?.full_title || '').toLowerCase();
-                const author = (n.meta?.author || '').toLowerCase();
-                if (label.includes(query) || full.includes(query) || author.includes(query)) {
+                const name = (n.meta?.name || '').toLowerCase();
+                if (label.includes(query) || full.includes(query) || name.includes(query)) {
                     matchingNodeIds.push(n.id);
                 }
             });

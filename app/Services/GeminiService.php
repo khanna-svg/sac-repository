@@ -134,34 +134,51 @@ class GeminiService
             "--- USER QUESTION ---\n" .
             $userQuestion;
 
-        $modelsToTry = [$this->generationModel, 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
+        $modelsToTry = [
+            $this->generationModel,
+            'gemini-3.5-flash',
+            'gemini-3.1-flash-lite',
+            'gemini-3.6-flash',
+            'gemma-4-26b-a4b-it',
+        ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
             try {
+                $payload = [
+                    'contents' => [
+                        [
+                            'role' => 'user',
+                            'parts' => [
+                                ['text' => $prompt],
+                            ],
+                        ],
+                    ],
+                    'generationConfig' => [
+                        'temperature' => 0.3,
+                    ],
+                ];
+
+                if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7')) {
+                    $payload['generationConfig']['thinkingConfig'] = ['thinkingBudget' => 0];
+                }
+
                 $response = Http::withoutVerifying()
-                    ->timeout(8)
+                    ->timeout(22)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
                     ])
-                    ->post(
-                        "{$this->baseUrl}/models/{$modelName}:generateContent",
-                        [
-                            'contents' => [
-                                [
-                                    'role' => 'user',
-                                    'parts' => [
-                                        ['text' => $prompt],
-                                    ],
-                                ],
-                            ],
-                        ]
-                    );
+                    ->post("{$this->baseUrl}/models/{$modelName}:generateContent", $payload);
 
                 if ($response->successful()) {
                     $answer = $response->json('candidates.0.content.parts.0.text');
                     if ($answer) {
-                        return $answer;
+                        return $this->cleanModelResponse((string) $answer);
+                    }
+                } else {
+                    Log::warning("Gemini model {$modelName} returned HTTP {$response->status()}: " . substr($response->body(), 0, 150));
+                    if ($response->status() === 503 || $response->status() === 429) {
+                        usleep(600000);
                     }
                 }
             } catch (\Throwable $e) {
@@ -180,19 +197,13 @@ class GeminiService
             "Do not invent facts not grounded in the thesis context.\n" .
             "If the information is not in the thesis context or previous messages, politely explain that the detail is not found in the uploaded documents.";
 
-        $contents = [];
-
+        $rawTurns = [];
         $recentHistory = array_slice($history, -8);
         foreach ($recentHistory as $turn) {
             $role = (isset($turn['role']) && ($turn['role'] === 'assistant' || $turn['role'] === 'model')) ? 'model' : 'user';
             $text = trim((string)($turn['content'] ?? ''));
             if ($text !== '') {
-                $contents[] = [
-                    'role' => $role,
-                    'parts' => [
-                        ['text' => $text]
-                    ]
-                ];
+                $rawTurns[] = ['role' => $role, 'text' => $text];
             }
         }
 
@@ -201,39 +212,89 @@ class GeminiService
             "\n\n--- CURRENT STUDENT QUESTION ---\n" .
             $userQuestion;
 
-        $contents[] = [
-            'role' => 'user',
-            'parts' => [
-                ['text' => $currentPrompt]
-            ]
-        ];
+        $rawTurns[] = ['role' => 'user', 'text' => $currentPrompt];
 
-        $modelsToTry = [$this->generationModel, 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
+        // Sanitize contents for Google Gemini API:
+        // 1. First turn must be 'user'
+        // 2. Roles must strictly alternate: user -> model -> user -> model
+        $contents = [];
+        $lastRole = null;
+
+        foreach ($rawTurns as $t) {
+            if ($lastRole === null) {
+                if ($t['role'] === 'model') {
+                    $contents[] = [
+                        'role' => 'user',
+                        'parts' => [['text' => 'Can you summarize or provide details on this thesis?']]
+                    ];
+                }
+                $contents[] = [
+                    'role' => $t['role'],
+                    'parts' => [['text' => $t['text']]]
+                ];
+                $lastRole = $t['role'];
+            } else if ($t['role'] === $lastRole) {
+                $lastIdx = count($contents) - 1;
+                $contents[$lastIdx]['parts'][0]['text'] .= "\n\n" . $t['text'];
+            } else {
+                $contents[] = [
+                    'role' => $t['role'],
+                    'parts' => [['text' => $t['text']]]
+                ];
+                $lastRole = $t['role'];
+            }
+        }
+
+        $modelsToTry = [
+            $this->generationModel,
+            'gemini-3.5-flash',
+            'gemini-3.1-flash-lite',
+            'gemini-3.6-flash',
+            'gemma-4-26b-a4b-it',
+        ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
             try {
+                $payload = [
+                    'contents' => $contents,
+                    'generationConfig' => [
+                        'temperature' => 0.3,
+                    ],
+                ];
+
+                if (!str_contains($modelName, 'gemma')) {
+                    $payload['systemInstruction'] = [
+                        'parts' => [
+                            ['text' => $systemInstruction]
+                        ]
+                    ];
+                    if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7')) {
+                        $payload['generationConfig']['thinkingConfig'] = ['thinkingBudget' => 0];
+                    }
+                } else {
+                    // For Gemma, prepend system instructions into the first user message
+                    if (!empty($payload['contents'][0]['parts'][0]['text'])) {
+                        $payload['contents'][0]['parts'][0]['text'] = "System Instructions: {$systemInstruction}\nOutput only the final helpful answer directly to the student without any internal scratchpad, analysis, or draft notes.\n\n" . $payload['contents'][0]['parts'][0]['text'];
+                    }
+                }
+
                 $response = Http::withoutVerifying()
-                    ->timeout(12)
+                    ->timeout(22)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
                     ])
-                    ->post(
-                        "{$this->baseUrl}/models/{$modelName}:generateContent",
-                        [
-                            'systemInstruction' => [
-                                'parts' => [
-                                    ['text' => $systemInstruction]
-                                ]
-                            ],
-                            'contents' => $contents,
-                        ]
-                    );
+                    ->post("{$this->baseUrl}/models/{$modelName}:generateContent", $payload);
 
                 if ($response->successful()) {
                     $answer = $response->json('candidates.0.content.parts.0.text');
                     if ($answer) {
-                        return $answer;
+                        return $this->cleanModelResponse((string) $answer);
+                    }
+                } else {
+                    Log::warning("Gemini multi-turn model {$modelName} returned HTTP {$response->status()}: " . substr($response->body(), 0, 150));
+                    if ($response->status() === 503 || $response->status() === 429) {
+                        usleep(600000);
                     }
                 }
             } catch (\Throwable $e) {
@@ -242,6 +303,107 @@ class GeminiService
         }
 
         return $this->generateAnswer($userQuestion, $contextText);
+    }
+
+    protected function cleanModelResponse(string $text): string
+    {
+        $trimmed = trim($text);
+
+        // If it ends with a quoted answer block
+        if (preg_match('/(?:\*|\#|-|\s)*"([^"]{20,})"\s*$/s', $trimmed, $m)) {
+            return trim($m[1]);
+        }
+
+        // Fast-path: if text does not look like a scratchpad and has no checklist, return as-is
+        $firstLine = trim(strtok($trimmed, "\n"));
+        if (!$this->isScratchpadLine($firstLine) && !preg_match('/\?\s*(?:Yes|No)\b/i', $trimmed)) {
+            return $trimmed;
+        }
+
+        // Split text into distinct paragraphs/blocks
+        $blocks = preg_split('/\n\s*\n/', $trimmed);
+
+        // Filter out trailing blocks that are self-evaluation checklists
+        while (!empty($blocks)) {
+            $lastBlock = trim(end($blocks));
+            if ($lastBlock === '' || $this->isChecklistBlock($lastBlock)) {
+                array_pop($blocks);
+            } else {
+                break;
+            }
+        }
+
+        if (empty($blocks)) {
+            return $trimmed;
+        }
+
+        // The final block before the self-evaluation checklist is the actual answer
+        $answerBlock = trim(end($blocks));
+
+        $lines = explode("\n", $answerBlock);
+        $formattedLines = [];
+        foreach ($lines as $line) {
+            if ($this->isScratchpadLine($line)) {
+                continue;
+            }
+
+            if (preg_match('/^\s*(?:\*|\#|-)\s+(.*)$/', $line, $m)) {
+                $content = trim($m[1]);
+                if (str_ends_with($content, ':') || (strlen($content) > 60 && str_ends_with($content, '.'))) {
+                    $formattedLines[] = $content;
+                } else {
+                    $formattedLines[] = '* ' . $content;
+                }
+            } else {
+                $formattedLines[] = trim($line);
+            }
+        }
+
+        $result = trim(implode("\n", $formattedLines));
+        return strlen($result) > 15 ? $result : $trimmed;
+    }
+
+    protected function isChecklistBlock(string $block): bool
+    {
+        $lines = array_filter(explode("\n", trim($block)), fn($l) => trim($l) !== '');
+        if (empty($lines)) {
+            return true;
+        }
+
+        $checklistCount = 0;
+        foreach ($lines as $line) {
+            if (preg_match('/\?\s*(?:Yes|No)\b/i', $line)) {
+                $checklistCount++;
+            }
+        }
+
+        return ($checklistCount / count($lines)) >= 0.5;
+    }
+
+    protected function isScratchpadLine(string $line): bool
+    {
+        $clean = trim($line);
+        if ($clean === '') {
+            return true;
+        }
+
+        if (preg_match('/\?\s*(?:Yes|No)\b/i', $clean)) {
+            return true;
+        }
+
+        if (preg_match('/^(?:\*|\#|-|\s)*(?:Role|Task|Constraint(?:\s*\d+)?|User Question|Question|Context|Goal|Thesis Title|Abstract|Information in context|Draft|Analysis|Checklist|Self-Correction|Evaluation|Step(?:\s*\d+)?)\s*:/i', $clean)) {
+            return true;
+        }
+
+        if (preg_match('/^(?:\*|\#|-|\s)*\*(?:Thesis|Source|Overview)[^*]+\*\s*:/i', $clean)) {
+            return true;
+        }
+
+        if (preg_match('/^(?:\*|\#|-|\s)*(?:\[Source|\[Thesis|Source\s*#)/i', $clean)) {
+            return true;
+        }
+
+        return false;
     }
 
     public function extractProposalConcepts(string $proposalText): array
@@ -259,12 +421,12 @@ Respond with ONLY valid JSON (no markdown formatting, no code fences, no explana
 Proposal Text:
 " . $truncated;
 
-        $modelsToTry = [$this->generationModel, 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
+        $modelsToTry = [$this->generationModel, 'gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.5-flash'];
 
         foreach (array_unique($modelsToTry) as $modelName) {
             try {
                 $response = Http::withoutVerifying()
-                    ->timeout(12)
+                    ->timeout(22)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
@@ -279,6 +441,12 @@ Proposal Text:
                                         ['text' => $prompt],
                                     ],
                                 ],
+                            ],
+                            'generationConfig' => [
+                                'thinkingConfig' => [
+                                    'thinkingBudget' => 0,
+                                ],
+                                'temperature' => 0.2,
                             ],
                         ]
                     );

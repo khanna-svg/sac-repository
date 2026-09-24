@@ -40,6 +40,9 @@ class ChatController extends Controller
         $history = (array) $request->input('history', []);
 
         try {
+            $embeddingVector = null;
+            $keywords = $this->extractSearchKeywords($userQuestion);
+
             // Step 1: Create contextual retrieval query for vector search
             // If question is a follow-up (e.g. "Who wrote it?"), blend recent context for accurate embedding search
             $searchQuery = $userQuestion;
@@ -56,70 +59,26 @@ class ChatController extends Controller
                 }
             }
 
-            // Convert search query into vector numbers using Gemini
-            $embedding = $this->geminiService->generateEmbedding($searchQuery);
-
-            if (empty($embedding)) {
-                throw new \Exception('Failed to generate embedding for the question.');
+            try {
+                // Convert search query into vector numbers using Gemini (if quota allows)
+                $embedding = $this->geminiService->generateEmbedding($searchQuery);
+                if (!empty($embedding)) {
+                    $embeddingVector = '[' . implode(',', $embedding) . ']';
+                }
+            } catch (\Throwable $embedError) {
+                Log::warning('RAG: Embedding generation failed (falling back to hybrid full-text search): ' . $embedError->getMessage());
             }
 
-            $embeddingVector = '[' . implode(',', $embedding) . ']';
-
             $documentId = $request->input('document_id');
+            $chunks = [];
 
-            // Step 2: Search database for top matching thesis text chunks
+            // Step 2: Search database using Hybrid Keyword + Vector Retrieval
             if ($documentId) {
                 // Scoped search for a single document (Brave-style drawer)
-                $chunks = DB::select("
-                    SELECT
-                        dc.chunk_text,
-                        dc.document_id,
-                        d.title AS document_title,
-                        d.author AS document_author,
-                        1 - (
-                            dc.embedding OPERATOR(extensions.<=>)
-                            ?::extensions.vector
-                        ) AS similarity
-                    FROM document_chunks dc
-                    INNER JOIN documents d ON d.id = dc.document_id
-                    WHERE dc.embedding IS NOT NULL
-                      AND d.status = 'approved'
-                      AND dc.document_id = ?
-                    ORDER BY
-                        dc.embedding OPERATOR(extensions.<=>)
-                        ?::extensions.vector ASC
-                    LIMIT 6
-                ", [$embeddingVector, $documentId, $embeddingVector]);
+                $chunks = $this->retrieveScopedChunks((int) $documentId, $embeddingVector, $keywords);
             } else {
-                // Global repository search (Floating AI Assistant):
-                // Uses window partitioning (rn <= 2) to ensure a single large thesis
-                // does not crowd out other relevant theses in the results.
-                $chunks = DB::select("
-                    WITH ranked_chunks AS (
-                        SELECT
-                            dc.chunk_text,
-                            dc.document_id,
-                            d.title AS document_title,
-                            d.author AS document_author,
-                            1 - (
-                                dc.embedding OPERATOR(extensions.<=>)
-                                ?::extensions.vector
-                            ) AS similarity,
-                            ROW_NUMBER() OVER (
-                                PARTITION BY dc.document_id
-                                ORDER BY dc.embedding OPERATOR(extensions.<=>) ?::extensions.vector ASC
-                            ) as rn
-                        FROM document_chunks dc
-                        INNER JOIN documents d ON d.id = dc.document_id
-                        WHERE dc.embedding IS NOT NULL
-                          AND d.status = 'approved'
-                    )
-                    SELECT chunk_text, document_id, document_title, document_author, similarity
-                    FROM ranked_chunks
-                    WHERE rn <= 2
-                    ORDER BY similarity DESC
-                    LIMIT 8
-                ", [$embeddingVector, $embeddingVector]);
+                // Global repository search (Floating AI Assistant across all theses)
+                $chunks = $this->retrieveGlobalChunks($embeddingVector, $keywords, $userQuestion);
             }
 
             // Step 3: Handle case when no thesis chunks exist yet
@@ -151,12 +110,27 @@ class ChatController extends Controller
                 ]);
             }
 
-            // Step 4: Build thesis context text to feed into Gemini AI
+            // Step 4: Build rich thesis context text to feed into Gemini AI (up to 8 chunks, 1400 chars each)
             $contextParts = [];
-            foreach ($chunks as $index => $chunk) {
-                $score = round(((float) $chunk->similarity) * 100, 1);
+
+            if ($documentId) {
+                $mainDoc = DB::table('documents')->where('id', $documentId)->first();
+                if ($mainDoc) {
+                    $contextParts[] =
+                        "[Thesis Overview]\n" .
+                        "Title: {$mainDoc->title}\n" .
+                        "Author: {$mainDoc->author}\n" .
+                        "Department: {$mainDoc->department}\n" .
+                        "Abstract:\n" .
+                        mb_substr((string) $mainDoc->abstract, 0, 1200);
+                }
+            }
+
+            foreach (array_slice($chunks, 0, 8) as $index => $chunk) {
+                $score = round(((float) ($chunk->similarity ?? 0.85)) * 100, 1);
                 $docTitle = $chunk->document_title ?? 'Thesis Document';
                 $docAuthor = $chunk->document_author ?? 'Unknown Author';
+                $cleanText = mb_substr(trim((string) $chunk->chunk_text), 0, 1400);
 
                 $contextParts[] =
                     "[Source #" . ($index + 1) . "]\n" .
@@ -164,7 +138,7 @@ class ChatController extends Controller
                     "Author: {$docAuthor}\n" .
                     "Similarity: {$score}%\n" .
                     "Content:\n" .
-                    $chunk->chunk_text;
+                    $cleanText;
             }
 
             $contextText = implode("\n\n---\n\n", $contextParts);
@@ -172,16 +146,17 @@ class ChatController extends Controller
             // Step 5: Ask Gemini to answer the question using multi-turn conversation memory
             $answer = $this->geminiService->generateChatResponse($userQuestion, $contextText, $history);
 
-            // Step 6: Deduplicate sources so each thesis card appears only once in the UI
+            // Step 6: Deduplicate sources so each thesis card appears cleanly in the UI
             $uniqueSources = [];
             foreach ($chunks as $chunk) {
                 $docId = $chunk->document_id;
                 if (!isset($uniqueSources[$docId])) {
-                    $uniqueSources[$docId] = $chunk;
-                } else {
-                    if ((float)$chunk->similarity > (float)$uniqueSources[$docId]->similarity) {
-                        $uniqueSources[$docId] = $chunk;
-                    }
+                    $uniqueSources[$docId] = [
+                        'id' => $docId,
+                        'title' => $chunk->document_title ?? 'Thesis Document',
+                        'author' => $chunk->document_author ?? 'Unknown Author',
+                        'similarity' => round(((float) ($chunk->similarity ?? 0.85)) * 100, 1),
+                    ];
                 }
             }
 
@@ -204,5 +179,245 @@ class ChatController extends Controller
                 'message' => 'AI Assistant temporarily unavailable: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    protected function extractSearchKeywords(string $text): array
+    {
+        $stopWords = [
+            'what', 'which', 'where', 'when', 'who', 'whom', 'whose', 'why', 'how',
+            'the', 'a', 'an', 'and', 'or', 'but', 'is', 'are', 'was', 'were', 'be', 'been',
+            'being', 'have', 'has', 'had', 'do', 'does', 'did', 'to', 'from', 'in', 'out',
+            'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here',
+            'there', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some',
+            'such', 'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very',
+            'can', 'will', 'just', 'should', 'now', 'used', 'using', 'study', 'thesis',
+            'research', 'paper', 'project', 'document', 'documents', 'tell', 'about',
+            'give', 'summarize', 'summary', 'explain', 'detail', 'details', 'find',
+            'their', 'they', 'them', 'these', 'those', 'also', 'with', 'researcher', 'researchers',
+            'could', 'would', 'done', 'does', 'item', 'items', 'make', 'made'
+        ];
+
+        $clean = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', mb_strtolower($text));
+        $words = array_filter(explode(' ', (string) $clean), fn($w) => strlen($w) >= 3);
+
+        $filtered = array_values(array_filter($words, fn($w) => !in_array($w, $stopWords, true)));
+        return array_slice(array_unique($filtered), 0, 12);
+    }
+
+    protected function retrieveScopedChunks(int $documentId, ?string $embeddingVector, array $keywords): array
+    {
+        $chunksById = [];
+
+        // 1. Keyword search inside this document
+        if (!empty($keywords)) {
+            $scoreClauses = [];
+            $whereClauses = [];
+            $bindings = [];
+
+            foreach ($keywords as $kw) {
+                $scoreClauses[] = "(CASE WHEN dc.chunk_text ILIKE ? THEN 3 ELSE 0 END)";
+                $whereClauses[] = "dc.chunk_text ILIKE ?";
+                $bindings[] = "%{$kw}%";
+            }
+
+            $scoreSql = implode(' + ', $scoreClauses) . " + (CASE WHEN dc.page_number > 5 THEN 1 ELSE 0 END)";
+            $sql = "
+                SELECT
+                    dc.id,
+                    dc.document_id,
+                    dc.page_number,
+                    dc.chunk_text,
+                    d.title AS document_title,
+                    d.author AS document_author,
+                    ($scoreSql) AS score
+                FROM document_chunks dc
+                INNER JOIN documents d ON d.id = dc.document_id
+                WHERE dc.document_id = ?
+                  AND (" . implode(' OR ', $whereClauses) . ")
+                ORDER BY score DESC, dc.page_number ASC
+                LIMIT 8
+            ";
+
+            $fullBindings = array_merge($bindings, [$documentId], $bindings);
+            $kwChunks = DB::select($sql, $fullBindings);
+
+            foreach ($kwChunks as $c) {
+                $c->similarity = min(0.98, 0.70 + ((float) $c->score * 0.05));
+                $chunksById[$c->id] = $c;
+            }
+        }
+
+        // 2. Vector search if embedding is available and document has embedded chunks
+        if ($embeddingVector) {
+            $vecChunks = DB::select("
+                SELECT
+                    dc.id,
+                    dc.chunk_text,
+                    dc.page_number,
+                    dc.document_id,
+                    d.title AS document_title,
+                    d.author AS document_author,
+                    1 - (dc.embedding OPERATOR(extensions.<=>) ?::extensions.vector) AS similarity
+                FROM document_chunks dc
+                INNER JOIN documents d ON d.id = dc.document_id
+                WHERE dc.embedding IS NOT NULL
+                  AND d.status = 'approved'
+                  AND dc.document_id = ?
+                ORDER BY dc.embedding OPERATOR(extensions.<=>) ?::extensions.vector ASC
+                LIMIT 6
+            ", [$embeddingVector, $documentId, $embeddingVector]);
+
+            foreach ($vecChunks as $c) {
+                if (!isset($chunksById[$c->id])) {
+                    $chunksById[$c->id] = $c;
+                }
+            }
+        }
+
+        // 3. Fallback: if still empty, pull first 8 pages
+        if (empty($chunksById)) {
+            $raw = DB::table('document_chunks')
+                ->join('documents', 'documents.id', '=', 'document_chunks.document_id')
+                ->where('document_chunks.document_id', $documentId)
+                ->where('documents.status', 'approved')
+                ->orderBy('document_chunks.page_number', 'asc')
+                ->limit(8)
+                ->select([
+                    'document_chunks.id',
+                    'document_chunks.chunk_text',
+                    'document_chunks.page_number',
+                    'document_chunks.document_id',
+                    'documents.title as document_title',
+                    'documents.author as document_author',
+                    DB::raw('0.90 as similarity')
+                ])
+                ->get();
+
+            foreach ($raw as $c) {
+                $chunksById[$c->id] = $c;
+            }
+        }
+
+        return array_values($chunksById);
+    }
+
+    protected function retrieveGlobalChunks(?string $embeddingVector, array $keywords, string $userQuestion): array
+    {
+        $chunksById = [];
+
+        // 1. Keyword search across ALL approved documents and chunks
+        if (!empty($keywords)) {
+            // Find top matching documents based on title + abstract relevance
+            $docScoreClauses = [];
+            $docWhereClauses = [];
+            $docBindings = [];
+
+            foreach ($keywords as $kw) {
+                $docScoreClauses[] = "(CASE WHEN title ILIKE ? THEN 5 WHEN abstract ILIKE ? THEN 2 ELSE 0 END)";
+                $docWhereClauses[] = "title ILIKE ? OR abstract ILIKE ?";
+                $docBindings[] = "%{$kw}%";
+                $docBindings[] = "%{$kw}%";
+            }
+
+            $docScoreSql = implode(' + ', $docScoreClauses);
+            $docWhereSql = implode(' OR ', $docWhereClauses);
+
+            $topDocs = DB::select("
+                SELECT id, ($docScoreSql) as score
+                FROM documents
+                WHERE status = 'approved' AND ($docWhereSql)
+                ORDER BY score DESC
+                LIMIT 4
+            ", array_merge($docBindings, $docBindings));
+
+            $matchedDocIds = array_column($topDocs, 'id');
+
+            // Build chunk search clauses
+            $scoreClauses = [];
+            $whereClauses = [];
+            $bindings = [];
+
+            foreach ($keywords as $kw) {
+                $scoreClauses[] = "(CASE WHEN dc.chunk_text ILIKE ? THEN 3 ELSE 0 END)";
+                $whereClauses[] = "dc.chunk_text ILIKE ?";
+                $bindings[] = "%{$kw}%";
+            }
+
+            $scoreSql = implode(' + ', $scoreClauses) . " + (CASE WHEN dc.page_number > 5 THEN 1 ELSE 0 END)";
+
+            $docFilterSql = !empty($matchedDocIds)
+                ? "AND dc.document_id IN (" . implode(',', $matchedDocIds) . ")"
+                : "";
+
+            $sql = "
+                WITH ranked_chunks AS (
+                    SELECT
+                        dc.id,
+                        dc.document_id,
+                        dc.page_number,
+                        dc.chunk_text,
+                        d.title AS document_title,
+                        d.author AS document_author,
+                        ($scoreSql) AS score,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY dc.document_id
+                            ORDER BY ($scoreSql) DESC, dc.page_number ASC
+                        ) as rn
+                    FROM document_chunks dc
+                    INNER JOIN documents d ON d.id = dc.document_id
+                    WHERE d.status = 'approved'
+                      {$docFilterSql}
+                      AND (" . implode(' OR ', $whereClauses) . ")
+                )
+                SELECT * FROM ranked_chunks
+                WHERE rn <= 3
+                ORDER BY score DESC
+                LIMIT 10
+            ";
+
+            $fullBindings = array_merge($bindings, $bindings, $bindings);
+            $kwChunks = DB::select($sql, $fullBindings);
+
+            foreach ($kwChunks as $c) {
+                $c->similarity = min(0.98, 0.75 + ((float) $c->score * 0.04));
+                $chunksById[$c->id] = $c;
+            }
+        }
+
+        // 2. Vector search on embedded chunks (if vector exists)
+        if ($embeddingVector) {
+            $vecChunks = DB::select("
+                WITH ranked_chunks AS (
+                    SELECT
+                        dc.id,
+                        dc.chunk_text,
+                        dc.page_number,
+                        dc.document_id,
+                        d.title AS document_title,
+                        d.author AS document_author,
+                        1 - (dc.embedding OPERATOR(extensions.<=>) ?::extensions.vector) AS similarity,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY dc.document_id
+                            ORDER BY dc.embedding OPERATOR(extensions.<=>) ?::extensions.vector ASC
+                        ) as rn
+                    FROM document_chunks dc
+                    INNER JOIN documents d ON d.id = dc.document_id
+                    WHERE dc.embedding IS NOT NULL
+                      AND d.status = 'approved'
+                )
+                SELECT * FROM ranked_chunks
+                WHERE rn <= 2
+                ORDER BY similarity DESC
+                LIMIT 6
+            ", [$embeddingVector, $embeddingVector]);
+
+            foreach ($vecChunks as $c) {
+                if (!isset($chunksById[$c->id])) {
+                    $chunksById[$c->id] = $c;
+                }
+            }
+        }
+
+        return array_values($chunksById);
     }
 }

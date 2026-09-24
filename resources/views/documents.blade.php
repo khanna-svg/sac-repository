@@ -1492,6 +1492,22 @@
                 typing.classList.remove('flex');
                 sendBtn.disabled = false;
 
+                if (!res.ok || data?.error) {
+                    const errorBubble = document.createElement('div');
+                    errorBubble.className = 'flex items-start gap-2.5';
+                    errorBubble.innerHTML = `
+                        <div class="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center shrink-0 text-xs font-bold mt-0.5 shadow-2xs">
+                            ✕
+                        </div>
+                        <div class="flex-1 max-w-[90%] bg-rose-50 border border-rose-200 rounded-2xl rounded-tl-xs p-3.5 text-xs text-rose-800 font-medium leading-relaxed">
+                            ${escapeHtml(data?.message || 'Unable to generate an answer right now. Please try again.')}
+                        </div>
+                    `;
+                    thread.appendChild(errorBubble);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    return;
+                }
+
                 const aiBubble = document.createElement('div');
                 aiBubble.className = 'flex items-start gap-2.5';
 
