@@ -12,7 +12,7 @@ class GeminiService
 
     protected string $embeddingModel = 'gemini-embedding-001';
 
-    protected string $generationModel = 'gemini-3.5-flash';
+    protected string $generationModel = 'gemini-3-flash-preview';
 
     public function __construct()
     {
@@ -136,8 +136,7 @@ class GeminiService
 
         $modelsToTry = [
             $this->generationModel,
-            'gemini-3-flash-preview',
-            'gemini-3.6-flash',
+            'gemini-3.5-flash',
         ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -156,12 +155,12 @@ class GeminiService
                     ],
                 ];
 
-                if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7')) {
+                if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7') || str_contains($modelName, '3-flash')) {
                     $payload['generationConfig']['thinkingConfig'] = ['thinkingBudget' => 0];
                 }
 
                 $response = Http::withoutVerifying()
-                    ->timeout(4.5)
+                    ->timeout(2.8)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
@@ -242,8 +241,7 @@ class GeminiService
 
         $modelsToTry = [
             $this->generationModel,
-            'gemini-3-flash-preview',
-            'gemini-3.6-flash',
+            'gemini-3.5-flash',
         ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -261,7 +259,7 @@ class GeminiService
                             ['text' => $systemInstruction]
                         ]
                     ];
-                    if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7')) {
+                    if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7') || str_contains($modelName, '3-flash')) {
                         $payload['generationConfig']['thinkingConfig'] = ['thinkingBudget' => 0];
                     }
                 } else {
@@ -272,7 +270,7 @@ class GeminiService
                 }
 
                 $response = Http::withoutVerifying()
-                    ->timeout(4.5)
+                    ->timeout(2.8)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
