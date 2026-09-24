@@ -12,7 +12,7 @@ class GeminiService
 
     protected string $embeddingModel = 'gemini-embedding-001';
 
-    protected string $generationModel = 'gemini-3.5-flash-lite';
+    protected string $generationModel = 'gemini-3.5-flash';
 
     public function __construct()
     {
@@ -26,7 +26,7 @@ class GeminiService
     public function generateEmbedding(string $text): array
     {
         $response = Http::withoutVerifying()
-            ->timeout(10)
+            ->timeout(3.5)
             ->withHeaders([
                 'Content-Type' => 'application/json',
                 'x-goog-api-key' => $this->apiKey,
@@ -136,10 +136,8 @@ class GeminiService
 
         $modelsToTry = [
             $this->generationModel,
-            'gemini-3.5-flash',
-            'gemini-3.1-flash-lite',
+            'gemini-3-flash-preview',
             'gemini-3.6-flash',
-            'gemma-4-26b-a4b-it',
         ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -163,7 +161,7 @@ class GeminiService
                 }
 
                 $response = Http::withoutVerifying()
-                    ->timeout(22)
+                    ->timeout(4.5)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
@@ -177,9 +175,6 @@ class GeminiService
                     }
                 } else {
                     Log::warning("Gemini model {$modelName} returned HTTP {$response->status()}: " . substr($response->body(), 0, 150));
-                    if ($response->status() === 503 || $response->status() === 429) {
-                        usleep(600000);
-                    }
                 }
             } catch (\Throwable $e) {
                 Log::warning("Gemini model {$modelName} failed, trying fallback: " . $e->getMessage());
@@ -247,10 +242,8 @@ class GeminiService
 
         $modelsToTry = [
             $this->generationModel,
-            'gemini-3.5-flash',
-            'gemini-3.1-flash-lite',
+            'gemini-3-flash-preview',
             'gemini-3.6-flash',
-            'gemma-4-26b-a4b-it',
         ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -279,7 +272,7 @@ class GeminiService
                 }
 
                 $response = Http::withoutVerifying()
-                    ->timeout(22)
+                    ->timeout(4.5)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
@@ -293,16 +286,13 @@ class GeminiService
                     }
                 } else {
                     Log::warning("Gemini multi-turn model {$modelName} returned HTTP {$response->status()}: " . substr($response->body(), 0, 150));
-                    if ($response->status() === 503 || $response->status() === 429) {
-                        usleep(600000);
-                    }
                 }
             } catch (\Throwable $e) {
                 Log::warning("Gemini multi-turn model {$modelName} failed, trying fallback: " . $e->getMessage());
             }
         }
 
-        return $this->generateAnswer($userQuestion, $contextText);
+        throw new \Exception('Google AI is currently experiencing high demand. Please try asking again in a moment.');
     }
 
     protected function cleanModelResponse(string $text): string

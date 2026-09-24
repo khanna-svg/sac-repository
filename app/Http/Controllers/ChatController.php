@@ -59,18 +59,33 @@ class ChatController extends Controller
                 }
             }
 
-            try {
-                // Convert search query into vector numbers using Gemini (if quota allows)
-                $embedding = $this->geminiService->generateEmbedding($searchQuery);
-                if (!empty($embedding)) {
-                    $embeddingVector = '[' . implode(',', $embedding) . ']';
-                }
-            } catch (\Throwable $embedError) {
-                Log::warning('RAG: Embedding generation failed (falling back to hybrid full-text search): ' . $embedError->getMessage());
-            }
-
             $documentId = $request->input('document_id');
             $chunks = [];
+
+            // Determine if vector embedding is needed
+            // For scoped single-document queries, only generate vector if document actually has embedded chunks
+            $shouldGenerateEmbedding = true;
+            if ($documentId) {
+                $hasEmbeddings = DB::table('document_chunks')
+                    ->where('document_id', (int) $documentId)
+                    ->whereNotNull('embedding')
+                    ->exists();
+                if (!$hasEmbeddings) {
+                    $shouldGenerateEmbedding = false;
+                }
+            }
+
+            if ($shouldGenerateEmbedding) {
+                try {
+                    // Convert search query into vector numbers using Gemini (if quota allows)
+                    $embedding = $this->geminiService->generateEmbedding($searchQuery);
+                    if (!empty($embedding)) {
+                        $embeddingVector = '[' . implode(',', $embedding) . ']';
+                    }
+                } catch (\Throwable $embedError) {
+                    Log::warning('RAG: Embedding generation failed (falling back to hybrid full-text search): ' . $embedError->getMessage());
+                }
+            }
 
             // Step 2: Search database using Hybrid Keyword + Vector Retrieval
             if ($documentId) {
@@ -126,11 +141,11 @@ class ChatController extends Controller
                 }
             }
 
-            foreach (array_slice($chunks, 0, 8) as $index => $chunk) {
+            foreach (array_slice($chunks, 0, 5) as $index => $chunk) {
                 $score = round(((float) ($chunk->similarity ?? 0.85)) * 100, 1);
                 $docTitle = $chunk->document_title ?? 'Thesis Document';
                 $docAuthor = $chunk->document_author ?? 'Unknown Author';
-                $cleanText = mb_substr(trim((string) $chunk->chunk_text), 0, 1400);
+                $cleanText = mb_substr(trim((string) $chunk->chunk_text), 0, 750);
 
                 $contextParts[] =
                     "[Source #" . ($index + 1) . "]\n" .
@@ -144,7 +159,29 @@ class ChatController extends Controller
             $contextText = implode("\n\n---\n\n", $contextParts);
 
             // Step 5: Ask Gemini to answer the question using multi-turn conversation memory
-            $answer = $this->geminiService->generateChatResponse($userQuestion, $contextText, $history);
+            $answer = null;
+            try {
+                $answer = $this->geminiService->generateChatResponse($userQuestion, $contextText, $history);
+            } catch (\Throwable $llmErr) {
+                Log::warning('RAG: Google AI generation failed or high demand, using grounded manuscript passages: ' . $llmErr->getMessage());
+
+                // Fallback: ground response directly from the top matching manuscript passages so students never hit 504 Gateway Timeout
+                $snippets = [];
+                foreach (array_slice($chunks, 0, 3) as $c) {
+                    $raw = trim((string) $c->chunk_text);
+                    $clean = preg_replace('/ST\.\s*ANTHONY.*?Antique\s*\d{4}/si', '', $raw);
+                    $clean = trim((string) preg_replace('/\s+/', ' ', (string) $clean));
+                    if ($clean !== '') {
+                        $pInfo = !empty($c->page_number) ? " *(Page {$c->page_number})*" : "";
+                        $snippets[] = "> \"" . mb_substr($clean, 0, 320) . "...\"{$pInfo}";
+                    }
+                }
+
+                $mainTitle = $chunks[0]->document_title ?? 'the thesis manuscript';
+                $answer = "Based directly on the technical documentation found in **{$mainTitle}**:\n\n" .
+                    implode("\n\n", $snippets) . "\n\n" .
+                    "*(Direct manuscript excerpt. Conversational AI synthesis will automatically refresh once Google AI traffic subsides).*";
+            }
 
             // Step 6: Deduplicate sources so each thesis card appears cleanly in the UI
             $uniqueSources = [];
@@ -197,11 +234,25 @@ class ChatController extends Controller
             'could', 'would', 'done', 'does', 'item', 'items', 'make', 'made'
         ];
 
-        $clean = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', mb_strtolower($text));
+        // Normalize repeated letters (e.g. microcontrolllers -> microcontrollers)
+        $clean = preg_replace('/(.)\\1{2,}/u', '$1$1', mb_strtolower($text));
+        $clean = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', (string) $clean);
         $words = array_filter(explode(' ', (string) $clean), fn($w) => strlen($w) >= 3);
 
         $filtered = array_values(array_filter($words, fn($w) => !in_array($w, $stopWords, true)));
-        return array_slice(array_unique($filtered), 0, 12);
+
+        $normalized = [];
+        foreach ($filtered as $w) {
+            $normalized[] = $w;
+            if (str_ends_with($w, 's') && strlen($w) > 4) {
+                $normalized[] = substr($w, 0, -1);
+            }
+            if (strlen($w) > 8) {
+                $normalized[] = substr($w, 0, 8);
+            }
+        }
+
+        return array_slice(array_unique($normalized), 0, 16);
     }
 
     protected function retrieveScopedChunks(int $documentId, ?string $embeddingVector, array $keywords): array
