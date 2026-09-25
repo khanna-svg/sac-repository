@@ -166,7 +166,7 @@ class GeminiService
                 }
 
                 $response = Http::withoutVerifying()
-                    ->timeout(4.5)
+                    ->timeout(8.5)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
@@ -277,7 +277,7 @@ class GeminiService
                 }
 
                 $response = Http::withoutVerifying()
-                    ->timeout(4.5)
+                    ->timeout(8.5)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
