@@ -219,36 +219,43 @@ class ChatController extends Controller
                 }
 
                 if ($answer === null) {
-                    // Fallback: ground response directly from genuine technical manuscript passages (filter out administrative front matter)
-                    $cleanSnippets = [];
-                    foreach ($chunks as $c) {
-                        $raw = trim((string) $c->chunk_text);
-                        if (preg_match('/(APPROVAL\s*SHEET|GRAMMARIAN|DEDICATION|ACKNOWLEDGEMENT|TABLE\s*OF\s*CONTENTS)/i', $raw)) {
-                            continue;
-                        }
-                        if (!empty($c->page_number) && $c->page_number <= 5) {
-                            continue;
-                        }
+                    $isSummaryQuery = (bool) preg_match('/\b(summarize|summary|overview|what\s+is\s+this\s+(thesis|study|paper|project)\s+about|in\s+simple\s+words)\b/i', $userQuestion);
+                    if ($isSummaryQuery && $primaryDoc && !empty($primaryDoc->abstract)) {
+                        $answer = "### Summary of {$primaryDoc->title}\n\n" .
+                            trim((string) $primaryDoc->abstract) . "\n\n" .
+                            "*(Official Executive Abstract from the manuscript)*";
+                    } else {
+                        // Fallback: ground response directly from genuine technical manuscript passages (filter out administrative front matter and appendices)
+                        $cleanSnippets = [];
+                        foreach ($chunks as $c) {
+                            $raw = trim((string) $c->chunk_text);
+                            if (preg_match('/(APPROVAL\s*SHEET|GRAMMARIAN|DEDICATION|ACKNOWLEDGEMENT|TABLE\s*OF\s*CONTENTS|APPENDIC|APPENDIX|LETTER\s*TO|CURRICULUM\s*VITAE)/i', $raw)) {
+                                continue;
+                            }
+                            if (!empty($c->page_number) && $c->page_number <= 5) {
+                                continue;
+                            }
 
-                        $clean = preg_replace('/ST\.\s*ANTHONY.*?Antique\s*\d{4}/si', '', $raw);
-                        $clean = trim((string) preg_replace('/\s+/', ' ', (string) $clean));
-                        if (strlen($clean) > 80) {
-                            $pInfo = !empty($c->page_number) ? " *(Page {$c->page_number})*" : "";
-                            $cleanSnippets[] = "• " . mb_substr($clean, 0, 300) . "...{$pInfo}";
-                            if (count($cleanSnippets) >= 3) {
-                                break;
+                            $clean = preg_replace('/ST\.\s*ANTHONY.*?Antique\s*\d{4}/si', '', $raw);
+                            $clean = trim((string) preg_replace('/\s+/', ' ', (string) $clean));
+                            if (strlen($clean) > 80) {
+                                $pInfo = !empty($c->page_number) ? " *(Page {$c->page_number})*" : "";
+                                $cleanSnippets[] = "• " . mb_substr($clean, 0, 300) . "...{$pInfo}";
+                                if (count($cleanSnippets) >= 3) {
+                                    break;
+                                }
                             }
                         }
-                    }
 
-                    if (empty($cleanSnippets) && $primaryDoc && !empty($primaryDoc->abstract)) {
-                        $cleanSnippets[] = "• " . mb_substr(trim((string) $primaryDoc->abstract), 0, 400) . "...";
-                    }
+                        if (empty($cleanSnippets) && $primaryDoc && !empty($primaryDoc->abstract)) {
+                            $cleanSnippets[] = "• " . mb_substr(trim((string) $primaryDoc->abstract), 0, 400) . "...";
+                        }
 
-                    $mainTitle = $primaryDoc->title ?? ($chunks[0]->document_title ?? 'the thesis manuscript');
-                    $answer = "Here are the relevant findings documented in **{$mainTitle}**:\n\n" .
-                        (!empty($cleanSnippets) ? implode("\n\n", $cleanSnippets) : "*(Technical details could not be synthesized at this moment. Please view the full PDF in the viewer).*") . "\n\n" .
-                        "*(Direct excerpt from technical documentation. For full details, view the complete PDF in the viewer).*";
+                        $mainTitle = $primaryDoc->title ?? ($chunks[0]->document_title ?? 'the thesis manuscript');
+                        $answer = "Here are the relevant findings documented in **{$mainTitle}**:\n\n" .
+                            (!empty($cleanSnippets) ? implode("\n\n", $cleanSnippets) : "*(Technical details could not be synthesized at this moment. Please view the full PDF in the viewer).*") . "\n\n" .
+                            "*(Direct excerpt from technical documentation. For full details, view the complete PDF in the viewer).*";
+                    }
                 }
             }
 
@@ -346,6 +353,10 @@ class ChatController extends Controller
                   OR dc.chunk_text ILIKE '%DEDICATION%' 
                   OR dc.chunk_text ILIKE '%ACKNOWLEDGEMENT%' 
                   OR dc.chunk_text ILIKE '%TABLE OF CONTENTS%' 
+                  OR dc.chunk_text ILIKE '%APPENDIC%' 
+                  OR dc.chunk_text ILIKE '%APPENDIX %' 
+                  OR dc.chunk_text ILIKE '%CURRICULUM VITAE%' 
+                  OR dc.chunk_text ILIKE '%LETTER TO%' 
                 THEN -30 
                 WHEN dc.page_number > 5 THEN 4 
                 ELSE 0 
@@ -398,6 +409,10 @@ class ChatController extends Controller
                   AND dc.chunk_text NOT ILIKE '%GRAMMARIAN%'
                   AND dc.chunk_text NOT ILIKE '%DEDICATION%'
                   AND dc.chunk_text NOT ILIKE '%ACKNOWLEDGEMENT%'
+                  AND dc.chunk_text NOT ILIKE '%APPENDIC%'
+                  AND dc.chunk_text NOT ILIKE '%APPENDIX %'
+                  AND dc.chunk_text NOT ILIKE '%CURRICULUM VITAE%'
+                  AND dc.chunk_text NOT ILIKE '%LETTER TO%'
                 ORDER BY dc.embedding OPERATOR(extensions.<=>) ?::extensions.vector ASC
                 LIMIT 6
             ", [$embeddingVector, $documentId, $embeddingVector]);
@@ -488,6 +503,10 @@ class ChatController extends Controller
                   OR dc.chunk_text ILIKE '%DEDICATION%' 
                   OR dc.chunk_text ILIKE '%ACKNOWLEDGEMENT%' 
                   OR dc.chunk_text ILIKE '%TABLE OF CONTENTS%' 
+                  OR dc.chunk_text ILIKE '%APPENDIC%' 
+                  OR dc.chunk_text ILIKE '%APPENDIX %' 
+                  OR dc.chunk_text ILIKE '%CURRICULUM VITAE%' 
+                  OR dc.chunk_text ILIKE '%LETTER TO%' 
                 THEN -30 
                 WHEN dc.page_number > 5 THEN 4 
                 ELSE 0 
@@ -558,6 +577,10 @@ class ChatController extends Controller
                       AND dc.chunk_text NOT ILIKE '%GRAMMARIAN%'
                       AND dc.chunk_text NOT ILIKE '%DEDICATION%'
                       AND dc.chunk_text NOT ILIKE '%ACKNOWLEDGEMENT%'
+                      AND dc.chunk_text NOT ILIKE '%APPENDIC%'
+                      AND dc.chunk_text NOT ILIKE '%APPENDIX %'
+                      AND dc.chunk_text NOT ILIKE '%CURRICULUM VITAE%'
+                      AND dc.chunk_text NOT ILIKE '%LETTER TO%'
                 )
                 SELECT * FROM ranked_chunks
                 WHERE rn <= 2
