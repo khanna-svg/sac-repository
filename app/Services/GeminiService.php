@@ -12,7 +12,7 @@ class GeminiService
 
     protected string $embeddingModel = 'gemini-embedding-001';
 
-    protected string $generationModel = 'gemini-3.6-flash';
+    protected string $generationModel = 'gemini-3.8-flash';
 
     public function __construct()
     {
@@ -136,7 +136,8 @@ class GeminiService
 
         $modelsToTry = [
             $this->generationModel,
-            'gemini-3-flash-preview',
+            'gemini-3.7-flash',
+            'gemini-3.6-flash',
         ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -155,7 +156,7 @@ class GeminiService
                     ],
                 ];
 
-                if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7') || str_contains($modelName, '3-flash') || str_contains($modelName, '3.6')) {
+                if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7') || str_contains($modelName, '3-flash') || str_contains($modelName, '3.6') || str_contains($modelName, '3.8')) {
                     $payload['generationConfig']['thinkingConfig'] = ['thinkingBudget' => 0];
                 }
 
@@ -241,7 +242,8 @@ class GeminiService
 
         $modelsToTry = [
             $this->generationModel,
-            'gemini-3-flash-preview',
+            'gemini-3.7-flash',
+            'gemini-3.6-flash',
         ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -259,7 +261,7 @@ class GeminiService
                             ['text' => $systemInstruction]
                         ]
                     ];
-                    if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7') || str_contains($modelName, '3-flash') || str_contains($modelName, '3.6')) {
+                    if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7') || str_contains($modelName, '3-flash') || str_contains($modelName, '3.6') || str_contains($modelName, '3.8')) {
                         $payload['generationConfig']['thinkingConfig'] = ['thinkingBudget' => 0];
                     }
                 } else {
@@ -409,7 +411,7 @@ Respond with ONLY valid JSON (no markdown formatting, no code fences, no explana
 Proposal Text:
 " . $truncated;
 
-        $modelsToTry = [$this->generationModel, 'gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.5-flash'];
+        $modelsToTry = [$this->generationModel, 'gemini-3.7-flash', 'gemini-3.6-flash'];
 
         foreach (array_unique($modelsToTry) as $modelName) {
             try {
