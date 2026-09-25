@@ -125,7 +125,7 @@ class ChatController extends Controller
             // Step 2: Search database using Hybrid Keyword + Vector Retrieval
             if ($documentId) {
                 // Scoped search for a single document (Brave-style drawer)
-                $chunks = $this->retrieveScopedChunks((int) $documentId, $embeddingVector, $keywords);
+                $chunks = $this->retrieveScopedChunks((int) $documentId, $embeddingVector, $keywords, $userQuestion);
             } else {
                 // Global repository search (Floating AI Assistant across all theses)
                 $chunks = $this->retrieveGlobalChunks($embeddingVector, $keywords, $userQuestion);
@@ -224,12 +224,40 @@ class ChatController extends Controller
                         $answer = "### Summary of {$primaryDoc->title}\n\n" .
                             trim((string) $primaryDoc->abstract) . "\n\n" .
                             "*(Official Executive Abstract from the manuscript)*";
-                    } else {
+                    }
+
+                    $isSolutionQuery = (bool) preg_match('/\b(solve|solution|solutions|address|resolved|resolve|recommendation|recommendations|conclude|conclusion|conclusions|action\s*plan|mitigate|prevent)\b/i', $userQuestion);
+                    if ($answer === null && $isSolutionQuery) {
+                        $solutionSnippets = [];
+                        foreach ($chunks as $c) {
+                            $raw = trim((string) $c->chunk_text);
+                            if (preg_match('/(RECOMMENDATION|CONCLUSION|SUMMARY OF FINDINGS|ACTION PLAN)/i', $raw) && !preg_match('/(STATEMENT OF THE PROBLEM|TABLE OF CONTENTS)/i', $raw)) {
+                                $clean = preg_replace('/ST\.\s*ANTHONY.*?Antique\s*\d{4}/si', '', $raw);
+                                $clean = trim((string) preg_replace('/\s+/', ' ', (string) $clean));
+                                if (strlen($clean) > 80) {
+                                    $pInfo = !empty($c->page_number) ? " *(Page {$c->page_number})*" : "";
+                                    $solutionSnippets[] = "• " . mb_substr($clean, 0, 320) . "...{$pInfo}";
+                                }
+                            }
+                        }
+
+                        if (!empty($solutionSnippets)) {
+                            $mainTitle = $primaryDoc->title ?? ($chunks[0]->document_title ?? 'the study');
+                            $answer = "### Proposed Solutions and Recommendations for **{$mainTitle}**:\n\n" .
+                                implode("\n\n", array_slice($solutionSnippets, 0, 3)) . "\n\n" .
+                                "*(Excerpts from the Conclusions and Recommendations of the thesis manuscript).*";
+                        }
+                    }
+
+                    if ($answer === null) {
                         // Fallback: ground response directly from genuine technical manuscript passages (filter out administrative front matter and appendices)
                         $cleanSnippets = [];
                         foreach ($chunks as $c) {
                             $raw = trim((string) $c->chunk_text);
                             if (preg_match('/(APPROVAL\s*SHEET|GRAMMARIAN|DEDICATION|ACKNOWLEDGEMENT|TABLE\s*OF\s*CONTENTS|APPENDIC|APPENDIX|LETTER\s*TO|CURRICULUM\s*VITAE)/i', $raw)) {
+                                continue;
+                            }
+                            if ($isSolutionQuery && preg_match('/STATEMENT\s*OF\s*THE\s*PROBLEM/i', $raw)) {
                                 continue;
                             }
                             if (!empty($c->page_number) && $c->page_number <= 5) {
@@ -331,9 +359,15 @@ class ChatController extends Controller
         return array_slice(array_unique($normalized), 0, 16);
     }
 
-    protected function retrieveScopedChunks(int $documentId, ?string $embeddingVector, array $keywords): array
+    protected function retrieveScopedChunks(int $documentId, ?string $embeddingVector, array $keywords, string $userQuestion = ''): array
     {
         $chunksById = [];
+
+        $isSolutionQuery = !empty($userQuestion) && (bool) preg_match('/\b(solve|solution|solutions|address|resolved|resolve|recommendation|recommendations|conclude|conclusion|conclusions|action\s*plan|mitigate|prevent)\b/i', $userQuestion);
+
+        if ($isSolutionQuery) {
+            $keywords = array_unique(array_merge($keywords, ['recommendation', 'conclusion', 'findings', 'solution', 'measure', 'prevent', 'action plan']));
+        }
 
         // 1. Keyword search inside this document
         if (!empty($keywords)) {
@@ -362,7 +396,15 @@ class ChatController extends Controller
                 ELSE 0 
             END)";
 
-            $scoreSql = implode(' + ', $scoreClauses) . " + {$adminPenalty}";
+            $solutionBonus = $isSolutionQuery
+                ? "(CASE 
+                    WHEN dc.chunk_text ILIKE '%RECOMMENDATION%' OR dc.chunk_text ILIKE '%CONCLUSION%' OR dc.chunk_text ILIKE '%SUMMARY OF FINDINGS%' THEN 15 
+                    WHEN dc.chunk_text ILIKE '%STATEMENT OF THE PROBLEM%' THEN -20 
+                    ELSE 0 
+                   END)"
+                : "0";
+
+            $scoreSql = implode(' + ', $scoreClauses) . " + {$adminPenalty} + {$solutionBonus}";
             $sql = "
                 SELECT
                     dc.id,

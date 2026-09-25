@@ -12,7 +12,7 @@ class GeminiService
 
     protected string $embeddingModel = 'gemini-embedding-001';
 
-    protected string $generationModel = 'gemini-3.8-flash';
+    protected string $generationModel = 'gemini-3.6-flash';
 
     public function __construct()
     {
@@ -135,9 +135,9 @@ class GeminiService
             $userQuestion;
 
         $modelsToTry = [
-            $this->generationModel,
-            'gemini-3.7-flash',
             'gemini-3.6-flash',
+            'gemini-3.8-flash',
+            'gemini-3.7-flash',
         ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -241,9 +241,9 @@ class GeminiService
         }
 
         $modelsToTry = [
-            $this->generationModel,
-            'gemini-3.7-flash',
             'gemini-3.6-flash',
+            'gemini-3.8-flash',
+            'gemini-3.7-flash',
         ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
