@@ -201,7 +201,7 @@ class ChatController extends Controller
                 Log::warning('RAG: Google AI generation failed or high demand: ' . $llmErr->getMessage());
 
                 // Author / Researcher inquiry fallback
-                $isAuthorQuery = (bool) preg_match('/\b(author|authors|researcher|researchers|proponent|proponents|writer|writers|who\s+(wrote|conducted|authored|made|developed|created))\b/i', $userQuestion);
+                $isAuthorQuery = $this->isAuthorQuery($userQuestion);
                 $primaryDoc = null;
                 if ($documentId) {
                     $primaryDoc = DB::table('documents')->where('id', (int) $documentId)->first();
@@ -576,6 +576,46 @@ class ChatController extends Controller
     }
 
     /**
+     * Strictly detects if the user is genuinely asking FOR the identity of the researchers/authors,
+     * rather than asking a technical/hardware question that merely mentions the word "researchers".
+     */
+    protected function isAuthorQuery(string $q): bool
+    {
+        $clean = mb_strtolower(trim($q));
+        $clean = trim(preg_replace('/[?!.]+$/', '', $clean));
+
+        // If query starts with "what", "how", "why", "which", "where", "did", "do", "does", "can", "could", "would", etc.
+        // it is asking about system details, methodology, hardware, results, etc., NOT asking for author names.
+        if (preg_match('/^(what|how|why|which|where|when|did|do|does|can|could|would|is\s+there|are\s+there)\b/i', $clean)) {
+            // Exception: only if specifically "what are the names of the authors/researchers"
+            if (preg_match('/^what\s+(is|are)\s+the\s+(names?\s+of\s+(the\s+)?)?(authors?|researchers?|proponents?)/i', $clean)) {
+                return true;
+            }
+            return false;
+        }
+
+        // Direct who queries: "who wrote...", "who are the researchers...", "who is the author..."
+        if (preg_match('/\bwho\s+(wrote|conducted|authored|made|created|developed)\b/i', $clean)) {
+            return true;
+        }
+
+        if (preg_match('/\bwho\s+(is|are|were)\s+(the\s+)?(authors?|researchers?|proponents?|writers?)\b/i', $clean)) {
+            return true;
+        }
+
+        // Short direct queries: "authors", "researchers", "list the authors", "proponents"
+        if (preg_match('/^(list\s+(the\s+)?)?(authors?|researchers?|proponents?)$/i', $clean)) {
+            return true;
+        }
+
+        if (preg_match('/^(names?\s+of\s+(the\s+)?)?(authors?|researchers?|proponents?)\s*(of\s+this\s+(study|thesis|project|paper))?$/i', $clean)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Resolves direct metadata inquiries (Author, Title, Department, Year, Abstract)
      * instantly with 100% precision from verified database records.
      */
@@ -583,9 +623,8 @@ class ChatController extends Controller
     {
         $q = mb_strtolower(trim($userQuestion));
 
-        // 1. Author / Researcher / Proponent query
-        $isAuthor = (bool) preg_match('/\b(author|authors|researcher|researchers|proponent|proponents|writer|writers|who\s+(wrote|conducted|authored|made|developed|created))\b/i', $q);
-        if ($isAuthor && !empty($doc->author)) {
+        // 1. Author / Researcher / Proponent query (strictly checked)
+        if ($this->isAuthorQuery($userQuestion) && !empty($doc->author)) {
             $authors = preg_split('/\s*[,;]\s*|\s+and\s+/i', (string) $doc->author);
             $authors = array_filter(array_map('trim', $authors));
             if (!empty($authors)) {
@@ -595,13 +634,13 @@ class ChatController extends Controller
         }
 
         // 2. Title query
-        $isTitle = (bool) preg_match('/\b(what\s+is\s+the\s+title|thesis\s+title|title\s+of\s+(this|the)\s+study)\b/i', $q);
+        $isTitle = (bool) preg_match('/^(what\s+is\s+the\s+title|thesis\s+title|title\s+of\s+(this|the)\s+study)\b/i', $q);
         if ($isTitle) {
             return "The title of this thesis is **{$doc->title}**.";
         }
 
         // 3. Department / Course / Program query
-        $isDept = (bool) preg_match('/\b(what\s+department|which\s+department|what\s+course|degree\s+program|which\s+college)\b/i', $q);
+        $isDept = (bool) preg_match('/^(what\s+department|which\s+department|what\s+course|what\s+degree\s+program|which\s+college)\b/i', $q);
         if ($isDept) {
             $dept = strtoupper($doc->department ?? 'General');
             $course = strtoupper($doc->course_code ?? '');
@@ -610,14 +649,14 @@ class ChatController extends Controller
         }
 
         // 4. Publication Date / Year query
-        $isDate = (bool) preg_match('/\b(when\s+was\s+(this|it)\s+(published|submitted|conducted|written)|publication\s+date|what\s+year)\b/i', $q);
+        $isDate = (bool) preg_match('/^(when\s+was\s+(this|it)\s+(published|submitted|conducted|written)|publication\s+date|what\s+year)\b/i', $q);
         if ($isDate) {
             $date = !empty($doc->publication_date) ? date('F Y', strtotime($doc->publication_date)) : 'the documented academic term';
             return "This thesis was officially published in **{$date}**.";
         }
 
         // 5. Abstract / Summary query (for direct concise queries)
-        $isAbstract = (bool) preg_match('/\b(give\s+me\s+the\s+abstract|what\s+is\s+the\s+abstract|provide\s+the\s+abstract|what\s+is\s+this\s+(thesis|study|paper|project)\s+about|summarize\s+this\s+(thesis|study|paper|project))\b/i', $q);
+        $isAbstract = (bool) preg_match('/^(give\s+me\s+the\s+abstract|what\s+is\s+the\s+abstract|provide\s+the\s+abstract|what\s+is\s+this\s+(thesis|study|paper|project)\s+about|summarize\s+this\s+(thesis|study|paper|project))\b/i', $q);
         if ($isAbstract && strlen($q) < 65 && !empty($doc->abstract)) {
             return "### Abstract & Executive Summary\n\n**Title:** {$doc->title}\n**Researchers:** {$doc->author}\n\n" . trim((string) $doc->abstract);
         }
@@ -632,8 +671,8 @@ class ChatController extends Controller
     protected function resolveGlobalDirectMetadataAnswer(string $userQuestion): ?array
     {
         $q = mb_strtolower(trim($userQuestion));
-        $isAuthor = (bool) preg_match('/\b(author|authors|researcher|researchers|proponent|proponents|writer|writers|who\s+(wrote|conducted|authored|made|developed|created))\b/i', $q);
-        $isTitle = (bool) preg_match('/\b(what\s+is\s+the\s+title|thesis\s+title|title\s+of\s+(this|the)\s+study)\b/i', $q);
+        $isAuthor = $this->isAuthorQuery($userQuestion);
+        $isTitle = (bool) preg_match('/^(what\s+is\s+the\s+title|thesis\s+title|title\s+of\s+(this|the)\s+study)\b/i', $q);
 
         if (!$isAuthor && !$isTitle) {
             return null;

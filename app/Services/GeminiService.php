@@ -12,7 +12,7 @@ class GeminiService
 
     protected string $embeddingModel = 'gemini-embedding-001';
 
-    protected string $generationModel = 'gemini-3-flash-preview';
+    protected string $generationModel = 'gemini-3.6-flash';
 
     public function __construct()
     {
@@ -136,7 +136,7 @@ class GeminiService
 
         $modelsToTry = [
             $this->generationModel,
-            'gemini-3.5-flash',
+            'gemini-3-flash-preview',
         ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -155,12 +155,12 @@ class GeminiService
                     ],
                 ];
 
-                if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7') || str_contains($modelName, '3-flash')) {
+                if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7') || str_contains($modelName, '3-flash') || str_contains($modelName, '3.6')) {
                     $payload['generationConfig']['thinkingConfig'] = ['thinkingBudget' => 0];
                 }
 
                 $response = Http::withoutVerifying()
-                    ->timeout(2.8)
+                    ->timeout(4.5)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
@@ -241,7 +241,7 @@ class GeminiService
 
         $modelsToTry = [
             $this->generationModel,
-            'gemini-3.5-flash',
+            'gemini-3-flash-preview',
         ];
 
         foreach (array_unique($modelsToTry) as $modelName) {
@@ -259,7 +259,7 @@ class GeminiService
                             ['text' => $systemInstruction]
                         ]
                     ];
-                    if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7') || str_contains($modelName, '3-flash')) {
+                    if (str_contains($modelName, 'thinking') || str_contains($modelName, '3.7') || str_contains($modelName, '3-flash') || str_contains($modelName, '3.6')) {
                         $payload['generationConfig']['thinkingConfig'] = ['thinkingBudget' => 0];
                     }
                 } else {
@@ -270,7 +270,7 @@ class GeminiService
                 }
 
                 $response = Http::withoutVerifying()
-                    ->timeout(2.8)
+                    ->timeout(4.5)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
