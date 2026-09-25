@@ -16,10 +16,15 @@ class GeminiService
 
     public function __construct()
     {
-        $this->apiKey = (string) env('GEMINI_API_KEY');
+        $this->apiKey = (string) (
+            config('services.gemini.api_key')
+            ?: env('GEMINI_API_KEY')
+            ?: getenv('GEMINI_API_KEY')
+            ?: ($_ENV['GEMINI_API_KEY'] ?? ($_SERVER['GEMINI_API_KEY'] ?? ''))
+        );
 
         if ($this->apiKey === '') {
-            throw new \Exception('GEMINI_API_KEY is not configured in .env file.');
+            throw new \Exception('GEMINI_API_KEY is not configured in environment or config.');
         }
     }
 
