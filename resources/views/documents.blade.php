@@ -175,29 +175,48 @@
                 </form>
             </section>
 
-            {{-- 3.5. PROPOSAL AI ANALYSIS BANNER --}}
+            {{-- 3.5. PROPOSAL BEST MATCH BANNER --}}
             <div id="proposalAnalysisBanner" class="hidden mb-6 p-5 rounded-3xl bg-gradient-to-br from-[#700000]/5 via-amber-500/5 to-slate-50 border border-[#700000]/20 shadow-xs">
                 <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div class="space-y-1.5 flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
                             <span class="px-2.5 py-0.5 rounded-full bg-[#700000] text-[#FFD700] text-[10px] font-extrabold uppercase tracking-wider shadow-2xs">
-                                💡 Concept Proposal Match
+                                💡 Best Repository Match
+                            </span>
+                            <span id="proposalBannerScore" class="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-extrabold shadow-2xs">
+                                Top Match
                             </span>
                             <span id="proposalBannerFileName" class="text-xs font-semibold text-gray-500 italic"></span>
                         </div>
                         <h3 id="proposalBannerTitle" class="text-sm md:text-base font-bold text-gray-900 leading-snug"></h3>
+                        <p id="proposalBannerMeta" class="text-xs text-[#700000] font-semibold"></p>
                         <p id="proposalBannerSummary" class="text-xs text-gray-600 leading-relaxed"></p>
                         <div id="proposalBannerTopics" class="flex flex-wrap items-center gap-1.5 pt-1"></div>
                     </div>
-                    <button
-                        type="button"
-                        onclick="clearProposalResults()"
-                        class="px-3.5 py-2 rounded-2xl border border-gray-200 bg-white hover:bg-slate-100 text-gray-700 hover:text-red-600 text-xs font-bold transition shrink-0 shadow-2xs cursor-pointer flex items-center gap-1.5">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                        <span>Reset to All Theses</span>
-                    </button>
+                    <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                        <a
+                            id="proposalSeeGraphBtn"
+                            href="/graph"
+                            target="_blank"
+                            class="px-4 py-2.5 rounded-2xl bg-[#700000] hover:bg-[#850000] text-[#FFD700] text-xs font-bold transition shadow-xs cursor-pointer flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <circle cx="6" cy="6" r="2.5" />
+                                <circle cx="18" cy="18" r="2.5" />
+                                <circle cx="18" cy="6" r="2.5" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 7.5l7 3M8.5 6h7M18 8.5v7" />
+                            </svg>
+                            <span>See Knowledge Graph?</span>
+                        </a>
+                        <button
+                            type="button"
+                            onclick="clearProposalResults()"
+                            class="px-3.5 py-2.5 rounded-2xl border border-gray-200 bg-white hover:bg-slate-100 text-gray-700 hover:text-red-600 text-xs font-bold transition shadow-2xs cursor-pointer flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span>Reset to All Theses</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -756,6 +775,21 @@
                                         </svg>
                                         <span>Ask AI</span>
                                     </button>
+
+                                    <a
+                                        href="/graph?focus=doc_${doc.id}"
+                                        target="_blank"
+                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 cursor-pointer"
+                                        title="View this research in Knowledge Graph"
+                                    >
+                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <circle cx="6" cy="6" r="2.5" />
+                                            <circle cx="18" cy="18" r="2.5" />
+                                            <circle cx="18" cy="6" r="2.5" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 7.5l7 3M8.5 6h7M18 8.5v7" />
+                                        </svg>
+                                        <span>Graph</span>
+                                    </a>
                                 </div>
                             </div>
 
@@ -1028,29 +1062,56 @@
                 activeProposalResult = data;
                 allDocuments = data.documents || [];
 
-                // Render Proposal Banner
+                // Render Proposal Banner with the BEST RESULT
                 const banner = document.getElementById('proposalAnalysisBanner');
                 const titleEl = document.getElementById('proposalBannerTitle');
+                const scoreEl = document.getElementById('proposalBannerScore');
                 const fileEl = document.getElementById('proposalBannerFileName');
+                const metaEl = document.getElementById('proposalBannerMeta');
                 const summaryEl = document.getElementById('proposalBannerSummary');
                 const topicsEl = document.getElementById('proposalBannerTopics');
+                const seeGraphBtn = document.getElementById('proposalSeeGraphBtn');
 
-                if (banner && titleEl && summaryEl) {
-                    titleEl.textContent = data.title || 'Concept Proposal Analysis';
-                    if (fileEl) fileEl.textContent = `from ${data.filename}`;
-                    summaryEl.textContent = data.summary || 'Literature matched based on proposal vector similarity.';
-                    
-                    if (topicsEl) {
-                        if (Array.isArray(data.topics) && data.topics.length > 0) {
-                            topicsEl.innerHTML = data.topics.map(topic => `
-                                <span class="px-2.5 py-1 rounded-xl bg-white border border-[#700000]/20 text-[#700000] text-[11px] font-bold shadow-2xs">
-                                    # ${escapeHtml(topic)}
-                                </span>
-                            `).join('');
-                        } else {
-                            topicsEl.innerHTML = '';
-                        }
+                if (banner && allDocuments.length > 0) {
+                    const bestDoc = allDocuments[0];
+                    if (titleEl) titleEl.textContent = bestDoc.title || 'Top Literature Match';
+                    if (scoreEl) {
+                        scoreEl.textContent = bestDoc.similarity_score ? `${bestDoc.similarity_score}% Similarity` : 'Top Match';
                     }
+                    if (fileEl) fileEl.textContent = `from ${data.filename || (selectedProposalFile ? selectedProposalFile.name : 'file')}`;
+                    if (metaEl) {
+                        const author = bestDoc.author ? `by ${bestDoc.author}` : 'by SAC Researchers';
+                        const dept = bestDoc.department ? ` • ${bestDoc.department.toUpperCase()}` : '';
+                        metaEl.textContent = `${author}${dept}`;
+                    }
+                    if (summaryEl) {
+                        const abstractSnippet = bestDoc.abstract
+                            ? (bestDoc.abstract.length > 240 ? bestDoc.abstract.substring(0, 237) + '...' : bestDoc.abstract)
+                            : (data.summary || '');
+                        summaryEl.textContent = abstractSnippet;
+                    }
+
+                    if (topicsEl) {
+                        const topics = (data.topics && data.topics.length > 0) ? data.topics : ['Research Match', 'Literature Review'];
+                        topicsEl.innerHTML = topics.map(topic => `
+                            <span class="px-2.5 py-1 rounded-xl bg-white border border-[#700000]/20 text-[#700000] text-[11px] font-bold shadow-2xs">
+                                # ${escapeHtml(topic)}
+                            </span>
+                        `).join('');
+                    }
+
+                    if (seeGraphBtn) {
+                        seeGraphBtn.href = `/graph?focus=doc_${bestDoc.id}`;
+                        seeGraphBtn.classList.remove('hidden');
+                    }
+
+                    banner.classList.remove('hidden');
+                } else if (banner) {
+                    if (titleEl) titleEl.textContent = data.title || 'Concept Proposal Analysis';
+                    if (scoreEl) scoreEl.textContent = 'No Matches';
+                    if (fileEl) fileEl.textContent = `from ${data.filename || (selectedProposalFile ? selectedProposalFile.name : 'file')}`;
+                    if (summaryEl) summaryEl.textContent = data.summary || 'No matching theses found in the repository.';
+                    if (seeGraphBtn) seeGraphBtn.classList.add('hidden');
                     banner.classList.remove('hidden');
                 }
 

@@ -26,6 +26,7 @@ class Document extends Model
         'submitted_by_name',
         'submitted_by_email',
         'admin_notes',
+        'turnitin_similarity',
     ];
 
     protected $casts = [

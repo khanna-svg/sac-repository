@@ -35,7 +35,7 @@ class NotificationController extends Controller
                 ->get();
 
             $recentReviewed = Document::whereNotNull('submitted_by_email')
-                ->whereIn('status', ['approved', 'resubmit'])
+                ->whereIn('status', ['cleared', 'approved', 'resubmit'])
                 ->orderBy('updated_at', 'desc')
                 ->take(5)
                 ->get();
@@ -62,7 +62,7 @@ class NotificationController extends Controller
             }
 
             foreach ($recentReviewed as $doc) {
-                $statusText = $doc->status === 'approved' ? 'Approved' : 'Needs Resubmission';
+                $statusText = in_array($doc->status, ['cleared', 'approved'], true) ? 'Cleared' : 'Needs Revisions';
                 $notifications[] = [
                     'id' => 'doc_reviewed_' . $doc->id,
                     'title' => "Submission {$statusText}",
@@ -88,7 +88,7 @@ class NotificationController extends Controller
             ]);
         }
 
-        // Student notifications
+        // Student notifications (routed to /student/submit)
         $notifications = ThesisNotification::where('user_email', $email)
             ->with(['document:id,title,status'])
             ->orderBy('created_at', 'desc')
@@ -99,8 +99,22 @@ class NotificationController extends Controller
             ->where('is_read', false)
             ->count();
 
+        $formatted = $notifications->map(function ($n) {
+            return [
+                'id' => $n->id,
+                'user_email' => $n->user_email,
+                'title' => $n->title,
+                'message' => $n->message,
+                'type' => $n->type,
+                'document_id' => $n->document_id,
+                'is_read' => (bool) $n->is_read,
+                'created_at' => $n->created_at ? $n->created_at->toIso8601String() : now()->toIso8601String(),
+                'link' => '/student/submit',
+            ];
+        });
+
         return response()->json([
-            'notifications' => $notifications,
+            'notifications' => $formatted,
             'unread_count' => $unreadCount,
         ]);
     }

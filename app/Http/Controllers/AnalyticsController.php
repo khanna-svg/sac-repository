@@ -31,8 +31,7 @@ class AnalyticsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        // 1. Total Metrics (Only published/approved theses)
-        $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+        $approvedScope = fn($q) => $q->whereNull('submitted_by_email')->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
 
         $totalTheses = Document::where($approvedScope)->count();
         $totalPages = DocumentChunk::whereHas('document', $approvedScope)->count();

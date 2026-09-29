@@ -53,7 +53,7 @@
                         onclick="switchTab('pending')"
                         id="tab-pending"
                         class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#700000] shadow-xs">
-                        <span>Pending Review</span>
+                        <span>Pending Screening</span>
                         <span class="font-normal opacity-80">(<span id="badge-pending">0</span>)</span>
                     </button>
                     <button
@@ -61,7 +61,7 @@
                         onclick="switchTab('approved')"
                         id="tab-approved"
                         class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900">
-                        <span>Approved</span>
+                        <span>Cleared / Passed</span>
                         <span class="font-normal opacity-80">(<span id="badge-approved">0</span>)</span>
                     </button>
                     <button
@@ -69,7 +69,7 @@
                         onclick="switchTab('resubmit')"
                         id="tab-resubmit"
                         class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900">
-                        <span>Needs Resubmission</span>
+                        <span>Needs Revisions</span>
                         <span class="font-normal opacity-80">(<span id="badge-resubmit">0</span>)</span>
                     </button>
                     <button
@@ -124,6 +124,82 @@
         </div>
     </main>
 
+    <!-- Mark Clearance Passed Modal -->
+    <div id="approveModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+        <div class="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="p-2 rounded-xl bg-emerald-100 text-emerald-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                    </span>
+                    <h3 class="text-base font-bold text-gray-900">Turnitin &amp; Grammarly Clearance</h3>
+                </div>
+                <button type="button" onclick="closeApproveModal()" class="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div>
+                <h4 id="approveModalDocTitle" class="text-xs font-bold text-gray-800 line-clamp-1"></h4>
+                <p id="approveModalStudentEmail" class="text-[11px] text-gray-500 font-mono mt-0.5"></p>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label for="approveSimilarityInput" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Turnitin Similarity Index (%) <span class="text-gray-400 font-normal lowercase">(institutional threshold: &le; 15%)</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="approveSimilarityInput"
+                        placeholder="e.g. 11%"
+                        class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 transition shadow-2xs font-semibold">
+                </div>
+
+                <div>
+                    <label for="approveNotesInput" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Reviewer Remarks / Clearance Notes <span class="text-gray-400 font-normal lowercase">(optional)</span>
+                    </label>
+                    <textarea
+                        id="approveNotesInput"
+                        rows="3"
+                        placeholder="e.g. Turnitin similarity index is 11%. Plagiarism and Grammarly standards satisfied. Cleared for oral defense / final submission."
+                        class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 p-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 transition shadow-2xs leading-relaxed"></textarea>
+                </div>
+
+                <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 text-[11px] text-emerald-800 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <span>Student will receive an in-app alert and an official clearance email at their <strong>@sac.edu.ph</strong> address.</span>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                    type="button"
+                    onclick="closeApproveModal()"
+                    class="rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer">
+                    Cancel
+                </button>
+                <button
+                    type="button"
+                    id="confirmApproveBtn"
+                    onclick="submitApproveClearance()"
+                    class="rounded-xl bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-xs font-bold text-white transition shadow-sm cursor-pointer flex items-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    <span>Confirm Clearance &amp; Notify Student</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Reject / Resubmission Notes Modal -->
     <div id="resubmitModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 backdrop-blur-xs p-4">
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 sm:p-8 shadow-2xl space-y-4">
@@ -136,7 +212,7 @@
                     </span>
                     <h3 class="text-base font-bold text-gray-900">Request Thesis Resubmission</h3>
                 </div>
-                <button type="button" onclick="closeResubmitModal()" class="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100">
+                <button type="button" onclick="closeResubmitModal()" class="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -145,19 +221,39 @@
 
             <div>
                 <h4 id="resubmitModalDocTitle" class="text-xs font-bold text-gray-800 line-clamp-1"></h4>
-                <p class="text-[11px] text-gray-500 mt-0.5">Please provide specific review comments or Turnitin similarity feedback for the student.</p>
+                <p id="resubmitModalStudentEmail" class="text-[11px] text-gray-500 font-mono mt-0.5"></p>
             </div>
 
-            <div>
-                <label for="adminNotesInput" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                    Reviewer Feedback Notes <span class="text-rose-500">*</span>
-                </label>
-                <textarea
-                    id="adminNotesInput"
-                    rows="5"
-                    required
-                    placeholder="e.g. Turnitin similarity index is 28% (exceeds the 15% threshold). Please paraphrase Chapter 2 (Literature Review) and verify in-text citations before resubmitting."
-                    class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 p-3.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs leading-relaxed"></textarea>
+            <div class="space-y-3">
+                <div>
+                    <label for="resubmitSimilarityInput" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Turnitin Similarity Index (%) <span class="text-rose-500 font-normal lowercase">(exceeded threshold, e.g. 28%)</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="resubmitSimilarityInput"
+                        placeholder="e.g. 28%"
+                        class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-rose-600 focus:bg-white focus:ring-2 focus:ring-rose-600/10 transition shadow-2xs font-semibold">
+                </div>
+
+                <div>
+                    <label for="adminNotesInput" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
+                        Reviewer Feedback Notes <span class="text-rose-500">*</span>
+                    </label>
+                    <textarea
+                        id="adminNotesInput"
+                        rows="4"
+                        required
+                        placeholder="e.g. Turnitin similarity index is 28% (exceeds the 15% threshold). Please paraphrase Chapter 2 (Literature Review) and verify in-text citations before resubmitting."
+                        class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 p-3.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs leading-relaxed"></textarea>
+                </div>
+
+                <div class="rounded-xl bg-amber-50 border border-amber-200 p-2.5 text-[11px] text-amber-800 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                    </svg>
+                    <span>Student will receive an in-app alert and a revision request email at their <strong>@sac.edu.ph</strong> address.</span>
+                </div>
             </div>
 
             <div class="flex items-center justify-end gap-2.5 pt-2">
@@ -359,11 +455,36 @@
                 const deptName = deptNames[deptKey] || sub.department || 'N/A';
                 const formattedDate = sub.created_at ? new Date(sub.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
 
-                const statusText = sub.status === 'approved' 
-                    ? 'Approved' 
-                    : (sub.status === 'resubmit' 
-                        ? 'Needs Resubmit' 
-                        : 'Pending Review');
+                let statusBadgeHtml = '';
+                if (sub.status === 'approved') {
+                    statusBadgeHtml = `
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            Cleared
+                            ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
+                        </span>
+                    `;
+                } else if (sub.status === 'resubmit') {
+                    statusBadgeHtml = `
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                            Needs Revisions
+                            ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
+                        </span>
+                    `;
+                } else {
+                    statusBadgeHtml = `
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                            Under Screening
+                        </span>
+                    `;
+                }
+
+                const safeTitle = escapeHtml(sub.title).replace(/'/g, "\\'");
+                const safeEmail = escapeHtml(sub.submitted_by_email || '').replace(/'/g, "\\'");
+                const safeNotes = escapeHtml(sub.admin_notes || '').replace(/'/g, "\\'");
+                const safeSimilarity = escapeHtml(sub.turnitin_similarity || '').replace(/'/g, "\\'");
 
                 return `
                     <tr class="hover:bg-slate-50/80 transition">
@@ -375,8 +496,8 @@
                                 </h4>
                                 <p class="text-[11px] text-gray-400 mt-0.5">Submitted on ${formattedDate}</p>
                                 ${sub.admin_notes ? `
-                                    <div class="mt-1.5 rounded-lg bg-rose-50 border border-rose-200 p-2 text-[11px] text-rose-800">
-                                        <span class="font-bold">Feedback:</span> ${escapeHtml(sub.admin_notes)}
+                                    <div class="mt-1.5 rounded-lg bg-slate-50 border border-gray-200 p-2 text-[11px] text-gray-700">
+                                        <span class="font-bold text-[#700000]">Reviewer Remarks:</span> ${escapeHtml(sub.admin_notes)}
                                     </div>
                                 ` : ''}
                             </div>
@@ -394,8 +515,8 @@
                         </td>
 
                         <!-- Status -->
-                        <td class="py-4 px-4 text-center whitespace-nowrap text-xs text-gray-700 font-medium">
-                            ${statusText}
+                        <td class="py-4 px-4 text-center whitespace-nowrap text-xs font-medium">
+                            ${statusBadgeHtml}
                         </td>
 
                         <!-- Actions (STRICTLY SVG ICONS, NO TEXT!) -->
@@ -405,7 +526,7 @@
                                 <!-- 1. View / Preview PDF Modal (SVG Icon) -->
                                 <button
                                     type="button"
-                                    onclick="openPdfReader(${sub.id}, '${escapeHtml(sub.title).replace(/'/g, "\\'")}')"
+                                    onclick="openPdfReader(${sub.id}, '${safeTitle}')"
                                     title="View / Preview PDF Manuscript"
                                     aria-label="View PDF"
                                     class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
@@ -427,12 +548,12 @@
                                     </svg>
                                 </a>
 
-                                <!-- 3. Approve & Proceed to Upload (SVG Icon) -->
+                                <!-- 3. Mark Clearance Passed (Turnitin & Grammarly) (SVG Icon) -->
                                 <button
                                     type="button"
-                                    onclick="approveSubmission(${sub.id}, '${escapeHtml(sub.title).replace(/'/g, "\\'")}')"
-                                    title="Approve & Proceed to Upload Form"
-                                    aria-label="Approve & Proceed to Upload"
+                                    onclick="openApproveModal(${sub.id}, '${safeTitle}', '${safeEmail}', '${safeSimilarity}', '${safeNotes}')"
+                                    title="Mark as Turnitin & Grammarly Cleared (Notify Student)"
+                                    aria-label="Mark Clearance Passed"
                                     class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -442,14 +563,15 @@
                                 <!-- 4. Reject / Request Resubmission (SVG Icon) -->
                                 <button
                                     type="button"
-                                    onclick="openResubmitModal(${sub.id}, '${escapeHtml(sub.title).replace(/'/g, "\\'")}', '${escapeHtml(sub.admin_notes || '').replace(/'/g, "\\'")}')"
-                                    title="Request Resubmission with Notes (Turnitin / Revisions)"
+                                    onclick="openResubmitModal(${sub.id}, '${safeTitle}', '${safeEmail}', '${safeNotes}', '${safeSimilarity}')"
+                                    title="Request Revisions (Turnitin / Grammarly)"
                                     aria-label="Request Resubmission"
-                                    class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-amber-600 hover:bg-amber-50 hover:border-amber-200 transition cursor-pointer">
+                                    class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                                     </svg>
                                 </button>
+
                             </div>
                         </td>
                     </tr>
@@ -457,16 +579,73 @@
             }).join('');
         }
 
-        // Approve & Proceed to Upload action
-        function approveSubmission(id, title) {
-            window.location.href = `/admin/upload?from_submission=${id}`;
+        // Clearance Approval Modal logic
+        function openApproveModal(id, title, email, similarity = '', notes = '') {
+            activeTargetDocId = id;
+            document.getElementById('approveModalDocTitle').textContent = title;
+            document.getElementById('approveModalStudentEmail').textContent = 'Student: ' + (email || 'N/A');
+            document.getElementById('approveSimilarityInput').value = similarity || '';
+            document.getElementById('approveNotesInput').value = notes || '';
+            document.getElementById('approveModal').classList.remove('hidden');
+            document.getElementById('approveModal').classList.add('flex');
+        }
+
+        function closeApproveModal() {
+            document.getElementById('approveModal').classList.add('hidden');
+            document.getElementById('approveModal').classList.remove('flex');
+            activeTargetDocId = null;
+        }
+
+        async function submitApproveClearance() {
+            if (!activeTargetDocId) return;
+            const similarity = document.getElementById('approveSimilarityInput').value.trim();
+            const notes = document.getElementById('approveNotesInput').value.trim();
+
+            const btn = document.getElementById('confirmApproveBtn');
+            btn.disabled = true;
+            btn.innerHTML = 'Sending Clearance...';
+
+            try {
+                const res = await fetch(`/backend/admin/submissions/${activeTargetDocId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        turnitin_similarity: similarity,
+                        admin_notes: notes
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok || data.error) throw new Error(data.message || 'Failed to approve clearance');
+
+                showToast('🎉 Clearance passed! Student notified via in-app alert and @sac.edu.ph email.', true);
+                closeApproveModal();
+                fetchSubmissions();
+            } catch (err) {
+                console.error(err);
+                showToast(err.message || 'Failed to process clearance', false);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                    </svg>
+                    <span>Confirm Clearance &amp; Notify Student</span>
+                `;
+            }
         }
 
         // Resubmission Modal logic
-        function openResubmitModal(id, title, notes = '') {
+        function openResubmitModal(id, title, email, notes = '', similarity = '') {
             activeTargetDocId = id;
             document.getElementById('resubmitModalDocTitle').textContent = title;
-            document.getElementById('adminNotesInput').value = notes;
+            document.getElementById('resubmitModalStudentEmail').textContent = 'Student: ' + (email || 'N/A');
+            document.getElementById('resubmitSimilarityInput').value = similarity || '';
+            document.getElementById('adminNotesInput').value = notes || '';
             document.getElementById('resubmitModal').classList.remove('hidden');
             document.getElementById('resubmitModal').classList.add('flex');
         }
@@ -478,7 +657,10 @@
         }
 
         async function submitResubmissionRequest() {
+            if (!activeTargetDocId) return;
             const notes = document.getElementById('adminNotesInput').value.trim();
+            const similarity = document.getElementById('resubmitSimilarityInput').value.trim();
+
             if (!notes) {
                 alert('Please enter reviewer feedback notes for the student.');
                 return;
@@ -496,13 +678,16 @@
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': csrfToken
                     },
-                    body: JSON.stringify({ admin_notes: notes })
+                    body: JSON.stringify({
+                        admin_notes: notes,
+                        turnitin_similarity: similarity
+                    })
                 });
 
                 const data = await res.json();
                 if (!res.ok || data.error) throw new Error(data.message || 'Failed to send revision request');
 
-                showToast('⚠️ Thesis marked for resubmission and student notified.', true);
+                showToast('⚠️ Revisions requested. Student notified via in-app alert and @sac.edu.ph email.', true);
                 closeResubmitModal();
                 fetchSubmissions();
             } catch (err) {

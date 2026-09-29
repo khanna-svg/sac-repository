@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ThesisClearanceMail;
 use App\Models\Document;
 use App\Models\ThesisNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class AdminSubmissionController extends Controller
 {
@@ -36,7 +38,11 @@ class AdminSubmissionController extends Controller
         $query = Document::query()->whereNotNull('submitted_by_email');
 
         if ($tab !== 'all') {
-            $query->where('status', $tab);
+            if ($tab === 'approved' || $tab === 'cleared') {
+                $query->whereIn('status', ['cleared', 'approved']);
+            } else {
+                $query->where('status', $tab);
+            }
         }
 
         if ($search !== '') {
@@ -55,7 +61,7 @@ class AdminSubmissionController extends Controller
 
         $counts = [
             'pending' => Document::whereNotNull('submitted_by_email')->where('status', 'pending')->count(),
-            'approved' => Document::whereNotNull('submitted_by_email')->where('status', 'approved')->count(),
+            'approved' => Document::whereNotNull('submitted_by_email')->whereIn('status', ['cleared', 'approved'])->count(),
             'resubmit' => Document::whereNotNull('submitted_by_email')->where('status', 'resubmit')->count(),
             'all' => Document::whereNotNull('submitted_by_email')->count(),
         ];
@@ -67,34 +73,62 @@ class AdminSubmissionController extends Controller
     }
 
     /**
-     * Approve and publish thesis to the public repository.
+     * Mark thesis as Passed / Cleared for Turnitin and Grammarly.
      */
-    public function approve($id)
+    public function approve(Request $request, $id)
     {
         $document = Document::findOrFail($id);
 
-        $document->update([
-            'status' => 'approved',
-            'admin_notes' => null,
-        ]);
+        $similarity = trim((string) $request->input('turnitin_similarity', ''));
+        if ($similarity !== '' && !str_ends_with($similarity, '%') && is_numeric($similarity)) {
+            $similarity .= '%';
+        }
+        $notes = trim((string) $request->input('admin_notes', ''));
 
-        // Dispatch approval notification to student
+        $updateData = [
+            'status' => 'cleared',
+        ];
+        if ($similarity !== '') {
+            $updateData['turnitin_similarity'] = $similarity;
+        }
+        if ($notes !== '') {
+            $updateData['admin_notes'] = $notes;
+        }
+
+        $document->update($updateData);
+
+        // Dispatch in-app notification to student
         if ($document->submitted_by_email) {
+            $msg = "Congratulations! Your thesis \"{$document->title}\" has passed Turnitin plagiarism screening"
+                . ($similarity ? " (Similarity: {$similarity})" : "")
+                . " and Grammarly review. You are cleared for your defense / final manuscript submission.";
+            if ($notes !== '') {
+                $msg .= "\n\nReviewer Remarks:\n{$notes}";
+            }
+
             ThesisNotification::create([
                 'user_email' => $document->submitted_by_email,
-                'title' => '🎉 Congratulations your thesis was approved',
-                'message' => "Congratulations! Your thesis \"{$document->title}\" has been approved by the administrator and is now officially published in the St. Anthony's College Repository.",
-                'type' => 'approved',
+                'title' => '🎉 Turnitin & Grammarly Clearance Passed',
+                'message' => $msg,
+                'type' => 'cleared',
                 'document_id' => $document->id,
                 'is_read' => false,
             ]);
+
+            // Dispatch official clearance email to student's @sac.edu.ph address
+            try {
+                Mail::to($document->submitted_by_email)->send(
+                    new ThesisClearanceMail($document, 'passed', $similarity ?: null, $notes ?: null)
+                );
+            } catch (\Throwable $e) {
+                Log::warning("Failed to send clearance passed email to {$document->submitted_by_email}: " . $e->getMessage());
+            }
         }
 
         return response()->json([
             'error' => false,
-            'message' => 'Thesis approved and published to repository successfully.',
+            'message' => 'Thesis marked as Turnitin & Grammarly Cleared. Student notified via in-app alert and @sac.edu.ph email.',
             'document' => $document,
-            'redirect_url' => '/admin/upload?from_submission=' . $document->id,
         ]);
     }
 
@@ -124,6 +158,8 @@ class AdminSubmissionController extends Controller
             'submitted_by_name' => $document->submitted_by_name,
             'submitted_by_email' => $document->submitted_by_email,
             'status' => $document->status,
+            'turnitin_similarity' => $document->turnitin_similarity,
+            'admin_notes' => $document->admin_notes,
             'chunks_count' => $chunkCount,
         ]);
     }
@@ -139,27 +175,49 @@ class AdminSubmissionController extends Controller
 
         $document = Document::findOrFail($id);
         $notes = trim($request->admin_notes);
+        $similarity = trim((string) $request->input('turnitin_similarity', ''));
+        if ($similarity !== '' && !str_ends_with($similarity, '%') && is_numeric($similarity)) {
+            $similarity .= '%';
+        }
 
-        $document->update([
+        $updateData = [
             'status' => 'resubmit',
             'admin_notes' => $notes,
-        ]);
+        ];
+        if ($similarity !== '') {
+            $updateData['turnitin_similarity'] = $similarity;
+        }
 
-        // Dispatch resubmission notification to student
+        $document->update($updateData);
+
+        // Dispatch resubmission in-app notification to student
         if ($document->submitted_by_email) {
+            $msg = "Your thesis \"{$document->title}\" requires revisions before clearance can be granted."
+                . ($similarity ? "\nTurnitin Similarity: {$similarity} (exceeds threshold)." : "")
+                . "\n\nReviewer Feedback:\n{$notes}";
+
             ThesisNotification::create([
                 'user_email' => $document->submitted_by_email,
-                'title' => '⚠️ Needs Resubmission',
-                'message' => "Your thesis \"{$document->title}\" requires revisions before it can be approved.\n\nReviewer Feedback:\n{$notes}",
+                'title' => '⚠️ Turnitin / Grammarly Revisions Required',
+                'message' => $msg,
                 'type' => 'resubmit',
                 'document_id' => $document->id,
                 'is_read' => false,
             ]);
+
+            // Dispatch official revision email to student's @sac.edu.ph address
+            try {
+                Mail::to($document->submitted_by_email)->send(
+                    new ThesisClearanceMail($document, 'resubmit', $similarity ?: null, $notes)
+                );
+            } catch (\Throwable $e) {
+                Log::warning("Failed to send revision email to {$document->submitted_by_email}: " . $e->getMessage());
+            }
         }
 
         return response()->json([
             'error' => false,
-            'message' => 'Thesis marked for resubmission and student notified.',
+            'message' => 'Thesis marked for resubmission. Student notified via in-app alert and @sac.edu.ph email.',
             'document' => $document,
         ]);
     }

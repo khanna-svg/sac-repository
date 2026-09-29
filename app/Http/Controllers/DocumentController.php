@@ -222,7 +222,7 @@ class DocumentController extends Controller
             $department = trim((string) $request->input('department', ''));
             $sort = trim((string) $request->input('sort', 'latest'));
 
-            $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+            $approvedScope = fn($q) => $q->whereNull('submitted_by_email')->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
 
             if ($search === '') {
                 $query = Document::query()->where($approvedScope);
@@ -248,63 +248,23 @@ class DocumentController extends Controller
             $keywordDocs = collect([]);
             $semanticDocIds = [];
             $similarityMap = [];
+            $semanticDocIds = [];
 
-            // Tokenize words (ignoring short noise particles)
-            $tokens = array_filter(
+            // 1. Identify primary technical tokens vs generic academic modifiers/stopwords
+            $stopWords = [
+                'based', 'project', 'projects', 'study', 'studies', 'research', 'paper', 'papers',
+                'system', 'systems', 'using', 'through', 'the', 'and', 'for', 'with', 'from',
+                'into', 'about', 'towards', 'level', 'levels', 'among', 'across', 'analysis'
+            ];
+
+            $rawTokens = array_filter(
                 preg_split('/[\s,\.\-_]+/', strtolower($search)),
-                fn($w) => strlen(trim($w)) >= 3
+                fn($w) => strlen(trim($w)) >= 2
             );
 
-            // 1. Hybrid Multi-token Keyword Query
-            $keywordQuery = Document::query()->where($approvedScope);
-            $keywordQuery->where(function ($q) use ($searchTerm, $tokens) {
-                // Exact phrase match
-                $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
-                    ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
-                    ->orWhereRaw('LOWER(department) LIKE ?', [$searchTerm])
-                    ->orWhereRaw('LOWER(course_code) LIKE ?', [$searchTerm])
-                    ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
-
-                // Individual word token matches
-                foreach ($tokens as $token) {
-                    $tokenPattern = '%' . $token . '%';
-                    $q->orWhereRaw('LOWER(title) LIKE ?', [$tokenPattern])
-                      ->orWhereRaw('LOWER(abstract) LIKE ?', [$tokenPattern]);
-                }
-            });
-
-            if ($department !== '' && $department !== 'all') {
-                $this->applyDepartmentFilter($keywordQuery, $department);
-            }
-
-            $keywordDocs = $keywordQuery->get();
-            $searchLower = strtolower($search);
-
-            foreach ($keywordDocs as $doc) {
-                $titleLower = strtolower($doc->title);
-                $authorLower = strtolower($doc->author);
-                $abstractLower = strtolower($doc->abstract ?? '');
-
-                if (str_contains($titleLower, $searchLower) || str_contains($authorLower, $searchLower)) {
-                    $similarityMap[$doc->id] = 98;
-                } elseif (str_contains($abstractLower, $searchLower)) {
-                    $similarityMap[$doc->id] = 90;
-                } else {
-                    $titleTokensMatched = 0;
-                    $abstractTokensMatched = 0;
-                    foreach ($tokens as $t) {
-                        if (str_contains($titleLower, $t)) $titleTokensMatched++;
-                        if (str_contains($abstractLower, $t)) $abstractTokensMatched++;
-                    }
-
-                    if ($titleTokensMatched > 0) {
-                        $ratio = $titleTokensMatched / max(1, count($tokens));
-                        $similarityMap[$doc->id] = (int) round(82 + ($ratio * 15)); // 82% to 97%
-                    } else {
-                        $ratio = $abstractTokensMatched / max(1, count($tokens));
-                        $similarityMap[$doc->id] = (int) round(60 + ($ratio * 15)); // 60% to 75%
-                    }
-                }
+            $primaryTokens = array_values(array_filter($rawTokens, fn($w) => !in_array($w, $stopWords)));
+            if (empty($primaryTokens)) {
+                $primaryTokens = array_values($rawTokens);
             }
 
             // 2. Semantic Search via Gemini + Supabase pgvector
@@ -331,25 +291,109 @@ class DocumentController extends Controller
                         $docId = (int) $chunk->document_id;
                         $distance = (float) $chunk->distance;
 
-                        // Include semantic matches up to distance 0.44
+                        // Semantic cutoff: 0.44 for relevant conceptual context
                         if ($distance > 0.44) {
                             continue;
                         }
 
-                        $normalized = 1 - (($distance - 0.12) / 0.36);
-                        $score = max(25, min(99, (int) round($normalized * 100)));
+                        // Calibrated semantic score:
+                        // distance 0.26 -> 97%, distance 0.35 -> 88%, distance 0.40 -> 80%, distance 0.44 -> 72%
+                        $semScore = (int) round(97 - (($distance - 0.26) / 0.18 * 25));
+                        $score = max(50, min(98, $semScore));
 
-                        if (isset($similarityMap[$docId])) {
-                            // Boost if matched both keywords and semantic vector
-                            $similarityMap[$docId] = min(99, max($similarityMap[$docId], $score) + 5);
-                        } else {
-                            $similarityMap[$docId] = $score;
-                            $semanticDocIds[] = $docId;
-                        }
+                        $similarityMap[$docId] = $score;
+                        $semanticDocIds[] = $docId;
                     }
                 }
             } catch (\Throwable $e) {
                 Log::warning('Hybrid Search Semantic phase fallback: ' . $e->getMessage());
+            }
+
+            // 3. Keyword / Lexical Matching & Boost
+            $keywordQuery = Document::query()->where($approvedScope);
+            $keywordQuery->where(function ($q) use ($searchTerm, $primaryTokens) {
+                // Exact phrase match
+                $q->whereRaw('LOWER(title) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(author) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(department) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(course_code) LIKE ?', [$searchTerm])
+                    ->orWhereRaw('LOWER(abstract) LIKE ?', [$searchTerm]);
+
+                // Primary word token matches
+                foreach ($primaryTokens as $token) {
+                    $tokenPattern = '%' . $token . '%';
+                    $q->orWhereRaw('LOWER(title) LIKE ?', [$tokenPattern])
+                      ->orWhereRaw('LOWER(abstract) LIKE ?', [$tokenPattern]);
+                }
+            });
+
+            if ($department !== '' && $department !== 'all') {
+                $this->applyDepartmentFilter($keywordQuery, $department);
+            }
+
+            $keywordDocs = $keywordQuery->get();
+            $searchLower = strtolower($search);
+
+            // Refined scoring & hybrid fusion
+            $validKeywordDocs = collect([]);
+
+            foreach ($keywordDocs as $doc) {
+                $titleLower = strtolower($doc->title);
+                $authorLower = strtolower($doc->author);
+                $abstractLower = strtolower($doc->abstract ?? '');
+
+                // Check exact full phrase matches first
+                $exactPhraseInTitle = str_contains($titleLower, $searchLower) || str_contains($authorLower, $searchLower);
+                $exactPhraseInAbstract = str_contains($abstractLower, $searchLower);
+
+                // Check primary token matches with word boundaries for short acronyms
+                $primaryTitleMatches = 0;
+                $primaryAbstractMatches = 0;
+
+                foreach ($primaryTokens as $t) {
+                    $pattern = ($t === 'iot')
+                        ? '/\b(iot|internet of things)\b/i'
+                        : '/\b' . preg_quote($t, '/') . '/i';
+                    if (preg_match($pattern, $titleLower)) $primaryTitleMatches++;
+                    if (preg_match($pattern, $abstractLower)) $primaryAbstractMatches++;
+                }
+
+                $hasPrimaryMatch = ($primaryTitleMatches > 0 || $primaryAbstractMatches > 0 || $exactPhraseInTitle || $exactPhraseInAbstract);
+
+                // If not matched semantically and didn't match any primary token, discard false substring positives
+                if (!isset($similarityMap[$doc->id]) && !$hasPrimaryMatch) {
+                    continue;
+                }
+
+                $validKeywordDocs->push($doc);
+
+                if (isset($similarityMap[$doc->id])) {
+                    // HYBRID FUSION: Document already matched via Semantic Vector!
+                    // Apply exact keyword boosts on top of the semantic vector score
+                    $currentSem = $similarityMap[$doc->id];
+                    if ($exactPhraseInTitle) {
+                        $similarityMap[$doc->id] = 98;
+                    } elseif ($exactPhraseInAbstract) {
+                        $similarityMap[$doc->id] = max($currentSem, 92);
+                    } elseif ($primaryTitleMatches > 0) {
+                        $similarityMap[$doc->id] = min(99, $currentSem + 10);
+                    } elseif ($primaryAbstractMatches > 0) {
+                        $similarityMap[$doc->id] = min(99, $currentSem + 5);
+                    }
+                } else {
+                    // KEYWORD ONLY (e.g. if vector distance was just above cutoff or embedding was missing)
+                    if ($exactPhraseInTitle) {
+                        $similarityMap[$doc->id] = 98;
+                    } elseif ($exactPhraseInAbstract) {
+                        $similarityMap[$doc->id] = 90;
+                    } elseif ($primaryTitleMatches > 0) {
+                        $ratio = $primaryTitleMatches / max(1, count($primaryTokens));
+                        $similarityMap[$doc->id] = (int) round(85 + ($ratio * 12)); // 85% to 97%
+                    } else {
+                        $ratio = $primaryAbstractMatches / max(1, count($primaryTokens));
+                        $similarityMap[$doc->id] = (int) round(75 + ($ratio * 12)); // 75% to 87%
+                    }
+                }
             }
 
             if (!empty($semanticDocIds)) {
@@ -358,9 +402,9 @@ class DocumentController extends Controller
                     $this->applyDepartmentFilter($semanticQuery, $department);
                 }
                 $semanticDocs = $semanticQuery->get();
-                $allResults = $keywordDocs->concat($semanticDocs)->unique('id');
+                $allResults = $validKeywordDocs->concat($semanticDocs)->unique('id');
             } else {
-                $allResults = $keywordDocs;
+                $allResults = $validKeywordDocs;
             }
 
             $rankedDocs = $allResults->map(function ($doc) use ($similarityMap) {
@@ -381,7 +425,7 @@ class DocumentController extends Controller
             return response()->json($rankedDocs->values());
         } catch (\Throwable $e) {
             Log::error('DocumentController index error: ' . $e->getMessage());
-            $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+            $approvedScope = fn($q) => $q->whereNull('submitted_by_email')->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
             return response()->json(Document::where($approvedScope)->latest()->get());
         }
     }
@@ -1253,7 +1297,7 @@ class DocumentController extends Controller
             $department = trim((string) $request->input('department', ''));
             $tab = trim((string) $request->input('tab', 'published'));
 
-            $query = Document::query()->withCount('chunks');
+            $query = Document::query()->whereNull('submitted_by_email')->withCount('chunks');
 
             if ($tab === 'archived') {
                 $query->where('status', 'archived');
@@ -1280,12 +1324,12 @@ class DocumentController extends Controller
 
             $documents = $query->orderByRaw('COALESCE(publication_date, created_at::date) desc')->latest()->get();
 
-            $publishedCount = Document::where(function ($q) {
+            $publishedCount = Document::whereNull('submitted_by_email')->where(function ($q) {
                 $q->where('status', 'approved')
                     ->orWhereNull('status');
             })->count();
 
-            $archivedCount = Document::where('status', 'archived')->count();
+            $archivedCount = Document::whereNull('submitted_by_email')->where('status', 'archived')->count();
 
             return response()->json([
                 'error' => false,
@@ -1561,7 +1605,7 @@ class DocumentController extends Controller
                 }
             }
 
-            $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+            $approvedScope = fn($q) => $q->whereNull('submitted_by_email')->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
             $department = trim((string) $request->input('department', ''));
 
             if (!empty($docIds)) {

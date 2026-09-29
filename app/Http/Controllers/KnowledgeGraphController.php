@@ -27,8 +27,10 @@ class KnowledgeGraphController extends Controller
      */
     public function data(Request $request): JsonResponse
     {
-        $documents = Document::where('status', 'approved')
-            ->orWhereNull('status')
+        $documents = Document::whereNull('submitted_by_email')
+            ->where(function ($q) {
+                $q->where('status', 'approved')->orWhereNull('status');
+            })
             ->get();
 
         $nodes = [];
@@ -70,16 +72,18 @@ class KnowledgeGraphController extends Controller
 
             // 1. Thesis Document Node
             if (!isset($nodeTracker[$docNodeId])) {
-                $shortTitle = strlen($doc->title) > 36
-                    ? substr($doc->title, 0, 33) . '...'
-                    : $doc->title;
+                $cleanTitle = trim($doc->title);
+                $shortTitle = strlen($cleanTitle) > 40
+                    ? substr($cleanTitle, 0, 37) . '...'
+                    : $cleanTitle;
+                $wrappedLabel = wordwrap($shortTitle, 20, "\n", true);
 
                 $nodes[] = [
                     'id' => $docNodeId,
-                    'label' => $shortTitle,
+                    'label' => $wrappedLabel,
                     'group' => 'thesis',
                     'shape' => 'box',
-                    'margin' => 10,
+                    'margin' => 8,
                     'color' => [
                         'background' => '#700000',
                         'border' => '#FFD700',
@@ -90,9 +94,10 @@ class KnowledgeGraphController extends Controller
                     ],
                     'font' => [
                         'color' => '#FFFFFF',
-                        'size' => 12,
+                        'size' => 11,
                         'face' => 'sans-serif',
-                        'bold' => true
+                        'bold' => true,
+                        'multi' => true,
                     ],
                     'shadow' => true,
                     'meta' => [
@@ -100,6 +105,8 @@ class KnowledgeGraphController extends Controller
                         'document_id' => $doc->id,
                         'full_title' => $doc->title,
                         'author' => $doc->author ?? 'SAC Researchers',
+                        'department' => $doc->department ?? 'General Research',
+                        'course_code' => $doc->course_code ?? '',
                         'abstract' => $doc->abstract ?? 'No abstract provided.',
                         'concepts' => $meta['concepts'],
                         'methodologies' => $meta['methodologies'],
@@ -120,7 +127,9 @@ class KnowledgeGraphController extends Controller
                         'id' => $conceptNodeId,
                         'label' => $conceptName,
                         'group' => 'concept',
-                        'shape' => 'ellipse',
+                        'shape' => 'box',
+                        'shapeProperties' => ['borderRadius' => 16],
+                        'margin' => 8,
                         'color' => [
                             'background' => '#7c3aed',
                             'border' => '#c084fc',
@@ -131,9 +140,10 @@ class KnowledgeGraphController extends Controller
                         ],
                         'font' => [
                             'color' => '#FFFFFF',
-                            'size' => 11,
+                            'size' => 10,
                             'bold' => true
                         ],
+                        'shadow' => true,
                         'meta' => [
                             'type' => 'concept',
                             'name' => $conceptName,
@@ -161,8 +171,9 @@ class KnowledgeGraphController extends Controller
                         'id' => $methodNodeId,
                         'label' => $methodName,
                         'group' => 'methodology',
-                        'shape' => 'triangle',
-                        'size' => 18,
+                        'shape' => 'box',
+                        'shapeProperties' => ['borderRadius' => 8],
+                        'margin' => 8,
                         'color' => [
                             'background' => '#0891b2',
                             'border' => '#67e8f9',
@@ -173,9 +184,10 @@ class KnowledgeGraphController extends Controller
                         ],
                         'font' => [
                             'color' => '#FFFFFF',
-                            'size' => 11,
+                            'size' => 10,
                             'bold' => true
                         ],
+                        'shadow' => true,
                         'meta' => [
                             'type' => 'methodology',
                             'name' => $methodName,
@@ -203,8 +215,9 @@ class KnowledgeGraphController extends Controller
                         'id' => $techNodeId,
                         'label' => $techName,
                         'group' => 'tech_stack',
-                        'shape' => 'hexagon',
-                        'size' => 20,
+                        'shape' => 'box',
+                        'shapeProperties' => ['borderRadius' => 8],
+                        'margin' => 8,
                         'color' => [
                             'background' => '#059669',
                             'border' => '#34d399',
@@ -215,9 +228,10 @@ class KnowledgeGraphController extends Controller
                         ],
                         'font' => [
                             'color' => '#FFFFFF',
-                            'size' => 11,
+                            'size' => 10,
                             'bold' => true
                         ],
+                        'shadow' => true,
                         'meta' => [
                             'type' => 'tech_stack',
                             'name' => $techName,
@@ -270,25 +284,23 @@ class KnowledgeGraphController extends Controller
         if (!empty($doc->methodology)) {
             $methodologies[] = trim($doc->methodology);
         } else {
-            if (preg_match('/(in-vitro|extract|antibacterial|inhibitory|laboratory assay)/i', $combined)) {
+            if (preg_match('/(narrative inquiry|philosophical inquiry|hermeneutic|land ethic)/i', $combined)) {
+                $methodologies[] = 'Narrative & Philosophical Inquiry';
+            } elseif (preg_match('/(phenomenolog|thematic analysis|grounded theory|lived experiences|case study)/i', $combined)) {
+                $methodologies[] = 'Qualitative Phenomenological Study';
+            } elseif (preg_match('/(in-vitro|extract|antibacterial|inhibitory|laboratory assay|zone of inhibition)/i', $combined)) {
                 $methodologies[] = 'Experimental Laboratory Research';
-            }
-            if (preg_match('/(hedonic|sensory evaluation|acceptability rating|taste test)/i', $combined)) {
+            } elseif (preg_match('/(hedonic|sensory evaluation|acceptability rating|taste test)/i', $combined)) {
                 $methodologies[] = 'Sensory Evaluation (Hedonic Scale)';
-            }
-            if (preg_match('/(prototype|prototyping|engineering design|automated umbrella|vending machine|rental system|nutriscale|monitoring through)/i', $combined) || in_array($course, ['bscpe', 'cpe'])) {
+            } elseif (preg_match('/(prototype|prototyping|engineering design|automated umbrella|vending machine|rental system|nutriscale|monitoring through)/i', $combined) || in_array($course, ['bscpe', 'cpe', 'bsit'])) {
                 $methodologies[] = 'Prototyping & Engineering Design';
-            }
-            if (in_array($course, ['bsce', 'ce']) || preg_match('/\b(structural design|storey|building design|slab|foundation|embankment)\b/i', $combined)) {
+            } elseif (in_array($course, ['bsce', 'ce']) || preg_match('/\b(structural design|storey|building design|slab|foundation|embankment)\b/i', $combined)) {
                 $methodologies[] = 'Structural Analysis & Design Simulation';
-            }
-            if (preg_match('/(correlational|relationship between|alignment and)/i', $combined)) {
+            } elseif (preg_match('/(correlational|relationship between|alignment and|relationship of)/i', $combined)) {
                 $methodologies[] = 'Descriptive-Correlational Research';
-            }
-            if (preg_match('/(survey|questionnaire|descriptive-quantitative|level of awareness|level of knowledge|perceived stress|attitudes towards|competence in|spelling proficiency|discourse competence|common problems|common violations|accidents in)/i', $combined)) {
+            } elseif (preg_match('/(survey|questionnaire|level of awareness|level of knowledge|perceived stress|attitudes towards|competence in|spelling proficiency|discourse competence|common problems|common violations|accidents in)/i', $combined)) {
                 $methodologies[] = 'Descriptive-Survey Research';
-            }
-            if (empty($methodologies)) {
+            } else {
                 $methodologies[] = 'Descriptive-Quantitative Research';
             }
         }
@@ -316,20 +328,23 @@ class KnowledgeGraphController extends Controller
             $techStack[] = 'AutoCAD / Architectural Drafting';
             $techStack[] = 'Structural Analysis & Design Tools';
         }
-        if (preg_match('/\b(microsoft|word|excel|powerpoint|office applications)\b/i', $combined)) {
-            $techStack[] = 'Microsoft Office Suite';
-        }
-        if (preg_match('/\b(website|web portal|dashboard|user interface|cloud platform)\b/i', $combined)) {
-            $techStack[] = 'Web Dashboard & Interfaces';
-        }
-        if (in_array($dept, ['bused', 'cjed', 'dte']) || preg_match('/\b(spss|statistical|questionnaire|correlation|percentage|mean|anova|t-test)\b/i', $combined)) {
-            $techStack[] = 'Statistical Analysis (SPSS)';
-        }
         if (preg_match('/(extract|disk diffusion|zone of inhibition|culture media|rotary evaporator|incubator|phytochemical)/i', $combined)) {
             $techStack[] = 'Laboratory Assay Instruments';
         }
-        if (preg_match('/(standardized test|diagnostic test|rubric|assessment tool|hedonic scale)/i', $combined)) {
-            $techStack[] = 'Assessment Tools & Evaluation Scales';
+        if (preg_match('/(sensory evaluation|taste test|hedonic scale|acceptability score)/i', $combined)) {
+            $techStack[] = 'Sensory Evaluation Scales';
+        }
+        if (preg_match('/\b(spss|statistical software|statistical package|anova|t-test|chi-square|pearson r|multiple regression|cronbach)\b/i', $combined)) {
+            $techStack[] = 'Statistical Software (SPSS)';
+        }
+        if (preg_match('/(financial literacy|financial management|budgeting|accounting information system|expenditures|family income)/i', $combined)) {
+            $techStack[] = 'Financial & Accounting Analytics';
+        }
+        if (preg_match('/(traffic violation|motorcycle accidents|republic act|anti-bullying|cybercrime)/i', $combined)) {
+            $techStack[] = 'Statutory & Law Enforcement Records';
+        }
+        if (preg_match('/(standardized test|diagnostic test|rubric|assessment tool|proficiency test|journal writing|reflective)/i', $combined)) {
+            $techStack[] = 'Educational Assessment Instruments';
         }
 
         // 3. Concepts

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ThesisClearanceMail;
 use App\Models\Document;
 use App\Models\ThesisNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class StudentSubmissionController extends Controller
@@ -216,16 +218,25 @@ class StudentSubmissionController extends Controller
             // Create initial notification for the student
             ThesisNotification::create([
                 'user_email' => $email,
-                'title' => 'Thesis Submission Received',
-                'message' => "Your manuscript \"{$title}\" has been successfully uploaded and is pending review by the repository administrator.",
+                'title' => '📄 Submission Received for Turnitin Review',
+                'message' => "Your manuscript \"{$title}\" has been successfully uploaded and is queued for Turnitin similarity screening (<15%) and Grammarly review.",
                 'type' => 'info',
                 'document_id' => $document->id,
                 'is_read' => false,
             ]);
 
+            // Dispatch submission confirmation email to student's @sac.edu.ph address
+            try {
+                Mail::to($email)->send(
+                    new ThesisClearanceMail($document, 'received')
+                );
+            } catch (\Throwable $e) {
+                Log::warning("Failed to send submission confirmation email to {$email}: " . $e->getMessage());
+            }
+
             return response()->json([
                 'error' => false,
-                'message' => 'Thesis submitted successfully! It has been routed to the administrator for review.',
+                'message' => 'Thesis submitted successfully! It has been routed to the administrator for Turnitin & Grammarly screening.',
                 'document' => $document,
             ], 201);
         } catch (\Throwable $e) {

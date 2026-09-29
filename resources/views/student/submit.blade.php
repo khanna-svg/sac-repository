@@ -71,11 +71,127 @@
                         <span>/</span>
                         <span class="text-gray-400">Upload Thesis</span>
                     </nav>
-                    <p class="text-xs text-gray-500 mt-1 font-medium">
-                        Submissions undergo administrator verification and Turnitin similarity review before publication.
-                    </p>
                 </div>
             </div>
+
+            {{-- Institutional Clearance Status Banner --}}
+            @if($submissions->isNotEmpty())
+                @php
+                    $latestSub = $submissions->first();
+                    $latestCleared = in_array($latestSub->status, ['cleared', 'approved'], true);
+                    $latestResubmit = ($latestSub->status === 'resubmit');
+                @endphp
+
+                @if($latestCleared)
+                    <div class="rounded-3xl border border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50/60 to-emerald-50 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+                                </svg>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-600 text-white text-[11px] font-bold uppercase tracking-wider">
+                                        Clearance Passed
+                                    </span>
+                                    @if($latestSub->turnitin_similarity)
+                                        <span class="px-2.5 py-0.5 rounded-full bg-emerald-200/80 text-emerald-900 text-[11px] font-mono font-bold border border-emerald-300">
+                                            Turnitin Similarity: {{ $latestSub->turnitin_similarity }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-snug">
+                                    {{ $latestSub->title }}
+                                </h3>
+                                <p class="text-xs text-emerald-800">
+                                    Congratulations! Your thesis manuscript has successfully passed Turnitin plagiarism screening and Grammarly review. You are cleared for oral defense and final institutional submission.
+                                </p>
+                                @if(!empty($latestSub->admin_notes))
+                                    <div class="mt-2 text-xs bg-white/90 rounded-2xl p-3 border border-emerald-200 text-gray-800 font-sans">
+                                        <span class="font-bold text-emerald-900 block text-[10px] uppercase tracking-wider mb-0.5">Reviewer Remarks:</span>
+                                        <p class="whitespace-pre-line text-emerald-950 font-medium">{{ $latestSub->admin_notes }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="shrink-0 flex items-center gap-2 self-start md:self-center">
+                            <span class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-300 shadow-2xs">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                                Cleared for Defense
+                            </span>
+                        </div>
+                    </div>
+                @elseif($latestResubmit)
+                    <div class="rounded-3xl border border-rose-300 bg-gradient-to-r from-rose-50 via-rose-50/80 to-amber-50/40 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-start justify-between gap-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-md">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                                </svg>
+                            </div>
+                            <div class="space-y-1.5">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-2.5 py-0.5 rounded-full bg-rose-600 text-white text-[11px] font-bold uppercase tracking-wider">
+                                        Revisions Required
+                                    </span>
+                                    @if($latestSub->turnitin_similarity)
+                                        <span class="px-2.5 py-0.5 rounded-full bg-rose-200 text-rose-950 text-[11px] font-mono font-bold border border-rose-300">
+                                            Turnitin Similarity: {{ $latestSub->turnitin_similarity }}
+                                        </span>
+                                    @endif
+                                </div>
+                                <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-snug">
+                                    {{ $latestSub->title }}
+                                </h3>
+                                <p class="text-xs text-rose-800">
+                                    Your thesis manuscript requires revisions before clearance can be granted. Review the feedback below, revise your manuscript, and upload your updated PDF file.
+                                </p>
+                                @if(!empty($latestSub->admin_notes))
+                                    <div class="mt-2 text-xs bg-white/95 rounded-2xl p-3.5 border border-rose-200 text-gray-800 font-sans shadow-2xs">
+                                        <span class="font-bold text-rose-900 block text-[10px] uppercase tracking-wider mb-1">Reviewer Feedback:</span>
+                                        <p class="whitespace-pre-line font-medium text-rose-950 select-all leading-relaxed">{{ $latestSub->admin_notes }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="shrink-0 flex items-center gap-2 self-start md:self-center">
+                            <button
+                                type="button"
+                                onclick="document.getElementById('pdf').click()"
+                                class="px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-sm transition flex items-center gap-1.5 cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                                </svg>
+                                <span>Upload Revised PDF</span>
+                            </button>
+                        </div>
+                    </div>
+                @elseif($latestSub->status === 'pending')
+                    <div class="rounded-3xl border border-amber-200 bg-amber-50/70 p-4 sm:p-5 shadow-xs flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-10 h-10 rounded-2xl bg-amber-500 text-white flex items-center justify-center shrink-0 shadow-xs">
+                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-900">
+                                    Manuscript Under Screening: <span class="text-amber-800 font-semibold">{{ $latestSub->title }}</span>
+                                </h4>
+                                <p class="text-[11px] text-gray-600 mt-0.5">
+                                    Your thesis manuscript is queued for Turnitin similarity (<15%) and Grammarly screening. You will be notified in-system and by email once the review is completed.
+                                </p>
+                            </div>
+                        </div>
+                        <span class="hidden sm:inline-flex px-3 py-1 rounded-xl bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200 shrink-0">
+                            Under Screening
+                        </span>
+                    </div>
+                @endif
+            @endif
 
             <!-- Two-Column Layout (Form on Left, My Submissions on Right) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -236,7 +352,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                             </svg>
-                            <span>Submit Thesis for Review</span>
+                            <span>Submit Thesis for Turnitin &amp; Grammarly Review</span>
                         </button>
                     </form>
                 </div>
@@ -251,30 +367,27 @@
                                 </svg>
                                 <h3 class="text-sm font-bold text-gray-900">My Submissions</h3>
                             </div>
-                            <span class="px-2.5 py-0.5 text-xs font-mono font-bold text-slate-700">
-                                {{ count($submissions) }} total
-                            </span>
                         </div>
 
                         @if($submissions->isEmpty())
                             <div class="py-10 text-center text-gray-400 text-xs">
                                 <p>You haven't submitted any thesis manuscripts yet.</p>
-                                <p class="mt-1 text-[11px] text-gray-400">Fill out the form to submit your research for review.</p>
+                                <p class="mt-1 text-[11px] text-gray-400">Fill out the form to submit your research for screening.</p>
                             </div>
                         @else
                             <div class="space-y-3.5 max-h-[600px] overflow-y-auto pr-1">
                                 @foreach($submissions as $sub)
                                     @php
-                                        $statusBadge = match($sub->status) {
-                                            'approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200',
-                                            'resubmit' => 'bg-rose-50 text-rose-700 border-rose-200',
-                                            default => 'bg-amber-50 text-amber-700 border-amber-200'
-                                        };
-                                        $statusLabel = match($sub->status) {
-                                            'approved' => 'Approved & Published',
-                                            'resubmit' => 'Needs Resubmission',
-                                            default => 'Pending Review'
-                                        };
+                                        $isCleared = in_array($sub->status, ['cleared', 'approved'], true);
+                                        $isResubmit = ($sub->status === 'resubmit');
+
+                                        $statusBadge = $isCleared
+                                            ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                            : ($isResubmit ? 'bg-rose-100 text-rose-800 border-rose-300' : 'bg-amber-100 text-amber-800 border-amber-300');
+
+                                        $statusLabel = $isCleared
+                                            ? 'Cleared (Passed)'
+                                            : ($isResubmit ? 'Needs Revisions' : 'Under Screening');
                                     @endphp
 
                                     <div class="rounded-2xl border border-gray-200 bg-slate-50/60 p-4 space-y-2 hover:bg-white hover:shadow-xs transition">
@@ -284,6 +397,9 @@
                                             </h4>
                                             <span class="shrink-0 rounded-lg border px-2 py-0.5 text-[10px] font-bold {{ $statusBadge }}">
                                                 {{ $statusLabel }}
+                                                @if($sub->turnitin_similarity)
+                                                    <span class="ml-1 font-mono font-semibold">{{ $sub->turnitin_similarity }}</span>
+                                                @endif
                                             </span>
                                         </div>
 
@@ -295,15 +411,72 @@
                                             Submitted: {{ $sub->created_at ? $sub->created_at->format('M d, Y') : 'N/A' }}
                                         </p>
 
-                                        @if($sub->status === 'resubmit' && !empty($sub->admin_notes))
-                                            <div class="mt-2 rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-900">
-                                                <p class="font-bold text-[11px] flex items-center gap-1.5 text-rose-700">
-                                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                                                    </svg>
-                                                    Admin Reviewer Feedback:
+                                        @if($isCleared)
+                                            <div class="mt-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-900 shadow-2xs space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <p class="font-bold text-xs flex items-center gap-1.5 text-emerald-700">
+                                                        <svg class="w-4 h-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                                        </svg>
+                                                        <span>Turnitin &amp; Grammarly Cleared</span>
+                                                    </p>
+                                                    @if($sub->turnitin_similarity)
+                                                        <span class="font-mono text-[10px] bg-emerald-200/80 text-emerald-950 px-2 py-0.5 rounded-full font-bold border border-emerald-300">
+                                                            {{ $sub->turnitin_similarity }} similarity
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                @if(!empty($sub->admin_notes))
+                                                    <div class="bg-white/80 rounded-xl p-2.5 border border-emerald-200 text-[11px] text-emerald-900 leading-relaxed font-sans">
+                                                        <span class="font-bold text-emerald-800 block text-[10px] uppercase tracking-wider mb-0.5">Reviewer Remarks:</span>
+                                                        <span class="whitespace-pre-line">{{ $sub->admin_notes }}</span>
+                                                    </div>
+                                                @else
+                                                    <p class="mt-1 text-[11px] text-emerald-700">Cleared for oral defense and final submission.</p>
+                                                @endif
+                                                <p class="text-[10px] text-emerald-700 font-semibold flex items-center gap-1">
+                                                    <span>✓ Clearance status confirmed in institutional records.</span>
                                                 </p>
-                                                <p class="mt-1 text-[11px] text-rose-800 leading-relaxed font-sans select-all whitespace-pre-line">{{ $sub->admin_notes }}</p>
+                                            </div>
+                                        @elseif($isResubmit)
+                                            <div class="mt-2.5 rounded-2xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-900 shadow-2xs space-y-2">
+                                                <div class="flex items-center justify-between">
+                                                    <p class="font-bold text-xs flex items-center gap-1.5 text-rose-700">
+                                                        <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                                        </svg>
+                                                        <span>Revisions Required</span>
+                                                    </p>
+                                                    @if($sub->turnitin_similarity)
+                                                        <span class="font-mono text-[10px] bg-rose-200 text-rose-950 px-2 py-0.5 rounded-full font-bold border border-rose-300">
+                                                            {{ $sub->turnitin_similarity }} similarity
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                @if(!empty($sub->admin_notes))
+                                                    <div class="bg-white/80 rounded-xl p-2.5 border border-rose-200 text-[11px] text-rose-900 leading-relaxed font-sans">
+                                                        <span class="font-bold text-rose-800 block text-[10px] uppercase tracking-wider mb-0.5">Reviewer Feedback:</span>
+                                                        <span class="whitespace-pre-line select-all font-medium">{{ $sub->admin_notes }}</span>
+                                                    </div>
+                                                @endif
+                                                <div class="pt-1 flex items-center justify-between gap-2">
+                                                    <p class="text-[10px] text-rose-700">
+                                                        Paraphrase flagged parts and upload revised PDF.
+                                                    </p>
+                                                    <button
+                                                        type="button"
+                                                        onclick="document.getElementById('pdf').click()"
+                                                        class="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-bold shadow-2xs transition shrink-0 cursor-pointer">
+                                                        Upload Revised PDF
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="mt-2 rounded-xl bg-amber-50/80 border border-amber-200 p-2.5 text-[11px] text-amber-800 flex items-center gap-2">
+                                                <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                                <span>Under screening by TA / research coordinator for Turnitin and Grammarly.</span>
                                             </div>
                                         @endif
                                     </div>
@@ -326,7 +499,7 @@
             </div>
             <h3 class="text-lg font-black text-gray-900">Submission Received!</h3>
             <p id="successModalMessage" class="text-xs text-gray-600 leading-relaxed">
-                Your thesis has been submitted successfully. It is now queued for administrator review. You will receive an in-app notification once it has been evaluated.
+                Your thesis manuscript has been submitted successfully for Turnitin similarity screening and Grammarly review. A confirmation email has also been dispatched to your @sac.edu.ph address.
             </p>
             <div class="pt-2">
                 <button

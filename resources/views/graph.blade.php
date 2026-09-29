@@ -12,20 +12,21 @@
     <style>
         #networkGraph {
             width: 100%;
-            height: calc(100vh - 170px);
+            height: 100%;
+            min-height: 400px;
             background: radial-gradient(circle, #ffffff 0%, #f8fafc 100%);
         }
     </style>
 </head>
 
-<body class="min-h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
+<body class="h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
 
     {{-- SAC PORTAL TOP HEADER --}}
     @include('partials.header', ['title' => 'KNOWLEDGE GRAPH'])
 
     @include('partials.sidebar')
 
-    <main id="mainContent" class="md:ml-64 min-h-screen flex flex-col pt-16 md:pt-20 transition-all duration-300">
+    <main id="mainContent" class="md:ml-64 h-screen flex flex-col pt-16 md:pt-20 transition-all duration-300 overflow-hidden">
 
         <!-- Top Control Toolbar & Subtitle -->
         <div class="border-b border-gray-200 bg-white px-4 md:px-8 py-3 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -37,13 +38,28 @@
 
             <!-- Toolbar Controls -->
             <div class="flex items-center gap-2 flex-wrap">
+                <!-- Department Cluster Filter -->
+                <div class="relative">
+                    <select
+                        id="deptClusterFilter"
+                        onchange="filterByDepartment(this.value)"
+                        class="rounded-xl border border-gray-300 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-gray-700 focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs cursor-pointer outline-none">
+                        <option value="all">All Departments (Full Network)</option>
+                        <option value="dte">Teacher Education (DTE)</option>
+                        <option value="cjed">Criminal Justice Education (CJED)</option>
+                        <option value="bused">Business Education (BUSED)</option>
+                        <option value="eng">Engineering (ENG)</option>
+                        <option value="lad">Liberal Arts (LAD)</option>
+                    </select>
+                </div>
+
                 <!-- Search Filter in Graph -->
                 <div class="relative">
                     <input
                         type="text"
                         id="graphSearchInput"
                         placeholder="Search concept, tech, or thesis..."
-                        class="rounded-xl border border-gray-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-gray-800 focus:border-[#700000] focus:outline-none focus:ring-1 focus:ring-[#700000] w-48 md:w-60 transition">
+                        class="rounded-xl border border-gray-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-gray-800 focus:border-[#700000] focus:outline-none focus:ring-1 focus:ring-[#700000] w-44 md:w-52 transition">
                     <svg class="w-3.5 h-3.5 absolute left-2.5 top-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -92,8 +108,8 @@
         </div>
 
         <!-- Main Graph Canvas Container -->
-        <div class="relative flex-1 bg-white">
-            <div id="networkGraph"></div>
+        <div class="relative flex-1 w-full min-h-0 bg-white overflow-hidden">
+            <div id="networkGraph" class="w-full h-full"></div>
 
             <!-- Loading Spinner Indicator -->
             <div id="graphLoader" class="absolute inset-0 bg-white/80 backdrop-blur-xs flex flex-col items-center justify-center gap-3 z-10 transition-opacity">
@@ -115,13 +131,13 @@
                 <p class="text-xs text-gray-500 max-w-sm mt-1">Upload approved thesis documents to visualize the research repository network.</p>
             </div>
 
-            <!-- Slide-Out Details Drawer -->
+            <!-- Slide-Out Details Drawer (Fixed to Viewport so Footer Button is Always 100% Visible) -->
             <div
                 id="detailsDrawer"
-                class="absolute top-0 right-0 bottom-0 w-80 md:w-96 bg-white border-l border-gray-200 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-20 flex flex-col">
+                class="fixed top-16 md:top-20 right-0 bottom-0 w-80 md:w-96 bg-white border-l border-gray-200 shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out z-40 flex flex-col">
                 
                 <!-- Drawer Header -->
-                <div class="border-b border-gray-100 p-4 bg-slate-50 flex items-center justify-between">
+                <div class="border-b border-gray-100 p-4 bg-slate-50 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
                         <span id="drawerBadge" class="text-xs font-bold text-[#700000] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 border border-amber-200">
                             Thesis Details
@@ -164,7 +180,7 @@
                         <!-- Abstract -->
                         <div class="pt-2">
                             <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">Abstract</h4>
-                            <div class="max-h-48 overflow-y-auto rounded-xl bg-slate-50 p-3 text-xs text-gray-600 leading-relaxed border border-gray-200" id="drawerAbstract"></div>
+                            <div class="max-h-40 overflow-y-auto rounded-xl bg-slate-50 p-3 text-xs text-gray-600 leading-relaxed border border-gray-200" id="drawerAbstract"></div>
                         </div>
                     </div>
 
@@ -175,12 +191,12 @@
                     </div>
                 </div>
 
-                <!-- Drawer Action Footer (For Thesis) -->
-                <div id="drawerFooter" class="border-t border-gray-200 p-4 bg-slate-50">
+                <!-- Drawer Action Footer (Pinned at Bottom, Always Visible) -->
+                <div id="drawerFooter" class="border-t border-gray-200 p-4 bg-slate-50 shrink-0 shadow-md">
                     <a
                         id="drawerReadBtn"
                         href="#"
-                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] shadow-sm transition cursor-pointer">
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#700000] px-4 py-3 text-xs font-bold text-[#FFD700] hover:bg-[#800000] shadow-md transition cursor-pointer">
                         <span>Read Full Thesis</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -219,13 +235,18 @@
 
                 const options = {
                     nodes: {
-                        shape: 'dot',
-                        font: { face: 'sans-serif', size: 12 },
+                        shape: 'box',
+                        font: { face: 'sans-serif', size: 11 },
                         borderWidth: 2,
-                        shadow: true
+                        shadow: true,
+                        margin: 8
                     },
                     edges: {
                         width: 1.5,
+                        smooth: {
+                            type: 'continuous',
+                            roundness: 0.2
+                        },
                         font: { size: 9, align: 'middle', color: '#94a3b8' },
                         color: { color: '#cbd5e1', highlight: '#700000' },
                         arrows: { to: { enabled: true, scaleFactor: 0.5 } }
@@ -233,12 +254,17 @@
                     physics: {
                         solver: 'forceAtlas2Based',
                         forceAtlas2Based: {
-                            gravitationalConstant: -40,
-                            centralGravity: 0.008,
-                            springLength: 120,
-                            springConstant: 0.08
+                            gravitationalConstant: -130,
+                            centralGravity: 0.003,
+                            springLength: 200,
+                            springConstant: 0.035,
+                            damping: 0.45,
+                            avoidOverlap: 1
                         },
-                        stabilization: { iterations: 160 }
+                        stabilization: {
+                            iterations: 200,
+                            updateInterval: 25
+                        }
                     },
                     interaction: {
                         hover: true,
@@ -265,20 +291,63 @@
                     }
                 });
 
-                // Once stabilized, hide loader
+                // Once stabilized, hide loader and auto-freeze physics so graph stays perfectly organized and stationary
                 network.once('stabilizationIterationsDone', function() {
                     loader.classList.add('hidden');
+                    network.setOptions({ physics: { enabled: false } });
+                    physicsEnabled = false;
+                    const btnText = document.getElementById('physicsStatusText');
+                    if (btnText) btnText.textContent = 'Unfreeze';
+                    applyUrlFocus();
                 });
 
-                // Fallback hide loader in 2 seconds
+                // Fallback in case stabilization completes early or takes longer
                 setTimeout(() => {
                     loader.classList.add('hidden');
-                }, 2000);
+                    if (network && physicsEnabled) {
+                        network.setOptions({ physics: { enabled: false } });
+                        physicsEnabled = false;
+                        const btnText = document.getElementById('physicsStatusText');
+                        if (btnText) btnText.textContent = 'Unfreeze';
+                    }
+                    applyUrlFocus();
+                }, 2800);
 
             } catch (err) {
                 console.error(err);
                 loader.classList.add('hidden');
                 emptyState.classList.remove('hidden');
+            }
+        }
+
+        let hasAppliedFocus = false;
+        function applyUrlFocus() {
+            if (hasAppliedFocus || !network || !graphData.nodes) return;
+            const urlParams = new URLSearchParams(window.location.search);
+            let focusId = urlParams.get('focus') || urlParams.get('node');
+            if (!focusId) return;
+
+            // Support either numeric doc ID or full node ID (e.g. 54 or doc_54)
+            if (!focusId.startsWith('doc_') && !isNaN(focusId)) {
+                focusId = 'doc_' + focusId;
+            }
+
+            const targetNode = graphData.nodes.get(focusId);
+            if (targetNode) {
+                hasAppliedFocus = true;
+                network.selectNodes([focusId]);
+                setTimeout(() => {
+                    network.focus(focusId, {
+                        scale: 1.45,
+                        animation: {
+                            duration: 1000,
+                            easingFunction: 'easeInOutQuad'
+                        }
+                    });
+                    if (targetNode.meta) {
+                        openDetailsDrawer(targetNode.meta);
+                    }
+                }, 200);
             }
         }
 
@@ -412,6 +481,66 @@
             network.setOptions({ physics: { enabled: physicsEnabled } });
             const btnText = document.getElementById('physicsStatusText');
             btnText.textContent = physicsEnabled ? 'Freeze' : 'Unfreeze';
+        }
+
+        // Department Cluster Filter Function
+        function filterByDepartment(dept) {
+            if (!network || !graphData.nodes) return;
+
+            if (dept === 'all') {
+                const allUpdates = [];
+                graphData.nodes.forEach(n => {
+                    allUpdates.push({ id: n.id, hidden: false, opacity: 1 });
+                });
+                graphData.nodes.update(allUpdates);
+                resetGraphView();
+                return;
+            }
+
+            // Find all thesis nodes in this department
+            const targetDeptTheses = new Set();
+            const visibleNodeIds = new Set();
+
+            graphData.nodes.forEach(n => {
+                if (n.meta && n.meta.type === 'thesis') {
+                    const nodeDept = (n.meta.department || '').toLowerCase();
+                    if (nodeDept === dept.toLowerCase()) {
+                        targetDeptTheses.add(n.id);
+                        visibleNodeIds.add(n.id);
+                    }
+                }
+            });
+
+            // Keep connected concept, methodology, and tech stack nodes visible
+            graphData.edges.forEach(e => {
+                if (targetDeptTheses.has(e.from)) {
+                    visibleNodeIds.add(e.to);
+                } else if (targetDeptTheses.has(e.to)) {
+                    visibleNodeIds.add(e.from);
+                }
+            });
+
+            // Update node visibility
+            const updates = [];
+            graphData.nodes.forEach(n => {
+                const isVisible = visibleNodeIds.has(n.id);
+                updates.push({
+                    id: n.id,
+                    hidden: !isVisible,
+                    opacity: isVisible ? 1 : 0.1
+                });
+            });
+            graphData.nodes.update(updates);
+
+            // Center view on this cluster
+            setTimeout(() => {
+                if (visibleNodeIds.size > 0) {
+                    network.fit({
+                        nodes: Array.from(visibleNodeIds),
+                        animation: { duration: 600, easingFunction: 'easeInOutQuad' }
+                    });
+                }
+            }, 100);
         }
 
         // Live Search / Node Highlight
