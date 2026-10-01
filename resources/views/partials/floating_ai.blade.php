@@ -22,8 +22,8 @@
         id="floatingAiBtn"
         type="button"
         onclick="toggleFloatingAiChat()"
-        title="Open AIRIS AI Assistant"
-        aria-label="Open AIRIS AI Assistant"
+        title="Open SArchive AI Assistant"
+        aria-label="Open SArchive AI Assistant"
         class="relative w-14 h-14 rounded-full bg-[#0A2549] text-[#CBA144] shadow-2xl border-2 border-[#CBA144] hover:bg-[#123668] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer focus:outline-none">
         
         <!-- Open Icon -->
@@ -52,10 +52,10 @@
     <div class="px-4 py-3 bg-gradient-to-r from-[#071933] via-[#0A2549] to-[#123668] text-white flex items-center justify-between shadow-xs shrink-0 border-b border-[#14325c]">
         <div class="flex items-center gap-2.5 min-w-0">
             <div class="w-9 h-9 rounded-2xl bg-white p-1 border border-[#CBA144]/60 flex items-center justify-center shrink-0 shadow-inner">
-                <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
+                <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
             </div>
             <div class="min-w-0 flex items-center gap-1.5">
-                <img src="{{ asset('images/airis-wordmark.png') }}" class="h-4 sm:h-5 w-auto object-contain" alt="AIRIS">
+                <span class="text-sm sm:text-base font-black tracking-wide text-[#CBA144] font-['Outfit',sans-serif] drop-shadow-xs">SArchive</span>
                 <span class="text-xs sm:text-sm font-bold text-slate-200">AI Assistant</span>
             </div>
         </div>
@@ -98,7 +98,7 @@
                     </svg>
                 </div>
                 <div class="flex-1 bg-white border border-gray-200/90 rounded-2xl rounded-tl-xs p-3.5 shadow-xs text-gray-800 leading-relaxed">
-                    <p class="font-bold text-[#0A2549]">Hello! I'm your AIRIS Research AI.</p>
+                    <p class="font-bold text-[#0A2549]">Hello! I'm your SArchive Research AI.</p>
                     <p class="mt-1 text-gray-600 text-xs">
                         Ask me any research questions about thesis topics, methodologies, or findings in St. Anthony's College.
                     </p>
@@ -137,7 +137,7 @@
             <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse"></span>
             <span class="w-2 h-2 rounded-full bg-[#CBA144] animate-pulse delay-150"></span>
             <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse delay-300"></span>
-            <span class="text-[11px] text-gray-500 font-medium ml-1">Searching AIRIS repository...</span>
+            <span class="text-[11px] text-gray-500 font-medium ml-1">Searching SArchive repository...</span>
         </div>
     </div>
 
@@ -148,7 +148,7 @@
                 id="floatingAiInput"
                 type="text"
                 autocomplete="off"
-                placeholder="Ask an AIRIS research question..."
+                placeholder="Ask an SArchive research question..."
                 class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-11 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#CBA144] focus:ring-1 focus:ring-[#CBA144]/50 shadow-2xs transition">
 
             <button
@@ -162,7 +162,7 @@
             </button>
         </form>
         <p class="text-[9px] text-gray-400 text-center mt-1.5">
-            AIRIS • St. Anthony's College Repository • Powered by Gemini AI
+            SArchive • St. Anthony's College Repository • Powered by Gemini AI
         </p>
     </div>
 

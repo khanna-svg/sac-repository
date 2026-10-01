@@ -5,7 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>AIRIS - AI Research Assistant</title>
+    <title>SArchive - AI Research Assistant</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -24,7 +28,7 @@
         <header class="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 md:px-6 py-4 shadow-sm">
             <div>
                 <div class="flex items-center gap-2">
-                    <img src="{{ asset('images/airis-wordmark.png') }}" alt="AIRIS" class="h-6 w-auto object-contain">
+                    <span class="text-lg md:text-xl font-black text-[#0A2549] tracking-wider font-['Outfit',sans-serif]">SArchive</span>
                     <span class="text-base md:text-lg font-bold text-[#0A2549]">AI Assistant</span>
                 </div>
                 <p class="mt-0.5 text-xs md:text-sm text-gray-500">
@@ -53,7 +57,7 @@
             <div class="flex items-start gap-3">
 
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 flex-shrink-0 flex items-center justify-center shadow-md">
-                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
+                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                 </div>
 
                 <div class="max-w-3xl">
@@ -61,7 +65,7 @@
                     <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
 
                         <p class="text-sm text-gray-800 font-medium">
-                            Hi! I'm your AIRIS Thesis AI Assistant.
+                            Hi! I'm your SArchive Thesis AI Assistant.
                         </p>
 
                         <p class="text-sm text-gray-600 mt-2 leading-relaxed">
@@ -73,7 +77,7 @@
                     </div>
 
                     <div class="text-[10px] md:text-xs text-[#0A2549] mt-1.5 font-semibold">
-                        AIRIS Research Intelligence
+                        SArchive Research Intelligence
                     </div>
 
                 </div>
@@ -168,12 +172,12 @@
                     <!-- INITIAL AI MESSAGE -->
                     <div class="flex items-start gap-3">
                         <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 shrink-0 flex items-center justify-center shadow-md">
-                            <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
+                            <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                         </div>
                         <div class="max-w-3xl">
                             <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
                                 <p class="text-sm text-gray-800 font-medium">
-                                    Hi! I'm your AIRIS Thesis AI Assistant.
+                                    Hi! I'm your SArchive Thesis AI Assistant.
                                 </p>
                                 <p class="text-sm text-gray-600 mt-2 leading-relaxed">
                                     Ask me anything about the uploaded thesis papers.
@@ -181,7 +185,7 @@
                                 </p>
                             </div>
                             <div class="text-[10px] md:text-xs text-[#0A2549] mt-1.5 font-semibold">
-                                AIRIS Research Intelligence
+                                SArchive Research Intelligence
                             </div>
                         </div>
                     </div>
@@ -318,7 +322,7 @@
 
                 wrapper.innerHTML = `
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 shrink-0 flex items-center justify-center shadow-md">
-                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
+                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                 </div>
 
                 <div class="max-w-xl md:max-w-3xl flex-1">
@@ -329,7 +333,7 @@
                     </div>
 
                     <div class="text-[10px] md:text-xs text-[#0A2549] mt-1.5 font-semibold">
-                        AIRIS Research Intelligence
+                        SArchive Research Intelligence
                     </div>
                 </div>
             `;
@@ -361,7 +365,7 @@
                 wrapper.innerHTML = `
 
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 flex-shrink-0 flex items-center justify-center shadow-md">
-                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
+                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                 </div>
 
                 <div>
@@ -381,7 +385,7 @@
                     </div>
 
                     <div class="text-[10px] md:text-xs text-gray-500 mt-1.5 font-medium">
-                        AIRIS AI is searching...
+                        SArchive AI is searching...
                     </div>
 
                 </div>

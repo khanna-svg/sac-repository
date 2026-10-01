@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIRIS - Knowledge Graph</title>
+    <title>SArchive - Knowledge Graph</title>
+    <link rel="icon" href="{{ asset('images/airis-logo.png') }}" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Vis.js Network CDN -->
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>

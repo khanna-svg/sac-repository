@@ -55,7 +55,7 @@
         </button>
 
         <h1 class="font-sans text-base sm:text-xl md:text-2xl font-black text-[#CBA144] tracking-wider uppercase drop-shadow-md truncate">
-            {{ $title ?? 'AIRIS' }}
+            {{ $title ?? 'SArchive' }}
         </h1>
     </div>
 

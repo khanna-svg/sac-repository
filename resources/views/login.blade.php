@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIRIS - Sign In</title>
+    <title>SArchive - Sign In</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="{{ asset('images/airis-logo.png') }}" type="image/png">
 
@@ -47,18 +47,15 @@
                 <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white p-2 shadow-xl border-2 border-[#CBA144]/50 flex items-center justify-center">
                     <img 
                         src="{{ asset('images/airis-logo.png') }}"
-                        alt="AIRIS Logo"
+                        alt="SArchive Logo"
                         class="w-full h-full object-contain"
                     >
                 </div>
             </div>
-            <div class="flex justify-center mb-1.5">
-                <img 
-                    src="{{ asset('images/airis-wordmark.png') }}" 
-                    alt="AIRIS" 
-                    class="h-9 sm:h-11 w-auto object-contain">
-            </div>
-            <p class="mt-1 text-xs sm:text-sm text-slate-200 font-semibold tracking-wide">Automated Institutional Research &amp; Information System</p>
+            <h1 class="text-3xl sm:text-4xl font-black text-[#CBA144] drop-shadow-md tracking-wider font-['Outfit',sans-serif]">
+                SArchive
+            </h1>
+            <p class="mt-1 text-xs sm:text-sm text-slate-200 font-semibold tracking-wide">AI-Powered Institutional Research Repository</p>
             <p class="mt-0.5 text-[11px] text-[#CBA144]/80 font-bold uppercase tracking-widest">St. Anthony's College</p>
         </div>
 
@@ -223,7 +220,7 @@
 
     <div>
         <footer class="absolute bottom-4 inset-x-0 text-center text-xs text-white/70 drop-shadow-sm px-4">
-            <p>© 2026 AIRIS • St. Anthony's College</p>
+            <p>© 2026 SArchive • St. Anthony's College</p>
         </footer>
     </div>
 

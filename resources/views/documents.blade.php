@@ -4,7 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIRIS - Institutional Research Documents</title>
+    <title>SArchive - Institutional Research Documents</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="icon" href="/images/airis-logo.webp" type="image/webp">
@@ -39,7 +44,7 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
-    {{-- AIRIS PORTAL TOP HEADER --}}
+    {{-- SArchive PORTAL TOP HEADER --}}
     @include('partials.header', ['title' => 'REPOSITORY'])
 
     {{-- SIDEBAR NAVIGATION --}}
@@ -224,7 +229,7 @@
             {{-- 4. THESIS CARDS LIST CONTAINER --}}
             <section id="documentsList" class="mt-6 space-y-4">
             <p class="text-center text-sm text-gray-500 py-10">
-                Loading AIRIS repository...
+                Loading SArchive repository...
             </p>
         </section>
 
@@ -331,11 +336,11 @@
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-[#0A2549] text-white">
             <div class="flex items-center gap-2.5 min-w-0 pr-2">
                 <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#CBA144]/40 flex items-center justify-center">
-                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
+                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                 </div>
                 <div class="min-w-0">
                     <h2 class="text-sm font-bold text-white tracking-wide truncate flex items-center gap-1.5">
-                        <img src="{{ asset('images/airis-wordmark.png') }}" class="h-4 w-auto object-contain" alt="AIRIS">
+                        <span class="text-[#CBA144] font-black tracking-wide font-['Outfit',sans-serif]">SArchive</span>
                         <span>Thesis Assistant</span>
                     </h2>
                     <p id="aiDrawerDocTitle" class="text-[10px] text-slate-300 truncate">Select a thesis...</p>
@@ -413,7 +418,7 @@
                 <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse"></span>
                 <span class="w-2 h-2 rounded-full bg-[#CBA144] animate-pulse delay-150"></span>
                 <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse delay-300"></span>
-                <span class="text-[11px] text-gray-500 font-medium ml-1">AIRIS AI is analyzing thesis...</span>
+                <span class="text-[11px] text-gray-500 font-medium ml-1">SArchive AI is analyzing thesis...</span>
             </div>
         </div>
 
@@ -438,7 +443,7 @@
                 </button>
             </form>
             <p class="text-[9px] text-gray-400 text-center mt-1.5">
-                AIRIS Research Archive • Powered by Gemini AI
+                SArchive Research Archive • Powered by Gemini AI
             </p>
         </div>
 
@@ -727,7 +732,7 @@
                         <div class="flex-1 min-w-0 pr-8">
                             <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 font-semibold">
                                 ${doc.similarity_score ? `<span class="font-bold text-[#0A2549]">${doc.similarity_score}% Similarity</span><span class="text-gray-300">•</span>` : ''}
-                                <span class="font-bold text-[#0A2549]">AIRIS • St. Anthony's College</span>
+                                <span class="font-bold text-[#0A2549]">SArchive • St. Anthony's College</span>
                                 <span class="text-gray-300">•</span>
                                 <span class="text-gray-700">${escapeHtml(details.name)}</span>
                                 ${pubDateStr ? `<span class="text-gray-300">•</span><span class="text-gray-500 font-medium">${pubDateStr}</span>` : ''}
@@ -1021,7 +1026,7 @@
                     </div>
                     <h3 class="text-base font-bold text-gray-900">Analyzing Your Concept Proposal</h3>
                     <p class="mt-2 text-xs text-gray-600 max-w-md mx-auto leading-relaxed">
-                        Loading... Please wait while AIRIS AI analyzes your proposal and matches literature...
+                        Loading... Please wait while SArchive AI analyzes your proposal and matches literature...
                     </p>
                     <div class="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-[#0A2549]/20 text-xs font-bold text-[#0A2549] shadow-2xs">
                         <span>📄 ${escapeHtml(selectedProposalFile.name)}</span>
@@ -1398,7 +1403,7 @@
             let citation = '';
             if (style === 'apa') {
                 const apaAuthors = formatApaAuthors(author);
-                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. AIRIS Institutional Research Repository.`;
+                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. SArchive Institutional Research Repository.`;
             } else if (style === 'mla') {
                 const mlaAuthors = formatMlaAuthors(author);
                 citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate thesis, St. Anthony's College, ${year}.`;

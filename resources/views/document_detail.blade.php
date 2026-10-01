@@ -5,7 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $document->title }} - AIRIS Thesis Repository</title>
+    <title>{{ $document->title }} - SArchive Thesis Repository</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="/images/airis-logo.webp" type="image/webp">
     {{-- PDF.js Library for Protected Canvas Rendering (No downloads, no raw text selection) --}}
@@ -47,7 +52,7 @@
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans select-none" oncontextmenu="return false;">
 
-    {{-- AIRIS PORTAL TOP HEADER --}}
+    {{-- SArchive PORTAL TOP HEADER --}}
     @include('partials.header', ['title' => 'DOCUMENT DETAILS'])
 
     @include('partials.sidebar')
@@ -172,7 +177,7 @@
                 @endphp
 
                 <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 mb-4 pr-12 text-xs font-semibold text-gray-500">
-                    <span class="font-bold text-[#0A2549]">AIRIS • St. Anthony's College</span>
+                    <span class="font-bold text-[#0A2549]">SArchive • St. Anthony's College</span>
 
                     @if(!empty($document->department))
                     <span class="text-gray-300">•</span>
@@ -459,7 +464,7 @@
             <svg class="w-3.5 h-3.5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
             </svg>
-            <span>AIRIS Protected Institutional Document • Copying, printing, and downloading are prohibited by institutional policy.</span>
+            <span>SArchive Protected Institutional Document • Copying, printing, and downloading are prohibited by institutional policy.</span>
         </div>
 
         {{-- Continuous Vertical Scrollable Canvas Container --}}
@@ -497,11 +502,11 @@
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-[#0A2549] text-white">
             <div class="flex items-center gap-2.5 min-w-0 pr-2">
                 <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#CBA144]/40 flex items-center justify-center">
-                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
+                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                 </div>
                 <div class="min-w-0">
                     <h2 class="text-sm font-bold text-white tracking-wide truncate flex items-center gap-1.5">
-                        <img src="{{ asset('images/airis-wordmark.png') }}" class="h-4 w-auto object-contain" alt="AIRIS">
+                        <span class="text-[#CBA144] font-black tracking-wide font-['Outfit',sans-serif]">SArchive</span>
                         <span>Thesis Assistant</span>
                     </h2>
                     <p class="text-[10px] text-slate-300 truncate">{{ $document->title }}</p>
@@ -579,7 +584,7 @@
                 <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse"></span>
                 <span class="w-2 h-2 rounded-full bg-[#CBA144] animate-pulse delay-150"></span>
                 <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse delay-300"></span>
-                <span class="text-[11px] text-gray-500 font-medium ml-1">AIRIS AI is analyzing thesis...</span>
+                <span class="text-[11px] text-gray-500 font-medium ml-1">SArchive AI is analyzing thesis...</span>
             </div>
         </div>
 
@@ -604,7 +609,7 @@
                 </button>
             </form>
             <p class="text-[9px] text-gray-400 text-center mt-1.5">
-                AIRIS Research Archive • Powered by Gemini AI
+                SArchive Research Archive • Powered by Gemini AI
             </p>
         </div>
 
@@ -1024,7 +1029,7 @@
 
         function handleImageError(imageElement) {
             imageElement.onerror = null;
-            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%230A2549'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23CBA144' text-anchor='middle' dominant-baseline='middle'>AIRIS THESIS</text></svg>";
+            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%230A2549'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23CBA144' text-anchor='middle' dominant-baseline='middle'>SArchive THESIS</text></svg>";
         }
 
         function switchViewTab(tab) {
@@ -1255,7 +1260,7 @@
             let citation = '';
             if (style === 'apa') {
                 const apaAuthors = formatApaAuthors(docAuthor);
-                citation = `${apaAuthors} (${docYear}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. AIRIS Institutional Research Repository.`;
+                citation = `${apaAuthors} (${docYear}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. SArchive Institutional Research Repository.`;
             } else if (style === 'mla') {
                 const mlaAuthors = formatMlaAuthors(docAuthor);
                 citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate thesis, St. Anthony's College, ${docYear}.`;
