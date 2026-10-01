@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AIRIS - Sign In</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="/images/airis-logo.webp" type="image/webp">
+    <link rel="icon" href="{{ asset('images/airis-logo.png') }}" type="image/png">
 
     <style>
         .floating-badge-group {
@@ -43,16 +43,21 @@
     <!-- Login Container -->
     <main class="w-full max-w-sm sm:max-w-md rounded-3xl border border-[#CBA144]/30 bg-[#0A2549]/70 backdrop-blur-xl p-6 sm:p-8 shadow-2xl text-white"> 
         <div class="mb-6 sm:mb-8 text-center">
-            <div class="flex items-center justify-center mb-3">
+            <div class="flex items-center justify-center mb-4">
                 <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white p-2 shadow-xl border-2 border-[#CBA144]/50 flex items-center justify-center">
                     <img 
-                        src="/images/airis-logo.webp"
+                        src="{{ asset('images/airis-logo.png') }}"
                         alt="AIRIS Logo"
                         class="w-full h-full object-contain"
                     >
                 </div>
             </div>
-            <h1 class="text-2xl sm:text-3xl font-black text-[#CBA144] drop-shadow-md tracking-wider">AIRIS</h1>
+            <div class="flex justify-center mb-1.5">
+                <img 
+                    src="{{ asset('images/airis-wordmark.png') }}" 
+                    alt="AIRIS" 
+                    class="h-9 sm:h-11 w-auto object-contain">
+            </div>
             <p class="mt-1 text-xs sm:text-sm text-slate-200 font-semibold tracking-wide">Automated Institutional Research &amp; Information System</p>
             <p class="mt-0.5 text-[11px] text-[#CBA144]/80 font-bold uppercase tracking-widest">St. Anthony's College</p>
         </div>

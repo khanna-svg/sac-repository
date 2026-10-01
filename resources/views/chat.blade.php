@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" href="{{ asset('images/airis-logo.png') }}" type="image/png">
 </head>
 
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
@@ -22,9 +23,10 @@
         <!-- HEADER -->
         <header class="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 md:px-6 py-4 shadow-sm">
             <div>
-                <h1 class="text-base md:text-lg font-bold text-[#0A2549]">
-                    AIRIS AI Assistant
-                </h1>
+                <div class="flex items-center gap-2">
+                    <img src="{{ asset('images/airis-wordmark.png') }}" alt="AIRIS" class="h-6 w-auto object-contain">
+                    <span class="text-base md:text-lg font-bold text-[#0A2549]">AI Assistant</span>
+                </div>
                 <p class="mt-0.5 text-xs md:text-sm text-gray-500">
                     Grounded in St. Anthony's College thesis research repository.
                 </p>
@@ -50,10 +52,8 @@
             <!-- INITIAL AI MESSAGE -->
             <div class="flex items-start gap-3">
 
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#0A2549] text-[#CBA144] flex-shrink-0 flex items-center justify-center shadow-md">
-                    <svg class="w-5 h-5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                    </svg>
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 flex-shrink-0 flex items-center justify-center shadow-md">
+                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
                 </div>
 
                 <div class="max-w-3xl">
@@ -167,10 +167,8 @@
                 chatMessages.innerHTML = `
                     <!-- INITIAL AI MESSAGE -->
                     <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#0A2549] text-[#CBA144] shrink-0 flex items-center justify-center shadow-md">
-                            <svg class="w-5 h-5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                            </svg>
+                        <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 shrink-0 flex items-center justify-center shadow-md">
+                            <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
                         </div>
                         <div class="max-w-3xl">
                             <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
@@ -319,10 +317,8 @@
                 }
 
                 wrapper.innerHTML = `
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#0A2549] text-[#CBA144] shrink-0 flex items-center justify-center shadow-md">
-                    <svg class="w-5 h-5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                    </svg>
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 shrink-0 flex items-center justify-center shadow-md">
+                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
                 </div>
 
                 <div class="max-w-xl md:max-w-3xl flex-1">
@@ -364,10 +360,8 @@
 
                 wrapper.innerHTML = `
 
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#0A2549] text-[#CBA144] flex-shrink-0 flex items-center justify-center shadow-md">
-                    <svg class="w-5 h-5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                    </svg>
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 flex-shrink-0 flex items-center justify-center shadow-md">
+                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
                 </div>
 
                 <div>

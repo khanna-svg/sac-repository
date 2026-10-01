@@ -19,7 +19,12 @@
                         <td style="background-color: #0A2549; padding: 24px 30px; text-align: left; border-bottom: 3px solid #CBA144;">
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
-                                    <td>
+                                    <td style="width: 44px; vertical-align: middle;">
+                                        <div style="background-color: #ffffff; width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(203,161,68,0.4); text-align: center; line-height: 38px;">
+                                            <img src="{{ url('/images/airis-logo.png') }}" width="28" height="28" style="vertical-align: middle; display: inline-block;" alt="AIRIS">
+                                        </div>
+                                    </td>
+                                    <td style="padding-left: 12px; vertical-align: middle;">
                                         <h1 style="margin: 0; color: #CBA144; font-size: 18px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
                                             AIRIS &bull; St. Anthony's College
                                         </h1>

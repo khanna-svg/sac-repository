@@ -193,7 +193,7 @@
             try {
                 new Notification(n.title, {
                     body: n.message.substring(0, 140),
-                    icon: '/images/airis-logo.webp'
+                    icon: '/images/airis-logo.png'
                 });
             } catch (err) {}
         }

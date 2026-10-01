@@ -44,15 +44,16 @@
         <a href="{{ route('documents') }}" class="flex items-center gap-2.5 group min-w-0 flex-1">
             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-md transition-transform group-hover:scale-105 border border-[#CBA144]/40">
                 <img 
-                    src="{{ asset('images/airis-logo.webp') }}" 
+                    src="{{ asset('images/airis-logo.png') }}" 
                     alt="AIRIS Logo" 
                     class="h-full w-full object-contain">
             </div>
-            <div class="flex flex-col leading-tight truncate">
-                <span class="text-base sm:text-lg font-black tracking-widest text-[#CBA144] group-hover:text-white transition font-sans">
-                    AIRIS
-                </span>
-                <span class="text-[9px] sm:text-[10px] font-semibold text-slate-300 tracking-tight truncate">
+            <div class="flex flex-col leading-tight truncate justify-center">
+                <img 
+                    src="{{ asset('images/airis-wordmark.png') }}" 
+                    alt="AIRIS" 
+                    class="h-5 sm:h-6 w-auto object-contain object-left">
+                <span class="text-[9px] sm:text-[10px] font-semibold text-slate-300 tracking-tight truncate mt-0.5">
                     St. Anthony's College
                 </span>
             </div>

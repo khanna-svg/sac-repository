@@ -51,16 +51,12 @@
     <!-- Header (Messenger Style Gradient) -->
     <div class="px-4 py-3 bg-gradient-to-r from-[#071933] via-[#0A2549] to-[#123668] text-white flex items-center justify-between shadow-xs shrink-0 border-b border-[#14325c]">
         <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-9 h-9 rounded-2xl bg-white/15 border border-[#CBA144]/60 text-[#CBA144] flex items-center justify-center shrink-0 shadow-inner">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                </svg>
+            <div class="w-9 h-9 rounded-2xl bg-white p-1 border border-[#CBA144]/60 flex items-center justify-center shrink-0 shadow-inner">
+                <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="AIRIS">
             </div>
-            <div class="min-w-0">
-                <h3 class="text-xs sm:text-sm font-bold text-white tracking-wide truncate flex items-center gap-1.5">
-                    <span class="text-[#CBA144]">AIRIS</span>
-                    <span class="text-slate-200">AI Assistant</span>
-                </h3>
+            <div class="min-w-0 flex items-center gap-1.5">
+                <img src="{{ asset('images/airis-wordmark.png') }}" class="h-4 sm:h-5 w-auto object-contain" alt="AIRIS">
+                <span class="text-xs sm:text-sm font-bold text-slate-200">AI Assistant</span>
             </div>
         </div>
 
