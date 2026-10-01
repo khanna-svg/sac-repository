@@ -130,33 +130,37 @@
                 ];
 
                 $coverMap = [
-                    'bused' => 'HM',
-                    'bsa' => 'HM',
-                    'bsais' => 'HM',
-                    'ba' => 'HM',
-                    'bshm' => 'HM',
-                    'hospitality' => 'HM',
-                    'cjed' => 'CRIM',
-                    'bscrim' => 'CRIM',
-                    'bsc' => 'CRIM',
-                    'criminology' => 'CRIM',
-                    'dte' => 'EDUC',
-                    'bsed_english' => 'EDUC',
-                    'bsed_math' => 'EDUC',
-                    'bsed_science' => 'EDUC',
-                    'bsed' => 'EDUC',
-                    'beed' => 'EDUC',
-                    'education' => 'EDUC',
-                    'eng' => 'MARINE',
-                    'bsce' => 'MARINE',
-                    'bscpe' => 'MARINE',
-                    'bsmare' => 'MARINE',
-                    'marine' => 'MARINE',
+                    'bused' => 'BUSINESS',
+                    'bsa' => 'BUSINESS',
+                    'bsais' => 'BUSINESS',
+                    'ba' => 'BUSINESS',
+                    'bshm' => 'BUSINESS',
+                    'hospitality' => 'BUSINESS',
+                    'business' => 'BUSINESS',
+                    'cjed' => 'CRIMINAL_JUSTICE',
+                    'bscrim' => 'CRIMINAL_JUSTICE',
+                    'bsc' => 'CRIMINAL_JUSTICE',
+                    'criminology' => 'CRIMINAL_JUSTICE',
+                    'dte' => 'TEACHER_EDUCATION',
+                    'bsed_english' => 'TEACHER_EDUCATION',
+                    'bsed_math' => 'TEACHER_EDUCATION',
+                    'bsed_science' => 'TEACHER_EDUCATION',
+                    'bsed' => 'TEACHER_EDUCATION',
+                    'beed' => 'TEACHER_EDUCATION',
+                    'education' => 'TEACHER_EDUCATION',
+                    'eng' => 'ENGINEERING',
+                    'bsce' => 'ENGINEERING',
+                    'bscpe' => 'ENGINEERING',
+                    'bsmare' => 'ENGINEERING',
+                    'marine' => 'ENGINEERING',
+                    'engineering' => 'ENGINEERING',
                     'itd' => 'IT',
                     'it' => 'IT',
                     'bsit' => 'IT',
-                    'lad' => 'EDUC',
-                    'ab_philo' => 'EDUC',
+                    'computer' => 'IT',
+                    'lad' => 'LIBERAL_ARTS',
+                    'ab_philo' => 'LIBERAL_ARTS',
+                    'liberal_arts' => 'LIBERAL_ARTS',
                     'nursing' => 'NURSING',
                     'bsn' => 'NURSING',
                 ];
@@ -187,10 +191,10 @@
                 <div class="flex flex-col sm:flex-row items-start gap-5 my-3">
                     <div class="w-20 sm:w-24 h-28 sm:h-32 shrink-0 rounded-lg overflow-hidden shadow-md border border-gray-200 bg-slate-100">
                         <img
-                            src="{{ asset('images/covers/' . $coverFilename . '.webp') }}"
+                            src="{{ asset('images/covers/' . $coverFilename . '.jpg') }}"
                             alt="{{ $document->title }} Cover"
                             class="w-full h-full object-cover"
-                            onerror="handleImageError(this)">
+                            onerror="this.onerror=null; this.src='{{ asset('images/covers/' . $coverFilename . '.webp') }}';">
                     </div>
 
                     <div class="flex-1">

@@ -421,43 +421,43 @@
             // 1. Direct database department/course check (Highest Priority)
             if (['bused', 'bus.ed', 'bus_ed', 'business', 'hospitality'].includes(dept) || ['bsa', 'bsais', 'ba', 'bshm'].includes(course)) {
                 return {
-                    cover: 'HM.webp',
+                    cover: 'BUSINESS.jpg',
                     name: 'Business Education Department',
                     badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
                 };
             } else if (['cjed', 'criminology'].includes(dept) || ['bscrim', 'bsc'].includes(course)) {
                 return {
-                    cover: 'CRIM.webp',
+                    cover: 'CRIMINAL_JUSTICE.jpg',
                     name: 'Criminal Justice Education Department',
                     badgeBg: 'bg-red-50 text-red-700 border-red-200'
                 };
             } else if (['dte', 'education'].includes(dept) || course.startsWith('bsed') || course === 'beed' || ['bsed', 'beed'].includes(course)) {
                 return {
-                    cover: 'EDUC.webp',
+                    cover: 'TEACHER_EDUCATION.jpg',
                     name: 'Department of Teacher Education',
                     badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
                 };
             } else if (['eng', 'engineering', 'marine'].includes(dept) || ['bsce', 'bscpe', 'bsmare'].includes(course)) {
                 return {
-                    cover: 'MARINE.webp',
+                    cover: 'ENGINEERING.jpg',
                     name: 'Engineering Department',
                     badgeBg: 'bg-cyan-50 text-cyan-800 border-cyan-200'
                 };
             } else if (['itd', 'it', 'computer'].includes(dept) || course === 'bsit') {
                 return {
-                    cover: 'IT.webp',
+                    cover: 'IT.jpg',
                     name: 'Information Technology Department',
                     badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
                 };
             } else if (['lad', 'liberal_arts', 'arts'].includes(dept) || ['ab_philo', 'ab_phil'].includes(course)) {
                 return {
-                    cover: 'EDUC.webp',
+                    cover: 'LIBERAL_ARTS.jpg',
                     name: 'Liberal Arts Department',
                     badgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200'
                 };
             } else if (dept === 'nursing' || course === 'bsn') {
                 return {
-                    cover: 'NURSING.webp',
+                    cover: 'NURSING.jpg',
                     name: 'Nursing Department',
                     badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 };
@@ -466,56 +466,56 @@
             // 2. Keyword heuristic fallback if department is unspecified
             if (title.includes('patient') || title.includes('nursing')) {
                 return {
-                    cover: 'NURSING.webp',
+                    cover: 'NURSING.jpg',
                     name: 'Nursing Department (NURSING)',
                     badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 };
             }
             if (title.includes('civil') || title.includes('engineer') || title.includes('marine') || title.includes('vessel')) {
                 return {
-                    cover: 'MARINE.webp',
+                    cover: 'ENGINEERING.jpg',
                     name: 'Engineering Department (ENG)',
                     badgeBg: 'bg-cyan-50 text-cyan-800 border-cyan-200'
                 };
             }
             if (title.includes('criminology') || title.includes('police') || title.includes('crime')) {
                 return {
-                    cover: 'CRIM.webp',
+                    cover: 'CRIMINAL_JUSTICE.jpg',
                     name: 'Criminal Justice Education Department (CJED)',
                     badgeBg: 'bg-red-50 text-red-700 border-red-200'
                 };
             }
             if (title.includes('account') || title.includes('business') || title.includes('hotel') || title.includes('hospitality')) {
                 return {
-                    cover: 'HM.webp',
+                    cover: 'BUSINESS.jpg',
                     name: 'Business Education Department',
                     badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
                 };
             }
             if (title.includes('teach') || title.includes('educat') || title.includes('curriculum')) {
                 return {
-                    cover: 'EDUC.webp',
+                    cover: 'TEACHER_EDUCATION.jpg',
                     name: 'Department of Teacher Education',
                     badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
                 };
             }
             if (title.includes('philosophy') || title.includes('ethics') || title.includes('liberal')) {
                 return {
-                    cover: 'EDUC.webp',
+                    cover: 'LIBERAL_ARTS.jpg',
                     name: 'Liberal Arts Department',
                     badgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200'
                 };
             }
             if (title.includes('system') || title.includes('app') || title.includes('web') || title.includes('software')) {
                 return {
-                    cover: 'IT.webp',
+                    cover: 'IT.jpg',
                     name: 'Information Technology Department',
                     badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
                 };
             }
 
             return {
-                cover: 'IT.webp',
+                cover: 'IT.jpg',
                 name: 'Academic Research',
                 badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20'
             };
