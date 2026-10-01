@@ -22,9 +22,9 @@
         id="floatingAiBtn"
         type="button"
         onclick="toggleFloatingAiChat()"
-        title="Open AI Assistant"
-        aria-label="Open AI Assistant"
-        class="relative w-14 h-14 rounded-full bg-[#700000] text-[#FFD700] shadow-2xl border-2 border-[#FFD700] hover:bg-[#850000] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer focus:outline-none">
+        title="Open AIRIS AI Assistant"
+        aria-label="Open AIRIS AI Assistant"
+        class="relative w-14 h-14 rounded-full bg-[#0A2549] text-[#CBA144] shadow-2xl border-2 border-[#CBA144] hover:bg-[#123668] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer focus:outline-none">
         
         <!-- Open Icon -->
         <span id="floatingAiIconOpen" class="flex items-center justify-center transition-transform duration-300 group-hover:rotate-12">
@@ -49,16 +49,17 @@
     style="box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25);">
 
     <!-- Header (Messenger Style Gradient) -->
-    <div class="px-4 py-3 bg-gradient-to-r from-[#690000] via-[#700000] to-[#8a0000] text-white flex items-center justify-between shadow-xs shrink-0">
+    <div class="px-4 py-3 bg-gradient-to-r from-[#071933] via-[#0A2549] to-[#123668] text-white flex items-center justify-between shadow-xs shrink-0 border-b border-[#14325c]">
         <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-9 h-9 rounded-2xl bg-white/15 border border-[#FFD700]/50 text-[#FFD700] flex items-center justify-center shrink-0 shadow-inner">
+            <div class="w-9 h-9 rounded-2xl bg-white/15 border border-[#CBA144]/60 text-[#CBA144] flex items-center justify-center shrink-0 shadow-inner">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                 </svg>
             </div>
             <div class="min-w-0">
                 <h3 class="text-xs sm:text-sm font-bold text-white tracking-wide truncate flex items-center gap-1.5">
-                    <span>SAC AI Assistant</span>
+                    <span class="text-[#CBA144]">AIRIS</span>
+                    <span class="text-slate-200">AI Assistant</span>
                 </h3>
             </div>
         </div>
@@ -70,7 +71,7 @@
                 type="button"
                 onclick="clearFloatingAiChat()"
                 title="Start New Conversation"
-                class="p-1.5 rounded-xl text-amber-200 hover:text-white hover:bg-white/10 transition cursor-pointer">
+                class="p-1.5 rounded-xl text-[#CBA144] hover:text-white hover:bg-white/10 transition cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>
@@ -81,7 +82,7 @@
                 type="button"
                 onclick="toggleFloatingAiChat()"
                 title="Minimize"
-                class="p-1.5 rounded-xl text-amber-200 hover:text-white hover:bg-white/10 transition cursor-pointer">
+                class="p-1.5 rounded-xl text-[#CBA144] hover:text-white hover:bg-white/10 transition cursor-pointer">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -95,13 +96,13 @@
         <!-- Welcome Card -->
         <div id="floatingAiWelcomeCard" class="space-y-3">
             <div class="flex items-start gap-2.5">
-                <div class="w-7 h-7 rounded-xl bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                <div class="w-7 h-7 rounded-xl bg-[#0A2549] text-[#CBA144] flex items-center justify-center shrink-0 shadow-xs mt-0.5">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                     </svg>
                 </div>
                 <div class="flex-1 bg-white border border-gray-200/90 rounded-2xl rounded-tl-xs p-3.5 shadow-xs text-gray-800 leading-relaxed">
-                    <p class="font-bold text-[#700000]">Hello! I'm your SAC Thesis AI.</p>
+                    <p class="font-bold text-[#0A2549]">Hello! I'm your AIRIS Research AI.</p>
                     <p class="mt-1 text-gray-600 text-xs">
                         Ask me any research questions about thesis topics, methodologies, or findings in St. Anthony's College.
                     </p>
@@ -114,19 +115,19 @@
                 <button
                     type="button"
                     onclick="sendFloatingSuggested('What IoT and computer vision capstone theses are available?')"
-                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-2xs transition cursor-pointer">
+                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#CBA144] hover:text-[#0A2549] hover:shadow-2xs transition cursor-pointer">
                     💡 What IoT capstone theses are available?
                 </button>
                 <button
                     type="button"
                     onclick="sendFloatingSuggested('Explain the common methodologies used in recent IT theses.')"
-                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-2xs transition cursor-pointer">
+                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#CBA144] hover:text-[#0A2549] hover:shadow-2xs transition cursor-pointer">
                     📊 Explain common IT research methodologies
                 </button>
                 <button
                     type="button"
                     onclick="sendFloatingSuggested('Recommend healthcare or nursing capstone research topics.')"
-                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-2xs transition cursor-pointer">
+                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#CBA144] hover:text-[#0A2549] hover:shadow-2xs transition cursor-pointer">
                     🏥 Recommend healthcare research topics
                 </button>
             </div>
@@ -137,10 +138,10 @@
 
         <!-- Typing Indicator -->
         <div id="floatingAiTyping" class="hidden items-center gap-2 text-xs text-gray-400 pl-2">
-            <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse"></span>
-            <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse delay-150"></span>
-            <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse delay-300"></span>
-            <span class="text-[11px] text-gray-500 font-medium ml-1">Searching repository...</span>
+            <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse"></span>
+            <span class="w-2 h-2 rounded-full bg-[#CBA144] animate-pulse delay-150"></span>
+            <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse delay-300"></span>
+            <span class="text-[11px] text-gray-500 font-medium ml-1">Searching AIRIS repository...</span>
         </div>
     </div>
 
@@ -151,21 +152,21 @@
                 id="floatingAiInput"
                 type="text"
                 autocomplete="off"
-                placeholder="Ask a research question..."
-                class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-11 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs transition">
+                placeholder="Ask an AIRIS research question..."
+                class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-11 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#CBA144] focus:ring-1 focus:ring-[#CBA144]/50 shadow-2xs transition">
 
             <button
                 id="floatingAiSendBtn"
                 type="submit"
                 title="Send Message"
-                class="absolute right-1.5 p-2 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] transition disabled:opacity-40 cursor-pointer shadow-xs">
+                class="absolute right-1.5 p-2 rounded-xl bg-[#0A2549] text-[#CBA144] hover:bg-[#123668] transition disabled:opacity-40 cursor-pointer shadow-xs border border-[#CBA144]/40">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                 </svg>
             </button>
         </form>
         <p class="text-[9px] text-gray-400 text-center mt-1.5">
-            St. Anthony's College Repository • Powered by Gemini AI
+            AIRIS • St. Anthony's College Repository • Powered by Gemini AI
         </p>
     </div>
 
@@ -285,7 +286,7 @@
         const userBubble = document.createElement('div');
         userBubble.className = 'flex justify-end';
         userBubble.innerHTML = `
-            <div class="max-w-[85%] rounded-2xl rounded-tr-xs bg-[#700000] text-white px-3.5 py-2 text-xs sm:text-sm font-medium shadow-xs leading-relaxed">
+            <div class="max-w-[85%] rounded-2xl rounded-tr-xs bg-[#0A2549] text-white px-3.5 py-2 text-xs sm:text-sm font-medium shadow-xs leading-relaxed border border-[#CBA144]/20">
                 ${escapeHtml(question)}
             </div>
         `;
@@ -342,7 +343,7 @@
             const aiBubble = document.createElement('div');
             aiBubble.className = 'flex items-start gap-2';
             aiBubble.innerHTML = `
-                <div class="w-6 h-6 rounded-xl bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                <div class="w-6 h-6 rounded-xl bg-[#0A2549] text-[#CBA144] flex items-center justify-center shrink-0 shadow-2xs mt-0.5 border border-[#CBA144]/30">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                     </svg>

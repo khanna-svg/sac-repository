@@ -5,18 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Thesis Submissions Review - SAC Admin</title>
+    <title>Thesis Submissions Review - AIRIS Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
-    <link rel="icon" href="https://sac.campus-erp.com/Student/images/sac.png" type="image/png">
+    <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
-    {{-- SAC PORTAL TOP HEADER --}}
+    {{-- AIRIS PORTAL TOP HEADER --}}
     @include('partials.header', ['title' => 'REVIEW SUBMISSIONS'])
 
     @include('partials.sidebar')
@@ -28,7 +28,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <nav class="flex items-center gap-2 text-xs font-semibold text-gray-500">
-                        <a href="{{ route('admin.analytics') }}" class="hover:text-[#700000] flex items-center gap-1.5 transition">
+                        <a href="{{ route('admin.analytics') }}" class="hover:text-[#0A2549] flex items-center gap-1.5 transition">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                             </svg>
@@ -52,7 +52,7 @@
                         type="button"
                         onclick="switchTab('pending')"
                         id="tab-pending"
-                        class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#700000] shadow-xs">
+                        class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#0A2549] shadow-xs">
                         <span>Pending Screening</span>
                         <span class="font-normal opacity-80">(<span id="badge-pending">0</span>)</span>
                     </button>
@@ -94,7 +94,7 @@
                         id="submissionSearchInput"
                         oninput="handleSearch(this.value)"
                         placeholder="Search title, author, or student email..."
-                        class="w-full rounded-2xl border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
+                        class="w-full rounded-2xl border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#0A2549] focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs">
                 </div>
             </div>
 
@@ -113,7 +113,7 @@
                     <tbody id="submissionsTableBody" class="divide-y divide-gray-100 text-xs sm:text-sm">
                         <tr>
                             <td colspan="5" class="py-12 text-center text-gray-500">
-                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#700000] border-t-transparent mb-2"></div>
+                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#0A2549] border-t-transparent mb-2"></div>
                                 <p class="font-medium">Loading submissions...</p>
                             </td>
                         </tr>
@@ -245,7 +245,7 @@
                         rows="4"
                         required
                         placeholder="e.g. Turnitin similarity index is 28% (exceeds the 15% threshold). Please paraphrase Chapter 2 (Literature Review) and verify in-text citations before resubmitting."
-                        class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 p-3.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs leading-relaxed"></textarea>
+                        class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 p-3.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#0A2549] focus:bg-white focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs leading-relaxed"></textarea>
                 </div>
 
                 <div class="rounded-xl bg-amber-50 border border-amber-200 p-2.5 text-[11px] text-amber-800 flex items-center gap-2">
@@ -292,7 +292,7 @@
                         href="#"
                         target="_blank"
                         title="Download Softcopy for Turnitin / Grammarly"
-                        class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#FFD700] transition flex items-center gap-1.5 text-xs font-bold">
+                        class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#CBA144] transition flex items-center gap-1.5 text-xs font-bold">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                         </svg>
@@ -309,7 +309,7 @@
             <!-- PDF Viewer Canvas Container with On-Scroll Lazy Loading -->
             <div id="pdfViewerScroll" class="flex-1 overflow-y-auto p-4 flex flex-col items-center gap-6 bg-slate-900 relative">
                 <div id="pdfViewerLoading" class="py-12 flex flex-col items-center justify-center gap-2">
-                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#FFD700] border-t-transparent"></div>
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#CBA144] border-t-transparent"></div>
                     <span class="text-xs text-gray-400">Rendering manuscript pages...</span>
                 </div>
                 <div id="pdfCanvasWrapper" class="flex flex-col items-center gap-6 w-full max-w-3xl"></div>
@@ -388,7 +388,7 @@
             });
             const activeBtn = document.getElementById(`tab-${tab}`);
             if (activeBtn) {
-                activeBtn.className = 'tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#700000] shadow-xs';
+                activeBtn.className = 'tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#0A2549] shadow-xs';
             }
             fetchSubmissions();
         }
@@ -405,7 +405,7 @@
             tbody.innerHTML = `
                 <tr>
                     <td colspan="5" class="py-12 text-center text-gray-500">
-                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#700000] border-t-transparent mb-2"></div>
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#0A2549] border-t-transparent mb-2"></div>
                         <p class="font-medium">Loading submissions...</p>
                     </td>
                 </tr>
@@ -497,9 +497,9 @@
                                 <p class="text-[11px] text-gray-400 mt-0.5">Submitted on ${formattedDate}</p>
                                 ${sub.admin_notes ? `
                                     <div class="mt-1.5 rounded-lg bg-slate-50 border border-gray-200 p-2 text-[11px] text-gray-700">
-                                        <span class="font-bold text-[#700000]">Reviewer Remarks:</span> ${escapeHtml(sub.admin_notes)}
-                                    </div>
-                                ` : ''}
+                                        <span class="font-bold text-[#0A2549]">Reviewer Remarks:</span> ${escapeHtml(sub.admin_notes)}
+                                     </div>
+                                 ` : ''}
                             </div>
                         </td>
 
@@ -529,7 +529,7 @@
                                     onclick="openPdfReader(${sub.id}, '${safeTitle}')"
                                     title="View / Preview PDF Manuscript"
                                     aria-label="View PDF"
-                                    class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
+                                    class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#0A2549] hover:bg-slate-100 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

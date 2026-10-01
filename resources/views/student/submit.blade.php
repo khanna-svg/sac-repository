@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Submit Thesis Manuscript - SAC Repository</title>
+    <title>Submit Thesis Manuscript - AIRIS</title>
 
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -24,7 +24,7 @@
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="https://sac.campus-erp.com/Student/images/sac.png" type="image/png">
+    <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
 
     <style>
         #progressContainer {
@@ -62,7 +62,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <nav class="flex items-center gap-2 text-xs font-semibold text-gray-500 mb-1">
-                        <a href="{{ route('documents') }}" class="hover:text-[#700000] flex items-center gap-1.5 transition">
+                        <a href="{{ route('documents') }}" class="hover:text-[#0A2549] flex items-center gap-1.5 transition">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
                             </svg>
@@ -211,7 +211,7 @@
                                 name="title"
                                 required
                                 placeholder="e.g. Automated Attendance System using Facial Recognition for SAC"
-                                class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-3 text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs font-medium">
+                                class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-3 text-sm text-gray-900 outline-none focus:border-[#0A2549] focus:bg-white focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs font-medium">
                         </div>
 
                         <!-- Author(s) -->
@@ -225,7 +225,7 @@
                                 name="author"
                                 required
                                 placeholder="e.g. John Doe, Jane Smith"
-                                class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
+                                class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-[#0A2549] focus:bg-white focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs">
                             <p class="text-[11px] text-gray-400 mt-1">Separate multiple authors with commas.</p>
                         </div>
 
@@ -240,7 +240,7 @@
                                     name="department"
                                     required
                                     onchange="handleDepartmentChange()"
-                                    class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs font-semibold cursor-pointer">
+                                    class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#0A2549] focus:bg-white focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs font-semibold cursor-pointer">
                                     <option value="" disabled selected>Select Department</option>
                                     <option value="bused">Business Education Department</option>
                                     <option value="cjed">Criminal Justice Education Department</option>
@@ -259,7 +259,7 @@
                                     id="course_code"
                                     name="course_code"
                                     required
-                                    class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs font-semibold cursor-pointer">
+                                    class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#0A2549] focus:bg-white focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs font-semibold cursor-pointer">
                                     <option value="" disabled selected>Select Program</option>
                                 </select>
                             </div>
@@ -276,7 +276,7 @@
                                 rows="4"
                                 required
                                 placeholder="Paste your complete research abstract here..."
-                                class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 p-4 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs leading-relaxed"></textarea>
+                                class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 p-4 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#0A2549] focus:bg-white focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs leading-relaxed"></textarea>
                         </div>
 
                         <!-- PDF Manuscript File Upload Dropzone -->
@@ -288,7 +288,7 @@
                             <div
                                 id="dropzoneContainer"
                                 onclick="document.getElementById('pdf').click()"
-                                class="border-2 border-dashed border-gray-300 hover:border-[#700000] rounded-3xl p-6 text-center cursor-pointer bg-slate-50/50 hover:bg-rose-50/20 transition group">
+                                class="border-2 border-dashed border-gray-300 hover:border-[#0A2549] rounded-3xl p-6 text-center cursor-pointer bg-slate-50/50 hover:bg-slate-100 transition group">
                                 <input
                                     type="file"
                                     id="pdf"
@@ -297,7 +297,7 @@
                                     class="hidden"
                                     onchange="handleFileSelected(this.files[0])">
                                 <div class="flex flex-col items-center justify-center">
-                                    <div class="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-[#700000] text-[#700000] group-hover:text-[#FFD700] flex items-center justify-center transition mb-3 shadow-2xs">
+                                    <div class="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-[#0A2549] text-[#0A2549] group-hover:text-[#CBA144] flex items-center justify-center transition mb-3 shadow-2xs">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                                         </svg>
@@ -312,9 +312,9 @@
                             </div>
 
                             <!-- Selected File Badge Preview -->
-                            <div id="filePreviewCard" class="hidden items-center justify-between rounded-2xl bg-rose-50/80 border border-rose-200 p-3 mt-3">
+                            <div id="filePreviewCard" class="hidden items-center justify-between rounded-2xl bg-[#0A2549]/5 border border-[#0A2549]/20 p-3 mt-3">
                                 <div class="flex items-center gap-2.5 min-w-0">
-                                    <svg class="w-5 h-5 text-[#700000] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <svg class="w-5 h-5 text-[#0A2549] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                                     </svg>
                                     <div class="min-w-0">
@@ -334,10 +334,10 @@
                         <div id="progressContainer" class="space-y-2 pt-2">
                             <div class="flex justify-between text-xs font-bold text-gray-700">
                                 <span id="progressText">Extracting text & uploading...</span>
-                                <span id="progressPercent" class="font-mono text-[#700000]">0%</span>
+                                <span id="progressPercent" class="font-mono text-[#0A2549]">0%</span>
                             </div>
                             <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-100 border border-gray-200">
-                                <div id="progressBar" class="h-full bg-gradient-to-r from-[#700000] to-[#b80000] transition-all duration-300 w-0"></div>
+                                <div id="progressBar" class="h-full bg-gradient-to-r from-[#0A2549] to-[#CBA144] transition-all duration-300 w-0"></div>
                             </div>
                         </div>
 
@@ -348,7 +348,7 @@
                         <button
                             type="submit"
                             id="submitButton"
-                            class="w-full rounded-2xl bg-[#700000] py-3.5 px-6 text-sm font-bold text-[#FFD700] hover:bg-[#850000] transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
+                            class="w-full rounded-2xl bg-[#0A2549] py-3.5 px-6 text-sm font-bold text-[#CBA144] hover:bg-[#123668] transition shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                             </svg>
@@ -362,7 +362,7 @@
                     <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-xs">
                         <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
                             <div class="flex items-center gap-2">
-                                <svg class="w-5 h-5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <svg class="w-5 h-5 text-[#0A2549]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <h3 class="text-sm font-bold text-gray-900">My Submissions</h3>
@@ -505,7 +505,7 @@
                 <button
                     type="button"
                     onclick="window.location.reload()"
-                    class="w-full rounded-2xl bg-[#700000] py-3 text-xs sm:text-sm font-bold text-[#FFD700] hover:bg-[#850000] transition shadow-md cursor-pointer">
+                    class="w-full rounded-2xl bg-[#0A2549] py-3 text-xs sm:text-sm font-bold text-[#CBA144] hover:bg-[#123668] transition shadow-md cursor-pointer">
                     Done
                 </button>
             </div>
@@ -637,7 +637,7 @@
             const submitBtn = document.getElementById('submitButton');
             submitBtn.disabled = true;
             submitBtn.innerHTML = `
-                <svg class="w-4 h-4 animate-spin text-[#FFD700]" fill="none" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 animate-spin text-[#CBA144]" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>

@@ -85,11 +85,11 @@ class KnowledgeGraphController extends Controller
                     'shape' => 'box',
                     'margin' => 8,
                     'color' => [
-                        'background' => '#700000',
-                        'border' => '#FFD700',
+                        'background' => '#0A2549',
+                        'border' => '#CBA144',
                         'highlight' => [
-                            'background' => '#900000',
-                            'border' => '#FFD700'
+                            'background' => '#123668',
+                            'border' => '#dfb556'
                         ]
                     ],
                     'font' => [

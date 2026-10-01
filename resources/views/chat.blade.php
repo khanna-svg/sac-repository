@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>SAC Thesis System - AI Assistant</title>
+    <title>AIRIS - AI Research Assistant</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
@@ -22,11 +22,11 @@
         <!-- HEADER -->
         <header class="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 md:px-6 py-4 shadow-sm">
             <div>
-                <h1 class="text-base md:text-lg font-bold text-[#700000]">
-                    AI Assistant
+                <h1 class="text-base md:text-lg font-bold text-[#0A2549]">
+                    AIRIS AI Assistant
                 </h1>
                 <p class="mt-0.5 text-xs md:text-sm text-gray-500">
-                    Ask thesis related questions.
+                    Grounded in St. Anthony's College thesis research repository.
                 </p>
             </div>
 
@@ -50,8 +50,8 @@
             <!-- INITIAL AI MESSAGE -->
             <div class="flex items-start gap-3">
 
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center shadow-md">
-                    <svg class="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#0A2549] text-[#CBA144] flex-shrink-0 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                     </svg>
                 </div>
@@ -61,7 +61,7 @@
                     <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
 
                         <p class="text-sm text-gray-800 font-medium">
-                            Hi! I'm your RAG Thesis AI Assistant.
+                            Hi! I'm your AIRIS Thesis AI Assistant.
                         </p>
 
                         <p class="text-sm text-gray-600 mt-2 leading-relaxed">
@@ -72,8 +72,8 @@
 
                     </div>
 
-                    <div class="text-[10px] md:text-xs text-[#700000] mt-1.5 font-semibold">
-                        AI Thesis Assistant
+                    <div class="text-[10px] md:text-xs text-[#0A2549] mt-1.5 font-semibold">
+                        AIRIS Research Intelligence
                     </div>
 
                 </div>
@@ -97,14 +97,14 @@
                         rows="1"
                         required
                         placeholder="Ask a question..."
-                        class="w-full resize-none bg-slate-50 border border-gray-300 rounded-2xl px-4 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] leading-normal block shadow-sm"></textarea>
+                        class="w-full resize-none bg-slate-50 border border-gray-300 rounded-2xl px-4 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549] leading-normal block shadow-sm"></textarea>
 
                 </div>
 
                 <button
                     type="submit"
                     id="sendBtn"
-                    class="h-[46px] md:h-[48px] bg-[#700000] hover:bg-[#800000] disabled:bg-gray-200 disabled:text-gray-400 text-[#FFD700] font-bold px-5 md:px-6 rounded-2xl text-xs md:text-sm transition flex items-center justify-center gap-2 shrink-0 shadow-sm">
+                    class="h-[46px] md:h-[48px] bg-[#0A2549] hover:bg-[#123668] disabled:bg-gray-200 disabled:text-gray-400 text-[#CBA144] font-bold px-5 md:px-6 rounded-2xl text-xs md:text-sm transition flex items-center justify-center gap-2 shrink-0 shadow-sm">
 
                     <span id="sendBtnText">
                         Send
@@ -167,23 +167,23 @@
                 chatMessages.innerHTML = `
                     <!-- INITIAL AI MESSAGE -->
                     <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] shrink-0 flex items-center justify-center shadow-md">
-                            <svg class="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#0A2549] text-[#CBA144] shrink-0 flex items-center justify-center shadow-md">
+                            <svg class="w-5 h-5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                             </svg>
                         </div>
                         <div class="max-w-3xl">
                             <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
                                 <p class="text-sm text-gray-800 font-medium">
-                                    Hi! I'm your RAG Thesis AI Assistant.
+                                    Hi! I'm your AIRIS Thesis AI Assistant.
                                 </p>
                                 <p class="text-sm text-gray-600 mt-2 leading-relaxed">
                                     Ask me anything about the uploaded thesis papers.
                                     I'll search the repository and remember our conversation context to answer your follow-up questions!
                                 </p>
                             </div>
-                            <div class="text-[10px] md:text-xs text-[#700000] mt-1.5 font-semibold">
-                                AI Thesis Assistant
+                            <div class="text-[10px] md:text-xs text-[#0A2549] mt-1.5 font-semibold">
+                                AIRIS Research Intelligence
                             </div>
                         </div>
                     </div>
@@ -274,7 +274,7 @@
 
                 wrapper.innerHTML = `
                 <div class="max-w-xl md:max-w-3xl">
-                    <div class="bg-[#700000] rounded-2xl rounded-tr-md px-4 py-3 shadow-sm">
+                    <div class="bg-[#0A2549] rounded-2xl rounded-tr-md px-4 py-3 shadow-sm">
                         <p class="text-sm text-white whitespace-pre-wrap"></p>
                     </div>
                     <div class="text-[10px] md:text-xs text-gray-500 mt-1.5 text-right font-medium">
@@ -319,8 +319,8 @@
                 }
 
                 wrapper.innerHTML = `
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] shrink-0 flex items-center justify-center shadow-md">
-                    <svg class="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#0A2549] text-[#CBA144] shrink-0 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                     </svg>
                 </div>
@@ -332,8 +332,8 @@
                         </div>
                     </div>
 
-                    <div class="text-[10px] md:text-xs text-[#700000] mt-1.5 font-semibold">
-                        AI Thesis Assistant
+                    <div class="text-[10px] md:text-xs text-[#0A2549] mt-1.5 font-semibold">
+                        AIRIS Research Intelligence
                     </div>
                 </div>
             `;
@@ -364,8 +364,8 @@
 
                 wrapper.innerHTML = `
 
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#700000] text-[#FFD700] flex-shrink-0 flex items-center justify-center shadow-md">
-                    <svg class="w-5 h-5 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-[#0A2549] text-[#CBA144] flex-shrink-0 flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                     </svg>
                 </div>
@@ -376,18 +376,18 @@
 
                         <div class="flex items-center gap-1.5">
 
-                            <span class="w-2 h-2 bg-[#700000] rounded-full animate-bounce"></span>
+                            <span class="w-2 h-2 bg-[#0A2549] rounded-full animate-bounce"></span>
 
-                            <span class="w-2 h-2 bg-[#700000] rounded-full animate-bounce" style="animation-delay:.15s"></span>
+                            <span class="w-2 h-2 bg-[#0A2549] rounded-full animate-bounce" style="animation-delay:.15s"></span>
 
-                            <span class="w-2 h-2 bg-[#700000] rounded-full animate-bounce" style="animation-delay:.3s"></span>
+                            <span class="w-2 h-2 bg-[#0A2549] rounded-full animate-bounce" style="animation-delay:.3s"></span>
 
                         </div>
 
                     </div>
 
                     <div class="text-[10px] md:text-xs text-gray-500 mt-1.5 font-medium">
-                        AI Thesis Assistant is searching...
+                        AIRIS AI is searching...
                     </div>
 
                 </div>
@@ -515,7 +515,7 @@
                         'Thinking...';
 
                     sendBtnIcon.innerHTML = `
-                        <svg class="w-4 h-4 animate-spin text-[#FFD700]" fill="none" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 animate-spin text-[#CBA144]" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>

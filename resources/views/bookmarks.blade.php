@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Saved / Bookmarks - SAC Thesis Repository</title>
+    <title>Saved / Bookmarks - AIRIS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -94,7 +94,7 @@
         <div class="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl transition-all">
             <div class="flex items-center justify-between border-b border-gray-100 pb-4">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-sm">
+                    <div class="w-8 h-8 rounded-xl bg-[#0A2549] text-[#CBA144] flex items-center justify-center shrink-0 shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                         </svg>
@@ -112,14 +112,14 @@
             </div>
 
             <div class="mt-4 space-y-3">
-                <p id="modalDocTitle" class="text-xs font-bold text-[#700000] truncate"></p>
+                <p id="modalDocTitle" class="text-xs font-bold text-[#0A2549] truncate"></p>
                 <!-- Style Tabs -->
                 <div class="flex rounded-2xl bg-slate-100 p-1 border border-gray-200 gap-1">
                     <button
                         id="citeTabIeee"
                         type="button"
                         onclick="switchCitationStyle('ieee')"
-                        class="flex-1 py-2 text-xs font-bold rounded-xl transition shadow-xs bg-white text-[#700000]">
+                        class="flex-1 py-2 text-xs font-bold rounded-xl transition shadow-xs bg-white text-[#0A2549]">
                         IEEE (Standard)
                     </button>
                     <button
@@ -148,7 +148,7 @@
                 <button onclick="closeCitationModal()" class="rounded-xl px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 transition cursor-pointer">
                     Close
                 </button>
-                <button id="copyCitationBtn" onclick="copyCitationToClipboard()" class="rounded-xl bg-[#700000] px-5 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] transition shadow-md flex items-center gap-1.5 cursor-pointer">
+                <button id="copyCitationBtn" onclick="copyCitationToClipboard()" class="rounded-xl bg-[#0A2549] px-5 py-2.5 text-xs font-bold text-[#CBA144] hover:bg-[#123668] transition shadow-md flex items-center gap-1.5 cursor-pointer">
                     <svg id="copyBtnIcon" class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
@@ -167,7 +167,7 @@
         oncontextmenu="return false;">
 
         <!-- Top Reader Header -->
-        <div class="flex items-center justify-between px-4 md:px-6 py-3 bg-[#500000] text-white border-b border-[#700000] shadow-md shrink-0">
+        <div class="flex items-center justify-between px-4 md:px-6 py-3 bg-[#071933] text-white border-b border-[#14325c] shadow-md shrink-0">
             <div class="flex items-center gap-3 min-w-0 pr-4">
                 <h3 id="securePdfDocTitle" class="text-xs md:text-sm font-bold text-white truncate">
                     Protected Thesis Manuscript
@@ -229,7 +229,7 @@
         <div id="pdfScrollContainer" class="flex-1 overflow-y-auto p-4 md:p-8 flex flex-col items-center relative bg-slate-900 scroll-smooth">
             <!-- Loading Spinner -->
             <div id="pdfLoader" class="sticky top-20 flex flex-col items-center justify-center gap-3 bg-slate-950/90 p-6 rounded-2xl border border-white/10 z-20 shadow-2xl">
-                <svg class="w-8 h-8 animate-spin text-[#FFD700]" fill="none" viewBox="0 0 24 24">
+                <svg class="w-8 h-8 animate-spin text-[#CBA144]" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -257,23 +257,23 @@
         class="fixed inset-y-0 right-0 z-40 w-full sm:w-[420px] lg:w-[440px] xl:w-[480px] bg-white border-l border-gray-200 shadow-xl flex flex-col transition-transform duration-300 ease-in-out translate-x-full">
 
         <!-- Drawer Header -->
-        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-white">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-[#0A2549] text-white">
             <div class="flex items-center gap-2.5 min-w-0 pr-2">
-                <div class="w-8 h-8 rounded-xl bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-sm">
+                <div class="w-8 h-8 rounded-xl bg-[#071933] border border-[#14325c] text-[#CBA144] flex items-center justify-center shrink-0 shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                     </svg>
                 </div>
                 <div class="min-w-0">
-                    <h2 class="text-sm font-bold text-gray-900 truncate">Ask about this thesis</h2>
-                    <p id="aiDrawerDocTitle" class="text-[10px] text-gray-500 truncate">Select a thesis...</p>
+                    <h2 class="text-sm font-bold text-white truncate">Ask about this thesis</h2>
+                    <p id="aiDrawerDocTitle" class="text-[10px] text-slate-300 truncate">Select a thesis...</p>
                 </div>
             </div>
             <button
                 type="button"
                 onclick="closeBookmarkAiDrawer()"
                 aria-label="Close AI Drawer"
-                class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer">
+                class="p-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition cursor-pointer">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -286,7 +286,7 @@
             <!-- Initial Greeting & Quick Question Chips (YouTube Style) -->
             <div id="aiInitialCard" class="space-y-3.5">
                 <div class="flex items-start gap-2.5">
-                    <div class="w-6 h-6 rounded-lg bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                    <div class="w-6 h-6 rounded-lg bg-[#0A2549] text-[#CBA144] flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                         </svg>
@@ -306,28 +306,28 @@
                     <button
                         type="button"
                         onclick="sendBookmarkQuickQuestion('Summarize this thesis in 3 concise bullet points.')"
-                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#0A2549] hover:text-[#0A2549] hover:shadow-xs transition cursor-pointer">
                         📑 Summarize this thesis
                     </button>
 
                     <button
                         type="button"
                         onclick="sendBookmarkQuickQuestion('What is the main problem and objective of this research?')"
-                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#0A2549] hover:text-[#0A2549] hover:shadow-xs transition cursor-pointer">
                         🎯 What problem does this study solve?
                     </button>
 
                     <button
                         type="button"
                         onclick="sendBookmarkQuickQuestion('What methodology, tools, and technologies were used in this system?')"
-                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#0A2549] hover:text-[#0A2549] hover:shadow-xs transition cursor-pointer">
                         💻 What methodology and tech stack was used?
                     </button>
 
                     <button
                         type="button"
                         onclick="sendBookmarkQuickQuestion('What are the key conclusions, findings, and recommendations of this study?')"
-                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#0A2549] hover:text-[#0A2549] hover:shadow-xs transition cursor-pointer">
                         📊 What are the conclusions & findings?
                     </button>
                 </div>
@@ -338,10 +338,10 @@
 
             <!-- Typing Indicator -->
             <div id="aiDrawerTyping" class="hidden items-center gap-2 text-xs text-gray-400 pl-2">
-                <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse"></span>
-                <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse delay-150"></span>
-                <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse delay-300"></span>
-                <span class="text-[11px] text-gray-500 font-medium ml-1">Gemini is analyzing thesis...</span>
+                <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse"></span>
+                <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse delay-150"></span>
+                <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse delay-300"></span>
+                <span class="text-[11px] text-gray-500 font-medium ml-1">AIRIS AI is analyzing thesis...</span>
             </div>
         </div>
 
@@ -353,20 +353,20 @@
                     type="text"
                     placeholder="Ask a question..."
                     autocomplete="off"
-                    class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-12 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs">
+                    class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-12 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549] shadow-2xs">
 
                 <button
                     id="aiDrawerSendBtn"
                     type="submit"
                     title="Send question"
-                    class="absolute right-2 p-2 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] transition disabled:opacity-50 cursor-pointer shadow-sm">
+                    class="absolute right-2 p-2 rounded-xl bg-[#0A2549] text-[#CBA144] hover:bg-[#123668] transition disabled:opacity-50 cursor-pointer shadow-sm">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                     </svg>
                 </button>
             </form>
             <p class="text-[9px] text-gray-400 text-center mt-1.5">
-                Grounded in St. Anthony's College research • Powered by Gemini
+                AIRIS Research Intelligence • St. Anthony's College
             </p>
         </div>
 
@@ -410,7 +410,7 @@
 
         function handleImageError(imageElement) {
             imageElement.onerror = null;
-            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>SAC THESIS</text></svg>";
+            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%230A2549'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23CBA144' text-anchor='middle' dominant-baseline='middle'>AIRIS THESIS</text></svg>";
         }
 
         function getDepartmentDetails(deptVal, courseVal, titleVal) {
@@ -517,7 +517,7 @@
             return {
                 cover: 'IT.jpg',
                 name: 'Academic Research',
-                badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20'
+                badgeBg: 'bg-[#0A2549]/10 text-[#0A2549] border-[#0A2549]/20'
             };
         }
 
@@ -556,7 +556,7 @@
                         </div>
                         <h3 class="text-base font-bold text-gray-800">No saved thesis</h3>
                         <p class="mt-1 text-xs text-gray-500">When you bookmark a thesis in the repository, it will appear here for easy access.</p>
-                        <a href="/documents" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#800000] shadow-sm transition">
+                        <a href="/documents" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#0A2549] px-4 py-2.5 text-xs font-bold text-[#CBA144] hover:bg-[#123668] shadow-sm transition">
                             <span>Explore Thesis Repository</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -581,7 +581,7 @@
                 }) : '';
 
                 return `
-                    <article class="relative flex flex-col md:flex-row gap-5 rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-[#700000]/30 transition">
+                    <article class="relative flex flex-col md:flex-row gap-5 rounded-3xl border border-gray-200 bg-white p-5 md:p-6 shadow-sm hover:shadow-md hover:border-[#0A2549]/30 transition">
                         
                         <!-- Top-Right Active Yellow Bookmark Icon Button -->
                         <button
@@ -605,19 +605,19 @@
 
                         <div class="flex-1 min-w-0 pr-8">
                             <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 font-semibold">
-                                <span class="font-bold text-[#700000]">St. Anthony's College</span>
+                                <span class="font-bold text-[#0A2549]">St. Anthony's College</span>
                                 <span class="text-gray-300">•</span>
                                 <span class="text-gray-700">${escapeHtml(details.name)}</span>
                                 ${pubDateStr ? `<span class="text-gray-300">•</span><span class="text-gray-500 font-medium">${pubDateStr}</span>` : ''}
                             </div>
 
                             <h3 class="mt-2.5 text-base md:text-lg font-bold text-gray-900 transition">
-                                <a href="/documents/${doc.id}" class="hover:text-[#700000] hover:underline cursor-pointer">
+                                <a href="/documents/${doc.id}" class="hover:text-[#0A2549] hover:underline cursor-pointer">
                                     ${escapeHtml(doc.title)}
                                 </a>
                             </h3>
 
-                            <p class="mt-1 text-xs md:text-sm font-semibold text-[#700000]">
+                            <p class="mt-1 text-xs md:text-sm font-semibold text-[#0A2549]">
                                 by ${escapeHtml(doc.author || 'Unknown Author')}
                             </p>
 
@@ -630,7 +630,7 @@
                                     <button
                                         type="button"
                                         onclick="openCitationModal(${idx})"
-                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5">
+                                        class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#0A2549] hover:text-[#CBA144] hover:border-[#0A2549] transition flex items-center gap-1.5">
                                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                                         </svg>
@@ -640,8 +640,8 @@
                                     <button
                                         type="button"
                                         onclick="openBookmarkAiDrawer(${idx})"
-                                        class="group rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 cursor-pointer">
-                                        <svg class="w-3.5 h-3.5 shrink-0 text-[#700000] group-hover:text-[#FFD700] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        class="group rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#0A2549] hover:text-[#CBA144] hover:border-[#0A2549] transition flex items-center gap-1.5 cursor-pointer">
+                                        <svg class="w-3.5 h-3.5 shrink-0 text-[#0A2549] group-hover:text-[#CBA144] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                                         </svg>
                                         <span>Ask AI</span>
@@ -650,7 +650,7 @@
                                     <button
                                         type="button"
                                         onclick="openSecurePdfReader(${idx})"
-                                        class="rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#850000] transition flex items-center gap-1.5 shadow-sm">
+                                        class="rounded-xl bg-[#0A2549] px-4 py-2 text-xs font-bold text-[#CBA144] hover:bg-[#123668] transition flex items-center gap-1.5 shadow-sm">
                                         <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                                         </svg>
@@ -887,7 +887,7 @@
             const tabMla = document.getElementById('citeTabMla');
             const citationP = document.getElementById('citationText');
 
-            const activeClass = 'flex-1 py-2 text-xs font-bold rounded-xl transition shadow-xs bg-white text-[#700000]';
+            const activeClass = 'flex-1 py-2 text-xs font-bold rounded-xl transition shadow-xs bg-white text-[#0A2549]';
             const inactiveClass = 'flex-1 py-2 text-xs font-bold rounded-xl transition text-gray-600 hover:text-gray-900';
 
             if (tabIeee) tabIeee.className = style === 'ieee' ? activeClass : inactiveClass;
@@ -904,7 +904,7 @@
             let citation = '';
             if (style === 'apa') {
                 const apaAuthors = formatApaAuthors(author);
-                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. SAC Institutional Research Repository.`;
+                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. AIRIS Institutional Research Repository.`;
             } else if (style === 'mla') {
                 const mlaAuthors = formatMlaAuthors(author);
                 citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate thesis, St. Anthony's College, ${year}.`;
@@ -1024,7 +1024,7 @@
             const userBubble = document.createElement('div');
             userBubble.className = 'flex justify-end';
             userBubble.innerHTML = `
-                <div class="max-w-[85%] rounded-2xl rounded-tr-xs bg-[#700000] text-white px-4 py-2.5 text-xs sm:text-sm font-medium shadow-sm leading-relaxed">
+                <div class="max-w-[85%] rounded-2xl rounded-tr-xs bg-[#0A2549] text-white px-4 py-2.5 text-xs sm:text-sm font-medium shadow-sm leading-relaxed">
                     ${escapeHtml(question)}
                 </div>
             `;
@@ -1085,7 +1085,7 @@
                 }
 
                 aiBubble.innerHTML = `
-                    <div class="w-6 h-6 rounded-lg bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                    <div class="w-6 h-6 rounded-lg bg-[#0A2549] text-[#CBA144] flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                         </svg>
@@ -1190,7 +1190,7 @@
                     <div class="p-6 text-center text-red-400 bg-slate-900 rounded-2xl border border-red-500/30 max-w-sm mx-auto">
                         <p class="font-bold text-sm">Unable to render protected PDF</p>
                         <p class="text-xs text-gray-400 mt-1">Please try again later or check your network connection.</p>
-                        <button onclick="closeSecurePdfReader()" class="mt-4 px-4 py-2 rounded-xl bg-[#700000] text-[#FFD700] font-bold text-xs cursor-pointer">Close Reader</button>
+                        <button onclick="closeSecurePdfReader()" class="mt-4 px-4 py-2 rounded-xl bg-[#0A2549] text-[#CBA144] hover:bg-[#123668] transition font-bold text-xs cursor-pointer">Close Reader</button>
                     </div>
                 `;
             }

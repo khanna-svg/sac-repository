@@ -4,19 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Theses - SAC Thesis Repository</title>
+    <title>Manage Theses - AIRIS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="https://sac.campus-erp.com/Student/images/sac.png" type="image/png">
+    <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
 </head>
 
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col antialiased">
 
-    {{-- SAC PORTAL TOP HEADER --}}
+    {{-- AIRIS PORTAL TOP HEADER --}}
     @include('partials.header', ['title' => 'MANAGE THESIS'])
 
     @include('partials.sidebar')
@@ -29,7 +29,7 @@
                 <p class="text-xs text-gray-500 font-medium">View, archive, restore, or manage repository manuscripts</p>
             </div>
 
-            <a href="/admin/upload" class="rounded-2xl bg-[#700000] hover:bg-[#850000] text-[#FFD700] px-4 py-2 text-xs font-bold transition shadow-md flex items-center gap-2">
+            <a href="/admin/upload" class="rounded-2xl bg-[#0A2549] hover:bg-[#123668] text-[#CBA144] px-4 py-2 text-xs font-bold transition shadow-md flex items-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
@@ -44,12 +44,12 @@
             <div class="flex items-center justify-between border-b border-gray-200 pb-4">
                 <div class="inline-flex p-1.5 bg-slate-200/70 rounded-2xl gap-1">
                     <button type="button" onclick="switchTab('published')" id="tabBtnPublished"
-                        class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs bg-[#700000] text-[#FFD700] cursor-pointer">
+                        class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs bg-[#0A2549] text-[#CBA144] cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                         </svg>
                         <span>Published Theses</span>
-                        <span id="publishedTabBadge" class="ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#550000] text-amber-200">0</span>
+                        <span id="publishedTabBadge" class="ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#071933] text-[#CBA144]">0</span>
                     </button>
                     <button type="button" onclick="switchTab('archived')" id="tabBtnArchived"
                         class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-gray-600 hover:text-gray-900 cursor-pointer">
@@ -75,14 +75,14 @@
                         type="text"
                         oninput="onSearchChange()"
                         placeholder="Search by title, author, or program code..."
-                        class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-10 pr-4 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] transition">
+                        class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-10 pr-4 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549] transition">
                 </div>
 
                 <div class="flex items-center gap-3 w-full sm:w-auto shrink-0">
                     <select
                         id="adminDeptFilter"
                         onchange="loadTheses()"
-                        class="w-full sm:w-56 rounded-2xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] transition font-medium shadow-2xs">
+                        class="w-full sm:w-56 rounded-2xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-700 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549] transition font-medium shadow-2xs">
                         <option value="all">All Academic Departments</option>
                         <option value="bused">Business Education</option>
                         <option value="cjed">Criminal Justice Education</option>
@@ -113,7 +113,7 @@
                     <tbody id="thesesTableBody" class="divide-y divide-gray-100 text-xs sm:text-sm">
                         <tr>
                             <td colspan="4" class="py-12 text-center text-gray-500">
-                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#700000] border-t-transparent mb-2"></div>
+                                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#0A2549] border-t-transparent mb-2"></div>
                                 <p class="font-medium">Loading theses repository...</p>
                             </td>
                         </tr>
@@ -148,19 +148,19 @@
 
                 <div>
                     <label for="editTitle" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Thesis Title</label>
-                    <input id="editTitle" type="text" required class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
+                    <input id="editTitle" type="text" required class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549]">
                 </div>
 
                 <div>
                     <label for="editAuthor" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Author(s)</label>
-                    <input id="editAuthor" type="text" required class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
+                    <input id="editAuthor" type="text" required class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549]">
                     <p class="mt-0.5 text-[10px] text-gray-400">Separate multiple authors with commas</p>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                         <label for="editDepartment" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Department</label>
-                        <select id="editDepartment" required onchange="handleEditDeptChange(this.value)" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
+                        <select id="editDepartment" required onchange="handleEditDeptChange(this.value)" class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549]">
                             <option value="bused">Business Education Department</option>
                             <option value="cjed">Criminal Justice Education Department</option>
                             <option value="dte">Department of Teacher Education</option>
@@ -173,26 +173,26 @@
 
                     <div>
                         <label for="editCourseCode" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Degree Program</label>
-                        <select id="editCourseCode" required class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
+                        <select id="editCourseCode" required class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549]">
                         </select>
                     </div>
                 </div>
 
                 <div>
                     <label for="editPublicationDate" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Academic Year</label>
-                    <input id="editPublicationDate" type="month" required class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
+                    <input id="editPublicationDate" type="month" required class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549]">
                 </div>
 
                 <div>
                     <label for="editAbstract" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Abstract</label>
-                    <textarea id="editAbstract" rows="4" class="w-full rounded-xl border border-gray-300 bg-white p-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] leading-relaxed"></textarea>
+                    <textarea id="editAbstract" rows="4" class="w-full rounded-xl border border-gray-300 bg-white p-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549] leading-relaxed"></textarea>
                 </div>
 
                 <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
                     <button type="button" onclick="closeEditModal()" class="rounded-xl border border-gray-300 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition cursor-pointer">
                         Cancel
                     </button>
-                    <button type="submit" id="saveEditBtn" class="rounded-xl bg-[#700000] hover:bg-[#850000] text-[#FFD700] px-5 py-2.5 text-xs font-bold transition shadow-md flex items-center gap-2 cursor-pointer">
+                    <button type="submit" id="saveEditBtn" class="rounded-xl bg-[#0A2549] hover:bg-[#123668] text-[#CBA144] px-5 py-2.5 text-xs font-bold transition shadow-md flex items-center gap-2 cursor-pointer">
                         <span>Save Changes</span>
                     </button>
                 </div>
@@ -305,7 +305,7 @@
                         href="#"
                         target="_blank"
                         title="Download Softcopy"
-                        class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#FFD700] transition flex items-center gap-1.5 text-xs font-bold">
+                        class="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-[#CBA144] transition flex items-center gap-1.5 text-xs font-bold">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                         </svg>
@@ -322,7 +322,7 @@
             <!-- PDF Viewer Canvas Container with On-Scroll Lazy Loading -->
             <div id="pdfViewerScroll" class="flex-1 overflow-y-auto p-4 flex flex-col items-center gap-6 bg-slate-900 relative">
                 <div id="pdfViewerLoading" class="py-12 flex flex-col items-center justify-center gap-2">
-                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#FFD700] border-t-transparent"></div>
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#CBA144] border-t-transparent"></div>
                     <span class="text-xs text-gray-400">Loading pages...</span>
                 </div>
                 <div id="pdfCanvasWrapper" class="flex flex-col items-center gap-6 w-full max-w-3xl"></div>
@@ -425,8 +425,8 @@
             const badgeArc = document.getElementById('archivedTabBadge');
 
             if (tab === 'published') {
-                btnPub.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs bg-[#700000] text-[#FFD700] cursor-pointer';
-                badgePub.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#550000] text-amber-200';
+                btnPub.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs bg-[#0A2549] text-[#CBA144] cursor-pointer';
+                badgePub.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#071933] text-[#CBA144]';
 
                 btnArc.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-gray-600 hover:text-gray-900 cursor-pointer';
                 badgeArc.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-300 text-gray-700';
@@ -449,7 +449,7 @@
             tbody.innerHTML = `
                 <tr>
                     <td colspan="4" class="py-12 text-center text-gray-500">
-                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#700000] border-t-transparent mb-2"></div>
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-[#0A2549] border-t-transparent mb-2"></div>
                         <p class="font-medium">Loading repository theses...</p>
                     </td>
                 </tr>
@@ -534,7 +534,7 @@
                     : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700">`;
 
                 const actionButtons = !isArchived ? `
-                    <button type="button" onclick="openPdfReader(${doc.id})" title="View Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
+                    <button type="button" onclick="openPdfReader(${doc.id})" title="View Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#0A2549] hover:bg-slate-100 transition cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -551,7 +551,7 @@
                         </svg>
                     </button>
                 ` : `
-                    <button type="button" onclick="openPdfReader(${doc.id})" title="View Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#700000] hover:bg-slate-100 transition cursor-pointer">
+                    <button type="button" onclick="openPdfReader(${doc.id})" title="View Thesis" class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-[#0A2549] hover:bg-slate-100 transition cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

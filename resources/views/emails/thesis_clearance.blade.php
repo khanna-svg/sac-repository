@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $subjectTitle ?? 'SAC Thesis Clearance Update' }}</title>
+    <title>{{ $subjectTitle ?? 'AIRIS Thesis Clearance Update' }}</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
 
@@ -14,17 +14,17 @@
                 <!-- Main Container Card -->
                 <table role="presentation" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
                     
-                    <!-- SAC Official Brand Header -->
+                    <!-- AIRIS Official Brand Header -->
                     <tr>
-                        <td style="background-color: #700000; padding: 24px 30px; text-align: left; border-bottom: 3px solid #FFD700;">
+                        <td style="background-color: #0A2549; padding: 24px 30px; text-align: left; border-bottom: 3px solid #CBA144;">
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td>
-                                        <h1 style="margin: 0; color: #FFD700; font-size: 18px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
-                                            St. Anthony's College
+                                        <h1 style="margin: 0; color: #CBA144; font-size: 18px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
+                                            AIRIS &bull; St. Anthony's College
                                         </h1>
                                         <p style="margin: 3px 0 0 0; color: #ffffff; font-size: 11px; font-weight: 500; opacity: 0.9; letter-spacing: 0.03em; text-transform: uppercase;">
-                                            Research &amp; Development Office &bull; Plagiarism Clearance System
+                                            Automated Institutional Research &amp; Information System &bull; Clearance Notification
                                         </p>
                                     </td>
                                 </tr>
@@ -38,7 +38,7 @@
                             
                             <!-- Greeting -->
                             <p style="margin: 0 0 16px 0; font-size: 15px; font-weight: 600; color: #334155;">
-                                Hello, <span style="color: #700000; font-weight: 700;">{{ $document->submitted_by_name ?: 'SAC Student' }}</span>
+                                Hello, <span style="color: #0A2549; font-weight: 700;">{{ $document->submitted_by_name ?: 'SAC Student' }}</span>
                             </p>
 
                             @if($type === 'passed')
@@ -183,7 +183,7 @@
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td align="center">
-                                        <a href="{{ url('/student/submit') }}" target="_blank" style="display: inline-block; background-color: #700000; color: #FFD700; font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(112, 0, 0, 0.2); letter-spacing: 0.02em;">
+                                        <a href="{{ url('/student/submit') }}" target="_blank" style="display: inline-block; background-color: #0A2549; color: #CBA144; font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(10, 37, 73, 0.2); letter-spacing: 0.02em;">
                                             {{ $type === 'resubmit' ? 'Revise & Resubmit Manuscript' : 'View in Student Portal' }} &rarr;
                                         </a>
                                     </td>
@@ -197,7 +197,7 @@
                     <tr>
                         <td style="background-color: #f1f5f9; padding: 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; line-height: 1.5;">
                             <p style="margin: 0 0 4px 0; font-weight: 600; color: #475569;">
-                                St. Anthony's College &bull; Institutional Research Repository
+                                AIRIS &bull; St. Anthony's College Research Repository
                             </p>
                             <p style="margin: 0 0 6px 0;">
                                 San Jose de Buenavista, Antique, Philippines
