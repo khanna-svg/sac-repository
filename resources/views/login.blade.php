@@ -37,16 +37,16 @@
 
     <!-- Blurred Background Layer -->
     <div class="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat blur-sm scale-105"
-         style="background-image: linear-gradient(rgba(10, 37, 73, 0.78), rgba(7, 25, 51, 0.88)), url('/images/campus.jpg');">
+         style="background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/images/campus.jpg');">
     </div>
 
     <!-- Login Container -->
-    <main class="w-full max-w-sm sm:max-w-md rounded-3xl border border-[#CBA144]/30 bg-[#0A2549]/70 backdrop-blur-xl p-6 sm:p-8 shadow-2xl text-white"> 
+    <main class="w-full max-w-sm sm:max-w-md rounded-3xl border border-white/20 bg-black/45 backdrop-blur-xl p-6 sm:p-8 shadow-2xl text-white"> 
         <div class="mb-6 sm:mb-8 text-center">
             <div class="flex items-center justify-center mb-4">
                 <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white p-2 shadow-xl border-2 border-[#CBA144]/50 flex items-center justify-center">
                     <img 
-                        src="{{ asset('images/airis-logo.png') }}"
+                        src="{{ asset('images/sarchive-logo.png') }}"
                         alt="SArchive Logo"
                         class="w-full h-full object-contain"
                     >
@@ -56,7 +56,6 @@
                 SArchive
             </h1>
             <p class="mt-1 text-xs sm:text-sm text-slate-200 font-semibold tracking-wide">AI-Powered Institutional Research Repository</p>
-            <p class="mt-0.5 text-[11px] text-[#CBA144]/80 font-bold uppercase tracking-widest">St. Anthony's College</p>
         </div>
 
         <!-- Role Toggle Tabs -->
@@ -212,7 +211,7 @@
                 <button 
                     type="submit" 
                     class="w-full rounded-2xl bg-[#0A2549] py-3 text-xs sm:text-sm font-bold text-[#CBA144] hover:bg-[#123668] transition shadow-xl border border-[#CBA144]/40 flex items-center justify-center gap-2 cursor-pointer mt-2">
-                    <span>Sign In as Admin</span>
+                    <span>Sign in</span>
                 </button>
             </form>
         </div>
@@ -220,7 +219,7 @@
 
     <div>
         <footer class="absolute bottom-4 inset-x-0 text-center text-xs text-white/70 drop-shadow-sm px-4">
-            <p>© 2026 SArchive • St. Anthony's College</p>
+            <p>© 2026 • SArchive</p>
         </footer>
     </div>
 
