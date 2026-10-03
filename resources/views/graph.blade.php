@@ -87,19 +87,31 @@
         </div>
 
         <!-- Legend Banner -->
-        <div class="border-b border-gray-200 bg-slate-100/70 px-4 md:px-8 py-2 flex items-center gap-2.5 overflow-x-auto text-[11px] font-medium text-gray-600">
-            <span class="font-bold text-gray-700 uppercase tracking-wider text-[10px] shrink-0">Legend:</span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 rounded bg-[#0A2549] border border-[#CBA144]"></span> Thesis Papers
+        <div class="border-b border-gray-200 bg-slate-100/80 px-4 md:px-8 py-2 flex items-center gap-2 md:gap-3 overflow-x-auto text-[11px] font-medium text-gray-700 select-none">
+            <span class="font-bold text-gray-700 uppercase tracking-wider text-[10px] shrink-0 mr-0.5">Legend:</span>
+            
+            <!-- Thesis Papers -->
+            <span class="inline-flex items-center gap-2 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span style="background-color: #0A2549; border: 1.5px solid #CBA144;" class="w-3.5 h-3.5 rounded-xs inline-block shrink-0 shadow-2xs"></span>
+                <span class="font-semibold text-gray-800">Thesis Papers</span>
             </span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 rounded-full bg-[#7c3aed]"></span> Concepts & Topics
+
+            <!-- Concepts & Topics -->
+            <span class="inline-flex items-center gap-2 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span style="background-color: #7c3aed; border: 1.5px solid #c084fc; border-radius: 6px;" class="w-3.5 h-3.5 inline-block shrink-0 shadow-2xs"></span>
+                <span class="font-semibold text-gray-800">Concepts & Topics</span>
             </span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 rounded-sm bg-[#0891b2]"></span> Methodology & Design
+
+            <!-- Methodology & Design -->
+            <span class="inline-flex items-center gap-2 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span style="background-color: #0891b2; border: 1.5px solid #67e8f9; border-radius: 3px;" class="w-3.5 h-3.5 inline-block shrink-0 shadow-2xs"></span>
+                <span class="font-semibold text-gray-800">Methodology & Design</span>
             </span>
-            <span class="inline-flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span class="w-2.5 h-2.5 rounded bg-[#059669]"></span> Tech Stack & Tools
+
+            <!-- Tech Stack & Tools -->
+            <span class="inline-flex items-center gap-2 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
+                <span style="background-color: #059669; border: 1.5px solid #34d399; border-radius: 3px;" class="w-3.5 h-3.5 inline-block shrink-0 shadow-2xs"></span>
+                <span class="font-semibold text-gray-800">Tech Stack & Tools</span>
             </span>
         </div>
 
@@ -159,7 +171,7 @@
                 <!-- Drawer Header -->
                 <div class="border-b border-gray-100 p-4 bg-slate-50 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
-                        <span id="drawerBadge" class="text-xs font-bold text-[#0A2549] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 border border-amber-200">
+                        <span id="drawerBadge" style="background-color: #0A2549; color: #FFFFFF; border: 1.5px solid #CBA144;" class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg">
                             Thesis Details
                         </span>
                     </div>
@@ -259,10 +271,59 @@
                 const options = {
                     nodes: {
                         shape: 'box',
-                        font: { face: 'sans-serif', size: 11 },
+                        font: { face: 'sans-serif', size: 11, color: '#ffffff' },
                         borderWidth: 2,
                         shadow: true,
                         margin: 8
+                    },
+                    groups: {
+                        thesis: {
+                            color: {
+                                background: '#0A2549',
+                                border: '#CBA144',
+                                highlight: { background: '#123668', border: '#dfb556' },
+                                hover: { background: '#123668', border: '#dfb556' }
+                            },
+                            shape: 'box',
+                            borderWidth: 2,
+                            font: { color: '#ffffff', size: 11, bold: true, face: 'sans-serif' }
+                        },
+                        concept: {
+                            color: {
+                                background: '#7c3aed',
+                                border: '#c084fc',
+                                highlight: { background: '#6d28d9', border: '#d8b4fe' },
+                                hover: { background: '#6d28d9', border: '#d8b4fe' }
+                            },
+                            shape: 'box',
+                            shapeProperties: { borderRadius: 16 },
+                            borderWidth: 1.5,
+                            font: { color: '#ffffff', size: 10, bold: true, face: 'sans-serif' }
+                        },
+                        methodology: {
+                            color: {
+                                background: '#0891b2',
+                                border: '#67e8f9',
+                                highlight: { background: '#0e7490', border: '#a5f3fc' },
+                                hover: { background: '#0e7490', border: '#a5f3fc' }
+                            },
+                            shape: 'box',
+                            shapeProperties: { borderRadius: 8 },
+                            borderWidth: 1.5,
+                            font: { color: '#ffffff', size: 10, bold: true, face: 'sans-serif' }
+                        },
+                        tech_stack: {
+                            color: {
+                                background: '#059669',
+                                border: '#34d399',
+                                highlight: { background: '#047857', border: '#6ee7b7' },
+                                hover: { background: '#047857', border: '#6ee7b7' }
+                            },
+                            shape: 'box',
+                            shapeProperties: { borderRadius: 8 },
+                            borderWidth: 1.5,
+                            font: { color: '#ffffff', size: 10, bold: true, face: 'sans-serif' }
+                        }
                     },
                     edges: {
                         width: 1.5,
@@ -271,7 +332,7 @@
                             roundness: 0.2
                         },
                         font: { size: 9, align: 'middle', color: '#94a3b8' },
-                        color: { color: '#cbd5e1', highlight: '#0A2549' },
+                        color: { color: '#cbd5e1', highlight: '#0A2549', hover: '#0A2549' },
                         arrows: { to: { enabled: true, scaleFactor: 0.5 } }
                     },
                     physics: {
@@ -605,7 +666,10 @@
             if (meta.type === 'thesis') {
                 // THESIS NODE DETAILS
                 drawerBadge.textContent = 'THESIS DETAILS';
-                drawerBadge.className = 'text-xs font-bold text-[#0A2549] uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 border border-amber-200';
+                drawerBadge.className = 'text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg';
+                drawerBadge.style.backgroundColor = '#0A2549';
+                drawerBadge.style.color = '#FFFFFF';
+                drawerBadge.style.border = '1.5px solid #CBA144';
                 
                 drawerTitle.textContent = meta.full_title || 'Untitled Thesis';
                 drawerSubtitle.textContent = meta.author ? 'By ' + meta.author : 'SAC Researchers';
@@ -657,18 +721,24 @@
             } else {
                 // CONCEPT / METHODOLOGY / TECH STACK NODE DETAILS
                 let badgeLabel = 'RESEARCH CONCEPT';
-                let badgeClass = 'text-xs font-bold text-purple-700 uppercase tracking-wider px-2 py-0.5 rounded bg-purple-50 border border-purple-200';
+                let bgColor = '#7c3aed';
+                let borderColor = '#c084fc';
 
                 if (meta.type === 'methodology') {
                     badgeLabel = 'RESEARCH METHODOLOGY';
-                    badgeClass = 'text-xs font-bold text-cyan-800 uppercase tracking-wider px-2 py-0.5 rounded bg-cyan-50 border border-cyan-200';
+                    bgColor = '#0891b2';
+                    borderColor = '#67e8f9';
                 } else if (meta.type === 'tech_stack') {
                     badgeLabel = 'TECH STACK & TOOLS';
-                    badgeClass = 'text-xs font-bold text-emerald-800 uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 border border-emerald-200';
+                    bgColor = '#059669';
+                    borderColor = '#34d399';
                 }
 
                 drawerBadge.textContent = badgeLabel;
-                drawerBadge.className = badgeClass;
+                drawerBadge.className = 'text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg';
+                drawerBadge.style.backgroundColor = bgColor;
+                drawerBadge.style.color = '#FFFFFF';
+                drawerBadge.style.border = `1.5px solid ${borderColor}`;
 
                 drawerTitle.textContent = meta.name || 'Research Topic';
                 const count = (meta.theses || []).length;

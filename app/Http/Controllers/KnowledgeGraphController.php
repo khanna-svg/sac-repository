@@ -90,6 +90,10 @@ class KnowledgeGraphController extends Controller
                         'highlight' => [
                             'background' => '#123668',
                             'border' => '#dfb556'
+                        ],
+                        'hover' => [
+                            'background' => '#123668',
+                            'border' => '#dfb556'
                         ]
                     ],
                     'font' => [
@@ -136,6 +140,10 @@ class KnowledgeGraphController extends Controller
                             'highlight' => [
                                 'background' => '#6d28d9',
                                 'border' => '#d8b4fe'
+                            ],
+                            'hover' => [
+                                'background' => '#6d28d9',
+                                'border' => '#d8b4fe'
                             ]
                         ],
                         'font' => [
@@ -157,7 +165,7 @@ class KnowledgeGraphController extends Controller
                     'from' => $docNodeId,
                     'to' => $conceptNodeId,
                     'label' => 'concept',
-                    'color' => ['color' => '#c084fc', 'highlight' => '#7c3aed'],
+                    'color' => ['color' => '#c084fc', 'highlight' => '#7c3aed', 'hover' => '#7c3aed'],
                     'arrows' => 'to'
                 ];
             }
@@ -178,6 +186,10 @@ class KnowledgeGraphController extends Controller
                             'background' => '#0891b2',
                             'border' => '#67e8f9',
                             'highlight' => [
+                                'background' => '#0e7490',
+                                'border' => '#a5f3fc'
+                            ],
+                            'hover' => [
                                 'background' => '#0e7490',
                                 'border' => '#a5f3fc'
                             ]
@@ -201,7 +213,7 @@ class KnowledgeGraphController extends Controller
                     'from' => $docNodeId,
                     'to' => $methodNodeId,
                     'label' => 'method',
-                    'color' => ['color' => '#67e8f9', 'highlight' => '#0891b2'],
+                    'color' => ['color' => '#67e8f9', 'highlight' => '#0891b2', 'hover' => '#0891b2'],
                     'arrows' => 'to'
                 ];
             }
@@ -222,6 +234,10 @@ class KnowledgeGraphController extends Controller
                             'background' => '#059669',
                             'border' => '#34d399',
                             'highlight' => [
+                                'background' => '#047857',
+                                'border' => '#6ee7b7'
+                            ],
+                            'hover' => [
                                 'background' => '#047857',
                                 'border' => '#6ee7b7'
                             ]
@@ -245,7 +261,7 @@ class KnowledgeGraphController extends Controller
                     'from' => $docNodeId,
                     'to' => $techNodeId,
                     'label' => 'tech stack',
-                    'color' => ['color' => '#34d399', 'highlight' => '#059669'],
+                    'color' => ['color' => '#34d399', 'highlight' => '#059669', 'hover' => '#059669'],
                     'arrows' => 'to'
                 ];
             }
