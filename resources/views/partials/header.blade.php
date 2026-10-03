@@ -96,9 +96,6 @@
                     <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-2">
                         <div class="flex items-center gap-2">
                             <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Notifications</h3>
-                            <span id="headerNotifDropdownBadge" class="{{ $initialNotifCount > 0 ? '' : 'hidden' }} text-[10px] font-bold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full">
-                                {{ $initialNotifCount > 0 ? "{$initialNotifCount} new" : '' }}
-                            </span>
                         </div>
                         <button
                             type="button"

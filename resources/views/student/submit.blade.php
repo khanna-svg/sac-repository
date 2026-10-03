@@ -497,9 +497,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                 </svg>
             </div>
-            <h3 class="text-lg font-black text-gray-900">Submission Received!</h3>
+            <h3 class="text-lg font-black text-gray-900">Submission Successfully Uploaded!</h3>
             <p id="successModalMessage" class="text-xs text-gray-600 leading-relaxed">
-                Your thesis manuscript has been submitted successfully for Turnitin similarity screening and Grammarly review. A confirmation email has also been dispatched to your @sac.edu.ph address.
+                Your thesis is being checked for plagiarism and grammar. You will be notified once the review is completed.
             </p>
             <div class="pt-2">
                 <button
