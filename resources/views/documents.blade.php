@@ -226,58 +226,39 @@
                 </div>
             </div>
 
-            {{-- 3.6. SEARCH RESULTS & KNOWLEDGE GRAPH PROMPT BAR --}}
-            <div id="searchResultsBanner" class="hidden mb-6 p-4 md:p-5 rounded-3xl bg-gradient-to-r from-[#0A2549]/5 via-amber-500/5 to-slate-50 border border-[#0A2549]/15 shadow-xs transition-all duration-300">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="flex items-center gap-3.5 min-w-0">
-                        <div class="w-10 h-10 rounded-2xl bg-[#0A2549] text-[#CBA144] flex items-center justify-center shrink-0 shadow-sm border border-[#CBA144]/30">
-                            <svg class="w-5 h-5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <circle cx="6" cy="6" r="2.5" />
-                                <circle cx="18" cy="18" r="2.5" />
-                                <circle cx="18" cy="6" r="2.5" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 7.5l7 3M8.5 6h7M18 8.5v7" />
-                            </svg>
-                        </div>
-                        <div class="min-w-0">
-                            <div class="flex items-center gap-2">
-                                <span class="px-2.5 py-0.5 rounded-full bg-[#0A2549] text-[#CBA144] text-[10px] font-extrabold uppercase tracking-wider shadow-2xs border border-[#CBA144]/30">
-                                    Search Matches
-                                </span>
-                                <span class="text-xs font-semibold text-gray-500">
-                                    <span id="searchResultCount" class="font-extrabold text-[#0A2549]">0</span> results found
-                                </span>
-                            </div>
-                            <h3 class="text-sm md:text-base font-bold text-gray-900 mt-1 truncate">
-                                Results for "<span id="searchResultQueryText" class="text-[#0A2549] font-black"></span>"
-                            </h3>
-                        </div>
-                    </div>
+            {{-- 3.6. CLEAN SEARCH RESULTS BAR --}}
+            <div id="searchResultsBanner" class="hidden mb-5 py-3 px-4 sm:px-5 rounded-2xl bg-white border border-gray-200/90 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs transition-all duration-200">
+                <div class="flex items-center gap-1.5 text-gray-600 min-w-0 flex-wrap">
+                    <span>Showing</span>
+                    <span class="font-bold text-gray-900"><span id="searchResultCount">0</span> results</span>
+                    <span class="text-gray-400">for</span>
+                    <span class="font-semibold text-[#0A2549] truncate">"<span id="searchResultQueryText"></span>"</span>
+                </div>
 
-                    <div class="flex items-center gap-2 shrink-0 flex-wrap sm:flex-nowrap">
-                        <a
-                            id="searchSeeGraphBtn"
-                            href="/graph"
-                            class="px-4 py-2.5 rounded-2xl bg-[#0A2549] hover:bg-[#123668] text-[#CBA144] hover:text-white text-xs font-bold transition shadow-xs cursor-pointer flex items-center gap-2 border border-[#CBA144]/40 hover:scale-[1.02] active:scale-95 duration-200">
-                            <svg class="w-4 h-4 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <circle cx="6" cy="6" r="2.5" />
-                                <circle cx="18" cy="18" r="2.5" />
-                                <circle cx="18" cy="6" r="2.5" />
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 7.5l7 3M8.5 6h7M18 8.5v7" />
-                            </svg>
-                            <span>See Knowledge Graph?</span>
-                        </a>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a
+                        id="searchSeeGraphBtn"
+                        href="/graph"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#0A2549] text-white hover:bg-[#123668] text-xs font-semibold transition cursor-pointer shadow-2xs">
+                        <svg class="w-3.5 h-3.5 text-[#CBA144]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <circle cx="6" cy="6" r="2.5" />
+                            <circle cx="18" cy="18" r="2.5" />
+                            <circle cx="18" cy="6" r="2.5" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 7.5l7 3M8.5 6h7M18 8.5v7" />
+                        </svg>
+                        <span>See Knowledge Graph</span>
+                    </a>
 
-                        <button
-                            type="button"
-                            onclick="clearSearchQuery()"
-                            title="Reset to all theses"
-                            class="px-3 py-2.5 rounded-2xl border border-gray-200 bg-white hover:bg-slate-100 text-gray-600 hover:text-red-600 text-xs font-semibold transition shadow-2xs cursor-pointer flex items-center gap-1.5">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            <span>Clear</span>
-                        </button>
-                    </div>
+                    <button
+                        type="button"
+                        onclick="clearSearchQuery()"
+                        title="Clear search"
+                        class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-gray-200 text-gray-500 hover:text-gray-800 hover:bg-gray-50 text-xs font-medium transition cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <span>Clear</span>
+                    </button>
                 </div>
             </div>
 
