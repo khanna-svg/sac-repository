@@ -352,7 +352,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                             </svg>
-                            <span>Submit Thesis for Turnitin &amp; Grammarly Review</span>
+                            <span>Submit Thesis</span>
                         </button>
                     </form>
                 </div>
@@ -428,7 +428,7 @@
                                                 </div>
                                                 @if(!empty($sub->admin_notes))
                                                     <div class="bg-white/80 rounded-xl p-2.5 border border-emerald-200 text-[11px] text-emerald-900 leading-relaxed font-sans">
-                                                        <span class="font-bold text-emerald-800 block text-[10px] uppercase tracking-wider mb-0.5">Reviewer Remarks:</span>
+                                                        <span class="font-bold text-emerald-800 block text-[10px] uppercase tracking-wider mb-0.5">Feedback:</span>
                                                         <span class="whitespace-pre-line">{{ $sub->admin_notes }}</span>
                                                     </div>
                                                 @else
@@ -476,7 +476,7 @@
                                                 <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                <span>Under screening by TA / research coordinator for Turnitin and Grammarly.</span>
+                                                <span>Under screening by admin</span>
                                             </div>
                                         @endif
                                     </div>
