@@ -31,11 +31,6 @@
 
         <!-- Top Control Toolbar & Subtitle -->
         <div class="border-b border-gray-200 bg-white px-4 md:px-8 py-3 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div>
-                <p class="text-xs text-gray-500 font-medium">
-                    Visually explore connections between research concepts, methodologies, and tech stacks across repository theses.
-                </p>
-            </div>
 
             <!-- Toolbar Controls -->
             <div class="flex items-center gap-2 flex-wrap">
@@ -326,7 +321,9 @@
                     physicsEnabled = false;
                     const btnText = document.getElementById('physicsStatusText');
                     if (btnText) btnText.textContent = 'Unfreeze';
-                    applyUrlSearchAndFilter();
+                    setTimeout(() => {
+                        applyUrlSearchAndFilter();
+                    }, 150);
                 });
 
                 // Fallback in case stabilization completes early or takes longer
@@ -399,7 +396,7 @@
             const matchingThesisNodeIds = new Set();
             const directlyMatchedNodeIds = new Set();
 
-            // 1. Check passed document IDs from search (e.g. docs=12,15,19)
+            // 1. If docsParam is passed from documents search (e.g. docs=78,86,83)
             if (docsParam) {
                 const idList = docsParam.split(',').map(s => s.trim()).filter(Boolean);
                 idList.forEach(id => {
@@ -410,12 +407,30 @@
                 });
             }
 
-            // 2. Keyword matching against title, concepts, tech stack, methodologies, abstract
-            if (query) {
-                const stopWords = new Set(['a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'or', 'is', 'are', 'with', 'from', 'by']);
-                const tokens = query.toLowerCase().replace(/[^\w\s-]/g, ' ').trim().split(/\s+/).filter(t => t.length >= 2 && !stopWords.has(t));
-                const searchTokens = tokens.length > 0 ? tokens : [query.toLowerCase().trim()];
+            // 2. Keyword matching fallback ONLY if docsParam did not provide matches
+            // or when searching directly inside the graph search input
+            if (matchingThesisNodeIds.size === 0 && query) {
+                const stopWords = new Set([
+                    'a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'or', 'is', 'are', 'with', 'from', 'by', 'as', 'into', 'about'
+                ]);
+                const academicStopWords = new Set([
+                    'based', 'project', 'projects', 'system', 'systems', 'study', 'studies', 'development', 'analysis', 'using', 'proposed', 'application', 'level', 'among', 'effects', 'evaluation', 'through', 'program', 'practices', 'paper', 'research'
+                ]);
+
+                const cleanQuery = query.toLowerCase().replace(/[^\w\s-]/g, ' ').trim();
+                const rawTokens = cleanQuery.split(/\s+/).filter(t => t.length >= 2 && !stopWords.has(t));
+                const meaningfulTokens = rawTokens.filter(t => !academicStopWords.has(t));
+                const searchTokens = meaningfulTokens.length > 0 ? meaningfulTokens : rawTokens;
                 const fullLowerQuery = query.toLowerCase().trim();
+
+                // Helper to check if text contains a token (using word boundary for short abbreviations like 'iot', 'ai')
+                const testTokenMatch = (targetText, token) => {
+                    if (token.length <= 4) {
+                        const regex = new RegExp(`\\b${token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+                        return regex.test(targetText);
+                    }
+                    return targetText.includes(token);
+                };
 
                 graphData.nodes.forEach(n => {
                     const label = (n.label || '').toLowerCase();
@@ -430,12 +445,18 @@
                         const tech = (meta.tech_stack || []).map(t => t.toLowerCase()).join(' ');
                         const combined = `${label} ${fullTitle} ${abstract} ${author} ${concepts} ${methods} ${tech}`;
 
-                        if (combined.includes(fullLowerQuery) || searchTokens.some(t => combined.includes(t))) {
+                        const phraseMatch = combined.includes(fullLowerQuery);
+                        const tokenMatch = searchTokens.length > 0 && searchTokens.every(t => testTokenMatch(combined, t));
+
+                        if (phraseMatch || tokenMatch) {
                             matchingThesisNodeIds.add(n.id);
                         }
                     } else {
                         const nodeName = (meta.name || label).toLowerCase();
-                        if (nodeName.includes(fullLowerQuery) || searchTokens.some(t => nodeName.includes(t))) {
+                        const phraseMatch = nodeName.includes(fullLowerQuery);
+                        const tokenMatch = searchTokens.length > 0 && searchTokens.every(t => testTokenMatch(nodeName, t));
+
+                        if (phraseMatch || tokenMatch) {
                             directlyMatchedNodeIds.add(n.id);
                             (meta.theses || []).forEach(t => {
                                 const tNodeId = 'doc_' + t.id;
@@ -509,9 +530,14 @@
             }
             if (searchInput && query) searchInput.value = query;
 
-            // 6. Center and zoom camera directly on connected results
+            // 6. Highlight matching theses and smoothly zoom camera onto connected results
             isFilteredView = true;
             activeFilteredNodeIds = Array.from(connectedNodeIds);
+
+            // Visually select the matching thesis nodes so they pop out immediately
+            if (matchingThesisNodeIds.size > 0) {
+                network.selectNodes(Array.from(matchingThesisNodeIds));
+            }
 
             setTimeout(() => {
                 network.fit({
@@ -531,7 +557,7 @@
                         }
                     }, 300);
                 }
-            }, 150);
+            }, 200);
         }
 
         function resetFullGraphView() {

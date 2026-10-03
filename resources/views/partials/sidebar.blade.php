@@ -52,9 +52,6 @@
                 <span class="text-lg sm:text-xl font-black tracking-wide text-[#CBA144] group-hover:text-white transition font-['Outfit',sans-serif] drop-shadow-xs">
                     SArchive
                 </span>
-                <span class="text-[9px] sm:text-[10px] font-semibold text-slate-300 tracking-tight truncate mt-0.5">
-                    St. Anthony's College
-                </span>
             </div>
         </a>
 
