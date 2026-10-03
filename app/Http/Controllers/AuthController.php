@@ -23,9 +23,13 @@ class AuthController extends Controller
             return redirect()->route('documents');
         }
 
-        return view('login', [
-            'pendingEmail' => $request->session()->get('pending_email'),
-        ]);
+        return response()
+            ->view('login', [
+                'pendingEmail' => $request->session()->get('pending_email'),
+            ])
+            ->header('Cache-Control', 'no-cache, no-store, max-age=0, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sun, 02 Jan 1990 00:00:00 GMT');
     }
 
     /**
@@ -154,9 +158,16 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        $request->session()->forget([
+            'sac_user_email',
+            'sac_user_role',
+            'sac_user_name',
+            'pending_email',
+            'admin_notifications_read_at',
+        ]);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }
