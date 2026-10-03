@@ -20,13 +20,13 @@ Route::post('/login/reset', [AuthController::class, 'resetLogin'])
     ->name('login.reset');
 
 Route::get('/admin/login', function () {
-    return redirect()->route('login');
+    return redirect('/login?tab=admin');
 });
 
 Route::post('/admin/login', [AdminAuthController::class, 'login'])
     ->middleware('throttle:5,1');
 
-Route::post('/logout', [AuthController::class, 'logout'])
+Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])
     ->name('logout');
 
 // Direct Routing: Directs logged-in users to their dashboard, guests to login

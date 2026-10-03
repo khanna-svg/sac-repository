@@ -239,13 +239,24 @@
                 adminForm.classList.remove('hidden');
                 adminBtn.className = "flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-[#CBA144] text-[#0A2549] shadow-sm transition cursor-pointer";
                 studentBtn.className = "flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-slate-300 hover:text-white transition cursor-pointer";
+                try { localStorage.setItem('sac_login_tab', 'admin'); } catch(e) {}
             } else {
                 adminForm.classList.add('hidden');
                 studentForm.classList.remove('hidden');
                 studentBtn.className = "flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-[#CBA144] text-[#0A2549] shadow-sm transition cursor-pointer";
                 adminBtn.className = "flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-slate-300 hover:text-white transition cursor-pointer";
+                try { localStorage.setItem('sac_login_tab', 'student'); } catch(e) {}
             }
         }
+
+        (function() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('tab') === 'admin' || localStorage.getItem('sac_login_tab') === 'admin') {
+                    switchLoginMode('admin');
+                }
+            } catch(e) {}
+        })();
 
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
