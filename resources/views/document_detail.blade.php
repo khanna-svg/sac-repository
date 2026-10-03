@@ -197,10 +197,10 @@
                 <div class="flex flex-col sm:flex-row items-start gap-5 my-3">
                     <div class="w-20 sm:w-24 h-28 sm:h-32 shrink-0 rounded-lg overflow-hidden shadow-md border border-gray-200 bg-slate-100">
                         <img
-                            src="{{ asset('images/covers/' . $coverFilename . '.jpg') }}"
+                            src="{{ asset('images/covers/' . $coverFilename . '.webp') }}"
                             alt="{{ $document->title }} Cover"
                             class="w-full h-full object-cover"
-                            onerror="this.onerror=null; this.src='{{ asset('images/covers/' . $coverFilename . '.webp') }}';">
+                            onerror="this.onerror=null; this.src='{{ asset('images/covers/IT.webp') }}';">
                     </div>
 
                     <div class="flex-1">
@@ -502,7 +502,7 @@
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-[#0A2549] text-white">
             <div class="flex items-center gap-2.5 min-w-0 pr-2">
                 <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#CBA144]/40 flex items-center justify-center">
-                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
+                    <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                 </div>
                 <div class="min-w-0">
                     <h2 class="text-sm font-bold text-white tracking-wide truncate flex items-center gap-1.5">

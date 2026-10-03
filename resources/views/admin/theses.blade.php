@@ -385,19 +385,19 @@
         };
 
         const deptNames = {
-            bused: { name: 'Business Education', cover: 'BUSINESS.jpg' },
-            cjed: { name: 'Criminal Justice Education', cover: 'CRIMINAL_JUSTICE.jpg' },
-            dte: { name: 'Teacher Education', cover: 'TEACHER_EDUCATION.jpg' },
-            eng: { name: 'Engineering Department', cover: 'ENGINEERING.jpg' },
-            itd: { name: 'Information Technology', cover: 'IT.jpg' },
-            lad: { name: 'Liberal Arts Department', cover: 'LIBERAL_ARTS.jpg' },
-            nursing: { name: 'Nursing Department', cover: 'NURSING.jpg' },
+            bused: { name: 'Business Education', cover: 'BUSINESS.webp' },
+            cjed: { name: 'Criminal Justice Education', cover: 'CRIMINAL_JUSTICE.webp' },
+            dte: { name: 'Teacher Education', cover: 'TEACHER_EDUCATION.webp' },
+            eng: { name: 'Engineering Department', cover: 'ENGINEERING.webp' },
+            itd: { name: 'Information Technology', cover: 'IT.webp' },
+            lad: { name: 'Liberal Arts Department', cover: 'LIBERAL_ARTS.webp' },
+            nursing: { name: 'Nursing Department', cover: 'NURSING.webp' },
             // Legacy fallbacks
-            it: { name: 'Information Technology', cover: 'IT.jpg' },
-            hospitality: { name: 'Business Education', cover: 'BUSINESS.jpg' },
-            education: { name: 'Teacher Education', cover: 'TEACHER_EDUCATION.jpg' },
-            criminology: { name: 'Criminal Justice Education', cover: 'CRIMINAL_JUSTICE.jpg' },
-            marine: { name: 'Engineering Department', cover: 'ENGINEERING.jpg' }
+            it: { name: 'Information Technology', cover: 'IT.webp' },
+            hospitality: { name: 'Business Education', cover: 'BUSINESS.webp' },
+            education: { name: 'Teacher Education', cover: 'TEACHER_EDUCATION.webp' },
+            criminology: { name: 'Criminal Justice Education', cover: 'CRIMINAL_JUSTICE.webp' },
+            marine: { name: 'Engineering Department', cover: 'ENGINEERING.webp' }
         };
 
         function showToast(message, isSuccess = true) {
@@ -574,7 +574,7 @@
                         <td class="py-4 px-4 sm:px-6">
                             <div class="flex items-center gap-3.5">
                                 <div class="w-10 h-14 rounded-lg bg-slate-100 border border-gray-200 overflow-hidden shrink-0 shadow-2xs">
-                                    <img src="${COVERS_BASE_URL}/${deptInfo.cover}" class="w-full h-full object-cover" alt="Cover" onerror="this.src='${COVERS_BASE_URL}/IT.jpg'">
+                                    <img src="${COVERS_BASE_URL}/${deptInfo.cover}" class="w-full h-full object-cover" alt="Cover" onerror="this.src='${COVERS_BASE_URL}/IT.webp'">
                                 </div>
                                 <div class="min-w-0 flex-1">
                                     <h4 class="font-bold text-gray-900 leading-snug" title="${escapeHtml(doc.title)}">

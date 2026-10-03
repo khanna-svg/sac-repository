@@ -44,7 +44,7 @@
         <a href="{{ route('documents') }}" class="flex items-center gap-2.5 group min-w-0 flex-1">
             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-md transition-transform group-hover:scale-105 border border-[#CBA144]/40">
                 <img 
-                    src="{{ asset('images/airis-logo.png') }}" 
+                    src="{{ asset('images/airis-logo.webp') }}" 
                     alt="SArchive Logo" 
                     class="h-full w-full object-contain">
             </div>

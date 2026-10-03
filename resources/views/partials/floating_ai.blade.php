@@ -52,7 +52,7 @@
     <div class="px-4 py-3 bg-gradient-to-r from-[#071933] via-[#0A2549] to-[#123668] text-white flex items-center justify-between shadow-xs shrink-0 border-b border-[#14325c]">
         <div class="flex items-center gap-2.5 min-w-0">
             <div class="w-9 h-9 rounded-2xl bg-white p-1 border border-[#CBA144]/60 flex items-center justify-center shrink-0 shadow-inner">
-                <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
+                <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="SArchive Logo">
             </div>
             <div class="min-w-0 flex items-center gap-1.5">
                 <span class="text-sm sm:text-base font-black tracking-wide text-[#CBA144] font-['Outfit',sans-serif] drop-shadow-xs">SArchive</span>

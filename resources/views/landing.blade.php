@@ -75,7 +75,7 @@
          HERO SECTION (WITH CAMPUS BACKGROUND)
     ========================================================== -->
     <section id="home" class="relative pt-16 pb-24 md:pt-28 md:pb-32 bg-cover bg-center bg-no-repeat overflow-hidden"
-        style="background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/images/campus.jpg');">
+        style="background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/images/campus.webp');">
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center max-w-3xl mx-auto space-y-6">

@@ -15,7 +15,7 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="icon" href="{{ asset('images/airis-logo.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
 </head>
 
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans">
@@ -57,7 +57,7 @@
             <div class="flex items-start gap-3">
 
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 flex-shrink-0 flex items-center justify-center shadow-md">
-                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
+                    <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                 </div>
 
                 <div class="max-w-3xl">
@@ -172,7 +172,7 @@
                     <!-- INITIAL AI MESSAGE -->
                     <div class="flex items-start gap-3">
                         <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 shrink-0 flex items-center justify-center shadow-md">
-                            <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
+                            <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                         </div>
                         <div class="max-w-3xl">
                             <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
@@ -322,7 +322,7 @@
 
                 wrapper.innerHTML = `
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 shrink-0 flex items-center justify-center shadow-md">
-                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
+                    <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                 </div>
 
                 <div class="max-w-xl md:max-w-3xl flex-1">
@@ -365,7 +365,7 @@
                 wrapper.innerHTML = `
 
                 <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 flex-shrink-0 flex items-center justify-center shadow-md">
-                    <img src="{{ asset('images/airis-logo.png') }}" class="w-full h-full object-contain" alt="SArchive Logo">
+                    <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="SArchive Logo">
                 </div>
 
                 <div>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SArchive - Sign In</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="icon" href="{{ asset('images/airis-logo.png') }}" type="image/png">
+    <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
 
     <style>
         .floating-badge-group {
@@ -37,7 +37,7 @@
 
     <!-- Blurred Background Layer -->
     <div class="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat blur-sm scale-105"
-         style="background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/images/campus.jpg');">
+         style="background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/images/campus.webp');">
     </div>
 
     <!-- Login Container -->
@@ -46,7 +46,7 @@
             <div class="flex items-center justify-center mb-4">
                 <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white p-2 shadow-xl border-2 border-[#CBA144]/50 flex items-center justify-center">
                     <img 
-                        src="{{ asset('images/sarchive-logo.png') }}"
+                        src="{{ asset('images/sarchive-logo.webp') }}"
                         alt="SArchive Logo"
                         class="w-full h-full object-contain"
                     >
