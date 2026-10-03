@@ -40,10 +40,10 @@
 <!-- Sidebar Drawer (Whole Full-Height Sidebar) -->
 <aside
     id="sidebar"
-    class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-[#14325c] bg-[#0A2549] text-white transition-all duration-300 ease-in-out -translate-x-full md:translate-x-0 shadow-2xl">
+    class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-[#CBA144]/30 bg-gradient-to-b from-[#0A2549] via-[#0d2a52] to-[#3a2f17] text-white transition-all duration-300 ease-in-out -translate-x-full md:translate-x-0 shadow-2xl">
 
     <!-- Sidebar Brand & Collapse Header (Whole Sidebar Style) -->
-    <div class="h-16 md:h-20 px-3 sm:px-4 flex items-center justify-between gap-2.5 shrink-0 select-none bg-[#0A2549] border-b border-[#14325c]">
+    <div class="h-16 md:h-20 px-3 sm:px-4 flex items-center justify-between gap-2.5 shrink-0 select-none bg-gradient-to-r from-[#0A2549] to-[#143663] border-b border-[#CBA144]/30">
         <a href="{{ route('documents') }}" class="flex items-center gap-2.5 group min-w-0 flex-1">
             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-md transition-transform group-hover:scale-105 border border-[#CBA144]/40">
                 <img
@@ -196,7 +196,7 @@
     </nav>
 
     <!-- Sidebar Footer / Sign Out -->
-    <div class="border-t border-[#14325c] bg-[#071933] p-3 shrink-0">
+    <div class="border-t border-[#CBA144]/30 bg-[#0A2549]/90 backdrop-blur-md p-3 shrink-0">
         <!-- Logout Trigger Button -->
         <button
             type="button"

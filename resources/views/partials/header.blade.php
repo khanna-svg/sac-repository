@@ -37,7 +37,7 @@
     }
 @endphp
 
-<header id="sacTopHeader" data-csrf="{{ csrf_token() }}" class="fixed top-0 right-0 left-0 md:left-64 h-16 md:h-20 z-40 bg-[#0A2549] border-b border-[#14325c] shadow-md px-4 sm:px-6 flex items-center justify-between transition-all duration-300 select-none">
+<header id="sacTopHeader" data-csrf="{{ csrf_token() }}" class="fixed top-0 right-0 left-0 md:left-64 h-16 md:h-20 z-40 bg-gradient-to-r from-[#0A2549] via-[#103460] to-[#CBA144] border-b border-[#CBA144]/40 shadow-lg px-4 sm:px-6 flex items-center justify-between transition-all duration-300 select-none">
     
     <!-- LEFT: Mobile/Collapsed Toggle & Current Page Title -->
     <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -60,7 +60,7 @@
     </div>
 
     <!-- RIGHT: User Greeting & Notifications -->
-    <div class="flex items-center gap-2 sm:gap-4 shrink-0 justify-end">
+    <div class="flex items-center gap-2 sm:gap-4 shrink-0 justify-end bg-[#0A2549]/70 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/15 shadow-xs">
         @if($userEmail)
             <div class="flex items-center">
                 <span class="text-xs sm:text-sm md:text-base font-semibold text-white tracking-tight truncate max-w-[120px] sm:max-w-[220px] md:max-w-none">
