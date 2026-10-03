@@ -201,7 +201,7 @@
                                 id="title"
                                 name="title"
                                 required
-                                placeholder="e.g. Automated Attendance System using Facial Recognition for SAC"
+                                placeholder="Enter Title"
                                 class="w-full rounded-xl border border-gray-200 bg-slate-50/60 px-4 py-3 text-sm text-gray-900 outline-none focus:border-[#0A2549] focus:bg-white focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs font-medium">
                         </div>
 
@@ -215,7 +215,7 @@
                                 id="author"
                                 name="author"
                                 required
-                                placeholder="e.g. John Doe, Jane Smith"
+                                placeholder="Enter Author"
                                 class="w-full rounded-xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-[#0A2549] focus:bg-white focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs">
                             <p class="text-[11px] text-gray-400 mt-1">Separate multiple authors with commas.</p>
                         </div>
@@ -457,11 +457,6 @@
                                                     </button>
                                                 </div>
                                             </div>
-                                        @else
-                                            <p class="text-[11px] text-gray-400 flex items-center gap-1.5 mt-2">
-                                                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                                                <span>Under screening by admin</span>
-                                            </p>
                                         @endif
                                     </div>
                                 @endforeach
