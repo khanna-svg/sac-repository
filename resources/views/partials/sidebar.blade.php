@@ -40,10 +40,10 @@
 <!-- Sidebar Drawer (Whole Full-Height Sidebar) -->
 <aside
     id="sidebar"
-    class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-[#CBA144]/30 bg-gradient-to-b from-[#0A2549] via-[#0d2a52] to-[#3a2f17] text-white transition-all duration-300 ease-in-out -translate-x-full md:translate-x-0 shadow-2xl">
+    class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-[#CBA144]/30 bg-gradient-to-b from-[#0A2549] via-[#123668] to-[#CBA144] text-white transition-all duration-300 ease-in-out -translate-x-full md:translate-x-0 shadow-2xl">
 
     <!-- Sidebar Brand & Collapse Header (Whole Sidebar Style) -->
-    <div class="h-16 md:h-20 px-3 sm:px-4 flex items-center justify-between gap-2.5 shrink-0 select-none bg-gradient-to-r from-[#0A2549] to-[#143663] border-b border-[#CBA144]/30">
+    <div class="h-16 md:h-20 px-3 sm:px-4 flex items-center justify-between gap-2.5 shrink-0 select-none border-b border-[#CBA144]/25 bg-transparent">
         <a href="{{ route('documents') }}" class="flex items-center gap-2.5 group min-w-0 flex-1">
             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-md transition-transform group-hover:scale-105 border border-[#CBA144]/40">
                 <img
@@ -196,12 +196,12 @@
     </nav>
 
     <!-- Sidebar Footer / Sign Out -->
-    <div class="border-t border-[#CBA144]/30 bg-[#0A2549]/90 backdrop-blur-md p-3 shrink-0">
+    <div class="border-t border-black/10 bg-transparent p-3 shrink-0">
         <!-- Logout Trigger Button -->
         <button
             type="button"
             onclick="openLogoutModal()"
-            class="w-full rounded-xl border border-[#CBA144]/40 bg-[#0A2549] px-4 py-2.5 text-left text-xs md:text-sm font-semibold text-[#CBA144] transition hover:bg-[#CBA144] hover:text-[#0A2549] flex items-center justify-between cursor-pointer shadow-xs">
+            class="w-full rounded-xl bg-[#0A2549] hover:bg-[#123668] text-[#CBA144] hover:text-white px-4 py-2.5 text-left text-xs md:text-sm font-bold transition flex items-center justify-between cursor-pointer shadow-md border border-[#0A2549]/40">
             <span>Sign Out</span>
             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
