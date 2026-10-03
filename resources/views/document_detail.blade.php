@@ -200,7 +200,7 @@
                             src="{{ asset('images/covers/' . $coverFilename . '.webp') }}"
                             alt="{{ $document->title }} Cover"
                             class="w-full h-full object-cover"
-                            onerror="this.onerror=null; this.src='{{ asset('images/covers/IT.webp') }}';">
+                            onerror="this.onerror=null; this.src='/images/covers/IT.webp';">
                     </div>
 
                     <div class="flex-1">
