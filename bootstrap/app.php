@@ -16,6 +16,8 @@ $app = Application::configure(
     )
     ->withMiddleware(function (Middleware $middleware) {
 
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
 
             // Requires the user to be logged in
@@ -30,7 +32,11 @@ $app = Application::configure(
 
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, $request) {
+            return redirect()->route('login')->withErrors([
+                'email' => 'Your session expired. Please sign in again.',
+            ]);
+        });
     })
     ->create();
 

@@ -19,6 +19,10 @@ Route::post('/login/verify-code', [AuthController::class, 'verifyCode'])
 Route::post('/login/reset', [AuthController::class, 'resetLogin'])
     ->name('login.reset');
 
+Route::get('/admin/login', function () {
+    return redirect()->route('login');
+});
+
 Route::post('/admin/login', [AdminAuthController::class, 'login'])
     ->middleware('throttle:5,1');
 
