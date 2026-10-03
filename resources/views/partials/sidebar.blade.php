@@ -13,12 +13,15 @@
         html.sidebar-collapsed #sidebar {
             transform: translateX(-100%) !important;
         }
+
         html.sidebar-collapsed #sacTopHeader {
             left: 0 !important;
         }
+
         html.sidebar-collapsed #headerSidebarToggle {
             display: flex !important;
         }
+
         html.sidebar-collapsed main,
         html.sidebar-collapsed #mainContent,
         html.sidebar-collapsed div[class*="md:ml-64"] {
@@ -43,14 +46,17 @@
     <div class="h-16 md:h-20 px-3 sm:px-4 flex items-center justify-between gap-2.5 shrink-0 select-none bg-[#0A2549] border-b border-[#14325c]">
         <a href="{{ route('documents') }}" class="flex items-center gap-2.5 group min-w-0 flex-1">
             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-md transition-transform group-hover:scale-105 border border-[#CBA144]/40">
-                <img 
-                    src="{{ asset('images/airis-logo.webp') }}" 
-                    alt="SArchive Logo" 
+                <img
+                    src="{{ asset('images/airis-logo.webp') }}"
+                    alt="SArchive Logo"
                     class="h-full w-full object-contain">
             </div>
             <div class="flex flex-col leading-tight truncate justify-center">
                 <span class="text-lg sm:text-xl font-black tracking-wide text-[#CBA144] group-hover:text-white transition font-['Outfit',sans-serif] drop-shadow-xs">
                     SArchive
+                </span>
+                <span class="text-[9px] sm:text-[10px] font-semibold text-slate-300 tracking-wider uppercase">
+                    Thesis Repository
                 </span>
             </div>
         </a>
@@ -72,7 +78,7 @@
     <!-- Navigation Links -->
     <nav class="flex-1 space-y-1.5 p-3 overflow-y-auto">
         @php
-            $currentRole = session('sac_user_role');
+        $currentRole = session('sac_user_role');
         @endphp
 
         @if(in_array($currentRole, ['admin', 'coordinator']))
