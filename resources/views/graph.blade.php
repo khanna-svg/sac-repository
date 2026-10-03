@@ -110,6 +110,30 @@
 
         <!-- Main Graph Canvas Container -->
         <div class="relative flex-1 w-full min-h-0 bg-white overflow-hidden">
+            <!-- Active Search Filter Floating Pill (Google-Style) -->
+            <div
+                id="graphSearchFilterBanner"
+                class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-white/95 backdrop-blur-md border border-[#0A2549]/20 shadow-xl rounded-2xl px-4 py-2 flex items-center gap-3.5 text-xs max-w-[92vw] transition-all duration-300">
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#CBA144] animate-pulse shrink-0"></span>
+                    <p class="text-gray-700 truncate">
+                        <span class="text-gray-500 font-medium">Search Cluster:</span>
+                        <strong id="filterBannerQuery" class="text-[#0A2549] font-black ml-1"></strong>
+                        <span id="filterBannerCount" class="text-xs text-gray-500 ml-1 font-semibold"></span>
+                    </p>
+                </div>
+                <button
+                    type="button"
+                    onclick="resetFullGraphView()"
+                    title="View Full Knowledge Graph"
+                    class="shrink-0 px-3 py-1.5 rounded-xl bg-[#0A2549] hover:bg-[#123668] text-[#CBA144] hover:text-white font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs border border-[#CBA144]/30">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0 0h4.5m-4.5 0L9 3.75M20.25 20.25v-4.5m0 0h-4.5m4.5 0L15 20.25M3.75 20.25h4.5m-4.5 0v-4.5m0 4.5L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9" />
+                    </svg>
+                    <span>Show Full Network</span>
+                </button>
+            </div>
+
             <div id="networkGraph" class="w-full h-full"></div>
 
             <!-- Loading Spinner Indicator -->
@@ -214,6 +238,9 @@
         let network = null;
         let graphData = { nodes: new vis.DataSet([]), edges: new vis.DataSet([]) };
         let physicsEnabled = true;
+        let isFilteredView = false;
+        let activeFilteredNodeIds = [];
+        let hasAppliedInitialSearchOrFocus = false;
 
         async function initKnowledgeGraph() {
             const loader = document.getElementById('graphLoader');
@@ -299,7 +326,7 @@
                     physicsEnabled = false;
                     const btnText = document.getElementById('physicsStatusText');
                     if (btnText) btnText.textContent = 'Unfreeze';
-                    applyUrlFocus();
+                    applyUrlSearchAndFilter();
                 });
 
                 // Fallback in case stabilization completes early or takes longer
@@ -311,7 +338,7 @@
                         const btnText = document.getElementById('physicsStatusText');
                         if (btnText) btnText.textContent = 'Unfreeze';
                     }
-                    applyUrlFocus();
+                    applyUrlSearchAndFilter();
                 }, 2800);
 
             } catch (err) {
@@ -321,21 +348,35 @@
             }
         }
 
-        let hasAppliedFocus = false;
-        function applyUrlFocus() {
-            if (hasAppliedFocus || !network || !graphData.nodes) return;
+        function applyUrlSearchAndFilter() {
+            if (hasAppliedInitialSearchOrFocus || !network || !graphData.nodes) return;
             const urlParams = new URLSearchParams(window.location.search);
-            let focusId = urlParams.get('focus') || urlParams.get('node');
-            if (!focusId) return;
+            const query = urlParams.get('q') || urlParams.get('search') || '';
+            const docs = urlParams.get('docs') || '';
+            let focusId = urlParams.get('focus') || urlParams.get('node') || '';
 
-            // Support either numeric doc ID or full node ID (e.g. 54 or doc_54)
+            if (focusId && !focusId.startsWith('doc_') && !isNaN(focusId)) {
+                focusId = 'doc_' + focusId;
+            }
+
+            if (query.trim() || docs.trim()) {
+                hasAppliedInitialSearchOrFocus = true;
+                filterAndZoomConnectedResults(query.trim(), docs.trim(), focusId);
+            } else if (focusId) {
+                hasAppliedInitialSearchOrFocus = true;
+                applyUrlFocus(focusId);
+            }
+        }
+
+        function applyUrlFocus(focusId) {
+            if (!network || !graphData.nodes || !focusId) return;
+
             if (!focusId.startsWith('doc_') && !isNaN(focusId)) {
                 focusId = 'doc_' + focusId;
             }
 
             const targetNode = graphData.nodes.get(focusId);
             if (targetNode) {
-                hasAppliedFocus = true;
                 network.selectNodes([focusId]);
                 setTimeout(() => {
                     network.focus(focusId, {
@@ -350,6 +391,177 @@
                     }
                 }, 200);
             }
+        }
+
+        function filterAndZoomConnectedResults(query, docsParam = '', focusId = '') {
+            if (!network || !graphData.nodes) return;
+
+            const matchingThesisNodeIds = new Set();
+            const directlyMatchedNodeIds = new Set();
+
+            // 1. Check passed document IDs from search (e.g. docs=12,15,19)
+            if (docsParam) {
+                const idList = docsParam.split(',').map(s => s.trim()).filter(Boolean);
+                idList.forEach(id => {
+                    const nodeId = id.startsWith('doc_') ? id : 'doc_' + id;
+                    if (graphData.nodes.get(nodeId)) {
+                        matchingThesisNodeIds.add(nodeId);
+                    }
+                });
+            }
+
+            // 2. Keyword matching against title, concepts, tech stack, methodologies, abstract
+            if (query) {
+                const stopWords = new Set(['a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'or', 'is', 'are', 'with', 'from', 'by']);
+                const tokens = query.toLowerCase().replace(/[^\w\s-]/g, ' ').trim().split(/\s+/).filter(t => t.length >= 2 && !stopWords.has(t));
+                const searchTokens = tokens.length > 0 ? tokens : [query.toLowerCase().trim()];
+                const fullLowerQuery = query.toLowerCase().trim();
+
+                graphData.nodes.forEach(n => {
+                    const label = (n.label || '').toLowerCase();
+                    const meta = n.meta || {};
+
+                    if (meta.type === 'thesis') {
+                        const fullTitle = (meta.full_title || '').toLowerCase();
+                        const abstract = (meta.abstract || '').toLowerCase();
+                        const author = (meta.author || '').toLowerCase();
+                        const concepts = (meta.concepts || []).map(c => c.toLowerCase()).join(' ');
+                        const methods = (meta.methodologies || []).map(m => m.toLowerCase()).join(' ');
+                        const tech = (meta.tech_stack || []).map(t => t.toLowerCase()).join(' ');
+                        const combined = `${label} ${fullTitle} ${abstract} ${author} ${concepts} ${methods} ${tech}`;
+
+                        if (combined.includes(fullLowerQuery) || searchTokens.some(t => combined.includes(t))) {
+                            matchingThesisNodeIds.add(n.id);
+                        }
+                    } else {
+                        const nodeName = (meta.name || label).toLowerCase();
+                        if (nodeName.includes(fullLowerQuery) || searchTokens.some(t => nodeName.includes(t))) {
+                            directlyMatchedNodeIds.add(n.id);
+                            (meta.theses || []).forEach(t => {
+                                const tNodeId = 'doc_' + t.id;
+                                if (graphData.nodes.get(tNodeId)) {
+                                    matchingThesisNodeIds.add(tNodeId);
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            if (focusId && graphData.nodes.get(focusId)) {
+                if (focusId.startsWith('doc_')) {
+                    matchingThesisNodeIds.add(focusId);
+                } else {
+                    directlyMatchedNodeIds.add(focusId);
+                }
+            }
+
+            // 3. Find all connected entities (the matching theses + their connected concepts, methods, tools)
+            const connectedNodeIds = new Set(matchingThesisNodeIds);
+            directlyMatchedNodeIds.forEach(id => connectedNodeIds.add(id));
+
+            if (graphData.edges) {
+                graphData.edges.forEach(e => {
+                    if (matchingThesisNodeIds.has(e.from)) {
+                        connectedNodeIds.add(e.to);
+                    } else if (matchingThesisNodeIds.has(e.to)) {
+                        connectedNodeIds.add(e.from);
+                    }
+
+                    if (directlyMatchedNodeIds.has(e.from)) {
+                        connectedNodeIds.add(e.to);
+                    } else if (directlyMatchedNodeIds.has(e.to)) {
+                        connectedNodeIds.add(e.from);
+                    }
+                });
+            }
+
+            // Fallback: If nothing matched, keep graph visible and log warning
+            if (connectedNodeIds.size === 0) {
+                console.warn('No matching graph nodes found for query:', query);
+                return;
+            }
+
+            // 4. Hide all unrelated nodes so only connected results are shown
+            const updates = [];
+            graphData.nodes.forEach(n => {
+                const isVisible = connectedNodeIds.has(n.id);
+                updates.push({
+                    id: n.id,
+                    hidden: !isVisible,
+                    opacity: isVisible ? 1 : 0
+                });
+            });
+            graphData.nodes.update(updates);
+
+            // 5. Update Active Search Filter Pill
+            const banner = document.getElementById('graphSearchFilterBanner');
+            const queryEl = document.getElementById('filterBannerQuery');
+            const countEl = document.getElementById('filterBannerCount');
+            const searchInput = document.getElementById('graphSearchInput');
+
+            if (banner) banner.classList.remove('hidden');
+            if (queryEl) queryEl.textContent = query || 'Search Results';
+            if (countEl) {
+                const matchingDocCount = Array.from(connectedNodeIds).filter(id => id.startsWith('doc_')).length;
+                const connectedEntityCount = connectedNodeIds.size - matchingDocCount;
+                countEl.textContent = `(${matchingDocCount} ${matchingDocCount === 1 ? 'thesis' : 'theses'}${connectedEntityCount > 0 ? `, ${connectedEntityCount} connected topics & tools` : ''})`;
+            }
+            if (searchInput && query) searchInput.value = query;
+
+            // 6. Center and zoom camera directly on connected results
+            isFilteredView = true;
+            activeFilteredNodeIds = Array.from(connectedNodeIds);
+
+            setTimeout(() => {
+                network.fit({
+                    nodes: activeFilteredNodeIds,
+                    animation: {
+                        duration: 1000,
+                        easingFunction: 'easeInOutQuad'
+                    }
+                });
+
+                if (focusId && graphData.nodes.get(focusId)) {
+                    setTimeout(() => {
+                        network.selectNodes([focusId]);
+                        const targetNode = graphData.nodes.get(focusId);
+                        if (targetNode && targetNode.meta) {
+                            openDetailsDrawer(targetNode.meta);
+                        }
+                    }, 300);
+                }
+            }, 150);
+        }
+
+        function resetFullGraphView() {
+            if (!network || !graphData.nodes) return;
+
+            const updates = [];
+            graphData.nodes.forEach(n => {
+                updates.push({ id: n.id, hidden: false, opacity: 1 });
+            });
+            graphData.nodes.update(updates);
+
+            const banner = document.getElementById('graphSearchFilterBanner');
+            if (banner) banner.classList.add('hidden');
+
+            const input = document.getElementById('graphSearchInput');
+            if (input) input.value = '';
+
+            isFilteredView = false;
+            activeFilteredNodeIds = [];
+
+            network.fit({
+                animation: {
+                    duration: 800,
+                    easingFunction: 'easeInOutQuad'
+                }
+            });
+
+            // Clean query parameters from URL without reloading
+            const cleanUrl = window.location.pathname;
+            window.history.replaceState({}, document.title, cleanUrl);
         }
 
         function openDetailsDrawer(meta) {
@@ -471,7 +683,13 @@
         }
 
         function resetGraphView() {
-            if (network) {
+            if (!network) return;
+            if (isFilteredView && activeFilteredNodeIds.length > 0) {
+                network.fit({
+                    nodes: activeFilteredNodeIds,
+                    animation: { duration: 600, easingFunction: 'easeInOutQuad' }
+                });
+            } else {
                 network.fit({ animation: { duration: 600, easingFunction: 'easeInOutQuad' } });
             }
         }
@@ -488,12 +706,17 @@
         function filterByDepartment(dept) {
             if (!network || !graphData.nodes) return;
 
+            const banner = document.getElementById('graphSearchFilterBanner');
+            if (banner) banner.classList.add('hidden');
+
             if (dept === 'all') {
                 const allUpdates = [];
                 graphData.nodes.forEach(n => {
                     allUpdates.push({ id: n.id, hidden: false, opacity: 1 });
                 });
                 graphData.nodes.update(allUpdates);
+                isFilteredView = false;
+                activeFilteredNodeIds = [];
                 resetGraphView();
                 return;
             }
@@ -533,6 +756,9 @@
             });
             graphData.nodes.update(updates);
 
+            isFilteredView = true;
+            activeFilteredNodeIds = Array.from(visibleNodeIds);
+
             // Center view on this cluster
             setTimeout(() => {
                 if (visibleNodeIds.size > 0) {
@@ -544,33 +770,36 @@
             }, 100);
         }
 
-        // Live Search / Node Highlight
-        document.getElementById('graphSearchInput').addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase().trim();
-            if (!network || !graphData.nodes) return;
+        // Search Input Handling with cluster filtering & zoom
+        let searchDebounceTimer = null;
+        const graphSearchInput = document.getElementById('graphSearchInput');
+        if (graphSearchInput) {
+            graphSearchInput.addEventListener('input', function(e) {
+                const query = e.target.value.trim();
+                if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
 
-            if (query === '') {
-                graphData.nodes.forEach(n => {
-                    graphData.nodes.update({ id: n.id, hidden: false, opacity: 1 });
-                });
-                return;
-            }
-
-            const matchingNodeIds = [];
-            graphData.nodes.forEach(n => {
-                const label = (n.label || '').toLowerCase();
-                const full = (n.meta?.full_title || '').toLowerCase();
-                const name = (n.meta?.name || '').toLowerCase();
-                if (label.includes(query) || full.includes(query) || name.includes(query)) {
-                    matchingNodeIds.push(n.id);
-                }
+                searchDebounceTimer = setTimeout(() => {
+                    if (!query) {
+                        resetFullGraphView();
+                    } else {
+                        filterAndZoomConnectedResults(query);
+                    }
+                }, 300);
             });
 
-            if (matchingNodeIds.length > 0) {
-                network.selectNodes(matchingNodeIds);
-                network.focus(matchingNodeIds[0], { scale: 1.2, animation: true });
-            }
-        });
+            graphSearchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const query = e.target.value.trim();
+                    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+                    if (!query) {
+                        resetFullGraphView();
+                    } else {
+                        filterAndZoomConnectedResults(query);
+                    }
+                }
+            });
+        }
 
         document.addEventListener('DOMContentLoaded', initKnowledgeGraph);
     </script>
