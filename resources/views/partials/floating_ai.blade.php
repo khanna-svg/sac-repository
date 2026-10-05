@@ -27,10 +27,10 @@
         class="relative w-14 h-14 rounded-full bg-[#0A2549] text-[#CBA144] shadow-2xl border-2 border-[#CBA144] hover:bg-[#123668] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer focus:outline-none">
         
         <!-- Open Icon -->
-        <span id="floatingAiIconOpen" class="flex items-center justify-center transition-transform duration-300 group-hover:rotate-12">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
-            </svg>
+        <span id="floatingAiIconOpen" class="flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
+            <div class="w-10 h-10 rounded-full bg-white p-1 border border-[#CBA144] flex items-center justify-center shadow-inner overflow-hidden">
+                <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
+            </div>
         </span>
 
         <!-- Close Icon (X) -->
@@ -92,10 +92,8 @@
         <!-- Welcome Card -->
         <div id="floatingAiWelcomeCard" class="space-y-3">
             <div class="flex items-start gap-2.5">
-                <div class="w-7 h-7 rounded-xl bg-[#0A2549] text-[#CBA144] flex items-center justify-center shrink-0 shadow-xs mt-0.5">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                    </svg>
+                <div class="w-7 h-7 rounded-xl bg-white p-0.5 border border-[#CBA144]/50 flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                    <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                 </div>
                 <div class="flex-1 bg-white border border-gray-200/90 rounded-2xl rounded-tl-xs p-3.5 shadow-xs text-gray-800 leading-relaxed">
                     <p class="font-bold text-[#0A2549]">Hello! I'm your AIRIS Research AI.</p>
@@ -339,10 +337,8 @@
             const aiBubble = document.createElement('div');
             aiBubble.className = 'flex items-start gap-2';
             aiBubble.innerHTML = `
-                <div class="w-6 h-6 rounded-xl bg-[#0A2549] text-[#CBA144] flex items-center justify-center shrink-0 shadow-2xs mt-0.5 border border-[#CBA144]/30">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                    </svg>
+                <div class="w-6 h-6 rounded-lg bg-white p-0.5 border border-[#CBA144]/40 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                    <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                 </div>
                 <div class="flex-1 max-w-[90%] bg-white border border-gray-200/90 rounded-2xl rounded-tl-xs p-3 shadow-xs text-xs sm:text-sm text-gray-800 leading-relaxed">
                     <div class="prose prose-xs sm:prose-sm max-w-none text-gray-800">${formatted}</div>
