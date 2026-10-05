@@ -191,7 +191,7 @@
                         data: {
                             labels: yearLabels,
                             datasets: [{
-                                label: 'Theses Published',
+                                label: 'Theses Uploaded',
                                 data: yearCounts,
                                 borderColor: '#0A2549',
                                 backgroundColor: 'rgba(10, 37, 73, 0.08)',

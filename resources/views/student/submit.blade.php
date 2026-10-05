@@ -215,7 +215,7 @@
                                 id="author"
                                 name="author"
                                 required
-                                placeholder="Enter Author"
+                                placeholder="Enter Author(s)"
                                 class="w-full rounded-xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-[#0A2549] focus:bg-white focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs">
                             <p class="text-[11px] text-gray-400 mt-1">Separate multiple authors with commas.</p>
                         </div>

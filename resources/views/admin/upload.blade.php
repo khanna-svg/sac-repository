@@ -94,7 +94,7 @@
                             id="title"
                             name="title"
                             type="text"
-                            placeholder="e.g. APC CAR RENTAL MANAGEMENT SYSTEM WITH GPS VEHICLE TRACKING"
+                            placeholder="Enter Title"
                             required
                             class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-xs md:text-sm text-gray-800 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549] shadow-2xs">
                     </div>
@@ -111,7 +111,7 @@
                             placeholder="e.g. Charmie Lou A. Abayon, Maria Victoria S. Peria, Jomar Rhey D. Requirme"
                             required
                             class="w-full rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-xs md:text-sm text-gray-800 outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549] shadow-2xs">
-                        <p class="mt-1 text-[11px] text-gray-400">Separate multiple authors with commas.</p>
+                        <p class="mt-1 text-[11px] text-gray-400">Enter Author Name(s)</p>
                     </div>
 
                     <!-- Department & Program -->

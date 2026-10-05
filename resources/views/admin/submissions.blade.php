@@ -38,7 +38,7 @@
                         <span class="text-gray-400">Student Submissions</span>
                     </nav>
                     <p class="text-xs text-gray-500 mt-1 font-medium">
-                        Evaluate student submissions and publish or request revisions.
+                        Review student thesis submissions for checking.
                     </p>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                         onclick="switchTab('pending')"
                         id="tab-pending"
                         class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#0A2549] shadow-xs">
-                        <span>Pending Screening</span>
+                        <span>Pending</span>
                         <span class="font-normal opacity-80">(<span id="badge-pending">0</span>)</span>
                     </button>
                     <button
@@ -61,7 +61,7 @@
                         onclick="switchTab('approved')"
                         id="tab-approved"
                         class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900">
-                        <span>Cleared / Passed</span>
+                        <span>Passed</span>
                         <span class="font-normal opacity-80">(<span id="badge-approved">0</span>)</span>
                     </button>
                     <button
@@ -151,7 +151,7 @@
             <div class="space-y-3">
                 <div>
                     <label for="approveSimilarityInput" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                        Turnitin Similarity Index (%) <span class="text-gray-400 font-normal lowercase">(institutional threshold: &le; 15%)</span>
+                        Input TurnItIn & Grammarly Percentage(%) <span class="text-gray-400 font-normal lowercase">(acceptable threshold: &le; 15%)</span>
                     </label>
                     <input
                         type="text"
@@ -162,12 +162,12 @@
 
                 <div>
                     <label for="approveNotesInput" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                        Reviewer Remarks / Clearance Notes <span class="text-gray-400 font-normal lowercase">(optional)</span>
+                        Admin Feedback<span class="text-gray-400 font-normal lowercase">(optional)</span>
                     </label>
                     <textarea
                         id="approveNotesInput"
                         rows="3"
-                        placeholder="e.g. Turnitin similarity index is 11%. Plagiarism and Grammarly standards satisfied. Cleared for oral defense / final submission."
+                        placeholder="Enter your Feedback"
                         class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 p-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-600/10 transition shadow-2xs leading-relaxed"></textarea>
                 </div>
 
@@ -227,7 +227,7 @@
             <div class="space-y-3">
                 <div>
                     <label for="resubmitSimilarityInput" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                        Turnitin Similarity Index (%) <span class="text-rose-500 font-normal lowercase">(exceeded threshold, e.g. 28%)</span>
+                        Input TurnItIn & Grammarly Percentage(%) <span class="text-rose-500 font-normal lowercase">(acceptable threshold: &ge; 28%)</span>
                     </label>
                     <input
                         type="text"
@@ -238,13 +238,13 @@
 
                 <div>
                     <label for="adminNotesInput" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">
-                        Reviewer Feedback Notes <span class="text-rose-500">*</span>
+                        Admin Feedback
                     </label>
                     <textarea
                         id="adminNotesInput"
                         rows="4"
                         required
-                        placeholder="e.g. Turnitin similarity index is 28% (exceeds the 15% threshold). Please paraphrase Chapter 2 (Literature Review) and verify in-text citations before resubmitting."
+                        placeholder="e.g. Turnitin similarity index is ≥ 28% (exceeds the 15% threshold)."
                         class="w-full rounded-2xl border border-gray-200 bg-slate-50/60 p-3.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#0A2549] focus:bg-white focus:ring-2 focus:ring-[#0A2549]/10 transition shadow-2xs leading-relaxed"></textarea>
                 </div>
 
@@ -458,15 +458,15 @@
                 let statusBadgeHtml = '';
                 if (sub.status === 'approved') {
                     statusBadgeHtml = `
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            Cleared
+                            Approved
                             ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
                         </span>
                     `;
                 } else if (sub.status === 'resubmit') {
                     statusBadgeHtml = `
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700">
                             <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                             Needs Revisions
                             ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
@@ -474,9 +474,9 @@
                     `;
                 } else {
                     statusBadgeHtml = `
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-700">
                             <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                            Under Screening
+                            Pending
                         </span>
                     `;
                 }
