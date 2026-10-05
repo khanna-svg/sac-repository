@@ -48,12 +48,12 @@
             <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-md transition-transform group-hover:scale-105 border border-[#CBA144]/40">
                 <img
                     src="{{ asset('images/airis-logo.webp') }}"
-                    alt="SArchive Logo"
+                    alt="AIRIS Logo"
                     class="h-full w-full object-contain">
             </div>
             <div class="flex flex-col leading-tight truncate justify-center">
                 <span class="text-lg sm:text-xl font-black tracking-wide text-[#CBA144] group-hover:text-white transition font-['Outfit',sans-serif] drop-shadow-xs">
-                    SArchive
+                    AIRIS
                 </span>
                 <span class="text-[9px] sm:text-[10px] font-semibold text-slate-300 tracking-wider uppercase">
                     Thesis Repository
@@ -225,7 +225,7 @@
         </div>
         <h3 class="text-xl font-bold text-gray-900">Sign Out</h3>
         <p class="mt-2 text-xs md:text-sm text-gray-500 leading-relaxed">
-            Are you sure you want to sign out from SArchive?
+            Are you sure you want to sign out from AIRIS?
         </p>
         <div class="mt-6 flex items-center justify-center gap-3">
             <button

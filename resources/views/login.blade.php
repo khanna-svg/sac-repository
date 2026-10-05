@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>SArchive - Sign In</title>
+    <title>AIRIS - Sign In</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
 
@@ -50,14 +50,14 @@
             <div class="flex items-center justify-center mb-4">
                 <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white p-2 shadow-xl border-2 border-[#CBA144]/50 flex items-center justify-center">
                     <img 
-                        src="{{ asset('images/sarchive-logo.webp') }}"
-                        alt="SArchive Logo"
+                        src="{{ asset('images/airis-logo.webp') }}"
+                        alt="AIRIS Logo"
                         class="w-full h-full object-contain"
                     >
                 </div>
             </div>
             <h1 class="text-3xl sm:text-4xl font-black text-[#CBA144] drop-shadow-md tracking-wider font-['Outfit',sans-serif]">
-                SArchive
+                AIRIS
             </h1>
             <p class="mt-1 text-xs sm:text-sm text-slate-200 font-semibold tracking-wide">AI-Powered Institutional Research Repository</p>
         </div>
@@ -223,7 +223,7 @@
 
     <div>
         <footer class="absolute bottom-4 inset-x-0 text-center text-xs text-white/70 drop-shadow-sm px-4">
-            <p>© 2026 • SArchive</p>
+            <p>© 2026 • AIRIS</p>
         </footer>
     </div>
 

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Saved / Bookmarks - SArchive</title>
+    <title>Saved / Bookmarks - AIRIS</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -265,11 +265,11 @@
         <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-[#0A2549] text-white">
             <div class="flex items-center gap-2.5 min-w-0 pr-2">
                 <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#CBA144]/40 flex items-center justify-center">
-                    <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="SArchive Logo">
+                    <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                 </div>
                 <div class="min-w-0">
                     <h2 class="text-sm font-bold text-white truncate flex items-center gap-1.5">
-                        <span class="text-[#CBA144] font-black tracking-wide font-['Outfit',sans-serif]">SArchive</span>
+                        <span class="text-[#CBA144] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
                         <span>Thesis Assistant</span>
                     </h2>
                     <p id="aiDrawerDocTitle" class="text-[10px] text-slate-300 truncate">Select a thesis...</p>
@@ -347,7 +347,7 @@
                 <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse"></span>
                 <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse delay-150"></span>
                 <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse delay-300"></span>
-                <span class="text-[11px] text-gray-500 font-medium ml-1">SArchive AI is analyzing thesis...</span>
+                <span class="text-[11px] text-gray-500 font-medium ml-1">AIRIS AI is analyzing thesis...</span>
             </div>
         </div>
 
@@ -372,7 +372,7 @@
                 </button>
             </form>
             <p class="text-[9px] text-gray-400 text-center mt-1.5">
-                SArchive Research Intelligence • St. Anthony's College
+                AIRIS Research Intelligence • St. Anthony's College
             </p>
         </div>
 
@@ -416,7 +416,7 @@
 
         function handleImageError(imageElement) {
             imageElement.onerror = null;
-            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%230A2549'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23CBA144' text-anchor='middle' dominant-baseline='middle'>SArchive THESIS</text></svg>";
+            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%230A2549'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23CBA144' text-anchor='middle' dominant-baseline='middle'>AIRIS THESIS</text></svg>";
         }
 
         function getDepartmentDetails(deptVal, courseVal, titleVal) {
@@ -910,7 +910,7 @@
             let citation = '';
             if (style === 'apa') {
                 const apaAuthors = formatApaAuthors(author);
-                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. SArchive Institutional Research Repository.`;
+                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. AIRIS Institutional Research Repository.`;
             } else if (style === 'mla') {
                 const mlaAuthors = formatMlaAuthors(author);
                 citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate thesis, St. Anthony's College, ${year}.`;

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $subjectTitle ?? 'SArchive Thesis Clearance Update' }}</title>
+    <title>{{ $subjectTitle ?? 'AIRIS Thesis Clearance Update' }}</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
 
@@ -14,19 +14,19 @@
                 <!-- Main Container Card -->
                 <table role="presentation" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
                     
-                    <!-- SArchive Official Brand Header -->
+                    <!-- AIRIS Official Brand Header -->
                     <tr>
                         <td style="background-color: #0A2549; padding: 24px 30px; text-align: left; border-bottom: 3px solid #CBA144;">
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td style="width: 44px; vertical-align: middle;">
                                         <div style="background-color: #ffffff; width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(203,161,68,0.4); text-align: center; line-height: 38px;">
-                                            <img src="{{ url('/images/airis-logo.png') }}" width="28" height="28" style="vertical-align: middle; display: inline-block;" alt="SArchive Logo">
+                                            <img src="{{ url('/images/airis-logo.png') }}" width="28" height="28" style="vertical-align: middle; display: inline-block;" alt="AIRIS Logo">
                                         </div>
                                     </td>
                                     <td style="padding-left: 12px; vertical-align: middle;">
                                         <h1 style="margin: 0; color: #CBA144; font-size: 18px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
-                                            SArchive &bull; St. Anthony's College
+                                            AIRIS &bull; St. Anthony's College
                                         </h1>
                                         <p style="margin: 3px 0 0 0; color: #ffffff; font-size: 11px; font-weight: 500; opacity: 0.9; letter-spacing: 0.03em; text-transform: uppercase;">
                                             Institutional Research Repository &bull; Clearance Notification
@@ -202,7 +202,7 @@
                     <tr>
                         <td style="background-color: #f1f5f9; padding: 20px 30px; text-align: center; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; line-height: 1.5;">
                             <p style="margin: 0 0 4px 0; font-weight: 600; color: #475569;">
-                                SArchive &bull; St. Anthony's College Research Repository
+                                AIRIS &bull; St. Anthony's College Research Repository
                             </p>
                             <p style="margin: 0 0 6px 0;">
                                 San Jose de Buenavista, Antique, Philippines
