@@ -47,7 +47,7 @@
                 <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
             </div>
             <div class="min-w-0 flex items-center gap-1.5">
-                <span class="text-xs sm:text-sm font-bold text-amber-100">AI Assistant</span>
+                <span class="text-xs sm:text-sm font-bold text-amber-100">AIRIS Assistant</span>
             </div>
         </div>
 
