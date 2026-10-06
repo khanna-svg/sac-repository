@@ -8,15 +8,6 @@
 
 <!-- 1. Floating Action Button (Messenger Chat Head) -->
 <div id="floatingAiContainer" class="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-40 select-none group">
-    
-    <!-- Hover Tooltip / Speech Bubble -->
-    <div
-        id="floatingAiTooltip"
-        class="absolute -top-10 right-0 hidden sm:flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200/80 rounded-full shadow-md text-xs font-semibold text-gray-700 whitespace-nowrap pointer-events-none">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span>AIRIS AI</span>
-        <span class="absolute -bottom-1.5 right-6 w-3 h-3 bg-white border-r border-b border-gray-200/80 rotate-45"></span>
-    </div>
 
     <!-- The Circular Floating Button -->
     <button
