@@ -28,8 +28,8 @@
         <header class="flex items-center justify-between gap-3 border-b border-gray-200 bg-white px-4 md:px-6 py-4 shadow-sm">
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="text-lg md:text-xl font-black text-[#0A2549] tracking-wider font-['Outfit',sans-serif]">AIRIS</span>
-                    <span class="text-base md:text-lg font-bold text-[#0A2549]">AI Assistant</span>
+                    <span class="text-lg md:text-xl font-black text-[#700000] tracking-wider font-['Outfit',sans-serif]">AIRIS</span>
+                    <span class="text-base md:text-lg font-bold text-[#700000]">AI Assistant</span>
                 </div>
                 <p class="mt-0.5 text-xs md:text-sm text-gray-500">
                     Grounded in St. Anthony's College thesis research repository.
@@ -56,7 +56,7 @@
             <!-- INITIAL AI MESSAGE -->
             <div class="flex items-start gap-3">
 
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 flex-shrink-0 flex items-center justify-center shadow-md">
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#D4AF37]/40 flex-shrink-0 flex items-center justify-center shadow-md">
                     <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                 </div>
 
@@ -76,7 +76,7 @@
 
                     </div>
 
-                    <div class="text-[10px] md:text-xs text-[#0A2549] mt-1.5 font-semibold">
+                    <div class="text-[10px] md:text-xs text-[#700000] mt-1.5 font-semibold">
                         AIRIS Research Intelligence
                     </div>
 
@@ -101,14 +101,14 @@
                         rows="1"
                         required
                         placeholder="Ask a question..."
-                        class="w-full resize-none bg-slate-50 border border-gray-300 rounded-2xl px-4 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549] leading-normal block shadow-sm"></textarea>
+                        class="w-full resize-none bg-slate-50 border border-gray-300 rounded-2xl px-4 py-3 text-xs md:text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] leading-normal block shadow-sm"></textarea>
 
                 </div>
 
                 <button
                     type="submit"
                     id="sendBtn"
-                    class="h-[46px] md:h-[48px] bg-[#0A2549] hover:bg-[#123668] disabled:bg-gray-200 disabled:text-gray-400 text-[#CBA144] font-bold px-5 md:px-6 rounded-2xl text-xs md:text-sm transition flex items-center justify-center gap-2 shrink-0 shadow-sm">
+                    class="h-[46px] md:h-[48px] bg-[#700000] hover:bg-[#850000] disabled:bg-gray-200 disabled:text-gray-400 text-[#FFD700] font-bold px-5 md:px-6 rounded-2xl text-xs md:text-sm transition flex items-center justify-center gap-2 shrink-0 shadow-sm">
 
                     <span id="sendBtnText">
                         Send
@@ -171,7 +171,7 @@
                 chatMessages.innerHTML = `
                     <!-- INITIAL AI MESSAGE -->
                     <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 shrink-0 flex items-center justify-center shadow-md">
+                        <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#D4AF37]/40 shrink-0 flex items-center justify-center shadow-md">
                             <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                         </div>
                         <div class="max-w-3xl">
@@ -184,7 +184,7 @@
                                     I'll search the repository and remember our conversation context to answer your follow-up questions!
                                 </p>
                             </div>
-                            <div class="text-[10px] md:text-xs text-[#0A2549] mt-1.5 font-semibold">
+                            <div class="text-[10px] md:text-xs text-[#700000] mt-1.5 font-semibold">
                                 AIRIS Research Intelligence
                             </div>
                         </div>
@@ -276,7 +276,7 @@
 
                 wrapper.innerHTML = `
                 <div class="max-w-xl md:max-w-3xl">
-                    <div class="bg-[#0A2549] rounded-2xl rounded-tr-md px-4 py-3 shadow-sm">
+                    <div class="bg-[#700000] rounded-2xl rounded-tr-md px-4 py-3 shadow-sm">
                         <p class="text-sm text-white whitespace-pre-wrap"></p>
                     </div>
                     <div class="text-[10px] md:text-xs text-gray-500 mt-1.5 text-right font-medium">
@@ -321,7 +321,7 @@
                 }
 
                 wrapper.innerHTML = `
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 shrink-0 flex items-center justify-center shadow-md">
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#D4AF37]/40 shrink-0 flex items-center justify-center shadow-md">
                     <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                 </div>
 
@@ -332,7 +332,7 @@
                         </div>
                     </div>
 
-                    <div class="text-[10px] md:text-xs text-[#0A2549] mt-1.5 font-semibold">
+                    <div class="text-[10px] md:text-xs text-[#700000] mt-1.5 font-semibold">
                         AIRIS Research Intelligence
                     </div>
                 </div>
@@ -364,7 +364,7 @@
 
                 wrapper.innerHTML = `
 
-                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#CBA144]/40 flex-shrink-0 flex items-center justify-center shadow-md">
+                <div class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-white p-1 border border-[#D4AF37]/40 flex-shrink-0 flex items-center justify-center shadow-md">
                     <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                 </div>
 
@@ -374,11 +374,11 @@
 
                         <div class="flex items-center gap-1.5">
 
-                            <span class="w-2 h-2 bg-[#0A2549] rounded-full animate-bounce"></span>
+                            <span class="w-2 h-2 bg-[#700000] rounded-full animate-bounce"></span>
 
-                            <span class="w-2 h-2 bg-[#0A2549] rounded-full animate-bounce" style="animation-delay:.15s"></span>
+                            <span class="w-2 h-2 bg-[#700000] rounded-full animate-bounce" style="animation-delay:.15s"></span>
 
-                            <span class="w-2 h-2 bg-[#0A2549] rounded-full animate-bounce" style="animation-delay:.3s"></span>
+                            <span class="w-2 h-2 bg-[#700000] rounded-full animate-bounce" style="animation-delay:.3s"></span>
 
                         </div>
 
@@ -513,7 +513,7 @@
                         'Thinking...';
 
                     sendBtnIcon.innerHTML = `
-                        <svg class="w-4 h-4 animate-spin text-[#CBA144]" fill="none" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 animate-spin text-[#FFD700]" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>

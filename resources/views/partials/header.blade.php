@@ -37,7 +37,7 @@
     }
 @endphp
 
-<header id="sacTopHeader" data-csrf="{{ csrf_token() }}" class="fixed top-0 right-0 left-0 md:left-64 h-16 md:h-20 z-40 bg-gradient-to-r from-[#0A2549] via-[#123668] to-[#CBA144] border-b border-[#CBA144]/40 shadow-lg px-4 sm:px-6 flex items-center justify-between transition-all duration-300 select-none">
+<header id="sacTopHeader" data-csrf="{{ csrf_token() }}" class="fixed top-0 right-0 left-0 md:left-64 h-16 md:h-20 z-40 bg-[#700000] border-b border-[#600000] shadow-md px-4 sm:px-6 flex items-center justify-between transition-all duration-300 select-none">
     
     <!-- LEFT: Mobile/Collapsed Toggle & Current Page Title -->
     <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
@@ -48,23 +48,23 @@
             onclick="toggleSidebarGlobal()"
             title="Toggle Navigation Menu"
             aria-label="Toggle Navigation Menu"
-            class="rounded-xl p-1.5 sm:p-2 text-[#CBA144] hover:bg-[#123668] hover:text-white transition cursor-pointer flex items-center justify-center md:hidden shrink-0">
+            class="rounded-xl p-1.5 sm:p-2 text-[#FFD700] hover:bg-[#8d0000] hover:text-white transition cursor-pointer flex items-center justify-center md:hidden shrink-0">
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
         </button>
 
-        <h1 class="font-sans text-base sm:text-xl md:text-2xl font-black text-[#CBA144] tracking-wider uppercase drop-shadow-md truncate">
+        <h1 class="font-sans text-base sm:text-xl md:text-2xl font-black text-[#FFD700] tracking-wider uppercase drop-shadow-md truncate">
             {{ $title ?? 'AIRIS' }}
         </h1>
     </div>
 
     <!-- RIGHT: User Greeting & Notifications -->
-    <div class="flex items-center gap-2 sm:gap-4 shrink-0 justify-end bg-[#0A2549]/70 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/15 shadow-xs">
+    <div class="flex items-center gap-2 sm:gap-4 shrink-0 justify-end bg-[#5b0000]/70 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/15 shadow-xs">
         @if($userEmail)
             <div class="flex items-center">
                 <span class="text-xs sm:text-sm md:text-base font-semibold text-white tracking-tight truncate max-w-[120px] sm:max-w-[220px] md:max-w-none">
-                    Hi, <span class="font-bold text-[#CBA144]">{{ $userName }}</span>
+                    Hi, <span class="font-bold text-[#FFD700]">{{ $userName }}</span>
                 </span>
             </div>
 
@@ -76,7 +76,7 @@
                     onclick="toggleHeaderNotifDropdown(event)"
                     title="Notifications"
                     aria-label="Notifications"
-                    class="relative p-1.5 sm:p-2 rounded-xl text-[#CBA144] hover:text-white hover:bg-[#123668] transition cursor-pointer flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#CBA144]/50">
+                    class="relative p-1.5 sm:p-2 rounded-xl text-[#FFD700] hover:text-white hover:bg-[#8d0000] transition cursor-pointer flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#FFD700]/50">
                     <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                     </svg>
@@ -100,7 +100,7 @@
                         <button
                             type="button"
                             onclick="markAllHeaderNotifsAsRead(event)"
-                            class="text-[11px] font-semibold text-[#0A2549] hover:text-[#CBA144] hover:underline cursor-pointer">
+                            class="text-[11px] font-semibold text-[#700000] hover:text-[#900000] hover:underline cursor-pointer">
                             Mark all as read
                         </button>
                     </div>
@@ -163,7 +163,7 @@
                 </div>
                 <p class="text-[11px] text-gray-700 mt-1 leading-snug line-clamp-2">${n.message}</p>
                 <div class="mt-2.5 flex items-center gap-2">
-                    <a href="${linkUrl}" onclick="handleHeaderNotifClick('${n.id}', '${linkUrl}', event)" class="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-[#0A2549] text-[#CBA144] hover:bg-[#123668] text-[11px] font-bold shadow-xs transition">
+                    <a href="${linkUrl}" onclick="handleHeaderNotifClick('${n.id}', '${linkUrl}', event)" class="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#8d0000] text-[11px] font-bold shadow-xs transition">
                         <span>View Details</span>
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -241,7 +241,7 @@
                         <a href="${linkUrl}" onclick="handleHeaderNotifClick('${n.id}', '${linkUrl}', event)" class="block py-2.5 px-3 rounded-xl transition hover:bg-slate-50 cursor-pointer ${!n.is_read ? 'bg-amber-50/70 border border-amber-200/70' : 'border border-transparent'}">
                             <div class="flex items-start justify-between gap-1.5">
                                 <div class="flex items-center gap-1.5 min-w-0">
-                                    ${!n.is_read ? '<span class="w-2 h-2 rounded-full bg-[#0A2549] shrink-0"></span>' : ''}
+                                    ${!n.is_read ? '<span class="w-2 h-2 rounded-full bg-[#700000] shrink-0"></span>' : ''}
                                     <h4 class="font-bold text-xs truncate ${iconColor}">${n.title}</h4>
                                 </div>
                                 <span class="text-[9px] text-gray-400 shrink-0 font-mono">${timeAgo}</span>

@@ -16,16 +16,16 @@
                     
                     <!-- AIRIS Official Brand Header -->
                     <tr>
-                        <td style="background-color: #0A2549; padding: 24px 30px; text-align: left; border-bottom: 3px solid #CBA144;">
+                        <td style="background-color: #700000; padding: 24px 30px; text-align: left; border-bottom: 3px solid #FFD700;">
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td style="width: 44px; vertical-align: middle;">
-                                        <div style="background-color: #ffffff; width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(203,161,68,0.4); text-align: center; line-height: 38px;">
+                                        <div style="background-color: #ffffff; width: 38px; height: 38px; border-radius: 10px; border: 1px solid rgba(255,215,0,0.4); text-align: center; line-height: 38px;">
                                             <img src="{{ url('/images/airis-logo.png') }}" width="28" height="28" style="vertical-align: middle; display: inline-block;" alt="AIRIS Logo">
                                         </div>
                                     </td>
                                     <td style="padding-left: 12px; vertical-align: middle;">
-                                        <h1 style="margin: 0; color: #CBA144; font-size: 18px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
+                                        <h1 style="margin: 0; color: #FFD700; font-size: 18px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;">
                                             AIRIS &bull; St. Anthony's College
                                         </h1>
                                         <p style="margin: 3px 0 0 0; color: #ffffff; font-size: 11px; font-weight: 500; opacity: 0.9; letter-spacing: 0.03em; text-transform: uppercase;">
@@ -43,7 +43,7 @@
                             
                             <!-- Greeting -->
                             <p style="margin: 0 0 16px 0; font-size: 15px; font-weight: 600; color: #334155;">
-                                Hello, <span style="color: #0A2549; font-weight: 700;">{{ $document->submitted_by_name ?: 'SAC Student' }}</span>
+                                Hello, <span style="color: #700000; font-weight: 700;">{{ $document->submitted_by_name ?: 'SAC Student' }}</span>
                             </p>
 
                             @if($type === 'passed')
@@ -188,7 +188,7 @@
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td align="center">
-                                        <a href="{{ url('/student/submit') }}" target="_blank" style="display: inline-block; background-color: #0A2549; color: #CBA144; font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(10, 37, 73, 0.2); letter-spacing: 0.02em;">
+                                        <a href="{{ url('/student/submit') }}" target="_blank" style="display: inline-block; background-color: #700000; color: #FFD700; font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(112, 0, 0, 0.2); letter-spacing: 0.02em;">
                                             {{ $type === 'resubmit' ? 'Revise & Resubmit Manuscript' : 'View in Student Portal' }} &rarr;
                                         </a>
                                     </td>

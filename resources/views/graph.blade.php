@@ -39,7 +39,7 @@
                     <select
                         id="deptClusterFilter"
                         onchange="filterByDepartment(this.value)"
-                        class="rounded-xl border border-gray-300 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-gray-700 focus:border-[#0A2549] focus:ring-1 focus:ring-[#0A2549] shadow-2xs cursor-pointer outline-none">
+                        class="rounded-xl border border-gray-300 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-gray-700 focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs cursor-pointer outline-none">
                         <option value="all">All Departments (Full Network)</option>
                         <option value="dte">Teacher Education (DTE)</option>
                         <option value="cjed">Criminal Justice Education (CJED)</option>
@@ -55,7 +55,7 @@
                         type="text"
                         id="graphSearchInput"
                         placeholder="Search concept, tech, or thesis..."
-                        class="rounded-xl border border-gray-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-gray-800 focus:border-[#0A2549] focus:outline-none focus:ring-1 focus:ring-[#0A2549] w-44 md:w-52 transition">
+                        class="rounded-xl border border-gray-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-gray-800 focus:border-[#700000] focus:outline-none focus:ring-1 focus:ring-[#700000] w-44 md:w-52 transition">
                     <svg class="w-3.5 h-3.5 absolute left-2.5 top-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -78,7 +78,7 @@
                     onclick="togglePhysics()"
                     title="Toggle Node Physics"
                     class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-slate-50 transition shadow-sm flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-3.5 h-3.5 text-[#0A2549]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <svg class="w-3.5 h-3.5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
                     </svg>
                     <span id="physicsStatusText">Freeze</span>
@@ -92,7 +92,7 @@
             
             <!-- Thesis Papers -->
             <span class="inline-flex items-center gap-2 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
-                <span style="background-color: #0A2549; border: 1.5px solid #CBA144;" class="w-3.5 h-3.5 rounded-xs inline-block shrink-0 shadow-2xs"></span>
+                <span style="background-color: #700000; border: 1.5px solid #FFD700;" class="w-3.5 h-3.5 rounded-xs inline-block shrink-0 shadow-2xs"></span>
                 <span class="font-semibold text-gray-800">Thesis Papers</span>
             </span>
 
@@ -120,12 +120,12 @@
             <!-- Active Search Filter Floating Pill (Google-Style) -->
             <div
                 id="graphSearchFilterBanner"
-                class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-white/95 backdrop-blur-md border border-[#0A2549]/20 shadow-xl rounded-2xl px-4 py-2 flex items-center gap-3.5 text-xs max-w-[92vw] transition-all duration-300">
+                class="hidden absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-white/95 backdrop-blur-md border border-[#700000]/20 shadow-xl rounded-2xl px-4 py-2 flex items-center gap-3.5 text-xs max-w-[92vw] transition-all duration-300">
                 <div class="flex items-center gap-2.5 min-w-0">
-                    <span class="w-2.5 h-2.5 rounded-full bg-[#CBA144] animate-pulse shrink-0"></span>
+                    <span class="w-2.5 h-2.5 rounded-full bg-[#FFD700] animate-pulse shrink-0"></span>
                     <p class="text-gray-700 truncate">
                         <span class="text-gray-500 font-medium">Search Cluster:</span>
-                        <strong id="filterBannerQuery" class="text-[#0A2549] font-black ml-1"></strong>
+                        <strong id="filterBannerQuery" class="text-[#700000] font-black ml-1"></strong>
                         <span id="filterBannerCount" class="text-xs text-gray-500 ml-1 font-semibold"></span>
                     </p>
                 </div>
@@ -133,7 +133,7 @@
                     type="button"
                     onclick="resetFullGraphView()"
                     title="View Full Knowledge Graph"
-                    class="shrink-0 px-3 py-1.5 rounded-xl bg-[#0A2549] hover:bg-[#123668] text-[#CBA144] hover:text-white font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs border border-[#CBA144]/30">
+                    class="shrink-0 px-3 py-1.5 rounded-xl bg-[#700000] hover:bg-[#850000] text-[#FFD700] hover:text-white font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-xs border border-[#FFD700]/30">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0 0h4.5m-4.5 0L9 3.75M20.25 20.25v-4.5m0 0h-4.5m4.5 0L15 20.25M3.75 20.25h4.5m-4.5 0v-4.5m0 4.5L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9" />
                     </svg>
@@ -145,11 +145,11 @@
 
             <!-- Loading Spinner Indicator -->
             <div id="graphLoader" class="absolute inset-0 bg-white/80 backdrop-blur-xs flex flex-col items-center justify-center gap-3 z-10 transition-opacity">
-                <svg class="w-8 h-8 animate-spin text-[#0A2549]" fill="none" viewBox="0 0 24 24">
+                <svg class="w-8 h-8 animate-spin text-[#700000]" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <p class="text-xs font-bold text-[#0A2549] tracking-wide">Building Knowledge Graph...</p>
+                <p class="text-xs font-bold text-[#700000] tracking-wide">Building Knowledge Graph...</p>
             </div>
 
             <!-- Empty State -->
@@ -171,7 +171,7 @@
                 <!-- Drawer Header -->
                 <div class="border-b border-gray-100 p-4 bg-slate-50 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
-                        <span id="drawerBadge" style="background-color: #0A2549; color: #FFFFFF; border: 1.5px solid #CBA144;" class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg">
+                        <span id="drawerBadge" style="background-color: #700000; color: #FFFFFF; border: 1.5px solid #FFD700;" class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg">
                             Thesis Details
                         </span>
                     </div>
@@ -228,7 +228,7 @@
                     <a
                         id="drawerReadBtn"
                         href="#"
-                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#0A2549] px-4 py-3 text-xs font-bold text-[#CBA144] hover:bg-[#123668] shadow-md transition cursor-pointer">
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#700000] px-4 py-3 text-xs font-bold text-[#FFD700] hover:bg-[#850000] shadow-md transition cursor-pointer">
                         <span>Read Full Thesis</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -279,10 +279,10 @@
                     groups: {
                         thesis: {
                             color: {
-                                background: '#0A2549',
-                                border: '#CBA144',
-                                highlight: { background: '#123668', border: '#dfb556' },
-                                hover: { background: '#123668', border: '#dfb556' }
+                                background: '#700000',
+                                border: '#FFD700',
+                                highlight: { background: '#850000', border: '#ffe033' },
+                                hover: { background: '#850000', border: '#ffe033' }
                             },
                             shape: 'box',
                             borderWidth: 2,
@@ -332,7 +332,7 @@
                             roundness: 0.2
                         },
                         font: { size: 9, align: 'middle', color: '#94a3b8' },
-                        color: { color: '#cbd5e1', highlight: '#0A2549', hover: '#0A2549' },
+                        color: { color: '#cbd5e1', highlight: '#700000', hover: '#700000' },
                         arrows: { to: { enabled: true, scaleFactor: 0.5 } }
                     },
                     physics: {
@@ -667,9 +667,9 @@
                 // THESIS NODE DETAILS
                 drawerBadge.textContent = 'THESIS DETAILS';
                 drawerBadge.className = 'text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg';
-                drawerBadge.style.backgroundColor = '#0A2549';
+                drawerBadge.style.backgroundColor = '#700000';
                 drawerBadge.style.color = '#FFFFFF';
-                drawerBadge.style.border = '1.5px solid #CBA144';
+                drawerBadge.style.border = '1.5px solid #FFD700';
                 
                 drawerTitle.textContent = meta.full_title || 'Untitled Thesis';
                 drawerSubtitle.textContent = meta.author ? 'By ' + meta.author : 'SAC Researchers';
@@ -753,7 +753,7 @@
                     card.innerHTML = `
                         <p class="text-xs font-bold text-gray-900 leading-snug line-clamp-2">${t.title}</p>
                         <p class="text-[11px] text-gray-500 mt-1">${t.author || 'SAC Researchers'}</p>
-                        <a href="${t.view_url}" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#0A2549] hover:underline mt-2">
+                        <a href="${t.view_url}" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#700000] hover:underline mt-2">
                             <span>View Thesis Paper</span>
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />

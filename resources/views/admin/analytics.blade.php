@@ -33,7 +33,7 @@
                 <div class="flex items-center gap-2.5 shrink-0">
                     <a
                         href="/admin/analytics/export-csv"
-                        class="inline-flex items-center gap-2 rounded-xl bg-[#0A2549] px-4 py-2 text-xs font-bold text-[#CBA144] hover:bg-[#123668] shadow-md transition">
+                        class="inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2 text-xs font-bold text-[#FFD700] hover:bg-[#850000] shadow-md transition">
                         <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                         </svg>
@@ -55,7 +55,7 @@
             <!-- Key Institutional Metrics -->
             <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Theses</p>
-                <p id="statTotalTheses" class="text-3xl md:text-4xl font-extrabold text-[#0A2549] mt-1.5">--</p>
+                <p id="statTotalTheses" class="text-3xl md:text-4xl font-extrabold text-[#700000] mt-1.5">--</p>
                 <p class="text-xs text-gray-500 mt-1">Total published theses in repository</p>
             </div>
 
@@ -122,7 +122,7 @@
                     'BSMARE': '#0d9488'
                 };
 
-                const defaultPalette = ['#0A2549', '#CBA144', '#0284c7', '#059669', '#d97706', '#7c3aed', '#dc2626'];
+                const defaultPalette = ['#700000', '#FFD700', '#0284c7', '#059669', '#d97706', '#7c3aed', '#dc2626'];
 
                 // 3. Course Bar Chart (Matching Department Colors)
                 const courseLabels = data.courses.map(c => c.course_code.toUpperCase());
@@ -193,13 +193,13 @@
                             datasets: [{
                                 label: 'Theses Uploaded',
                                 data: yearCounts,
-                                borderColor: '#0A2549',
-                                backgroundColor: 'rgba(10, 37, 73, 0.08)',
+                                borderColor: '#700000',
+                                backgroundColor: 'rgba(112, 0, 0, 0.08)',
                                 fill: true,
                                 tension: 0.3,
                                 pointRadius: 5,
-                                pointBackgroundColor: '#CBA144',
-                                pointBorderColor: '#0A2549',
+                                pointBackgroundColor: '#FFD700',
+                                pointBorderColor: '#700000',
                                 pointBorderWidth: 2
                             }]
                         },

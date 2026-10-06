@@ -12,8 +12,9 @@
     <!-- Hover Tooltip / Speech Bubble -->
     <div
         id="floatingAiTooltip"
-        class=""
-        <span class="w-2 h-2 animate-pulse"></span>
+        class="absolute -top-10 right-0 hidden sm:flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200/80 rounded-full shadow-md text-xs font-semibold text-gray-700 whitespace-nowrap pointer-events-none">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>AIRIS AI</span>
         <span class="absolute -bottom-1.5 right-6 w-3 h-3 bg-white border-r border-b border-gray-200/80 rotate-45"></span>
     </div>
 
@@ -24,11 +25,11 @@
         onclick="toggleFloatingAiChat()"
         title="Open AIRIS AI Assistant"
         aria-label="Open AIRIS AI Assistant"
-        class="relative w-14 h-14 rounded-full bg-[#0A2549] text-[#CBA144] shadow-2xl border-2 border-[#CBA144] hover:bg-[#123668] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer focus:outline-none">
+        class="relative w-14 h-14 rounded-full bg-[#700000] text-[#FFD700] shadow-2xl border-2 border-[#D4AF37] hover:bg-[#8d0000] hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center cursor-pointer focus:outline-none">
         
         <!-- Open Icon -->
         <span id="floatingAiIconOpen" class="flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-            <div class="w-10 h-10 rounded-full bg-white p-1 border border-[#CBA144] flex items-center justify-center shadow-inner overflow-hidden">
+            <div class="w-10 h-10 rounded-full bg-white p-1 border border-[#D4AF37] flex items-center justify-center shadow-inner overflow-hidden">
                 <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
             </div>
         </span>
@@ -49,14 +50,14 @@
     style="box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25);">
 
     <!-- Header (Messenger Style Gradient) -->
-    <div class="px-4 py-3 bg-gradient-to-r from-[#071933] via-[#0A2549] to-[#123668] text-white flex items-center justify-between shadow-xs shrink-0 border-b border-[#14325c]">
+    <div class="px-4 py-3 bg-gradient-to-r from-[#5b0000] via-[#700000] to-[#8d0000] text-white flex items-center justify-between shadow-xs shrink-0 border-b border-[#600000]">
         <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-9 h-9 rounded-2xl bg-white p-1 border border-[#CBA144]/60 flex items-center justify-center shrink-0 shadow-inner">
+            <div class="w-9 h-9 rounded-2xl bg-white p-1 border border-[#D4AF37]/60 flex items-center justify-center shrink-0 shadow-inner">
                 <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
             </div>
             <div class="min-w-0 flex items-center gap-1.5">
-                <span class="text-sm sm:text-base font-black tracking-wide text-[#CBA144] font-['Outfit',sans-serif] drop-shadow-xs">AIRIS</span>
-                <span class="text-xs sm:text-sm font-bold text-slate-200">AI Assistant</span>
+                <span class="text-sm sm:text-base font-black tracking-wide text-[#FFD700] font-['Outfit',sans-serif] drop-shadow-xs">AIRIS</span>
+                <span class="text-xs sm:text-sm font-bold text-amber-100">AI Assistant</span>
             </div>
         </div>
 
@@ -67,7 +68,7 @@
                 type="button"
                 onclick="clearFloatingAiChat()"
                 title="Start New Conversation"
-                class="p-1.5 rounded-xl text-[#CBA144] hover:text-white hover:bg-white/10 transition cursor-pointer">
+                class="p-1.5 rounded-xl text-[#FFD700] hover:text-white hover:bg-white/10 transition cursor-pointer">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>
@@ -78,7 +79,7 @@
                 type="button"
                 onclick="toggleFloatingAiChat()"
                 title="Minimize"
-                class="p-1.5 rounded-xl text-[#CBA144] hover:text-white hover:bg-white/10 transition cursor-pointer">
+                class="p-1.5 rounded-xl text-[#FFD700] hover:text-white hover:bg-white/10 transition cursor-pointer">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -92,11 +93,11 @@
         <!-- Welcome Card -->
         <div id="floatingAiWelcomeCard" class="space-y-3">
             <div class="flex items-start gap-2.5">
-                <div class="w-7 h-7 rounded-xl bg-white p-0.5 border border-[#CBA144]/50 flex items-center justify-center shrink-0 shadow-xs mt-0.5">
+                <div class="w-7 h-7 rounded-xl bg-white p-0.5 border border-[#D4AF37]/50 flex items-center justify-center shrink-0 shadow-xs mt-0.5">
                     <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                 </div>
                 <div class="flex-1 bg-white border border-gray-200/90 rounded-2xl rounded-tl-xs p-3.5 shadow-xs text-gray-800 leading-relaxed">
-                    <p class="font-bold text-[#0A2549]">Hello! I'm your AIRIS Research AI.</p>
+                    <p class="font-bold text-[#700000]">Hello! I'm your AIRIS Research AI.</p>
                     <p class="mt-1 text-gray-600 text-xs">
                         Ask me any research questions about thesis topics, methodologies, or findings in St. Anthony's College.
                     </p>
@@ -109,19 +110,19 @@
                 <button
                     type="button"
                     onclick="sendFloatingSuggested('What IoT and computer vision capstone theses are available?')"
-                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#CBA144] hover:text-[#0A2549] hover:shadow-2xs transition cursor-pointer">
+                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-2xs transition cursor-pointer">
                     💡 What IoT capstone theses are available?
                 </button>
                 <button
                     type="button"
                     onclick="sendFloatingSuggested('Explain the common methodologies used in recent IT theses.')"
-                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#CBA144] hover:text-[#0A2549] hover:shadow-2xs transition cursor-pointer">
+                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-2xs transition cursor-pointer">
                     📊 Explain common IT research methodologies
                 </button>
                 <button
                     type="button"
                     onclick="sendFloatingSuggested('Recommend healthcare or nursing capstone research topics.')"
-                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#CBA144] hover:text-[#0A2549] hover:shadow-2xs transition cursor-pointer">
+                    class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-2xs transition cursor-pointer">
                     🏥 Recommend healthcare research topics
                 </button>
             </div>
@@ -132,9 +133,9 @@
 
         <!-- Typing Indicator -->
         <div id="floatingAiTyping" class="hidden items-center gap-2 text-xs text-gray-400 pl-2">
-            <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse"></span>
-            <span class="w-2 h-2 rounded-full bg-[#CBA144] animate-pulse delay-150"></span>
-            <span class="w-2 h-2 rounded-full bg-[#0A2549] animate-pulse delay-300"></span>
+            <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse"></span>
+            <span class="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse delay-150"></span>
+            <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse delay-300"></span>
             <span class="text-[11px] text-gray-500 font-medium ml-1">Searching AIRIS repository...</span>
         </div>
     </div>
@@ -147,13 +148,13 @@
                 type="text"
                 autocomplete="off"
                 placeholder="Ask an AIRIS research question..."
-                class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-11 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#CBA144] focus:ring-1 focus:ring-[#CBA144]/50 shadow-2xs transition">
+                class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-11 py-2.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]/30 shadow-2xs transition">
 
             <button
                 id="floatingAiSendBtn"
                 type="submit"
                 title="Send Message"
-                class="absolute right-1.5 p-2 rounded-xl bg-[#0A2549] text-[#CBA144] hover:bg-[#123668] transition disabled:opacity-40 cursor-pointer shadow-xs border border-[#CBA144]/40">
+                class="absolute right-1.5 p-2 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#8d0000] transition disabled:opacity-40 cursor-pointer shadow-xs border border-[#FFD700]/40">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                 </svg>
@@ -280,7 +281,7 @@
         const userBubble = document.createElement('div');
         userBubble.className = 'flex justify-end';
         userBubble.innerHTML = `
-            <div class="max-w-[85%] rounded-2xl rounded-tr-xs bg-[#0A2549] text-white px-3.5 py-2 text-xs sm:text-sm font-medium shadow-xs leading-relaxed border border-[#CBA144]/20">
+            <div class="max-w-[85%] rounded-2xl rounded-tr-xs bg-[#700000] text-white px-3.5 py-2 text-xs sm:text-sm font-medium shadow-xs leading-relaxed border border-[#D4AF37]/20">
                 ${escapeHtml(question)}
             </div>
         `;
@@ -337,7 +338,7 @@
             const aiBubble = document.createElement('div');
             aiBubble.className = 'flex items-start gap-2';
             aiBubble.innerHTML = `
-                <div class="w-6 h-6 rounded-lg bg-white p-0.5 border border-[#CBA144]/40 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
+                <div class="w-6 h-6 rounded-lg bg-white p-0.5 border border-[#D4AF37]/40 flex items-center justify-center shrink-0 shadow-2xs mt-0.5">
                     <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                 </div>
                 <div class="flex-1 max-w-[90%] bg-white border border-gray-200/90 rounded-2xl rounded-tl-xs p-3 shadow-xs text-xs sm:text-sm text-gray-800 leading-relaxed">
