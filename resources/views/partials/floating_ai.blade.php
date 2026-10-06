@@ -47,7 +47,6 @@
                 <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
             </div>
             <div class="min-w-0 flex items-center gap-1.5">
-                <span class="text-sm sm:text-base font-black tracking-wide text-[#FFD700] font-['Outfit',sans-serif] drop-shadow-xs">AIRIS</span>
                 <span class="text-xs sm:text-sm font-bold text-amber-100">AI Assistant</span>
             </div>
         </div>
@@ -90,7 +89,7 @@
                 <div class="flex-1 bg-white border border-gray-200/90 rounded-2xl rounded-tl-xs p-3.5 shadow-xs text-gray-800 leading-relaxed">
                     <p class="font-bold text-[#700000]">Hello! I'm your AIRIS Research AI.</p>
                     <p class="mt-1 text-gray-600 text-xs">
-                        Ask me any research questions about thesis topics, methodologies, or findings in St. Anthony's College.
+                        Ask me any research questions about thesis topics, methodologies, or findings inside the repository.
                     </p>
                 </div>
             </div>
@@ -152,7 +151,7 @@
             </button>
         </form>
         <p class="text-[9px] text-gray-400 text-center mt-1.5">
-            AIRIS • St. Anthony's College Repository • Powered by Gemini AI
+            AIRIS • Powered by Gemini AI
         </p>
     </div>
 
