@@ -497,7 +497,7 @@
                                 <p class="text-[11px] text-gray-400 mt-0.5">Submitted on ${formattedDate}</p>
                                 ${sub.admin_notes ? `
                                     <div class="mt-1.5 rounded-lg bg-slate-50 border border-gray-200 p-2 text-[11px] text-gray-700">
-                                        <span class="font-bold text-[#700000]">Reviewer Remarks:</span> ${escapeHtml(sub.admin_notes)}
+                                        <span class="font-bold text-[#700000]">Feedback:</span> ${escapeHtml(sub.admin_notes)}
                                      </div>
                                  ` : ''}
                             </div>
