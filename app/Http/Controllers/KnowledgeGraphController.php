@@ -52,6 +52,8 @@ class KnowledgeGraphController extends Controller
                 'id' => $doc->id,
                 'title' => $doc->title,
                 'author' => $doc->author ?? 'SAC Researchers',
+                'course_code' => $doc->course_code ?? '',
+                'department' => $doc->department ?? '',
                 'view_url' => '/documents/' . $doc->id,
             ];
 

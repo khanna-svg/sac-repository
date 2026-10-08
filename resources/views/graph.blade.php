@@ -186,7 +186,7 @@
                 <div class="p-5 flex-1 overflow-y-auto space-y-4">
                     <div>
                         <h2 id="drawerTitle" class="text-sm md:text-base font-bold text-gray-900 leading-snug"></h2>
-                        <p id="drawerSubtitle" class="text-xs text-gray-600 mt-1 font-medium"></p>
+                        <div id="drawerSubtitle" class="text-xs text-gray-600 mt-1 font-medium"></div>
                     </div>
 
                     <!-- THESIS-ONLY METADATA SECTIONS -->
@@ -248,6 +248,8 @@
         let isFilteredView = false;
         let activeFilteredNodeIds = [];
         let hasAppliedInitialSearchOrFocus = false;
+        let activeDrawerMeta = null;
+        let activeDrawerNodeId = null;
 
         async function initKnowledgeGraph() {
             const loader = document.getElementById('graphLoader');
@@ -366,7 +368,7 @@
                         const nodeId = params.nodes[0];
                         const node = graphData.nodes.get(nodeId);
                         if (node && node.meta) {
-                            openDetailsDrawer(node.meta);
+                            openDetailsDrawer(node.meta, nodeId);
                         } else {
                             closeDetailsDrawer();
                         }
@@ -445,7 +447,7 @@
                         }
                     });
                     if (targetNode.meta) {
-                        openDetailsDrawer(targetNode.meta);
+                        openDetailsDrawer(targetNode.meta, focusId);
                     }
                 }, 200);
             }
@@ -630,7 +632,7 @@
                         network.selectNodes([focusId]);
                         const targetNode = graphData.nodes.get(focusId);
                         if (targetNode && targetNode.meta) {
-                            openDetailsDrawer(targetNode.meta);
+                            openDetailsDrawer(targetNode.meta, focusId);
                         }
                     }, 300);
                 }
@@ -667,7 +669,84 @@
             window.history.replaceState({}, document.title, cleanUrl);
         }
 
-        function openDetailsDrawer(meta) {
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function getProgramDegreeName(courseVal, deptVal, titleVal) {
+            const course = (courseVal || '').toLowerCase().trim();
+            const courseNames = {
+                'bsa': 'Bachelor of Science in Accountancy (BSA)',
+                'bsais': 'Bachelor of Science in Accounting Information System (BSAIS)',
+                'ba': 'Business Administration (BSBA)',
+                'bshm': 'Bachelor of Science in Hospitality Management (BSHM)',
+                'bscrim': 'Bachelor of Science in Criminology (BSCrim)',
+                'bsc': 'Bachelor of Science in Criminology (BSCrim)',
+                'bsed_english': 'Bachelor of Secondary Education Major in English',
+                'bsed_math': 'Bachelor of Secondary Education Major in Mathematics',
+                'bsed_science': 'Bachelor of Secondary Education Major in Science',
+                'bsed': 'Bachelor of Secondary Education (BSEd)',
+                'beed': 'Bachelor of Elementary Education (BEEd)',
+                'bsce': 'Bachelor of Science in Civil Engineering (BSCE)',
+                'bscpe': 'Bachelor of Science in Computer Engineering (BSCpE)',
+                'bsit': 'Bachelor of Science in Information Technology (BSIT)',
+                'ab_philo': 'Bachelor of Arts in Philosophy (AB Philosophy)',
+                'bsn': 'Bachelor of Science in Nursing (BSN)',
+                'bsmare': 'BS in Marine Engineering (BSMarE)'
+            };
+
+            if (courseNames[course]) {
+                return courseNames[course];
+            }
+
+            const title = (titleVal || '').toLowerCase().trim();
+            if (title.includes('umbrella') || title.includes('vending machine') || title.includes('fish tank') || title.includes('iot') || title.includes('arduino')) {
+                return 'Bachelor of Science in Computer Engineering (BSCpE)';
+            }
+            if (title.includes('building') || title.includes('storey') || title.includes('residential') || title.includes('commercial') || title.includes('structural') || title.includes('slab')) {
+                return 'Bachelor of Science in Civil Engineering (BSCE)';
+            }
+            if (title.includes('tortilla') || title.includes('sensory') || title.includes('chips') || title.includes('food')) {
+                return 'Bachelor of Science in Hospitality Management (BSHM)';
+            }
+            if (title.includes('financial literacy') || title.includes('accounting') || title.includes('expenditures')) {
+                return 'Bachelor of Science in Accountancy (BSA)';
+            }
+            if (title.includes('internship') || title.includes('job placement')) {
+                return 'Bachelor of Science in Accounting Information System (BSAIS)';
+            }
+            if (title.includes('cybercrime') || title.includes('bullying') || title.includes('traffic violation') || title.includes('motorcycle')) {
+                return 'Bachelor of Science in Criminology (BSCrim)';
+            }
+            if (title.includes('carica papaya') || title.includes('antibacterial') || title.includes('inhibition')) {
+                return 'Bachelor of Secondary Education Major in Science';
+            }
+            if (title.includes('spelling') || title.includes('grammar') || title.includes('discourse')) {
+                return 'Bachelor of Secondary Education Major in English';
+            }
+            if (title.includes('mathematics') || title.includes('math anxiety')) {
+                return 'Bachelor of Secondary Education Major in Mathematics';
+            }
+            if (title.includes('nursing') || title.includes('patient')) {
+                return 'Bachelor of Science in Nursing (BSN)';
+            }
+            if (title.includes('land ethic') || title.includes('philosophical') || title.includes('inquiry')) {
+                return 'Bachelor of Arts in Philosophy (AB Philosophy)';
+            }
+
+            if (course) {
+                return course.toUpperCase();
+            }
+            return '';
+        }
+
+        function openDetailsDrawer(meta, currentNodeId = null) {
             const drawer = document.getElementById('detailsDrawer');
             const drawerBadge = document.getElementById('drawerBadge');
             const drawerTitle = document.getElementById('drawerTitle');
@@ -679,6 +758,9 @@
             const drawerFooter = document.getElementById('drawerFooter');
             const readBtn = document.getElementById('drawerReadBtn');
 
+            activeDrawerMeta = meta;
+            activeDrawerNodeId = currentNodeId || (meta && meta.type === 'thesis' ? 'doc_' + meta.document_id : null);
+
             if (meta.type === 'thesis') {
                 // THESIS NODE DETAILS
                 drawerBadge.textContent = 'THESIS DETAILS';
@@ -688,7 +770,11 @@
                 drawerBadge.style.border = '1.5px solid #FFD700';
                 
                 drawerTitle.textContent = meta.full_title || 'Untitled Thesis';
-                drawerSubtitle.textContent = meta.author ? 'By ' + meta.author : 'SAC Researchers';
+                const thesisDegree = getProgramDegreeName(meta.course_code, meta.department, meta.full_title);
+                drawerSubtitle.innerHTML = `
+                    <p class="text-xs text-gray-600 font-medium">${meta.author ? 'By ' + meta.author : 'SAC Researchers'}</p>
+                    ${thesisDegree ? `<p class="text-[11px] text-[#700000] font-bold mt-1">${escapeHtml(thesisDegree)}</p>` : ''}
+                `;
 
                 // Render Concept Pills
                 const conceptsContainer = document.getElementById('drawerConcepts');
@@ -757,24 +843,100 @@
                 drawerBadge.style.border = `1.5px solid ${borderColor}`;
 
                 drawerTitle.textContent = meta.name || 'Research Topic';
-                const count = (meta.theses || []).length;
-                drawerSubtitle.textContent = `Connected with ${count} repository thesis paper${count === 1 ? '' : 's'}`;
+
+                // Check canvas visibility state of each connected thesis
+                const rawTheses = meta.theses || [];
+                const totalCount = rawTheses.length;
+                const thesisStates = rawTheses.map(t => {
+                    const docNodeId = 'doc_' + t.id;
+                    const nodeOnCanvas = graphData.nodes ? graphData.nodes.get(docNodeId) : null;
+                    const isVisible = nodeOnCanvas ? !nodeOnCanvas.hidden : false;
+                    return {
+                        thesis: t,
+                        docNodeId: docNodeId,
+                        nodeExists: !!nodeOnCanvas,
+                        isVisible: isVisible
+                    };
+                });
+
+                const visibleCount = thesisStates.filter(s => s.isVisible).length;
+                const hiddenCount = totalCount - visibleCount;
+
+                if (isFilteredView && hiddenCount > 0) {
+                    drawerSubtitle.innerHTML = `
+                        <div class="space-y-2">
+                            <p class="text-xs text-gray-600 font-medium">
+                                Connected with <strong class="text-gray-900 font-bold">${totalCount}</strong> repository thesis paper${totalCount === 1 ? '' : 's'}
+                            </p>
+                            <div class="p-2.5 rounded-xl bg-amber-50/90 border border-amber-200 text-[11px] text-amber-900 leading-snug">
+                                <div class="flex items-center gap-1.5 font-bold text-amber-800">
+                                    <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>Active Search Filter</span>
+                                </div>
+                                <p class="mt-1 text-gray-700">
+                                    <strong>${visibleCount}</strong> of ${totalCount} papers match your current search and ${visibleCount === 1 ? 'is' : 'are'} shown on the graph. <strong>${hiddenCount}</strong> other paper${hiddenCount === 1 ? ' is' : 's are'} outside this filter.
+                                </p>
+                                <button type="button" onclick="revealAllThesesForTopic()" class="mt-2 w-full flex items-center justify-center gap-1.5 py-1.5 px-3 bg-[#700000] hover:bg-[#850000] text-[#FFD700] rounded-lg font-bold text-[11px] shadow-xs transition cursor-pointer">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    <span>Show all ${totalCount} connected papers in graph</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    drawerSubtitle.innerHTML = `<p class="text-xs text-gray-600 font-medium">Connected with <strong class="text-gray-900 font-bold">${totalCount}</strong> repository thesis paper${totalCount === 1 ? '' : 's'}</p>`;
+                }
 
                 connectedHeading.textContent = `Papers using this ${meta.type === 'concept' ? 'concept' : (meta.type === 'methodology' ? 'methodology' : 'tech stack')}`;
 
                 connectedList.innerHTML = '';
-                (meta.theses || []).forEach(t => {
+                thesisStates.forEach(item => {
+                    const t = item.thesis;
                     const card = document.createElement('div');
-                    card.className = 'bg-slate-50 hover:bg-slate-100 p-3 rounded-xl border border-gray-200 transition';
+                    card.className = `p-3 rounded-xl border transition ${item.isVisible ? 'bg-slate-50 border-gray-200 hover:bg-slate-100' : 'bg-amber-50/40 border-amber-200/90'}`;
+
+                    let actionFooter = '';
+                    if (item.isVisible) {
+                        actionFooter = `
+                            <div class="flex items-center justify-between mt-2.5 pt-2 border-t border-gray-200/80">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                                    Visible in Graph
+                                </span>
+                                <button type="button" onclick="focusNodeOnGraph('${item.docNodeId}')" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#700000] hover:text-[#850000] hover:underline cursor-pointer">
+                                    <span>Focus Node</span>
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        actionFooter = `
+                            <div class="flex items-center justify-between mt-2.5 pt-2 border-t border-amber-200/70 gap-2">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-medium text-amber-800 bg-amber-100/70 px-2 py-0.5 rounded">
+                                    Outside search filter
+                                </span>
+                                <button type="button" onclick="revealNodeOnGraph('${item.docNodeId}')" class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-white bg-[#700000] hover:bg-[#850000] rounded-lg shadow-xs transition cursor-pointer">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    <span>Reveal in Graph</span>
+                                </button>
+                            </div>
+                        `;
+                    }
+
+                    const tDegree = getProgramDegreeName(t.course_code, t.department, t.title);
                     card.innerHTML = `
                         <p class="text-xs font-bold text-gray-900 leading-snug line-clamp-2">${t.title}</p>
                         <p class="text-[11px] text-gray-500 mt-1">${t.author || 'SAC Researchers'}</p>
-                        <a href="${t.view_url}" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#700000] hover:underline mt-2">
-                            <span>View Thesis Paper</span>
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                            </svg>
-                        </a>
+                        ${tDegree ? `<p class="text-[10px] text-[#700000] font-semibold mt-0.5">${escapeHtml(tDegree)}</p>` : ''}
+                        <div class="flex items-center justify-between mt-2">
+                            <a href="${t.view_url}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#700000] hover:underline">
+                                <span>View Thesis Paper</span>
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                                </svg>
+                            </a>
+                        </div>
+                        ${actionFooter}
                     `;
                     connectedList.appendChild(card);
                 });
@@ -792,7 +954,82 @@
             if (drawer) {
                 drawer.classList.add('translate-x-full');
             }
+            activeDrawerMeta = null;
+            activeDrawerNodeId = null;
         }
+
+        window.revealNodeOnGraph = function(docNodeId) {
+            if (!network || !graphData.nodes) return;
+            const target = graphData.nodes.get(docNodeId);
+            if (!target) return;
+
+            graphData.nodes.update({
+                id: docNodeId,
+                hidden: false,
+                opacity: 1
+            });
+
+            if (!activeFilteredNodeIds.includes(docNodeId)) {
+                activeFilteredNodeIds.push(docNodeId);
+            }
+
+            if (activeDrawerMeta) {
+                openDetailsDrawer(activeDrawerMeta, activeDrawerNodeId);
+            }
+
+            network.selectNodes([docNodeId]);
+            network.focus(docNodeId, {
+                scale: 1.25,
+                animation: {
+                    duration: 800,
+                    easingFunction: 'easeInOutQuad'
+                }
+            });
+        };
+
+        window.focusNodeOnGraph = function(docNodeId) {
+            if (!network || !graphData.nodes) return;
+            const target = graphData.nodes.get(docNodeId);
+            if (!target || target.hidden) return;
+
+            network.selectNodes([docNodeId]);
+            network.focus(docNodeId, {
+                scale: 1.25,
+                animation: {
+                    duration: 600,
+                    easingFunction: 'easeInOutQuad'
+                }
+            });
+        };
+
+        window.revealAllThesesForTopic = function() {
+            if (!network || !graphData.nodes || !activeDrawerMeta || !activeDrawerMeta.theses) return;
+
+            const updates = [];
+            activeDrawerMeta.theses.forEach(t => {
+                const id = 'doc_' + t.id;
+                if (graphData.nodes.get(id)) {
+                    updates.push({ id: id, hidden: false, opacity: 1 });
+                    if (!activeFilteredNodeIds.includes(id)) {
+                        activeFilteredNodeIds.push(id);
+                    }
+                }
+            });
+
+            if (updates.length > 0) {
+                graphData.nodes.update(updates);
+            }
+
+            openDetailsDrawer(activeDrawerMeta, activeDrawerNodeId);
+
+            network.fit({
+                nodes: activeFilteredNodeIds,
+                animation: {
+                    duration: 800,
+                    easingFunction: 'easeInOutQuad'
+                }
+            });
+        };
 
         function resetGraphView() {
             if (!network) return;

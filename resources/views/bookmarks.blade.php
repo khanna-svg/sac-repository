@@ -419,112 +419,176 @@
             imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>AIRIS THESIS</text></svg>";
         }
 
+        function getProgramDegreeName(courseVal, deptVal, titleVal) {
+            const course = (courseVal || '').toLowerCase().trim();
+            const courseNames = {
+                'bsa': 'Bachelor of Science in Accountancy (BSA)',
+                'bsais': 'Bachelor of Science in Accounting Information System (BSAIS)',
+                'ba': 'Business Administration (BSBA)',
+                'bshm': 'Bachelor of Science in Hospitality Management (BSHM)',
+                'bscrim': 'Bachelor of Science in Criminology (BSCrim)',
+                'bsc': 'Bachelor of Science in Criminology (BSCrim)',
+                'bsed_english': 'Bachelor of Secondary Education Major in English',
+                'bsed_math': 'Bachelor of Secondary Education Major in Mathematics',
+                'bsed_science': 'Bachelor of Secondary Education Major in Science',
+                'bsed': 'Bachelor of Secondary Education (BSEd)',
+                'beed': 'Bachelor of Elementary Education (BEEd)',
+                'bsce': 'Bachelor of Science in Civil Engineering (BSCE)',
+                'bscpe': 'Bachelor of Science in Computer Engineering (BSCpE)',
+                'bsit': 'Bachelor of Science in Information Technology (BSIT)',
+                'ab_philo': 'Bachelor of Arts in Philosophy (AB Philosophy)',
+                'bsn': 'Bachelor of Science in Nursing (BSN)',
+                'bsmare': 'BS in Marine Engineering (BSMarE)'
+            };
+
+            if (courseNames[course]) {
+                return courseNames[course];
+            }
+
+            const title = (titleVal || '').toLowerCase().trim();
+            if (title.includes('umbrella') || title.includes('vending machine') || title.includes('fish tank') || title.includes('iot') || title.includes('arduino')) {
+                return 'Bachelor of Science in Computer Engineering (BSCpE)';
+            }
+            if (title.includes('building') || title.includes('storey') || title.includes('residential') || title.includes('commercial') || title.includes('structural') || title.includes('slab')) {
+                return 'Bachelor of Science in Civil Engineering (BSCE)';
+            }
+            if (title.includes('tortilla') || title.includes('sensory') || title.includes('chips') || title.includes('food')) {
+                return 'Bachelor of Science in Hospitality Management (BSHM)';
+            }
+            if (title.includes('financial literacy') || title.includes('accounting') || title.includes('expenditures')) {
+                return 'Bachelor of Science in Accountancy (BSA)';
+            }
+            if (title.includes('internship') || title.includes('job placement')) {
+                return 'Bachelor of Science in Accounting Information System (BSAIS)';
+            }
+            if (title.includes('cybercrime') || title.includes('bullying') || title.includes('traffic violation') || title.includes('motorcycle')) {
+                return 'Bachelor of Science in Criminology (BSCrim)';
+            }
+            if (title.includes('carica papaya') || title.includes('antibacterial') || title.includes('inhibition')) {
+                return 'Bachelor of Secondary Education Major in Science';
+            }
+            if (title.includes('spelling') || title.includes('grammar') || title.includes('discourse')) {
+                return 'Bachelor of Secondary Education Major in English';
+            }
+            if (title.includes('mathematics') || title.includes('math anxiety')) {
+                return 'Bachelor of Secondary Education Major in Mathematics';
+            }
+            if (title.includes('nursing') || title.includes('patient')) {
+                return 'Bachelor of Science in Nursing (BSN)';
+            }
+            if (title.includes('land ethic') || title.includes('philosophical') || title.includes('inquiry')) {
+                return 'Bachelor of Arts in Philosophy (AB Philosophy)';
+            }
+
+            if (course) {
+                return course.toUpperCase();
+            }
+            return '';
+        }
+
         function getDepartmentDetails(deptVal, courseVal, titleVal) {
             const dept = (deptVal || '').toLowerCase().trim();
             const course = (courseVal || '').toLowerCase().trim();
             const title = (titleVal || '').toLowerCase().trim();
+            const degree = getProgramDegreeName(courseVal, deptVal, titleVal);
+
+            let res = null;
 
             // 1. Direct database department/course check (Highest Priority)
             if (['bused', 'bus.ed', 'bus_ed', 'business', 'hospitality'].includes(dept) || ['bsa', 'bsais', 'ba', 'bshm'].includes(course)) {
-                return {
+                res = {
                     cover: 'BUSINESS.webp',
                     name: 'Business Education Department',
                     badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
                 };
             } else if (['cjed', 'criminology'].includes(dept) || ['bscrim', 'bsc'].includes(course)) {
-                return {
+                res = {
                     cover: 'CRIMINAL_JUSTICE.webp',
                     name: 'Criminal Justice Education Department',
                     badgeBg: 'bg-red-50 text-red-700 border-red-200'
                 };
             } else if (['dte', 'education'].includes(dept) || course.startsWith('bsed') || course === 'beed' || ['bsed', 'beed'].includes(course)) {
-                return {
+                res = {
                     cover: 'TEACHER_EDUCATION.webp',
                     name: 'Department of Teacher Education',
                     badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
                 };
             } else if (['eng', 'engineering', 'marine'].includes(dept) || ['bsce', 'bscpe', 'bsmare'].includes(course)) {
-                return {
+                res = {
                     cover: 'ENGINEERING.webp',
                     name: 'Engineering Department',
                     badgeBg: 'bg-cyan-50 text-cyan-800 border-cyan-200'
                 };
             } else if (['itd', 'it', 'computer'].includes(dept) || course === 'bsit') {
-                return {
+                res = {
                     cover: 'IT.webp',
                     name: 'Information Technology Department',
                     badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
                 };
             } else if (['lad', 'liberal_arts', 'arts'].includes(dept) || ['ab_philo', 'ab_phil'].includes(course)) {
-                return {
+                res = {
                     cover: 'LIBERAL_ARTS.webp',
                     name: 'Liberal Arts Department',
                     badgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200'
                 };
             } else if (dept === 'nursing' || course === 'bsn') {
-                return {
+                res = {
                     cover: 'NURSING.webp',
                     name: 'Nursing Department',
                     badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 };
-            }
-
-            // 2. Keyword heuristic fallback if department is unspecified
-            if (title.includes('patient') || title.includes('nursing')) {
-                return {
+            } else if (title.includes('patient') || title.includes('nursing')) {
+                res = {
                     cover: 'NURSING.webp',
-                    name: 'Nursing Department (NURSING)',
+                    name: 'Nursing Department',
                     badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 };
-            }
-            if (title.includes('civil') || title.includes('engineer') || title.includes('marine') || title.includes('vessel')) {
-                return {
+            } else if (title.includes('civil') || title.includes('engineer') || title.includes('marine') || title.includes('vessel')) {
+                res = {
                     cover: 'ENGINEERING.webp',
-                    name: 'Engineering Department (ENG)',
+                    name: 'Engineering Department',
                     badgeBg: 'bg-cyan-50 text-cyan-800 border-cyan-200'
                 };
-            }
-            if (title.includes('criminology') || title.includes('police') || title.includes('crime')) {
-                return {
+            } else if (title.includes('criminology') || title.includes('police') || title.includes('crime')) {
+                res = {
                     cover: 'CRIMINAL_JUSTICE.webp',
-                    name: 'Criminal Justice Education Department (CJED)',
+                    name: 'Criminal Justice Education Department',
                     badgeBg: 'bg-red-50 text-red-700 border-red-200'
                 };
-            }
-            if (title.includes('account') || title.includes('business') || title.includes('hotel') || title.includes('hospitality')) {
-                return {
+            } else if (title.includes('account') || title.includes('business') || title.includes('hotel') || title.includes('hospitality')) {
+                res = {
                     cover: 'BUSINESS.webp',
                     name: 'Business Education Department',
                     badgeBg: 'bg-amber-50 text-amber-800 border-amber-200'
                 };
-            }
-            if (title.includes('teach') || title.includes('educat') || title.includes('curriculum')) {
-                return {
+            } else if (title.includes('teach') || title.includes('educat') || title.includes('curriculum')) {
+                res = {
                     cover: 'TEACHER_EDUCATION.webp',
                     name: 'Department of Teacher Education',
                     badgeBg: 'bg-purple-50 text-purple-700 border-purple-200'
                 };
-            }
-            if (title.includes('philosophy') || title.includes('ethics') || title.includes('liberal')) {
-                return {
+            } else if (title.includes('philosophy') || title.includes('ethics') || title.includes('liberal')) {
+                res = {
                     cover: 'LIBERAL_ARTS.webp',
                     name: 'Liberal Arts Department',
                     badgeBg: 'bg-indigo-50 text-indigo-700 border-indigo-200'
                 };
-            }
-            if (title.includes('system') || title.includes('app') || title.includes('web') || title.includes('software')) {
-                return {
+            } else if (title.includes('system') || title.includes('app') || title.includes('web') || title.includes('software')) {
+                res = {
                     cover: 'IT.webp',
                     name: 'Information Technology Department',
                     badgeBg: 'bg-blue-50 text-blue-700 border-blue-200'
                 };
+            } else {
+                res = {
+                    cover: 'IT.webp',
+                    name: 'Academic Research',
+                    badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20'
+                };
             }
 
-            return {
-                cover: 'IT.webp',
-                name: 'Academic Research',
-                badgeBg: 'bg-[#700000]/10 text-[#700000] border-[#700000]/20'
-            };
+            res.degree = degree;
+            return res;
         }
 
         async function toggleBookmark(docId) {
@@ -614,6 +678,7 @@
                                 <span class="font-bold text-[#700000]">St. Anthony's College</span>
                                 <span class="text-gray-300">•</span>
                                 <span class="text-gray-700">${escapeHtml(details.name)}</span>
+                                ${details.degree ? `<span class="text-gray-300">•</span><span class="text-gray-800 font-bold">${escapeHtml(details.degree)}</span>` : ''}
                                 ${pubDateStr ? `<span class="text-gray-300">•</span><span class="text-gray-500 font-medium">${pubDateStr}</span>` : ''}
                             </div>
 
