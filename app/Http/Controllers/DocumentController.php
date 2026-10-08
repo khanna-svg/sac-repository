@@ -252,9 +252,16 @@ class DocumentController extends Controller
 
             // 1. Identify primary technical tokens vs generic academic modifiers/stopwords
             $stopWords = [
+                // Modal & auxiliary verbs
+                'can', 'could', 'may', 'might', 'must', 'shall', 'should', 'will', 'would',
+                'do', 'does', 'did', 'have', 'has', 'had', 'be', 'am', 'is', 'are', 'was', 'were', 'been', 'being',
+                // Prepositions, pronouns, articles, conjunctions
+                'the', 'a', 'an', 'and', 'or', 'for', 'with', 'from', 'to', 'in', 'on', 'at', 'by', 'as', 'into', 'about',
+                'this', 'that', 'these', 'those', 'it', 'its', 'their', 'them', 'they', 'our', 'we', 'us', 'you', 'your',
+                'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'than', 'too', 'very',
+                // Academic fillers
                 'based', 'project', 'projects', 'study', 'studies', 'research', 'paper', 'papers',
-                'system', 'systems', 'using', 'through', 'the', 'and', 'for', 'with', 'from',
-                'into', 'about', 'towards', 'level', 'levels', 'among', 'across', 'analysis'
+                'system', 'systems', 'using', 'through', 'towards', 'level', 'levels', 'among', 'across', 'analysis'
             ];
 
             $rawTokens = array_filter(
@@ -368,11 +375,30 @@ class DocumentController extends Controller
                     if (preg_match($pattern, $abstractLower)) $primaryAbstractMatches++;
                 }
 
+                $uniqueMatches = 0;
+                foreach ($primaryTokens as $t) {
+                    $pattern = ($t === 'iot')
+                        ? '/\b(iot|internet of things)\b/i'
+                        : (strlen($t) <= 4 ? '/\b' . preg_quote($t, '/') . '\b/i' : '/\b' . preg_quote($t, '/') . '/i');
+                    if (preg_match($pattern, $titleLower) || preg_match($pattern, $abstractLower) || preg_match($pattern, $authorLower)) {
+                        $uniqueMatches++;
+                    }
+                }
+
                 $hasPrimaryMatch = ($primaryTitleMatches > 0 || $primaryAbstractMatches > 0 || $exactPhraseInTitle || $exactPhraseInAbstract);
 
                 // If not matched semantically and didn't match any primary token, discard false substring positives
                 if (!isset($similarityMap[$doc->id]) && !$hasPrimaryMatch) {
                     continue;
+                }
+
+                // In a multi-token query (>= 2 primary tokens):
+                // Discard documents that only partially match 1 token, unless they have high semantic support (>= 85%)
+                if (count($primaryTokens) >= 2 && !$exactPhraseInTitle && !$exactPhraseInAbstract) {
+                    $semScore = $similarityMap[$doc->id] ?? 0;
+                    if ($uniqueMatches < count($primaryTokens) && $semScore < 85) {
+                        continue;
+                    }
                 }
 
                 $validKeywordDocs->push($doc);
@@ -386,7 +412,7 @@ class DocumentController extends Controller
                     } elseif ($exactPhraseInAbstract) {
                         $similarityMap[$doc->id] = max($currentSem, 92);
                     } elseif ($primaryTitleMatches > 0) {
-                        $similarityMap[$doc->id] = min(99, $currentSem + 10);
+                        $similarityMap[$doc->id] = min(99, $currentSem + 9);
                     } elseif ($primaryAbstractMatches > 0) {
                         $similarityMap[$doc->id] = min(99, $currentSem + 5);
                     }
@@ -416,24 +442,22 @@ class DocumentController extends Controller
                 // If user searched specific technical tokens, filter out semantic documents that lack primary matches
                 if (!empty($primaryTokens)) {
                     $semanticDocs = $semanticDocs->filter(function ($doc) use ($primaryTokens, $similarityMap) {
+                        $score = $similarityMap[$doc->id] ?? 0;
+                        if ($score >= 85) return true;
+
                         $titleLower = strtolower($doc->title);
                         $authorLower = strtolower($doc->author);
                         $abstractLower = strtolower($doc->abstract ?? '');
-
+                        $matchedCount = 0;
                         foreach ($primaryTokens as $t) {
                             $pattern = ($t === 'iot')
                                 ? '/\b(iot|internet of things)\b/i'
-                                : (strlen($t) <= 4
-                                    ? '/\b' . preg_quote($t, '/') . '\b/i'
-                                    : '/\b' . preg_quote($t, '/') . '/i');
+                                : (strlen($t) <= 4 ? '/\b' . preg_quote($t, '/') . '\b/i' : '/\b' . preg_quote($t, '/') . '/i');
                             if (preg_match($pattern, $titleLower) || preg_match($pattern, $abstractLower) || preg_match($pattern, $authorLower)) {
-                                return true;
+                                $matchedCount++;
                             }
                         }
-
-                        // Allow purely semantic matches only if score is high (distance <= 0.36 -> score >= 85%)
-                        $score = $similarityMap[$doc->id] ?? 0;
-                        return $score >= 85;
+                        return $matchedCount >= count($primaryTokens);
                     });
                 }
 

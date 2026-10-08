@@ -474,7 +474,10 @@
             // or when searching directly inside the graph search input
             if (matchingThesisNodeIds.size === 0 && query) {
                 const stopWords = new Set([
-                    'a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'or', 'is', 'are', 'with', 'from', 'by', 'as', 'into', 'about'
+                    'a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'or', 
+                    'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
+                    'can', 'could', 'may', 'might', 'must', 'shall', 'should', 'will', 'would',
+                    'with', 'from', 'by', 'as', 'into', 'about', 'this', 'that', 'these', 'those', 'it', 'its'
                 ]);
                 const academicStopWords = new Set([
                     'based', 'project', 'projects', 'system', 'systems', 'study', 'studies', 'development', 'analysis', 'using', 'proposed', 'application', 'level', 'among', 'effects', 'evaluation', 'through', 'program', 'practices', 'paper', 'research'

@@ -564,7 +564,9 @@
             const stopWords = new Set([
                 'a', 'an', 'the', 'in', 'on', 'at', 'to', 'for', 'of', 'and', 'or', 
                 'is', 'are', 'was', 'were', 'by', 'with', 'from', 'as', 'it', 'its', 
-                'be', 'this', 'that', 'into', 'about', 'than', 'then', 'so', 'such'
+                'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
+                'can', 'could', 'may', 'might', 'must', 'shall', 'should', 'will', 'would',
+                'this', 'that', 'these', 'those', 'into', 'about', 'than', 'then', 'so', 'such'
             ]);
 
             const academicStopWords = new Set([
