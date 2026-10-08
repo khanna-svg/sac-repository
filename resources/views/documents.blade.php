@@ -567,6 +567,12 @@
                 'be', 'this', 'that', 'into', 'about', 'than', 'then', 'so', 'such'
             ]);
 
+            const academicStopWords = new Set([
+                'based', 'project', 'projects', 'system', 'systems', 'study', 'studies', 
+                'development', 'analysis', 'using', 'proposed', 'application', 'level', 
+                'among', 'effects', 'evaluation', 'through', 'program', 'practices', 'paper', 'research'
+            ]);
+
             const rawTerms = query
                 .toLowerCase()
                 .replace(/[^\w\s-]/g, ' ')
@@ -574,9 +580,9 @@
                 .split(/\s+/)
                 .filter(t => t.length >= 2 && !stopWords.has(t));
 
-            const terms = rawTerms.length > 0 
-                ? rawTerms 
-                : query.toLowerCase().replace(/[^\w\s-]/g, ' ').trim().split(/\s+/).filter(t => t.length >= 2);
+            // Prefer domain-specific/meaningful technical terms over generic academic words like "based" or "projects"
+            const meaningfulTerms = rawTerms.filter(t => !academicStopWords.has(t));
+            const terms = meaningfulTerms.length > 0 ? meaningfulTerms : rawTerms;
 
             if (terms.length === 0) return escapeHtml(text);
 
@@ -589,13 +595,22 @@
             });
 
             const sortedTerms = [...termSet].sort((a, b) => b.length - a.length);
-            const pattern = sortedTerms.map(t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
-            const regex = new RegExp(`(\\b(?:${pattern})\\w*)`, 'gi');
+            const pattern = sortedTerms.map(t => {
+                const escaped = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                // For short acronyms (<= 4 chars like "iot", "ai", "rfid", "web", "php"), enforce exact word boundary
+                return (t.length <= 4) ? `\\b${escaped}\\b` : `\\b${escaped}\\w*`;
+            }).join('|');
+            const regex = new RegExp(`(${pattern})`, 'gi');
 
             const parts = text.split(regex);
             return parts.map(part => {
                 if (!part) return '';
-                const isMatch = sortedTerms.some(t => new RegExp(`^${t}`, 'i').test(part));
+                const isMatch = sortedTerms.some(t => {
+                    if (t.length <= 4) {
+                        return new RegExp(`^${t}$`, 'i').test(part);
+                    }
+                    return new RegExp(`^${t}`, 'i').test(part);
+                });
                 if (isMatch) {
                     return `<mark class="bg-amber-100 text-gray-900 font-semibold px-0.5 rounded">${escapeHtml(part)}</mark>`;
                 }

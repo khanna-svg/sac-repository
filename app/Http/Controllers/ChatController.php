@@ -748,9 +748,16 @@ class ChatController extends Controller
             ->select(['id', 'title', 'author', 'department', 'course_code', 'publication_date', 'abstract'])
             ->get();
 
+        $bestDoc = null;
+        $maxMatchCount = 0;
+        $bestRatio = 0.0;
+
         foreach ($docs as $doc) {
             $cleanTitle = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', mb_strtolower($doc->title));
-            $titleWords = array_filter(explode(' ', $cleanTitle), fn($w) => strlen($w) >= 4);
+            $titleWords = array_values(array_filter(explode(' ', $cleanTitle), fn($w) => strlen($w) >= 4));
+            if (empty($titleWords)) {
+                continue;
+            }
 
             $matchCount = 0;
             foreach ($titleWords as $tw) {
@@ -759,11 +766,23 @@ class ChatController extends Controller
                 }
             }
 
-            if ($matchCount >= 2 || (count($titleWords) > 0 && ($matchCount / count($titleWords)) >= 0.5)) {
-                $answer = $this->resolveDirectMetadataAnswer($userQuestion, $doc);
-                if ($answer !== null) {
-                    return ['doc' => $doc, 'answer' => $answer];
-                }
+            $ratio = $matchCount / count($titleWords);
+
+            $isCandidate = (count($titleWords) <= 3)
+                ? ($matchCount >= 2 && $ratio >= 0.6)
+                : ($matchCount >= 3 && $ratio >= 0.35);
+
+            if ($isCandidate && ($matchCount > $maxMatchCount || ($matchCount === $maxMatchCount && $ratio > $bestRatio))) {
+                $maxMatchCount = $matchCount;
+                $bestRatio = $ratio;
+                $bestDoc = $doc;
+            }
+        }
+
+        if ($bestDoc !== null) {
+            $answer = $this->resolveDirectMetadataAnswer($userQuestion, $bestDoc);
+            if ($answer !== null) {
+                return ['doc' => $bestDoc, 'answer' => $answer];
             }
         }
 

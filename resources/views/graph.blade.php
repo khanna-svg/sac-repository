@@ -484,13 +484,29 @@
                 const searchTokens = meaningfulTokens.length > 0 ? meaningfulTokens : rawTokens;
                 const fullLowerQuery = query.toLowerCase().trim();
 
-                // Helper to check if text contains a token (using word boundary for short abbreviations like 'iot', 'ai')
+                const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+                // Helper to check if text contains a token with strict word boundary protection
                 const testTokenMatch = (targetText, token) => {
+                    if (!token) return false;
+                    const escaped = escapeRegExp(token);
+                    // For short acronyms/tokens (<= 4 chars like 'iot', 'ai', 'rfid', 'web', 'php', 'cjed'), require strict word boundary on BOTH sides
                     if (token.length <= 4) {
-                        const regex = new RegExp(`\\b${token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+                        const regex = new RegExp(`\\b${escaped}\\b`, 'i');
                         return regex.test(targetText);
                     }
-                    return targetText.includes(token);
+                    // For longer tokens (> 4 chars), match starting at word boundary (e.g. "recycle" matches "recycling")
+                    const regex = new RegExp(`\\b${escaped}`, 'i');
+                    return regex.test(targetText);
+                };
+
+                // Helper to check full query phrase with strict word boundary protection (prevents "biotic" matching "iot")
+                const testPhraseMatch = (targetText, phrase) => {
+                    if (!phrase || phrase.length < 2) return false;
+                    const clean = phrase.trim();
+                    const escaped = escapeRegExp(clean);
+                    const regex = new RegExp(`\\b${escaped}\\b`, 'i');
+                    return regex.test(targetText);
                 };
 
                 graphData.nodes.forEach(n => {
@@ -506,7 +522,7 @@
                         const tech = (meta.tech_stack || []).map(t => t.toLowerCase()).join(' ');
                         const combined = `${label} ${fullTitle} ${abstract} ${author} ${concepts} ${methods} ${tech}`;
 
-                        const phraseMatch = combined.includes(fullLowerQuery);
+                        const phraseMatch = testPhraseMatch(combined, fullLowerQuery);
                         const tokenMatch = searchTokens.length > 0 && searchTokens.every(t => testTokenMatch(combined, t));
 
                         if (phraseMatch || tokenMatch) {
@@ -514,7 +530,7 @@
                         }
                     } else {
                         const nodeName = (meta.name || label).toLowerCase();
-                        const phraseMatch = nodeName.includes(fullLowerQuery);
+                        const phraseMatch = testPhraseMatch(nodeName, fullLowerQuery);
                         const tokenMatch = searchTokens.length > 0 && searchTokens.every(t => testTokenMatch(nodeName, t));
 
                         if (phraseMatch || tokenMatch) {

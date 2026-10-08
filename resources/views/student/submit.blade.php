@@ -172,13 +172,13 @@
                                     {{ $latestSub->title }}
                                 </h4>
                                 <p class="text-xs text-gray-500 mt-0.5">
-                                    Submitted for plagiarism and format screening. You will be notified once reviewed.
+                                    Submitted for plagiarism review. You will be notified once reviewed.
                                 </p>
                             </div>
                         </div>
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-xs font-medium border border-amber-200/80 shrink-0 self-start sm:self-center">
                             <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                            In Review
+                            Pending
                         </span>
                     </div>
                 @endif
@@ -378,7 +378,7 @@
 
                                         $statusLabel = $isCleared
                                             ? 'Cleared'
-                                            : ($isResubmit ? 'Needs Revisions' : 'In Review');
+                                            : ($isResubmit ? 'Needs Revisions' : 'Pending');
                                     @endphp
 
                                     <div class="rounded-xl border border-gray-200 bg-slate-50/50 p-3.5 sm:p-4 space-y-2 hover:bg-white hover:border-gray-300 transition">

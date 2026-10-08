@@ -266,6 +266,7 @@ class DocumentController extends Controller
             if (empty($primaryTokens)) {
                 $primaryTokens = array_values($rawTokens);
             }
+            $isShortAcronym = (count($primaryTokens) === 1 && strlen($primaryTokens[0]) <= 4);
 
             // 2. Semantic Search via Gemini + Supabase pgvector
             try {
@@ -291,8 +292,9 @@ class DocumentController extends Controller
                         $docId = (int) $chunk->document_id;
                         $distance = (float) $chunk->distance;
 
-                        // Semantic cutoff: 0.44 for relevant conceptual context
-                        if ($distance > 0.44) {
+                        // Semantic cutoff: 0.395 for short acronyms (prevents noise), 0.44 for multi-word queries
+                        $cutoff = $isShortAcronym ? 0.395 : 0.44;
+                        if ($distance > $cutoff) {
                             continue;
                         }
 
@@ -342,9 +344,15 @@ class DocumentController extends Controller
                 $authorLower = strtolower($doc->author);
                 $abstractLower = strtolower($doc->abstract ?? '');
 
-                // Check exact full phrase matches first
-                $exactPhraseInTitle = str_contains($titleLower, $searchLower) || str_contains($authorLower, $searchLower);
-                $exactPhraseInAbstract = str_contains($abstractLower, $searchLower);
+                // Check exact full phrase matches using word boundaries (prevent substring false positives like "biotic" for "iot")
+                $searchPhrasePattern = ($searchLower === 'iot')
+                    ? '/\b(iot|internet of things)\b/i'
+                    : (strlen($searchLower) <= 4
+                        ? '/\b' . preg_quote($searchLower, '/') . '\b/i'
+                        : '/\b' . preg_quote($searchLower, '/') . '/i');
+
+                $exactPhraseInTitle = (bool) preg_match($searchPhrasePattern, $titleLower) || (bool) preg_match($searchPhrasePattern, $authorLower);
+                $exactPhraseInAbstract = (bool) preg_match($searchPhrasePattern, $abstractLower);
 
                 // Check primary token matches with word boundaries for short acronyms
                 $primaryTitleMatches = 0;
@@ -353,7 +361,9 @@ class DocumentController extends Controller
                 foreach ($primaryTokens as $t) {
                     $pattern = ($t === 'iot')
                         ? '/\b(iot|internet of things)\b/i'
-                        : '/\b' . preg_quote($t, '/') . '/i';
+                        : (strlen($t) <= 4
+                            ? '/\b' . preg_quote($t, '/') . '\b/i'
+                            : '/\b' . preg_quote($t, '/') . '/i');
                     if (preg_match($pattern, $titleLower)) $primaryTitleMatches++;
                     if (preg_match($pattern, $abstractLower)) $primaryAbstractMatches++;
                 }
@@ -402,6 +412,31 @@ class DocumentController extends Controller
                     $this->applyDepartmentFilter($semanticQuery, $department);
                 }
                 $semanticDocs = $semanticQuery->get();
+
+                // If user searched specific technical tokens, filter out semantic documents that lack primary matches
+                if (!empty($primaryTokens)) {
+                    $semanticDocs = $semanticDocs->filter(function ($doc) use ($primaryTokens, $similarityMap) {
+                        $titleLower = strtolower($doc->title);
+                        $authorLower = strtolower($doc->author);
+                        $abstractLower = strtolower($doc->abstract ?? '');
+
+                        foreach ($primaryTokens as $t) {
+                            $pattern = ($t === 'iot')
+                                ? '/\b(iot|internet of things)\b/i'
+                                : (strlen($t) <= 4
+                                    ? '/\b' . preg_quote($t, '/') . '\b/i'
+                                    : '/\b' . preg_quote($t, '/') . '/i');
+                            if (preg_match($pattern, $titleLower) || preg_match($pattern, $abstractLower) || preg_match($pattern, $authorLower)) {
+                                return true;
+                            }
+                        }
+
+                        // Allow purely semantic matches only if score is high (distance <= 0.36 -> score >= 85%)
+                        $score = $similarityMap[$doc->id] ?? 0;
+                        return $score >= 85;
+                    });
+                }
+
                 $allResults = $validKeywordDocs->concat($semanticDocs)->unique('id');
             } else {
                 $allResults = $validKeywordDocs;
