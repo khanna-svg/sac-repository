@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Thesis Submissions Review - AIRIS Admin</title>
+    <title>Manuscript Submissions Review - AIRIS Admin</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
@@ -38,7 +38,7 @@
                         <span class="text-gray-400">Student Submissions</span>
                     </nav>
                     <p class="text-xs text-gray-500 mt-1 font-medium">
-                        Review student thesis submissions for checking.
+                        Review student manuscript submissions for checking.
                     </p>
                 </div>
             </div>
@@ -134,7 +134,10 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                         </svg>
                     </span>
-                    <h3 class="text-base font-bold text-gray-900">Turnitin &amp; Grammarly Clearance</h3>
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900">Approve &amp; Publish Manuscript</h3>
+                        <p class="text-[11px] text-gray-500">Approves clearance and automatically publishes to the repository &amp; student portal</p>
+                    </div>
                 </div>
                 <button type="button" onclick="closeApproveModal()" class="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -173,9 +176,9 @@
 
                 <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-2.5 text-[11px] text-emerald-800 flex items-center gap-2">
                     <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>Student will receive an in-app alert and an official clearance email at their <strong>@sac.edu.ph</strong> address.</span>
+                    <span>This manuscript will be <strong>automatically uploaded &amp; published</strong> to the repository and knowledge graph, and the student will receive clearance confirmation.</span>
                 </div>
             </div>
 
@@ -194,7 +197,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    <span>Confirm Clearance &amp; Notify Student</span>
+                    <span>Approve &amp; Publish to Repository</span>
                 </button>
             </div>
         </div>
@@ -210,7 +213,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                         </svg>
                     </span>
-                    <h3 class="text-base font-bold text-gray-900">Request Thesis Resubmission</h3>
+                    <h3 class="text-base font-bold text-gray-900">Request Manuscript Resubmission</h3>
                 </div>
                 <button type="button" onclick="closeResubmitModal()" class="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -283,7 +286,7 @@
             <!-- Modal Top Bar -->
             <div class="flex items-center justify-between px-6 py-3.5 border-b border-white/10 bg-slate-950">
                 <div class="min-w-0 pr-4">
-                    <h3 id="pdfPreviewTitle" class="text-xs sm:text-sm font-bold truncate text-gray-100">Thesis Manuscript Preview</h3>
+                    <h3 id="pdfPreviewTitle" class="text-xs sm:text-sm font-bold truncate text-gray-100">Manuscript Preview</h3>
                     <p id="pdfPreviewPageCount" class="text-[11px] text-amber-300 font-mono">Loading pages...</p>
                 </div>
                 <div class="flex items-center gap-3 shrink-0">
@@ -443,7 +446,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" class="py-12 text-center text-gray-400">
-                            No thesis submissions.
+                            No manuscript submissions.
                         </td>
                     </tr>
                 `;
@@ -456,11 +459,11 @@
                 const formattedDate = sub.created_at ? new Date(sub.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A';
 
                 let statusBadgeHtml = '';
-                if (sub.status === 'approved') {
+                if (sub.status === 'approved' || sub.status === 'cleared') {
                     statusBadgeHtml = `
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            Approved
+                            Approved &amp; Published
                             ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
                         </span>
                     `;
@@ -548,12 +551,12 @@
                                     </svg>
                                 </a>
 
-                                <!-- 3. Mark Clearance Passed (Turnitin & Grammarly) (SVG Icon) -->
+                                <!-- 3. Approve & Publish to Repository (SVG Icon) -->
                                 <button
                                     type="button"
                                     onclick="openApproveModal(${sub.id}, '${safeTitle}', '${safeEmail}', '${safeSimilarity}', '${safeNotes}')"
-                                    title="Mark as Turnitin & Grammarly Cleared (Notify Student)"
-                                    aria-label="Mark Clearance Passed"
+                                    title="Approve & Publish to Repository (Notify Student)"
+                                    aria-label="Approve and Publish to Repository"
                                     class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 hover:border-emerald-200 transition cursor-pointer">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -571,6 +574,20 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                                     </svg>
                                 </button>
+
+                                <!-- 5. Direct View Published Manuscript in Repository (when approved) -->
+                                ${(sub.status === 'approved' || sub.status === 'cleared') ? `
+                                <a
+                                    href="/documents/${sub.id}"
+                                    target="_blank"
+                                    title="View Published Manuscript in Repository"
+                                    aria-label="View Published Manuscript in Repository"
+                                    class="p-2 rounded-xl border border-emerald-200 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100 hover:text-emerald-800 transition cursor-pointer">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                                    </svg>
+                                </a>
+                                ` : ''}
 
                             </div>
                         </td>
@@ -603,7 +620,10 @@
 
             const btn = document.getElementById('confirmApproveBtn');
             btn.disabled = true;
-            btn.innerHTML = 'Sending Clearance...';
+            btn.innerHTML = `
+                <svg class="w-4 h-4 animate-spin shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                <span>Approving &amp; Publishing...</span>
+            `;
 
             try {
                 const res = await fetch(`/backend/admin/submissions/${activeTargetDocId}/approve`, {
@@ -622,19 +642,47 @@
                 const data = await res.json();
                 if (!res.ok || data.error) throw new Error(data.message || 'Failed to approve clearance');
 
-                showToast('🎉 Clearance passed! Student notified via in-app alert and @sac.edu.ph email.', true);
+                // If chunks require vector embeddings, trigger fast background batches
+                if (data.unembedded_chunks && data.unembedded_chunks > 0) {
+                    btn.innerHTML = `
+                        <svg class="w-4 h-4 animate-spin shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+                        <span>Indexing for AI Search...</span>
+                    `;
+                    try {
+                        let remaining = data.unembedded_chunks;
+                        let attempts = 0;
+                        while (remaining > 0 && attempts < 5) {
+                            const embRes = await fetch(`/documents/${data.document.id}/generate-embeddings`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': csrfToken
+                                }
+                            });
+                            const embData = await embRes.json();
+                            if (!embRes.ok || embData.error) break;
+                            remaining = embData.remaining || 0;
+                            attempts++;
+                        }
+                    } catch (embErr) {
+                        console.warn('Background embedding notice:', embErr);
+                    }
+                }
+
+                showToast('🎉 Manuscript approved & officially published to the repository! Student notified via in-app alert & email.', true);
                 closeApproveModal();
                 fetchSubmissions();
             } catch (err) {
                 console.error(err);
-                showToast(err.message || 'Failed to process clearance', false);
+                showToast(err.message || 'Failed to process approval', false);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                     </svg>
-                    <span>Confirm Clearance &amp; Notify Student</span>
+                    <span>Approve &amp; Publish to Repository</span>
                 `;
             }
         }

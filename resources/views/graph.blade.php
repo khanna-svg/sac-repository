@@ -54,7 +54,7 @@
                     <input
                         type="text"
                         id="graphSearchInput"
-                        placeholder="Search concept, tech, or thesis..."
+                        placeholder="Search concept, tech, or manuscript..."
                         class="rounded-xl border border-gray-300 bg-slate-50 px-3 py-1.5 pl-8 text-xs text-gray-800 focus:border-[#700000] focus:outline-none focus:ring-1 focus:ring-[#700000] w-44 md:w-52 transition">
                     <svg class="w-3.5 h-3.5 absolute left-2.5 top-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -93,7 +93,7 @@
             <!-- Thesis Papers -->
             <span class="inline-flex items-center gap-2 bg-white px-2.5 py-1 rounded-lg border border-gray-200 shadow-2xs shrink-0">
                 <span style="background-color: #700000; border: 1.5px solid #FFD700;" class="w-3.5 h-3.5 rounded-xs inline-block shrink-0 shadow-2xs"></span>
-                <span class="font-semibold text-gray-800">Thesis Papers</span>
+                <span class="font-semibold text-gray-800">Manuscript Papers</span>
             </span>
 
             <!-- Concepts & Topics -->
@@ -160,7 +160,7 @@
                     </svg>
                 </div>
                 <h3 class="text-sm font-bold text-gray-800">No Graph Data Available</h3>
-                <p class="text-xs text-gray-500 max-w-sm mt-1">Upload approved thesis documents to visualize the research repository network.</p>
+                <p class="text-xs text-gray-500 max-w-sm mt-1">Upload approved manuscript documents to visualize the research repository network.</p>
             </div>
 
             <!-- Slide-Out Details Drawer (Fixed to Viewport so Footer Button is Always 100% Visible) -->
@@ -172,7 +172,7 @@
                 <div class="border-b border-gray-100 p-4 bg-slate-50 flex items-center justify-between shrink-0">
                     <div class="flex items-center gap-2">
                         <span id="drawerBadge" style="background-color: #700000; color: #FFFFFF; border: 1.5px solid #FFD700;" class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg">
-                            Thesis Details
+                            Manuscript Details
                         </span>
                     </div>
                     <button onclick="closeDetailsDrawer()" class="rounded-lg p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-700 transition cursor-pointer">
@@ -218,7 +218,7 @@
 
                     <!-- NON-THESIS NODE SECTION (CONNECTED THESES LIST) -->
                     <div id="drawerConnectedSection" class="hidden pt-2 border-t border-gray-100">
-                        <h4 id="drawerConnectedHeading" class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Connected Research Theses</h4>
+                        <h4 id="drawerConnectedHeading" class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Connected Research Manuscripts</h4>
                         <div id="drawerConnectedList" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
                     </div>
                 </div>
@@ -229,7 +229,7 @@
                         id="drawerReadBtn"
                         href="#"
                         class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#700000] px-4 py-3 text-xs font-bold text-[#FFD700] hover:bg-[#850000] shadow-md transition cursor-pointer">
-                        <span>Read Full Thesis</span>
+                        <span>Read Full Manuscript</span>
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                         </svg>
@@ -608,7 +608,7 @@
             if (countEl) {
                 const matchingDocCount = Array.from(connectedNodeIds).filter(id => id.startsWith('doc_')).length;
                 const connectedEntityCount = connectedNodeIds.size - matchingDocCount;
-                countEl.textContent = `(${matchingDocCount} ${matchingDocCount === 1 ? 'thesis' : 'theses'}${connectedEntityCount > 0 ? `, ${connectedEntityCount} connected topics & tools` : ''})`;
+                countEl.textContent = `(${matchingDocCount} ${matchingDocCount === 1 ? 'manuscript' : 'manuscripts'}${connectedEntityCount > 0 ? `, ${connectedEntityCount} connected topics & tools` : ''})`;
             }
             if (searchInput && query) searchInput.value = query;
 
@@ -766,13 +766,13 @@
 
             if (meta.type === 'thesis') {
                 // THESIS NODE DETAILS
-                drawerBadge.textContent = 'THESIS DETAILS';
+                drawerBadge.textContent = 'MANUSCRIPT DETAILS';
                 drawerBadge.className = 'text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg';
                 drawerBadge.style.backgroundColor = '#700000';
                 drawerBadge.style.color = '#FFFFFF';
                 drawerBadge.style.border = '1.5px solid #FFD700';
                 
-                drawerTitle.textContent = meta.full_title || 'Untitled Thesis';
+                drawerTitle.textContent = meta.full_title || 'Untitled Manuscript';
                 const thesisDegree = getProgramDegreeName(meta.course_code, meta.department, meta.full_title);
                 drawerSubtitle.innerHTML = `
                     <p class="text-xs text-gray-600 font-medium">${meta.author ? 'By ' + meta.author : 'SAC Researchers'}</p>
@@ -869,7 +869,7 @@
                     drawerSubtitle.innerHTML = `
                         <div class="space-y-2">
                             <p class="text-xs text-gray-600 font-medium">
-                                Connected with <strong class="text-gray-900 font-bold">${totalCount}</strong> repository thesis paper${totalCount === 1 ? '' : 's'}
+                                Connected with <strong class="text-gray-900 font-bold">${totalCount}</strong> repository manuscript paper${totalCount === 1 ? '' : 's'}
                             </p>
                             <div class="p-2.5 rounded-xl bg-amber-50/90 border border-amber-200 text-[11px] text-amber-900 leading-snug">
                                 <div class="flex items-center gap-1.5 font-bold text-amber-800">
@@ -887,7 +887,7 @@
                         </div>
                     `;
                 } else {
-                    drawerSubtitle.innerHTML = `<p class="text-xs text-gray-600 font-medium">Connected with <strong class="text-gray-900 font-bold">${totalCount}</strong> repository thesis paper${totalCount === 1 ? '' : 's'}</p>`;
+                    drawerSubtitle.innerHTML = `<p class="text-xs text-gray-600 font-medium">Connected with <strong class="text-gray-900 font-bold">${totalCount}</strong> repository manuscript paper${totalCount === 1 ? '' : 's'}</p>`;
                 }
 
                 connectedHeading.textContent = `Papers using this ${meta.type === 'concept' ? 'concept' : (meta.type === 'methodology' ? 'methodology' : 'tech stack')}`;
@@ -933,7 +933,7 @@
                         ${tDegree ? `<p class="text-[10px] text-[#700000] font-semibold mt-0.5">${escapeHtml(tDegree)}</p>` : ''}
                         <div class="flex items-center justify-between mt-2">
                             <a href="${t.view_url}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#700000] hover:underline">
-                                <span>View Thesis Paper</span>
+                                <span>View Manuscript Paper</span>
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                                 </svg>

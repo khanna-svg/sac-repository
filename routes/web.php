@@ -7,24 +7,23 @@ use App\Http\Middleware\RequireSacAdmin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// Student Authentication Routes
 Route::get('/login', [AuthController::class, 'showLogin'])
     ->name('login');
-
-Route::post('/login/send-code', [AuthController::class, 'sendCode'])
-    ->middleware('throttle:5,1');
-
-Route::post('/login/verify-code', [AuthController::class, 'verifyCode'])
+Route::post('/login', [AuthController::class, 'login'])
     ->middleware('throttle:10,1');
+Route::get('/student/login', fn () => redirect()->route('login'));
 
-Route::post('/login/reset', [AuthController::class, 'resetLogin'])
-    ->name('login.reset');
+// Legacy fallback routes for login compatibility
+Route::post('/login/send-code', [AuthController::class, 'login']);
+Route::post('/login/verify-code', [AuthController::class, 'login']);
+Route::any('/login/reset', fn () => redirect()->route('login'))->name('login.reset');
 
-Route::get('/admin/login', function () {
-    return redirect('/login?tab=admin');
-});
-
+// Admin Authentication Routes
+Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])
+    ->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])
-    ->middleware('throttle:5,1');
+    ->middleware('throttle:10,1');
 
 Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])
     ->name('logout');
@@ -122,6 +121,7 @@ Route::middleware('sac.auth')->group(function () {
         ->name('student.submit');
     Route::post('/backend/student/upload-url', [\App\Http\Controllers\StudentSubmissionController::class, 'createUploadUrl']);
     Route::post('/backend/student/submit', [\App\Http\Controllers\StudentSubmissionController::class, 'store']);
+    Route::post('/backend/student/extract-metadata', [\App\Http\Controllers\StudentSubmissionController::class, 'extractMetadata']);
 
     // Student In-App Notifications
     Route::get('/backend/notifications', [\App\Http\Controllers\NotificationController::class, 'index']);

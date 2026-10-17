@@ -27,11 +27,10 @@ class KnowledgeGraphController extends Controller
      */
     public function data(Request $request): JsonResponse
     {
-        $documents = Document::whereNull('submitted_by_email')
-            ->where(function ($q) {
-                $q->where('status', 'approved')->orWhereNull('status');
-            })
-            ->get();
+        $documents = Document::where(function ($q) {
+            $q->where('status', 'approved')
+                ->orWhere(fn($s) => $s->whereNull('status')->whereNull('submitted_by_email'));
+        })->get();
 
         $nodes = [];
         $edges = [];

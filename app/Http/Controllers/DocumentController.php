@@ -222,7 +222,7 @@ class DocumentController extends Controller
             $department = trim((string) $request->input('department', ''));
             $sort = trim((string) $request->input('sort', 'latest'));
 
-            $approvedScope = fn($q) => $q->whereNull('submitted_by_email')->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+            $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhere(fn($s2) => $s2->whereNull('status')->whereNull('submitted_by_email')));
 
             if ($search === '') {
                 $query = Document::query()->where($approvedScope);
@@ -484,7 +484,7 @@ class DocumentController extends Controller
             return response()->json($rankedDocs->values());
         } catch (\Throwable $e) {
             Log::error('DocumentController index error: ' . $e->getMessage());
-            $approvedScope = fn($q) => $q->whereNull('submitted_by_email')->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+            $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhere(fn($s2) => $s2->whereNull('status')->whereNull('submitted_by_email')));
             return response()->json(Document::where($approvedScope)->latest()->get());
         }
     }
@@ -503,7 +503,7 @@ class DocumentController extends Controller
             $userRole = session('sac_user_role');
             $userEmail = strtolower((string) session('sac_user_email'));
             if ($document->status !== 'approved' && $userRole !== 'admin' && strtolower((string) $document->submitted_by_email) !== $userEmail) {
-                abort(403, 'This thesis manuscript is currently undergoing review and is not publicly accessible.');
+                abort(403, 'This manuscript is currently undergoing review and is not publicly accessible.');
             }
 
             return view('document_detail', [
@@ -1356,15 +1356,13 @@ class DocumentController extends Controller
             $department = trim((string) $request->input('department', ''));
             $tab = trim((string) $request->input('tab', 'published'));
 
-            $query = Document::query()->whereNull('submitted_by_email')->withCount('chunks');
-
             if ($tab === 'archived') {
-                $query->where('status', 'archived');
+                $query = Document::query()->where('status', 'archived')->withCount('chunks');
             } else {
-                $query->where(function ($q) {
+                $query = Document::query()->where(function ($q) {
                     $q->where('status', 'approved')
-                        ->orWhereNull('status');
-                });
+                        ->orWhere(fn($s) => $s->whereNull('status')->whereNull('submitted_by_email'));
+                })->withCount('chunks');
             }
 
             if ($search !== '') {
@@ -1383,12 +1381,12 @@ class DocumentController extends Controller
 
             $documents = $query->orderByRaw('COALESCE(publication_date, created_at::date) desc')->latest()->get();
 
-            $publishedCount = Document::whereNull('submitted_by_email')->where(function ($q) {
+            $publishedCount = Document::where(function ($q) {
                 $q->where('status', 'approved')
-                    ->orWhereNull('status');
+                    ->orWhere(fn($s) => $s->whereNull('status')->whereNull('submitted_by_email'));
             })->count();
 
-            $archivedCount = Document::whereNull('submitted_by_email')->where('status', 'archived')->count();
+            $archivedCount = Document::where('status', 'archived')->count();
 
             return response()->json([
                 'error' => false,
@@ -1415,13 +1413,13 @@ class DocumentController extends Controller
 
             return response()->json([
                 'error' => false,
-                'message' => "Thesis '{$document->title}' has been archived and moved to Archived Theses."
+                'message' => "Manuscript '{$document->title}' has been archived and moved to Archived Manuscripts."
             ]);
         } catch (\Throwable $e) {
             Log::error('Admin thesis archive error: ' . $e->getMessage());
             return response()->json([
                 'error' => true,
-                'message' => 'Failed to archive thesis: ' . $e->getMessage()
+                'message' => 'Failed to archive manuscript: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -1434,13 +1432,13 @@ class DocumentController extends Controller
 
             return response()->json([
                 'error' => false,
-                'message' => "Thesis '{$document->title}' has been restored and republished."
+                'message' => "Manuscript '{$document->title}' has been restored and republished."
             ]);
         } catch (\Throwable $e) {
             Log::error('Admin thesis restore error: ' . $e->getMessage());
             return response()->json([
                 'error' => true,
-                'message' => 'Failed to restore thesis: ' . $e->getMessage()
+                'message' => 'Failed to restore manuscript: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -1470,14 +1468,14 @@ class DocumentController extends Controller
 
             return response()->json([
                 'error' => false,
-                'message' => 'Thesis metadata updated successfully.',
+                'message' => 'Manuscript metadata updated successfully.',
                 'document' => $document
             ]);
         } catch (\Throwable $e) {
             Log::error('Admin thesis update error: ' . $e->getMessage());
             return response()->json([
                 'error' => true,
-                'message' => 'Failed to update thesis: ' . $e->getMessage()
+                'message' => 'Failed to update manuscript: ' . $e->getMessage()
             ], 422);
         }
     }
@@ -1509,13 +1507,13 @@ class DocumentController extends Controller
 
             return response()->json([
                 'error' => false,
-                'message' => "Thesis '{$title}' and its indexed vectors were permanently deleted."
+                'message' => "Manuscript '{$title}' and its indexed vectors were permanently deleted."
             ]);
         } catch (\Throwable $e) {
             Log::error('Admin thesis deletion error: ' . $e->getMessage());
             return response()->json([
                 'error' => true,
-                'message' => 'Failed to delete thesis: ' . $e->getMessage()
+                'message' => 'Failed to delete manuscript: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -1664,7 +1662,7 @@ class DocumentController extends Controller
                 }
             }
 
-            $approvedScope = fn($q) => $q->whereNull('submitted_by_email')->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+            $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhere(fn($s2) => $s2->whereNull('status')->whereNull('submitted_by_email')));
             $department = trim((string) $request->input('department', ''));
 
             if (!empty($docIds)) {

@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Submit Thesis Manuscript - AIRIS</title>
+    <title>Submit Manuscript - AIRIS</title>
 
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -51,7 +51,7 @@
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
     {{-- SAC PORTAL TOP HEADER --}}
-    @include('partials.header', ['title' => 'SUBMIT THESIS'])
+    @include('partials.header', ['title' => 'SUBMIT MANUSCRIPT'])
 
     @include('partials.sidebar')
 
@@ -69,17 +69,15 @@
                             <span>Repository</span>
                         </a>
                         <span>/</span>
-                        <span class="text-gray-400">Upload Thesis</span>
+                        <span class="text-gray-400">Upload Manuscript</span>
                     </nav>
                 </div>
             </div>
 
-            {{-- Institutional Clearance Status Banner --}}
             @if($submissions->isNotEmpty())
                 @php
                     $latestSub = $submissions->first();
                     $latestCleared = in_array($latestSub->status, ['cleared', 'approved'], true);
-                    $latestResubmit = ($latestSub->status === 'resubmit');
                 @endphp
 
                 @if($latestCleared)
@@ -97,67 +95,14 @@
                                 <p class="text-xs text-gray-500 mt-0.5">
                                     Cleared for defense. Plagiarism and formatting screening passed.
                                 </p>
-                                @if(!empty($latestSub->admin_notes))
-                                    <div class="mt-2 text-xs bg-gray-50 rounded-lg p-2.5 border border-gray-200 text-gray-700">
-                                        <span class="font-semibold text-gray-900 block text-[10px] uppercase tracking-wider mb-0.5">Notes:</span>
-                                        <p class="whitespace-pre-line text-gray-800">{{ $latestSub->admin_notes }}</p>
-                                    </div>
-                                @endif
                             </div>
                         </div>
-                        <div class="shrink-0 flex items-center gap-2 self-start md:self-center">
-                            @if($latestSub->turnitin_similarity)
-                                <span class="px-2.5 py-1 rounded-lg font-mono text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
-                                    Similarity: {{ $latestSub->turnitin_similarity }}
-                                </span>
-                            @endif
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200">
-                                <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                </svg>
-                                Cleared
-                            </span>
-                        </div>
-                    </div>
-                @elseif($latestResubmit)
-                    <div class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-start justify-between gap-4">
-                        <div class="flex items-start gap-3.5 min-w-0">
-                            <div class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 border border-rose-200/60 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
-                                </svg>
-                            </div>
-                            <div class="min-w-0 space-y-1">
-                                <h4 class="text-sm font-semibold text-gray-900 leading-snug">
-                                    {{ $latestSub->title }}
-                                </h4>
-                                <p class="text-xs text-gray-500">
-                                    Revisions are required before clearance can be granted. Please check the reviewer notes below.
-                                </p>
-                                @if(!empty($latestSub->admin_notes))
-                                    <div class="mt-2 text-xs bg-rose-50/50 rounded-lg p-3 border border-rose-200/70 text-gray-700">
-                                        <span class="font-semibold text-rose-800 block text-[10px] uppercase tracking-wider mb-0.5">Reviewer Notes:</span>
-                                        <p class="whitespace-pre-line text-rose-950 font-medium">{{ $latestSub->admin_notes }}</p>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="shrink-0 flex items-center gap-2 self-start md:self-center">
-                            @if($latestSub->turnitin_similarity)
-                                <span class="px-2.5 py-1 rounded-lg font-mono text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
-                                    Similarity: {{ $latestSub->turnitin_similarity }}
-                                </span>
-                            @endif
-                            <button
-                                type="button"
-                                onclick="document.getElementById('pdf').click()"
-                                class="px-3.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                                </svg>
-                                <span>Upload Revised PDF</span>
-                            </button>
-                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200 shrink-0">
+                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                            Cleared
+                        </span>
                     </div>
                 @elseif($latestSub->status === 'pending')
                     <div class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -184,15 +129,20 @@
                 @endif
             @endif
 
+            @php
+                $activeResubmitDoc = $submissions->first(fn($s) => $s->status === 'resubmit');
+            @endphp
+
             <!-- Two-Column Layout (Form on Left, My Submissions on Right) -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
                 <!-- Submission Form Column (7 cols) -->
                 <div class="lg:col-span-7 space-y-6">
-                    <form id="studentUploadForm" class="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-xs space-y-5">
-                        
+                    <form id="studentUploadForm" class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-xs space-y-5">
+                        <input type="hidden" id="submission_id" name="submission_id" hidden class="hidden" value="{{ $activeResubmitDoc ? $activeResubmitDoc->id : '' }}">
+
                         <!-- Research Title -->
-                        <div>
+                        <div class="!mt-0">
                             <label for="title" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
                                 Research Title
                             </label>
@@ -201,6 +151,7 @@
                                 id="title"
                                 name="title"
                                 required
+                                value="{{ $activeResubmitDoc ? $activeResubmitDoc->title : '' }}"
                                 placeholder="Enter Title"
                                 class="w-full rounded-xl border border-gray-200 bg-slate-50/60 px-4 py-3 text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs font-medium">
                         </div>
@@ -215,6 +166,7 @@
                                 id="author"
                                 name="author"
                                 required
+                                value="{{ $activeResubmitDoc ? $activeResubmitDoc->author : '' }}"
                                 placeholder="Enter Author(s)"
                                 class="w-full rounded-xl border border-gray-200 bg-slate-50/60 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
                             <p class="text-[11px] text-gray-400 mt-1">Separate multiple authors with commas.</p>
@@ -232,7 +184,7 @@
                                     required
                                     onchange="handleDepartmentChange()"
                                     class="w-full rounded-xl border border-gray-200 bg-slate-50/60 px-3.5 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs font-semibold cursor-pointer">
-                                    <option value="" disabled selected>Select Department</option>
+                                    <option value="" disabled {{ !$activeResubmitDoc ? 'selected' : '' }}>Select Department</option>
                                     <option value="bused">Business Education Department</option>
                                     <option value="cjed">Criminal Justice Education Department</option>
                                     <option value="dte">Department of Teacher Education</option>
@@ -267,7 +219,7 @@
                                 rows="4"
                                 required
                                 placeholder="Paste your complete research abstract here..."
-                                class="w-full rounded-xl border border-gray-200 bg-slate-50/60 p-4 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs leading-relaxed"></textarea>
+                                class="w-full rounded-xl border border-gray-200 bg-slate-50/60 p-4 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs leading-relaxed">{{ $activeResubmitDoc ? $activeResubmitDoc->abstract : '' }}</textarea>
                         </div>
 
                         <!-- PDF Manuscript File Upload Dropzone -->
@@ -319,6 +271,9 @@
                                     </svg>
                                 </button>
                             </div>
+
+                            <!-- Auto-fill Status Notification -->
+                            <div id="autofillStatus" class="hidden text-xs rounded-xl px-3.5 py-2 mt-2.5 transition"></div>
                         </div>
 
                         <!-- Upload Progress Bar Container -->
@@ -343,7 +298,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                             </svg>
-                            <span>Submit Thesis</span>
+                            <span>Submit Manuscript</span>
                         </button>
                     </form>
                 </div>
@@ -362,7 +317,7 @@
 
                         @if($submissions->isEmpty())
                             <div class="py-10 text-center text-gray-400 text-xs">
-                                <p>You haven't submitted any thesis manuscripts yet.</p>
+                                <p>You haven't submitted any manuscripts yet.</p>
                                 <p class="mt-1 text-[11px] text-gray-400">Fill out the form to submit your research for screening.</p>
                             </div>
                         @else
@@ -377,8 +332,8 @@
                                             : ($isResubmit ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200');
 
                                         $statusLabel = $isCleared
-                                            ? 'Cleared'
-                                            : ($isResubmit ? 'Needs Revisions' : 'Pending');
+                                            ? 'Approved'
+                                            : ($isResubmit ? 'Needs Revision' : 'Pending');
                                     @endphp
 
                                     <div class="rounded-xl border border-gray-200 bg-slate-50/50 p-3.5 sm:p-4 space-y-2 hover:bg-white hover:border-gray-300 transition">
@@ -388,9 +343,6 @@
                                             </h4>
                                             <span class="shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-medium {{ $statusBadge }}">
                                                 {{ $statusLabel }}
-                                                @if($sub->turnitin_similarity)
-                                                    <span class="ml-1 font-mono font-semibold">{{ $sub->turnitin_similarity }}</span>
-                                                @endif
                                             </span>
                                         </div>
 
@@ -409,7 +361,7 @@
                                                         <svg class="w-3.5 h-3.5 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                                         </svg>
-                                                        <span>Cleared for Oral Defense</span>
+                                                        <span>Cleared for Oral Defense &bull; Published</span>
                                                     </p>
                                                     @if($sub->turnitin_similarity)
                                                         <span class="font-mono text-[10px] bg-emerald-100 text-emerald-900 px-1.5 py-0.5 rounded font-semibold border border-emerald-200">
@@ -423,6 +375,13 @@
                                                         <span class="whitespace-pre-line">{{ $sub->admin_notes }}</span>
                                                     </div>
                                                 @endif
+                                                <div class="pt-1 border-t border-emerald-200/60 flex items-center justify-between">
+                                                    <a href="/documents/{{ $sub->id }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#700000] hover:text-[#850000] hover:underline">
+                                                        <span>View Published in Repository</span>
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                                                    </a>
+                                                    <span class="text-[10px] text-emerald-700 font-medium">Publicly Live</span>
+                                                </div>
                                             </div>
                                         @elseif($isResubmit)
                                             <div class="mt-2 rounded-lg bg-rose-50/50 border border-rose-200/80 p-2.5 text-xs text-rose-900 space-y-1.5">
@@ -445,17 +404,6 @@
                                                         <span class="whitespace-pre-line select-all font-medium text-rose-950">{{ $sub->admin_notes }}</span>
                                                     </div>
                                                 @endif
-                                                <div class="pt-1 flex items-center justify-between gap-2">
-                                                    <p class="text-[10px] text-gray-500">
-                                                        Revise manuscript and upload.
-                                                    </p>
-                                                    <button
-                                                        type="button"
-                                                        onclick="document.getElementById('pdf').click()"
-                                                        class="px-2 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-[10px] font-semibold transition shrink-0 cursor-pointer">
-                                                        Upload Revised PDF
-                                                    </button>
-                                                </div>
                                             </div>
                                         @endif
                                     </div>
@@ -478,7 +426,7 @@
             </div>
             <h3 class="text-lg font-black text-gray-900">Submission Successfully Uploaded!</h3>
             <p id="successModalMessage" class="text-xs text-gray-600 leading-relaxed">
-                Your thesis is being checked for plagiarism and grammar. You will be notified once the review is completed.
+                Your manuscript is being checked for plagiarism and grammar. You will be notified once the review is completed.
             </p>
             <div class="pt-2">
                 <button
@@ -543,12 +491,31 @@
             }
         }
 
+        @if($activeResubmitDoc)
+            document.addEventListener('DOMContentLoaded', () => {
+                const dept = "{{ strtolower($activeResubmitDoc->department ?? '') }}";
+                const course = "{{ strtolower($activeResubmitDoc->course_code ?? '') }}";
+                if (dept) {
+                    const deptSelect = document.getElementById('department');
+                    deptSelect.value = dept;
+                    handleDepartmentChange();
+                    if (course) {
+                        const courseSelect = document.getElementById('course_code');
+                        courseSelect.value = course;
+                    }
+                }
+            });
+        @endif
+
         function handleFileSelected(file) {
             if (!file) return;
             document.getElementById('previewFileName').textContent = file.name;
             document.getElementById('previewFileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
             document.getElementById('filePreviewCard').classList.remove('hidden');
             document.getElementById('filePreviewCard').classList.add('flex');
+
+            // Automatically extract Title, Author, Abstract, Department, Course
+            autoExtractMetadataFromFile(file);
         }
 
         function clearSelectedFile(e) {
@@ -556,6 +523,102 @@
             document.getElementById('pdf').value = '';
             document.getElementById('filePreviewCard').classList.add('hidden');
             document.getElementById('filePreviewCard').classList.remove('flex');
+            const statusBadge = document.getElementById('autofillStatus');
+            if (statusBadge) {
+                statusBadge.classList.add('hidden');
+            }
+        }
+
+        async function autoExtractMetadataFromFile(file) {
+            if (!file) return;
+            const statusBadge = document.getElementById('autofillStatus');
+            if (statusBadge) {
+                statusBadge.className = "flex items-center gap-2 text-xs rounded-xl px-3.5 py-2 mt-2.5 bg-amber-50 border border-amber-200 text-amber-800 transition";
+                statusBadge.innerHTML = `
+                    <svg class="w-3.5 h-3.5 animate-spin text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Reading manuscript PDF and extracting details...</span>
+                `;
+                statusBadge.classList.remove('hidden');
+            }
+
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                const pagesToScan = Math.min(pdf.numPages, 3);
+                let frontText = '';
+
+                for (let i = 1; i <= pagesToScan; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    const pageStr = content.items.map(item => item.str).join(' ');
+                    frontText += `\n--- PAGE ${i} ---\n` + pageStr;
+                }
+
+                if (frontText.trim().length > 30) {
+                    const res = await fetch('/backend/student/extract-metadata', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({ text: frontText })
+                    });
+
+                    if (res.ok) {
+                        const json = await res.json();
+                        if (json.success && json.data) {
+                            const d = json.data;
+                            const titleInput = document.getElementById('title');
+                            const authorInput = document.getElementById('author');
+                            const abstractInput = document.getElementById('abstract');
+                            const deptSelect = document.getElementById('department');
+                            const courseSelect = document.getElementById('course_code');
+
+                            let filledFields = [];
+                            if (d.title) {
+                                titleInput.value = d.title;
+                                filledFields.push('Title');
+                            }
+                            if (d.author) {
+                                authorInput.value = d.author;
+                                filledFields.push('Author(s)');
+                            }
+                            if (d.department) {
+                                deptSelect.value = d.department;
+                                handleDepartmentChange();
+                                if (d.course_code) {
+                                    courseSelect.value = d.course_code;
+                                }
+                            }
+                            if (d.abstract) {
+                                abstractInput.value = d.abstract;
+                                filledFields.push('Abstract');
+                            }
+
+                            if (statusBadge && filledFields.length > 0) {
+                                statusBadge.className = "flex items-center justify-between text-xs rounded-xl px-3.5 py-2 mt-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 transition";
+                                statusBadge.innerHTML = `
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                        </svg>
+                                        <span>Auto-filled ${filledFields.join(', ')} from PDF. Please verify before submitting.</span>
+                                    </div>
+                                    <button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-emerald-600 hover:text-emerald-900 font-bold ml-2">✕</button>
+                                `;
+                                return;
+                            }
+                        }
+                    }
+                }
+                if (statusBadge) statusBadge.classList.add('hidden');
+            } catch (err) {
+                console.warn('PDF auto-extract skipped:', err);
+                if (statusBadge) statusBadge.classList.add('hidden');
+            }
         }
 
         function updateProgress(percent, text) {
@@ -609,7 +672,7 @@
             e.preventDefault();
             const file = document.getElementById('pdf').files[0];
             if (!file) {
-                showError('Please select your thesis manuscript PDF file.');
+                showError('Please select your manuscript PDF file.');
                 return;
             }
 
@@ -667,6 +730,7 @@
                         'X-CSRF-TOKEN': csrfToken
                     },
                     body: JSON.stringify({
+                        submission_id: document.getElementById('submission_id') ? document.getElementById('submission_id').value : '',
                         title: document.getElementById('title').value.trim(),
                         author: document.getElementById('author').value.trim(),
                         department: document.getElementById('department').value,
@@ -693,7 +757,7 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
                     </svg>
-                    <span>Submit Thesis for Review</span>
+                    <span>Submit Manuscript for Review</span>
                 `;
             }
         });

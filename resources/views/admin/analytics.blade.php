@@ -54,16 +54,16 @@
 
             <!-- Key Institutional Metrics -->
             <div class="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Theses</p>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Manuscripts</p>
                 <p id="statTotalTheses" class="text-3xl md:text-4xl font-extrabold text-[#700000] mt-1.5">--</p>
-                <p class="text-xs text-gray-500 mt-1">Total published theses in repository</p>
+                <p class="text-xs text-gray-500 mt-1">Total published manuscripts in repository</p>
             </div>
 
             <!-- Charts Row -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Degree Program Breakdown (Bar) -->
                 <div class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                    <h3 class="text-sm font-bold text-gray-900 mb-4">Theses by Academic Program</h3>
+                    <h3 class="text-sm font-bold text-gray-900 mb-4">Manuscripts by Academic Program</h3>
                     <div id="courseChartContainer" class="h-64 flex items-center justify-center">
                         <canvas id="courseChart"></canvas>
                     </div>
@@ -136,8 +136,8 @@
                             <svg class="w-9 h-9 mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                             </svg>
-                            <p class="text-xs font-semibold text-gray-500">No published theses yet</p>
-                            <p class="text-[11px] text-gray-400 mt-0.5">Program breakdown will display once theses are approved</p>
+                            <p class="text-xs font-semibold text-gray-500">No published manuscripts yet</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5">Program breakdown will display once manuscripts are approved</p>
                         </div>
                     `;
                 } else {
@@ -146,7 +146,7 @@
                         data: {
                             labels: courseLabels,
                             datasets: [{
-                                label: 'Theses Count',
+                                label: 'Manuscripts Count',
                                 data: courseCounts,
                                 backgroundColor: courseColors,
                                 borderRadius: 6
@@ -182,7 +182,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
                             </svg>
                             <p class="text-xs font-semibold text-gray-500">No annual publication data yet</p>
-                            <p class="text-[11px] text-gray-400 mt-0.5">Annual trends will plot as theses are published</p>
+                            <p class="text-[11px] text-gray-400 mt-0.5">Annual trends will plot as manuscripts are published</p>
                         </div>
                     `;
                 } else {
@@ -191,7 +191,7 @@
                         data: {
                             labels: yearLabels,
                             datasets: [{
-                                label: 'Theses Uploaded',
+                                label: 'Manuscripts Uploaded',
                                 data: yearCounts,
                                 borderColor: '#700000',
                                 backgroundColor: 'rgba(112, 0, 0, 0.08)',

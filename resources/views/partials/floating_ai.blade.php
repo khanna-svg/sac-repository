@@ -89,7 +89,7 @@
                 <div class="flex-1 bg-white border border-gray-200/90 rounded-2xl rounded-tl-xs p-3.5 shadow-xs text-gray-800 leading-relaxed">
                     <p class="font-bold text-[#700000]">Hello! I'm your AIRIS Research AI.</p>
                     <p class="mt-1 text-gray-600 text-xs">
-                        Ask me any research questions about thesis topics, methodologies, or findings inside the repository.
+                        Ask me any research questions about manuscript topics, methodologies, or findings inside the repository.
                     </p>
                 </div>
             </div>
@@ -99,13 +99,13 @@
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Suggested Questions</p>
                 <button
                     type="button"
-                    onclick="sendFloatingSuggested('What IoT and computer vision capstone theses are available?')"
+                    onclick="sendFloatingSuggested('What IoT and computer vision capstone manuscripts are available?')"
                     class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-2xs transition cursor-pointer">
-                    💡 What IoT capstone theses are available?
+                    💡 What IoT capstone manuscripts are available?
                 </button>
                 <button
                     type="button"
-                    onclick="sendFloatingSuggested('Explain the common methodologies used in recent IT theses.')"
+                    onclick="sendFloatingSuggested('Explain the common methodologies used in recent IT manuscripts.')"
                     class="w-full text-left px-3 py-2 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-2xs transition cursor-pointer">
                     📊 Explain common IT research methodologies
                 </button>

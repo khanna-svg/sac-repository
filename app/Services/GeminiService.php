@@ -129,11 +129,11 @@ class GeminiService
     {
         // Strict system prompt to avoid hallucinations
         $prompt =
-            "You are an expert AI Thesis Assistant for St. Anthony's College Institutional Research Repository.\n\n" .
-            "Answer the student's question using ONLY the thesis context provided below.\n" .
+            "You are an expert AI Manuscript Assistant for St. Anthony's College Institutional Research Repository.\n\n" .
+            "Answer the student's question using ONLY the manuscript context provided below.\n" .
             "Do not invent or fabricate information.\n" .
-            "If the context does not contain enough information, clearly state that the answer could not be found in the uploaded thesis documents.\n\n" .
-            "--- RETRIEVED THESIS CONTEXT ---\n" .
+            "If the context does not contain enough information, clearly state that the answer could not be found in the uploaded manuscript documents.\n\n" .
+            "--- RETRIEVED MANUSCRIPT CONTEXT ---\n" .
             $contextText .
             "\n\n" .
             "--- USER QUESTION ---\n" .
@@ -192,10 +192,10 @@ class GeminiService
     public function generateChatResponse(string $userQuestion, string $contextText, array $history = []): string
     {
         $systemInstruction = "You are an expert AI Research Assistant for St. Anthony's College Institutional Research Repository.\n" .
-            "Answer the student's questions accurately using the provided thesis context and conversation history.\n" .
-            "Maintain conversational continuity: if the user asks a follow-up question (such as 'Who were the authors of it?', 'What did they find?', or 'Summarize chapter 3'), understand that 'it' refers to the thesis previously discussed.\n" .
-            "Do not invent facts not grounded in the thesis context.\n" .
-            "If the information is not in the thesis context or previous messages, politely explain that the detail is not found in the uploaded documents.";
+            "Answer the student's questions accurately using the provided manuscript context and conversation history.\n" .
+            "Maintain conversational continuity: if the user asks a follow-up question (such as 'Who were the authors of it?', 'What did they find?', or 'Summarize chapter 3'), understand that 'it' refers to the manuscript previously discussed.\n" .
+            "Do not invent facts not grounded in the manuscript context.\n" .
+            "If the information is not in the manuscript context or previous messages, politely explain that the detail is not found in the uploaded documents.";
 
         $rawTurns = [];
         $recentHistory = array_slice($history, -8);
@@ -207,7 +207,7 @@ class GeminiService
             }
         }
 
-        $currentPrompt = "--- RETRIEVED THESIS CONTEXT ---\n" .
+        $currentPrompt = "--- RETRIEVED MANUSCRIPT CONTEXT ---\n" .
             $contextText .
             "\n\n--- CURRENT STUDENT QUESTION ---\n" .
             $userQuestion;
@@ -225,7 +225,7 @@ class GeminiService
                 if ($t['role'] === 'model') {
                     $contents[] = [
                         'role' => 'user',
-                        'parts' => [['text' => 'Can you summarize or provide details on this thesis?']]
+                        'parts' => [['text' => 'Can you summarize or provide details on this manuscript?']]
                     ];
                 }
                 $contents[] = [
@@ -405,7 +405,7 @@ class GeminiService
     {
         $truncated = mb_substr($proposalText, 0, 4500);
 
-        $prompt = "You are an institutional academic research assistant. Analyze the following thesis concept proposal text and output a JSON object with these EXACT keys:
+        $prompt = "You are an institutional academic research assistant. Analyze the following research concept proposal text and output a JSON object with these EXACT keys:
 - \"title\": Estimated or extracted title of the proposed study (string)
 - \"summary\": A concise 2-sentence synthesis of the core research problem, proposed solution/system, and methodology (string)
 - \"topics\": An array of 4 to 6 specific academic keywords or technology domains (array of strings, e.g. [\"Machine Learning\", \"Agriculture\", \"IoT\"])
@@ -485,5 +485,147 @@ Proposal Text:
             'topics' => ['Research Proposal', 'Literature Review'],
             'embedding_query' => mb_substr($cleanFallback, 0, 1000),
         ];
+    }
+
+    /**
+     * Automatically extracts research metadata (title, author, abstract, department, course)
+     * from front-matter text of a thesis/manuscript PDF.
+     */
+    public function extractManuscriptMetadata(string $frontMatterText): array
+    {
+        $truncated = mb_substr($frontMatterText, 0, 7500);
+
+        $prompt = "You are an institutional academic repository assistant at St. Anthony's College (SAC). Analyze the provided academic manuscript front-matter text (Title page, Approval Sheet, and Abstract) and extract the key publication metadata.
+
+Return a valid JSON object with EXACTLY these keys:
+- \"title\": Complete title of the research manuscript (clean Title Case, e.g. \"A Web-Based Automated Operations System for Blood Donor-Recipient Matching\").
+- \"author\": Student author(s) formatted as comma-separated full names (e.g. \"Juan Dela Cruz, Maria Santos\").
+- \"abstract\": The complete abstract text of the study.
+- \"department\": The best matching SAC department code from this exact list: [\"bused\", \"cjed\", \"dte\", \"eng\", \"itd\", \"lad\", \"nursing\"] or null.
+- \"course_code\": The degree program code from this list: [\"bsit\", \"bscrim\", \"bsce\", \"bscpe\", \"bsa\", \"bsais\", \"ba\", \"bshm\", \"bsed_english\", \"bsed_math\", \"bsed_science\", \"beed\", \"ab_philo\", \"bsn\"] or null.
+
+Department guide:
+- itd: Information Technology Department (BSIT)
+- eng: Engineering Department (BSCE, BSCpE)
+- cjed: Criminal Justice Education Department (BSCrim)
+- bused: Business Education Department (BSA, BSAIS, BA, BSHM)
+- dte: Department of Teacher Education (BSED, BEED)
+- nursing: Nursing Department (BSN)
+- lad: Liberal Arts Department (AB Philosophy)
+
+Respond with ONLY valid JSON (no markdown formatting, no code fences, no explanations).
+
+Manuscript Front Matter:
+" . $truncated;
+
+        $modelsToTry = [$this->generationModel, 'gemini-3.7-flash', 'gemini-3.6-flash'];
+
+        foreach (array_unique($modelsToTry) as $modelName) {
+            try {
+                $response = Http::withoutVerifying()
+                    ->timeout(20)
+                    ->withHeaders([
+                        'Content-Type' => 'application/json',
+                        'x-goog-api-key' => $this->apiKey,
+                    ])
+                    ->post(
+                        "{$this->baseUrl}/models/{$modelName}:generateContent",
+                        [
+                            'contents' => [
+                                [
+                                    'role' => 'user',
+                                    'parts' => [
+                                        ['text' => $prompt],
+                                    ],
+                                ],
+                            ],
+                            'generationConfig' => [
+                                'thinkingConfig' => [
+                                    'thinkingBudget' => 0,
+                                ],
+                                'temperature' => 0.1,
+                            ],
+                        ]
+                    );
+
+                if ($response->successful()) {
+                    $rawJson = $response->json('candidates.0.content.parts.0.text');
+                    if ($rawJson) {
+                        $clean = trim($rawJson);
+                        if (str_starts_with($clean, '```json')) {
+                            $clean = substr($clean, 7);
+                        } elseif (str_starts_with($clean, '```')) {
+                            $clean = substr($clean, 3);
+                        }
+                        if (str_ends_with($clean, '```')) {
+                            $clean = substr($clean, 0, -3);
+                        }
+                        $clean = trim($clean);
+
+                        $data = json_decode($clean, true);
+                        if (is_array($data) && (!empty($data['title']) || !empty($data['abstract']))) {
+                            return [
+                                'title' => (string) ($data['title'] ?? ''),
+                                'author' => (string) ($data['author'] ?? ''),
+                                'abstract' => (string) ($data['abstract'] ?? ''),
+                                'department' => !empty($data['department']) ? strtolower((string) $data['department']) : null,
+                                'course_code' => !empty($data['course_code']) ? strtolower((string) $data['course_code']) : null,
+                            ];
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Gemini extractManuscriptMetadata with {$modelName} failed: " . $e->getMessage());
+            }
+        }
+
+        // Heuristic fallback if AI extraction fails
+        return self::heuristicExtractMetadata($truncated);
+    }
+
+    /**
+     * Fallback heuristic rule-based extractor using regular expressions.
+     */
+    public static function heuristicExtractMetadata(string $text): array
+    {
+        $result = [
+            'title' => '',
+            'author' => '',
+            'abstract' => '',
+            'department' => null,
+            'course_code' => null,
+        ];
+
+        // Abstract extraction
+        if (preg_match('/ABSTRACT\s*[:\-\n\r]+(.*?)(Keywords|TABLE OF CONTENTS|CHAPTER|1\.0|Introduction|\Z)/is', $text, $matches)) {
+            $result['abstract'] = trim(preg_replace('/\s+/', ' ', $matches[1]));
+        }
+
+        // Department / Course detection
+        $lower = strtolower($text);
+        if (str_contains($lower, 'information technology')) {
+            $result['department'] = 'itd';
+            $result['course_code'] = 'bsit';
+        } elseif (str_contains($lower, 'criminology')) {
+            $result['department'] = 'cjed';
+            $result['course_code'] = 'bscrim';
+        } elseif (str_contains($lower, 'nursing')) {
+            $result['department'] = 'nursing';
+            $result['course_code'] = 'bsn';
+        } elseif (str_contains($lower, 'civil engineering')) {
+            $result['department'] = 'eng';
+            $result['course_code'] = 'bsce';
+        } elseif (str_contains($lower, 'computer engineering')) {
+            $result['department'] = 'eng';
+            $result['course_code'] = 'bscpe';
+        } elseif (str_contains($lower, 'accountancy')) {
+            $result['department'] = 'bused';
+            $result['course_code'] = 'bsa';
+        } elseif (str_contains($lower, 'teacher education') || str_contains($lower, 'secondary education')) {
+            $result['department'] = 'dte';
+            $result['course_code'] = 'bsed_english';
+        }
+
+        return $result;
     }
 }

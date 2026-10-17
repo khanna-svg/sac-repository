@@ -16,7 +16,12 @@ class RequireSacLogin
             if ($request->expectsJson() || $request->is('backend/*')) {
                 return response()->json(['error' => 'Unauthenticated'], 401);
             }
-            return redirect('/login');
+
+            if ($request->is('admin') || $request->is('admin/*')) {
+                return redirect()->route('admin.login');
+            }
+
+            return redirect()->route('login');
         }
 
         return $next($request);

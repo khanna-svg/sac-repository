@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Upload & Index Thesis - AIRIS</title>
+    <title>Upload & Index Manuscript - AIRIS</title>
 
     <!-- Supabase JS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -51,7 +51,7 @@
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
 
     {{-- AIRIS PORTAL TOP HEADER --}}
-    @include('partials.header', ['title' => 'UPLOAD THESIS'])
+    @include('partials.header', ['title' => 'UPLOAD MANUSCRIPT'])
 
     @include('partials.sidebar')
 
@@ -69,10 +69,10 @@
                             <span>Back to Repository</span>
                         </a>
                         <span>/</span>
-                        <span class="text-gray-400">Upload Thesis</span>
+                        <span class="text-gray-400">Upload Manuscript</span>
                     </nav>
                     <p class="text-xs text-gray-500 font-medium">
-                        Upload and index published thesis manuscripts into the repository.
+                        Upload and index published manuscripts into the repository.
                     </p>
                 </div>
             </div>
@@ -88,7 +88,7 @@
                     <!-- Title -->
                     <div>
                         <label for="title" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-gray-700">
-                            Thesis Title <span class="text-rose-600"></span>
+                            Manuscript Title <span class="text-rose-600"></span>
                         </label>
                         <input
                             id="title"
@@ -174,7 +174,7 @@
                             id="abstract"
                             name="abstract"
                             rows="5"
-                            placeholder="Paste the complete abstract of the thesis paper here..."
+                            placeholder="Paste the complete abstract of the manuscript paper here..."
                             required
                             class="w-full rounded-xl border border-gray-300 bg-white p-4 text-xs md:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs"></textarea>
                     </div>
@@ -259,7 +259,7 @@
                             <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                             </svg>
-                            <span>Upload Thesis</span>
+                            <span>Upload Manuscript</span>
                         </button>
                     </div>
 
@@ -278,9 +278,9 @@
                 </svg>
             </div>
             
-            <h3 class="text-xl font-bold text-gray-900">Thesis Published!</h3>
+            <h3 class="text-xl font-bold text-gray-900">Manuscript Published!</h3>
             <p id="successModalMessage" class="mt-2 text-xs md:text-sm text-gray-600 leading-relaxed">
-                Thesis uploaded, text extracted, and vectorized successfully.
+                Manuscript uploaded, text extracted, and vectorized successfully.
             </p>
             
             <div class="mt-6 flex flex-col gap-2">
@@ -288,7 +288,7 @@
                     View in Repository
                 </a>
                 <button onclick="closeSuccessModal()" class="w-full py-2 rounded-xl text-xs font-semibold text-gray-500 hover:bg-gray-100 transition">
-                    Upload Another Thesis
+                    Upload Another Manuscript
                 </button>
             </div>
         </div>
@@ -423,7 +423,7 @@
             return div.innerHTML;
         }
 
-        function openSuccessModal(message = 'Thesis uploaded and indexed successfully.') {
+        function openSuccessModal(message = 'Manuscript uploaded and indexed successfully.') {
             successModalMessage.textContent = message;
             successModal.classList.remove('hidden');
             successModal.classList.add('flex');
@@ -596,7 +596,7 @@
                 }
 
                 // 4. Save Document Metadata & all page chunks
-                updateProgress(60, 'Saving thesis document and publishing...');
+                updateProgress(60, 'Saving manuscript document and publishing...');
                 const thesisTitle = document.getElementById('title').value.trim();
                 const payload = {
                     title: thesisTitle,
@@ -675,14 +675,14 @@
                 openSuccessModal(`"${thesisTitle}" has been officially published and indexed in the repository.`);
 
             } catch (err) {
-                showErrorAlert('Upload Failed', err.message || 'There was a problem uploading the thesis.');
+                showErrorAlert('Upload Failed', err.message || 'There was a problem uploading the manuscript.');
             } finally {
                 uploadButton.disabled = false;
                 uploadButton.innerHTML = `
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                     </svg>
-                    <span>Upload Thesis</span>
+                    <span>Upload Manuscript</span>
                 `;
             }
         });

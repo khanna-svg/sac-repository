@@ -19,6 +19,7 @@ $app = Application::configure(
         $middleware->trustProxies(at: '*');
 
         $middleware->validateCsrfTokens(except: [
+            'login',
             'admin/login',
             'login/*',
             'logout',

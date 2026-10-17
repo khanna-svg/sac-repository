@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $document->title }} - AIRIS Thesis Repository</title>
+    <title>{{ $document->title }} - AIRIS Manuscript Repository</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -90,7 +90,7 @@
                     type="button"
                     id="bookmarkDetailBtn"
                     onclick="toggleDetailBookmark()"
-                    title="Bookmark Thesis"
+                    title="Bookmark Manuscript"
                     class="absolute top-6 right-6 p-2.5 rounded-2xl border border-gray-200 bg-white text-gray-400 hover:text-[#700000] hover:border-gray-300 hover:bg-slate-50 transition shadow-sm flex items-center justify-center cursor-pointer">
                     <svg id="bookmarkIcon" class="w-5 h-5 fill-none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
@@ -507,7 +507,7 @@
                 <div class="min-w-0">
                     <h2 class="text-sm font-bold text-white tracking-wide truncate flex items-center gap-1.5">
                         <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
-                        <span>Thesis Assistant</span>
+                        <span>Manuscript Assistant</span>
                     </h2>
                     <p class="text-[10px] text-amber-100/90 truncate">{{ $document->title }}</p>
                 </div>
@@ -536,7 +536,7 @@
                     </div>
                     <div class="flex-1">
                         <p class="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
-                            Hello! Curious about what you're reading? I'm here to help analyze this thesis.
+                            Hello! Curious about what you're reading? I'm here to help analyze this manuscript.
                         </p>
                         <p class="text-[11px] text-gray-500 mt-2 font-medium">
                             Not sure what to ask? Choose something:
@@ -548,9 +548,9 @@
                 <div class="flex flex-col gap-2 pl-8">
                     <button
                         type="button"
-                        onclick="sendQuickQuestion('Summarize this thesis in 3 concise bullet points.')"
+                        onclick="sendQuickQuestion('Summarize this manuscript in 3 concise bullet points.')"
                         class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
-                        📑 Summarize this thesis
+                        📑 Summarize this manuscript
                     </button>
 
                     <button
@@ -584,7 +584,7 @@
                 <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse"></span>
                 <span class="w-2 h-2 rounded-full bg-[#FFD700] animate-pulse delay-150"></span>
                 <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse delay-300"></span>
-                <span class="text-[11px] text-gray-500 font-medium ml-1">AIRIS AI is analyzing thesis...</span>
+                <span class="text-[11px] text-gray-500 font-medium ml-1">AIRIS AI is analyzing manuscript...</span>
             </div>
         </div>
 
@@ -594,7 +594,7 @@
                 <input
                     id="aiDrawerInput"
                     type="text"
-                    placeholder="Ask a question about this thesis..."
+                    placeholder="Ask a question about this manuscript..."
                     autocomplete="off"
                     class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-12 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 shadow-2xs">
 
@@ -701,7 +701,7 @@
 
         const dataElement = document.getElementById('citationData');
         const currentDocId = dataElement ? parseInt(dataElement.getAttribute('data-id'), 10) : null;
-        const docTitle = dataElement ? dataElement.getAttribute('data-title') : 'Untitled Thesis';
+        const docTitle = dataElement ? dataElement.getAttribute('data-title') : 'Untitled Manuscript';
         const docAuthor = dataElement ? dataElement.getAttribute('data-author') : 'Unknown Author';
         const docDept = dataElement ? dataElement.getAttribute('data-department') : '';
         const docCourse = dataElement ? dataElement.getAttribute('data-course') : '';
@@ -1029,7 +1029,7 @@
 
         function handleImageError(imageElement) {
             imageElement.onerror = null;
-            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>AIRIS THESIS</text></svg>";
+            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='11' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>AIRIS MANUSCRIPT</text></svg>";
         }
 
         function switchViewTab(tab) {
@@ -1255,18 +1255,18 @@
             if (tabMla) tabMla.className = style === 'mla' ? activeClass : inactiveClass;
 
             const deptName = getFullDeptName(docDept, docCourse, docTitle);
-            const cleanTitle = (docTitle || 'Untitled Thesis').trim().replace(/\.$/, '');
+            const cleanTitle = (docTitle || 'Untitled Manuscript').trim().replace(/\.$/, '');
 
             let citation = '';
             if (style === 'apa') {
                 const apaAuthors = formatApaAuthors(docAuthor);
-                citation = `${apaAuthors} (${docYear}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. AIRIS Institutional Research Repository.`;
+                citation = `${apaAuthors} (${docYear}). ${cleanTitle} [Undergraduate manuscript, St. Anthony's College]. AIRIS Institutional Research Repository.`;
             } else if (style === 'mla') {
                 const mlaAuthors = formatMlaAuthors(docAuthor);
-                citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate thesis, St. Anthony's College, ${docYear}.`;
+                citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate manuscript, St. Anthony's College, ${docYear}.`;
             } else {
                 const ieeeAuthors = formatIeeeAuthors(docAuthor);
-                citation = `[1] ${ieeeAuthors}, "${cleanTitle}," B.S. thesis, Dept. of ${deptName}, St. Anthony's College, San Jose, Antique, Philippines, ${docYear}.`;
+                citation = `[1] ${ieeeAuthors}, "${cleanTitle}," B.S. manuscript, Dept. of ${deptName}, St. Anthony's College, San Jose, Antique, Philippines, ${docYear}.`;
             }
 
             if (citationP) citationP.textContent = citation;
@@ -1489,7 +1489,7 @@
                 const aiBubble = document.createElement('div');
                 aiBubble.className = 'flex items-start gap-2.5';
 
-                let rawAnswer = data.answer || 'I could not generate an answer for this thesis.';
+                let rawAnswer = data.answer || 'I could not generate an answer for this manuscript.';
                 let formattedAnswer = rawAnswer;
 
                 if (typeof marked !== 'undefined' && marked.parse) {

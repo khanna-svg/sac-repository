@@ -56,7 +56,7 @@
                     AIRIS
                 </span>
                 <span class="text-[9px] sm:text-[10px] font-semibold text-amber-100/90 tracking-wider uppercase">
-                    Thesis Repository
+                    Manuscript Repository
                 </span>
             </div>
         </a>
@@ -97,7 +97,7 @@
         @endif
 
         @if(in_array($currentRole, ['admin', 'librarian', 'coordinator']))
-        <!-- Manage Theses (Admin, Librarian, Coordinator) -->
+        <!-- Manage Manuscripts (Admin, Librarian, Coordinator) -->
         <a
             href="/admin/theses"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
@@ -107,7 +107,7 @@
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
             </svg>
-            <span>Manage Theses</span>
+            <span>Manage Manuscripts</span>
         </a>
 
         <!-- Review Student Submissions (Admin, Librarian, Coordinator) -->
@@ -125,7 +125,7 @@
         @endif
 
         @if(in_array($currentRole, ['admin', 'librarian']))
-        <!-- Direct Upload Thesis (Admin & Librarian) -->
+        <!-- Direct Upload Manuscript (Admin & Librarian) -->
         <a
             href="/admin/upload"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
@@ -154,7 +154,7 @@
             <span>Documents</span>
         </a>
 
-        <!-- Upload a Thesis (Student Submission) -->
+        <!-- Upload a Manuscript (Student Submission) -->
         <a
             href="/student/submit"
             class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition
@@ -164,7 +164,7 @@
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
             </svg>
-            <span>Submit Thesis for Checking</span>
+            <span>Submit Manuscript for Checking</span>
         </a>
 
         <!-- Saved / Bookmarks -->

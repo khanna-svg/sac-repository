@@ -161,7 +161,7 @@ class StudentSubmissionController extends Controller
         if ($author === '') {
             return response()->json([
                 'error' => true,
-                'message' => 'Please provide the author(s) of the thesis.',
+                'message' => 'Please provide the author(s) of the manuscript.',
             ], 422);
         }
 
@@ -170,8 +170,91 @@ class StudentSubmissionController extends Controller
         $abstract = trim($request->abstract);
         $filePath = trim($request->file_path);
         $chunks = $request->input('chunks', []);
+        $submissionId = $request->input('submission_id');
 
         try {
+            // Check if student is revising an existing thesis marked for resubmission
+            $existingDoc = null;
+            if (!empty($submissionId)) {
+                $existingDoc = Document::where('id', (int) $submissionId)
+                    ->where('submitted_by_email', $email)
+                    ->first();
+            } else {
+                $existingDoc = Document::where('submitted_by_email', $email)
+                    ->where('status', 'resubmit')
+                    ->latest()
+                    ->first();
+            }
+
+            if ($existingDoc) {
+                // Update in place: replace file, refresh chunks, reset status back to pending
+                $prevNotes = $existingDoc->admin_notes ? "Previous Feedback: " . $existingDoc->admin_notes : null;
+
+                $existingDoc->update([
+                    'title' => $title,
+                    'author' => $author,
+                    'department' => $department,
+                    'course_code' => $courseCode,
+                    'abstract' => $abstract,
+                    'file_path' => $filePath,
+                    'file_url' => "/backend/documents/{$existingDoc->id}/view",
+                    'status' => 'pending', // Resets from 'resubmit' back to 'pending' (moves from Needs Revisions to Pending tab)
+                    'turnitin_similarity' => null, // Reset Turnitin score until admin re-checks
+                    'submitted_by_name' => $submittedByName,
+                    'admin_notes' => $prevNotes,
+                ]);
+
+                // Replace document chunks with new version
+                DB::table('document_chunks')->where('document_id', $existingDoc->id)->delete();
+                if (is_array($chunks) && !empty($chunks)) {
+                    $now = now();
+                    $insertData = [];
+                    foreach ($chunks as $chunk) {
+                        $text = trim((string) ($chunk['text'] ?? ''));
+                        $page = (int) ($chunk['page'] ?? 1);
+                        if ($text !== '') {
+                            $insertData[] = [
+                                'document_id' => $existingDoc->id,
+                                'page_number' => $page,
+                                'chunk_text' => $text,
+                                'embedding' => null,
+                                'created_at' => $now,
+                                'updated_at' => $now,
+                            ];
+                        }
+                    }
+                    if (!empty($insertData)) {
+                        foreach (array_chunk($insertData, 100) as $batch) {
+                            DB::table('document_chunks')->insert($batch);
+                        }
+                    }
+                }
+
+                ThesisNotification::create([
+                    'user_email' => $email,
+                    'title' => '📄 Revised Manuscript Submitted for Turnitin Review',
+                    'message' => "Your revised manuscript \"{$title}\" has been re-uploaded and moved to Pending for Turnitin & Grammarly screening.",
+                    'type' => 'info',
+                    'document_id' => $existingDoc->id,
+                    'is_read' => false,
+                ]);
+
+                try {
+                    Mail::to($email)->send(
+                        new ThesisClearanceMail($existingDoc, 'received')
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning("Failed to send submission confirmation email to {$email}: " . $e->getMessage());
+                }
+
+                return response()->json([
+                    'error' => false,
+                    'message' => 'Revised manuscript submitted successfully! Your submission has been updated and moved back to Pending for screening.',
+                    'document' => $existingDoc,
+                ], 200);
+            }
+
+            // Fresh new initial submission
             $document = Document::create([
                 'title' => $title,
                 'author' => $author,
@@ -236,7 +319,7 @@ class StudentSubmissionController extends Controller
 
             return response()->json([
                 'error' => false,
-                'message' => 'Thesis submitted successfully! It has been routed to the administrator for Turnitin & Grammarly screening.',
+                'message' => 'Manuscript submitted successfully! It has been routed to the administrator for Turnitin & Grammarly screening.',
                 'document' => $document,
             ], 201);
         } catch (\Throwable $e) {
@@ -245,8 +328,43 @@ class StudentSubmissionController extends Controller
             ]);
             return response()->json([
                 'error' => true,
-                'message' => 'Failed to record thesis submission. Please try again.',
+                'message' => 'Failed to record manuscript submission. Please try again.',
             ], 500);
         }
     }
+
+    /**
+     * Automatically extracts research metadata (title, author, abstract, department, course)
+     * from front-matter text sent by the student's browser.
+     */
+    public function extractMetadata(Request $request)
+    {
+        $text = trim((string) $request->input('text', ''));
+        if (mb_strlen($text) < 15) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Not enough text content found in PDF front matter.',
+            ], 422);
+        }
+
+        try {
+            /** @var \App\Services\GeminiService $gemini */
+            $gemini = app(\App\Services\GeminiService::class);
+            $data = $gemini->extractManuscriptMetadata($text);
+
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('extractMetadata controller fallback: ' . $e->getMessage());
+
+            $fallback = \App\Services\GeminiService::heuristicExtractMetadata($text);
+            return response()->json([
+                'success' => true,
+                'data' => $fallback,
+            ]);
+        }
+    }
 }
+

@@ -73,7 +73,7 @@ class AdminSubmissionController extends Controller
     }
 
     /**
-     * Mark thesis as Passed / Cleared for Turnitin and Grammarly.
+     * Approve submission and automatically publish manuscript into the repository.
      */
     public function approve(Request $request, $id)
     {
@@ -86,7 +86,9 @@ class AdminSubmissionController extends Controller
         $notes = trim((string) $request->input('admin_notes', ''));
 
         $updateData = [
-            'status' => 'cleared',
+            'status' => 'approved',
+            'publication_date' => $document->publication_date ?: now()->toDateString(),
+            'file_url' => "/backend/documents/{$document->id}/view",
         ];
         if ($similarity !== '') {
             $updateData['turnitin_similarity'] = $similarity;
@@ -97,20 +99,35 @@ class AdminSubmissionController extends Controller
 
         $document->update($updateData);
 
+        // If chunks are completely missing, extract them
+        if (DB::table('document_chunks')->where('document_id', $document->id)->count() === 0) {
+            try {
+                \App\Jobs\ProcessThesisPdf::dispatchSync($document);
+            } catch (\Throwable $e) {
+                Log::warning('ProcessThesisPdf on approve warning: ' . $e->getMessage());
+            }
+        }
+
+        // Count remaining unembedded chunks for optional frontend batching
+        $unembeddedCount = DB::table('document_chunks')
+            ->where('document_id', $document->id)
+            ->whereNull('embedding')
+            ->count();
+
         // Dispatch in-app notification to student
         if ($document->submitted_by_email) {
-            $msg = "Congratulations! Your thesis \"{$document->title}\" has passed Turnitin plagiarism screening"
+            $msg = "Congratulations! Your manuscript \"{$document->title}\" has passed Turnitin plagiarism screening"
                 . ($similarity ? " (Similarity: {$similarity})" : "")
-                . " and Grammarly review. You are cleared for your defense / final manuscript submission.";
+                . " and Grammarly review. It has been officially approved and published to the SAC Research Repository.";
             if ($notes !== '') {
                 $msg .= "\n\nReviewer Remarks:\n{$notes}";
             }
 
             ThesisNotification::create([
                 'user_email' => $document->submitted_by_email,
-                'title' => '🎉 Turnitin & Grammarly Clearance Passed',
+                'title' => '🎉 Manuscript Approved & Published',
                 'message' => $msg,
-                'type' => 'cleared',
+                'type' => 'approved',
                 'document_id' => $document->id,
                 'is_read' => false,
             ]);
@@ -127,8 +144,9 @@ class AdminSubmissionController extends Controller
 
         return response()->json([
             'error' => false,
-            'message' => 'Thesis marked as Turnitin & Grammarly Cleared. Student notified via in-app alert and @sac.edu.ph email.',
+            'message' => 'Manuscript approved and officially published to the repository! Student notified via in-app alert and @sac.edu.ph email.',
             'document' => $document,
+            'unembedded_chunks' => $unembeddedCount,
         ]);
     }
 

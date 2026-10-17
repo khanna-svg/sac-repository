@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $subjectTitle ?? 'AIRIS Thesis Clearance Update' }}</title>
+    <title>{{ $subjectTitle ?? 'AIRIS Manuscript Clearance Update' }}</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
 
@@ -64,7 +64,7 @@
                                                     Turnitin &amp; Grammarly Review Passed!
                                                 </h2>
                                                 <p style="margin: 6px 0 0 0; color: #047857; font-size: 13px; line-height: 1.5;">
-                                                    Your thesis manuscript has successfully passed the academic originality screening and language standards.
+                                                    Your manuscript has successfully passed the academic originality screening and has been approved and officially published to the St. Anthony's College Research Repository.
                                                 </p>
                                             </td>
                                         </tr>
@@ -88,7 +88,7 @@
                                                     Turnitin / Grammarly Revisions Needed
                                                 </h2>
                                                 <p style="margin: 6px 0 0 0; color: #be123c; font-size: 13px; line-height: 1.5;">
-                                                    Your thesis manuscript requires revisions before official clearance can be granted. Please see reviewer feedback below.
+                                                    Your manuscript requires revisions before official clearance can be granted. Please see reviewer feedback below.
                                                 </p>
                                             </td>
                                         </tr>
@@ -171,7 +171,7 @@
                             <div style="margin-bottom: 28px; font-size: 13px; color: #475569; line-height: 1.6;">
                                 @if($type === 'passed')
                                     <p style="margin: 0;">
-                                        <strong>Next Step:</strong> You have satisfied the academic integrity screening requirements. Please keep a copy of this clearance for your defense application and final thesis submission.
+                                        <strong>Next Step:</strong> You have satisfied the academic integrity screening requirements. Your manuscript has been approved, officially published to the repository, and cleared for your oral defense application.
                                     </p>
                                 @elseif($type === 'resubmit')
                                     <p style="margin: 0;">
@@ -188,8 +188,8 @@
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td align="center">
-                                        <a href="{{ url('/student/submit') }}" target="_blank" style="display: inline-block; background-color: #700000; color: #FFD700; font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(112, 0, 0, 0.2); letter-spacing: 0.02em;">
-                                            {{ $type === 'resubmit' ? 'Revise & Resubmit Manuscript' : 'View in Student Portal' }} &rarr;
+                                        <a href="{{ $type === 'passed' ? url('/documents/' . $document->id) : url('/student/submit') }}" target="_blank" style="display: inline-block; background-color: #700000; color: #FFD700; font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(112, 0, 0, 0.2); letter-spacing: 0.02em;">
+                                            {{ $type === 'resubmit' ? 'Revise & Resubmit Manuscript' : ($type === 'passed' ? 'View Published Manuscript in Repository' : 'View in Student Portal') }} &rarr;
                                         </a>
                                     </td>
                                 </tr>

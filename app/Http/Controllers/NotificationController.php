@@ -51,7 +51,7 @@ class NotificationController extends Controller
                 $studentName = $doc->submitted_by_name ?: ($doc->author ?: 'A student');
                 $notifications[] = [
                     'id' => 'doc_pending_' . $doc->id,
-                    'title' => 'New Thesis Submission',
+                    'title' => 'New Manuscript Submission',
                     'message' => "{$studentName} submitted \"{$doc->title}\" for review.",
                     'type' => 'pending',
                     'document_id' => $doc->id,

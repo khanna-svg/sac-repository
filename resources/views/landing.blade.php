@@ -88,7 +88,7 @@
 
                 <!-- Description -->
                 <p class="text-sm sm:text-base text-gray-100 leading-relaxed max-w-2xl mx-auto drop-shadow-xs">
-                    A centralized, AI-powered digital repository dedicated to archiving, searching, and visualizing undergraduate theses, capstone projects, and faculty research across all academic departments.
+                    A centralized, AI-powered digital repository dedicated to archiving, searching, and visualizing undergraduate manuscripts, capstone projects, and faculty research across all academic departments.
                 </p>
 
                 <!-- CTA Buttons -->
@@ -100,7 +100,7 @@
                         <svg class="w-4 h-4 text-[#FFD700]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <span>Access Thesis Repository</span>
+                        <span>Access Manuscript Repository</span>
                     </a>
                     <a
                         href="#about"
@@ -174,7 +174,7 @@
                     </div>
                     <h3 class="text-base font-bold text-gray-900">RAG AI Research Assistant</h3>
                     <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        Ask natural-language questions about any thesis. The AI retrieves grounded passages and provides instant synthesis with citations.
+                        Ask natural-language questions about any manuscript. The AI retrieves grounded passages and provides instant synthesis with citations.
                     </p>
                 </div>
 
@@ -187,7 +187,7 @@
                     </div>
                     <h3 class="text-base font-bold text-gray-900">Interactive Knowledge Graph</h3>
                     <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        Visually browse connected networks of student researchers, academic departments, methodologies, and thesis topics in real-time.
+                        Visually browse connected networks of student researchers, academic departments, methodologies, and manuscript topics in real-time.
                     </p>
                 </div>
 
@@ -213,7 +213,7 @@
                     </div>
                     <h3 class="text-base font-bold text-gray-900">Instant IEEE Citation</h3>
                     <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        One-click standardized IEEE citation generation for seamless integration into capstone and thesis bibliographies.
+                        One-click standardized IEEE citation generation for seamless integration into capstone and manuscript bibliographies.
                     </p>
                 </div>
 
@@ -248,7 +248,7 @@
                     </h2>
 
                     <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                        In St. Anthony’s College in San Jose de Buenavista, Antique, student theses, research and capstone projects have traditionally been archived as physical copies within the college library. As research output expands each year, physical storage constraints and manual cataloging present challenges for accessibility.
+                        In St. Anthony’s College in San Jose de Buenavista, Antique, student manuscripts, research and capstone projects have traditionally been archived as physical copies within the college library. As research output expands each year, physical storage constraints and manual cataloging present challenges for accessibility.
                     </p>
 
                     <p class="text-xs sm:text-sm text-gray-600 leading-relaxed">
@@ -316,7 +316,7 @@
                     Library & Research Inquiries
                 </p>
                 <p class="text-xs sm:text-sm text-gray-500">
-                    Have questions about institutional thesis submissions, archive access, or repository guidelines?
+                    Have questions about institutional manuscript submissions, archive access, or repository guidelines?
                 </p>
             </div>
 
@@ -468,7 +468,7 @@
 
                 <!-- Email Channel -->
                 <a
-                    href="mailto:library@sac.edu.ph?subject=Inquiry%20Regarding%20Thesis%20Repository"
+                    href="mailto:library@sac.edu.ph?subject=Inquiry%20Regarding%20Manuscript%20Repository"
                     class="flex items-center gap-3 rounded-xl border border-amber-100 bg-amber-50/50 p-3 text-xs font-semibold text-amber-900 hover:bg-amber-100/60 hover:border-amber-200 transition group">
                     <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#700000] text-[#FFD700] shadow-2xs">
                         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

@@ -58,7 +58,7 @@
             <section class="mb-6 md:mb-8">
                 <div>
                     <p class="text-xs md:text-sm text-gray-500 font-medium">
-                        Published St. Anthony's College thesis documents and institutional research archive.
+                        Published St. Anthony's College manuscript documents and institutional research archive.
                     </p>
                 </div>
             </section>
@@ -72,7 +72,7 @@
                             <input
                                 id="searchInput"
                                 type="search"
-                                placeholder="Search by thesis title, author, concepts... or attach a proposal"
+                                placeholder="Search by manuscript title, author, concepts... or attach a proposal"
                                 class="w-full rounded-full bg-transparent pl-5 sm:pl-7 pr-44 sm:pr-48 py-3.5 text-xs sm:text-sm text-gray-800 placeholder-gray-400 outline-none">
 
                             {{-- Hidden Proposal File Input --}}
@@ -220,7 +220,7 @@
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                            <span>Reset to All Theses</span>
+                            <span>Reset to All Manuscripts</span>
                         </button>
                     </div>
                 </div>
@@ -377,9 +377,9 @@
                 <div class="min-w-0">
                     <h2 class="text-sm font-bold text-white tracking-wide truncate flex items-center gap-1.5">
                         <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
-                        <span>Thesis Assistant</span>
+                        <span>Manuscript Assistant</span>
                     </h2>
-                    <p id="aiDrawerDocTitle" class="text-[10px] text-amber-100/90 truncate">Select a thesis...</p>
+                    <p id="aiDrawerDocTitle" class="text-[10px] text-amber-100/90 truncate">Select a manuscript...</p>
                 </div>
             </div>
             <button
@@ -406,7 +406,7 @@
                     </div>
                     <div class="flex-1">
                         <p class="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
-                            Hello! Curious about what you're reading? I'm here to help analyze this thesis.
+                            Hello! Curious about what you're reading? I'm here to help analyze this manuscript.
                         </p>
                         <p class="text-[11px] text-gray-500 mt-2 font-medium">
                             Not sure what to ask? Choose something:
@@ -418,9 +418,9 @@
                 <div class="flex flex-col gap-2 pl-8">
                     <button
                         type="button"
-                        onclick="sendDocQuickQuestion('Summarize this thesis in 3 concise bullet points.')"
+                        onclick="sendDocQuickQuestion('Summarize this manuscript in 3 concise bullet points.')"
                         class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#700000] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
-                        📑 Summarize this thesis
+                        📑 Summarize this manuscript
                     </button>
 
                     <button
@@ -454,7 +454,7 @@
                 <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse"></span>
                 <span class="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse delay-150"></span>
                 <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse delay-300"></span>
-                <span class="text-[11px] text-gray-500 font-medium ml-1">AIRIS AI is analyzing thesis...</span>
+                <span class="text-[11px] text-gray-500 font-medium ml-1">AIRIS AI is analyzing manuscript...</span>
             </div>
         </div>
 
@@ -464,7 +464,7 @@
                 <input
                     id="aiDrawerInput"
                     type="text"
-                    placeholder="Ask a question about this thesis..."
+                    placeholder="Ask a question about this manuscript..."
                     autocomplete="off"
                     class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-4 pr-12 py-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]/30 shadow-2xs">
 
@@ -622,7 +622,7 @@
 
         function handleImageError(imageElement) {
             imageElement.onerror = null;
-            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>AIRIS THESIS</text></svg>";
+            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='11' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>AIRIS MANUSCRIPT</text></svg>";
         }
 
         function getProgramDegreeName(courseVal, deptVal, titleVal) {
@@ -810,7 +810,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m5.231 13.481L15 18m-2-5a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                         </div>
-                        <h3 class="text-base font-bold text-gray-800">No theses found</h3>
+                        <h3 class="text-base font-bold text-gray-800">No manuscripts found</h3>
                         <p class="mt-1 text-xs text-gray-500">Try adjusting your search terms or department filters.</p>
                     </div>
                 `;
@@ -1278,7 +1278,7 @@
                     if (titleEl) titleEl.textContent = data.title || 'Concept Proposal Analysis';
                     if (scoreEl) scoreEl.textContent = 'No Matches';
                     if (fileEl) fileEl.textContent = `from ${data.filename || (selectedProposalFile ? selectedProposalFile.name : 'file')}`;
-                    if (summaryEl) summaryEl.textContent = data.summary || 'No matching theses found in the repository.';
+                    if (summaryEl) summaryEl.textContent = data.summary || 'No matching manuscripts found in the repository.';
                     if (seeGraphBtn) seeGraphBtn.classList.add('hidden');
                     banner.classList.remove('hidden');
                 }
@@ -1295,7 +1295,7 @@
                         <p class="font-bold">Proposal Analysis Failed</p>
                         <p class="text-xs text-red-600">${escapeHtml(err.message)}</p>
                         <button type="button" onclick="clearProposalResults()" class="mt-3 px-4 py-2 rounded-xl bg-[#700000] text-[#FFD700] text-xs font-bold hover:bg-[#850000] transition cursor-pointer">
-                            Back to All Theses
+                            Back to All Manuscripts
                         </button>
                     </div>
                 `;
@@ -1556,7 +1556,7 @@
 
             if (!currentCitationDoc) return;
             const author = currentCitationDoc.author || 'Author, A.';
-            const cleanTitle = (currentCitationDoc.title || 'Untitled Thesis').trim().replace(/\.$/, '');
+            const cleanTitle = (currentCitationDoc.title || 'Untitled Manuscript').trim().replace(/\.$/, '');
             const dateVal = currentCitationDoc.publication_date || currentCitationDoc.created_at;
             const year = dateVal ? new Date(dateVal).getFullYear() : new Date().getFullYear();
             const deptName = getFullDeptName(currentCitationDoc.department, currentCitationDoc.course, currentCitationDoc.title);
@@ -1564,13 +1564,13 @@
             let citation = '';
             if (style === 'apa') {
                 const apaAuthors = formatApaAuthors(author);
-                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. AIRIS Institutional Research Repository.`;
+                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate manuscript, St. Anthony's College]. AIRIS Institutional Research Repository.`;
             } else if (style === 'mla') {
                 const mlaAuthors = formatMlaAuthors(author);
-                citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate thesis, St. Anthony's College, ${year}.`;
+                citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate manuscript, St. Anthony's College, ${year}.`;
             } else {
                 const ieeeAuthors = formatIeeeAuthors(author);
-                citation = `[1] ${ieeeAuthors}, "${cleanTitle}," B.S. thesis, Dept. of ${deptName}, St. Anthony's College, San Jose, Antique, Philippines, ${year}.`;
+                citation = `[1] ${ieeeAuthors}, "${cleanTitle}," B.S. manuscript, Dept. of ${deptName}, St. Anthony's College, San Jose, Antique, Philippines, ${year}.`;
             }
 
             if (citationP) citationP.textContent = citation;
@@ -1740,7 +1740,7 @@
                 const aiBubble = document.createElement('div');
                 aiBubble.className = 'flex items-start gap-2.5';
 
-                let rawAnswer = data.answer || 'I could not generate an answer for this thesis.';
+                let rawAnswer = data.answer || 'I could not generate an answer for this manuscript.';
                 let formattedAnswer = rawAnswer;
 
                 if (typeof marked !== 'undefined' && marked.parse) {

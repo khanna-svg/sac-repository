@@ -32,7 +32,7 @@
                     <span class="text-base md:text-lg font-bold text-[#700000]">AI Assistant</span>
                 </div>
                 <p class="mt-0.5 text-xs md:text-sm text-gray-500">
-                    Grounded in St. Anthony's College thesis research repository.
+                    Grounded in St. Anthony's College manuscript research repository.
                 </p>
             </div>
 
@@ -65,11 +65,11 @@
                     <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
 
                         <p class="text-sm text-gray-800 font-medium">
-                            Hi! I'm your AIRIS Thesis AI Assistant.
+                            Hi! I'm your AIRIS Manuscript AI Assistant.
                         </p>
 
                         <p class="text-sm text-gray-600 mt-2 leading-relaxed">
-                            Ask me anything about the uploaded thesis papers.
+                            Ask me anything about the uploaded manuscript papers.
                             I'll search the repository and use the relevant
                             documents to answer your question.
                         </p>
@@ -177,10 +177,10 @@
                         <div class="max-w-3xl">
                             <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
                                 <p class="text-sm text-gray-800 font-medium">
-                                    Hi! I'm your AIRIS Thesis AI Assistant.
+                                    Hi! I'm your AIRIS Manuscript AI Assistant.
                                 </p>
                                 <p class="text-sm text-gray-600 mt-2 leading-relaxed">
-                                    Ask me anything about the uploaded thesis papers.
+                                    Ask me anything about the uploaded manuscript papers.
                                     I'll search the repository and remember our conversation context to answer your follow-up questions!
                                 </p>
                             </div>

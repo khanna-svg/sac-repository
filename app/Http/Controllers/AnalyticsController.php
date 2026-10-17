@@ -31,7 +31,7 @@ class AnalyticsController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        $approvedScope = fn($q) => $q->whereNull('submitted_by_email')->where(fn($sub) => $sub->where('status', 'approved')->orWhereNull('status'));
+        $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhere(fn($s2) => $s2->whereNull('status')->whereNull('submitted_by_email')));
 
         $totalTheses = Document::where($approvedScope)->count();
         $totalPages = DocumentChunk::whereHas('document', $approvedScope)->count();

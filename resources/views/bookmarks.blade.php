@@ -66,7 +66,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <p class="text-xs md:text-sm text-gray-500 font-medium">
-                            Your saved thesis and capstone projects for quick reading and citation.
+                            Your saved manuscript and capstone projects for quick reading and citation.
                         </p>
                     </div>
                 </div>
@@ -75,7 +75,7 @@
             <!-- DOCUMENT LIST CONTAINER -->
             <section id="documentsList" class="space-y-4">
                 <p class="text-center text-sm text-gray-500 py-10">
-                    Loading your saved theses...
+                    Loading your saved manuscripts...
                 </p>
             </section>
 
@@ -175,7 +175,7 @@
         <div class="flex items-center justify-between px-4 md:px-6 py-3 bg-[#700000] text-white border-b border-[#600000] shadow-md shrink-0">
             <div class="flex items-center gap-3 min-w-0 pr-4">
                 <h3 id="securePdfDocTitle" class="text-xs md:text-sm font-bold text-white truncate">
-                    Protected Thesis Manuscript
+                    Protected Manuscript
                 </h3>
             </div>
 
@@ -270,9 +270,9 @@
                 <div class="min-w-0">
                     <h2 class="text-sm font-bold text-white truncate flex items-center gap-1.5">
                         <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
-                        <span>Thesis Assistant</span>
+                        <span>Manuscript Assistant</span>
                     </h2>
-                    <p id="aiDrawerDocTitle" class="text-[10px] text-amber-100/90 truncate">Select a thesis...</p>
+                    <p id="aiDrawerDocTitle" class="text-[10px] text-amber-100/90 truncate">Select a manuscript...</p>
                 </div>
             </div>
             <button
@@ -299,7 +299,7 @@
                     </div>
                     <div class="flex-1">
                         <p class="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
-                            Hello! Curious about what you're reading? I'm here to help analyze this thesis.
+                            Hello! Curious about what you're reading? I'm here to help analyze this manuscript.
                         </p>
                         <p class="text-[11px] text-gray-500 mt-2 font-medium">
                             Not sure what to ask? Choose something:
@@ -311,9 +311,9 @@
                 <div class="flex flex-col gap-2 pl-8">
                     <button
                         type="button"
-                        onclick="sendBookmarkQuickQuestion('Summarize this thesis in 3 concise bullet points.')"
+                        onclick="sendBookmarkQuickQuestion('Summarize this manuscript in 3 concise bullet points.')"
                         class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
-                        📑 Summarize this thesis
+                        📑 Summarize this manuscript
                     </button>
 
                     <button
@@ -347,7 +347,7 @@
                 <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse"></span>
                 <span class="w-2 h-2 rounded-full bg-[#FFD700] animate-pulse delay-150"></span>
                 <span class="w-2 h-2 rounded-full bg-[#700000] animate-pulse delay-300"></span>
-                <span class="text-[11px] text-gray-500 font-medium ml-1">AIRIS AI is analyzing thesis...</span>
+                <span class="text-[11px] text-gray-500 font-medium ml-1">AIRIS AI is analyzing manuscript...</span>
             </div>
         </div>
 
@@ -416,7 +416,7 @@
 
         function handleImageError(imageElement) {
             imageElement.onerror = null;
-            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='12' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>AIRIS THESIS</text></svg>";
+            imageElement.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='140' viewBox='0 0 100 140'><rect width='100%' height='100%' fill='%23700000'/><text x='50%' y='50%' font-size='11' font-weight='bold' fill='%23FFD700' text-anchor='middle' dominant-baseline='middle'>AIRIS MANUSCRIPT</text></svg>";
         }
 
         function getProgramDegreeName(courseVal, deptVal, titleVal) {
@@ -624,21 +624,21 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
                             </svg>
                         </div>
-                        <h3 class="text-base font-bold text-gray-800">No saved thesis</h3>
-                        <p class="mt-1 text-xs text-gray-500">When you bookmark a thesis in the repository, it will appear here for easy access.</p>
+                        <h3 class="text-base font-bold text-gray-800">No saved manuscripts</h3>
+                        <p class="mt-1 text-xs text-gray-500">When you bookmark a manuscript in the repository, it will appear here for easy access.</p>
                         <a href="/documents" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#700000] px-4 py-2.5 text-xs font-bold text-[#FFD700] hover:bg-[#850000] shadow-sm transition">
-                            <span>Explore Thesis Repository</span>
+                            <span>Explore Manuscript Repository</span>
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                             </svg>
                         </a>
                     </div>
                 `;
-                if (bookmarkCountBadge) bookmarkCountBadge.textContent = '0 Saved Theses';
+                if (bookmarkCountBadge) bookmarkCountBadge.textContent = '0 Saved Manuscripts';
                 return;
             }
 
-            if (bookmarkCountBadge) bookmarkCountBadge.textContent = `${documents.length} Saved Theses`;
+            if (bookmarkCountBadge) bookmarkCountBadge.textContent = `${documents.length} Saved Manuscripts`;
 
             documentsList.innerHTML = documents.map((doc, idx) => {
                 const details = getDepartmentDetails(doc.department, doc.course_code, doc.title);
@@ -967,7 +967,7 @@
 
             if (!currentCitationDoc) return;
             const author = currentCitationDoc.author || 'Author, A.';
-            const cleanTitle = (currentCitationDoc.title || 'Untitled Thesis').trim().replace(/\.$/, '');
+            const cleanTitle = (currentCitationDoc.title || 'Untitled Manuscript').trim().replace(/\.$/, '');
             const dateVal = currentCitationDoc.publication_date || currentCitationDoc.created_at;
             const year = dateVal ? new Date(dateVal).getFullYear() : new Date().getFullYear();
             const deptName = getFullDeptName(currentCitationDoc.department, currentCitationDoc.course, currentCitationDoc.title);
@@ -975,13 +975,13 @@
             let citation = '';
             if (style === 'apa') {
                 const apaAuthors = formatApaAuthors(author);
-                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate thesis, St. Anthony's College]. AIRIS Institutional Research Repository.`;
+                citation = `${apaAuthors} (${year}). ${cleanTitle} [Undergraduate manuscript, St. Anthony's College]. AIRIS Institutional Research Repository.`;
             } else if (style === 'mla') {
                 const mlaAuthors = formatMlaAuthors(author);
-                citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate thesis, St. Anthony's College, ${year}.`;
+                citation = `${mlaAuthors}. "${cleanTitle}." Undergraduate manuscript, St. Anthony's College, ${year}.`;
             } else {
                 const ieeeAuthors = formatIeeeAuthors(author);
-                citation = `[1] ${ieeeAuthors}, "${cleanTitle}," B.S. thesis, Dept. of ${deptName}, St. Anthony's College, San Jose, Antique, Philippines, ${year}.`;
+                citation = `[1] ${ieeeAuthors}, "${cleanTitle}," B.S. manuscript, Dept. of ${deptName}, St. Anthony's College, San Jose, Antique, Philippines, ${year}.`;
             }
 
             if (citationP) citationP.textContent = citation;
@@ -1146,7 +1146,7 @@
                 const aiBubble = document.createElement('div');
                 aiBubble.className = 'flex items-start gap-2.5';
 
-                let rawAnswer = data.answer || 'I could not generate an answer for this thesis.';
+                let rawAnswer = data.answer || 'I could not generate an answer for this manuscript.';
                 let formattedAnswer = rawAnswer;
 
                 if (typeof marked !== 'undefined' && marked.parse) {
@@ -1211,7 +1211,7 @@
             const pagesWrapper = document.getElementById('pdfPagesWrapper');
             const titleElem = document.getElementById('securePdfDocTitle');
 
-            if (titleElem) titleElem.textContent = doc.title || 'Protected Thesis Manuscript';
+            if (titleElem) titleElem.textContent = doc.title || 'Protected Manuscript';
 
             modal.classList.remove('hidden');
             modal.classList.add('flex');
