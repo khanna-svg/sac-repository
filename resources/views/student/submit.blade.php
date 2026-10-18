@@ -13,14 +13,17 @@
     <!-- PDF.js for client-side text chunking -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
     </script>
 
     <script>
-        const supabaseClient = window.supabase.createClient(
-            "{{ config('services.supabase.url', env('SUPABASE_URL')) }}",
-            "{{ config('services.supabase.key', env('SUPABASE_PUBLISHABLE_KEY')) }}"
-        );
+        const supabaseUrl = "{{ config('services.supabase.url', env('SUPABASE_URL')) }}";
+        const supabaseKey = "{{ config('services.supabase.key', env('SUPABASE_PUBLISHABLE_KEY')) }}";
+        const supabaseClient = (window.supabase && supabaseUrl && supabaseKey)
+            ? window.supabase.createClient(supabaseUrl, supabaseKey)
+            : null;
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -138,7 +141,9 @@
 
                 <!-- Submission Form Column (7 cols) -->
                 <div class="lg:col-span-7 space-y-6">
-                    <form id="studentUploadForm" class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-xs space-y-5">
+                    <form id="studentUploadForm" class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-xs space-y-5"
+                        data-resubmit-dept="{{ strtolower($activeResubmitDoc->department ?? '') }}"
+                        data-resubmit-course="{{ strtolower($activeResubmitDoc->course_code ?? '') }}">
                         <input type="hidden" id="submission_id" name="submission_id" hidden class="hidden" value="{{ $activeResubmitDoc ? $activeResubmitDoc->id : '' }}">
 
                         <!-- Research Title -->
@@ -491,21 +496,22 @@
             }
         }
 
-        @if($activeResubmitDoc)
-            document.addEventListener('DOMContentLoaded', () => {
-                const dept = "{{ strtolower($activeResubmitDoc->department ?? '') }}";
-                const course = "{{ strtolower($activeResubmitDoc->course_code ?? '') }}";
-                if (dept) {
-                    const deptSelect = document.getElementById('department');
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('studentUploadForm');
+            const dept = form ? (form.dataset.resubmitDept || '') : '';
+            const course = form ? (form.dataset.resubmitCourse || '') : '';
+            if (dept) {
+                const deptSelect = document.getElementById('department');
+                if (deptSelect) {
                     deptSelect.value = dept;
                     handleDepartmentChange();
                     if (course) {
                         const courseSelect = document.getElementById('course_code');
-                        courseSelect.value = course;
+                        if (courseSelect) courseSelect.value = course;
                     }
                 }
-            });
-        @endif
+            }
+        });
 
         function handleFileSelected(file) {
             if (!file) return;
