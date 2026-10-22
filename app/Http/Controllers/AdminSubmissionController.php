@@ -6,6 +6,7 @@ use App\Mail\ThesisClearanceMail;
 use App\Models\Document;
 use App\Models\ThesisNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +33,9 @@ class AdminSubmissionController extends Controller
      */
     public function list(Request $request)
     {
+        // Auto-purge stale revisions (unrevised after 30 days / 1 month)
+        $this->purgeStaleRevisions();
+
         $tab = $request->input('tab', 'pending');
         $search = trim((string) $request->input('search', ''));
 
@@ -302,5 +306,65 @@ class AdminSubmissionController extends Controller
             Log::error('Admin submission download failed: ' . $e->getMessage());
             abort(500, 'Unable to download manuscript PDF.');
         }
+    }
+
+    /**
+     * Automatically purge manuscripts that were marked as 'resubmit' (needs revision)
+     * over 30 days ago (1 month) and have not been re-uploaded by the student.
+     */
+    public function purgeStaleRevisions(): int
+    {
+        $cutoff = Carbon::now()->subDays(30);
+
+        $staleDocuments = Document::whereNotNull('submitted_by_email')
+            ->where('status', 'resubmit')
+            ->where('updated_at', '<=', $cutoff)
+            ->get();
+
+        $purgedCount = 0;
+        foreach ($staleDocuments as $doc) {
+            try {
+                $this->deleteManuscriptFileAndRecord($doc);
+                $purgedCount++;
+                Log::info("Auto-purged stale unrevised manuscript [ID: {$doc->id}, Title: '{$doc->title}', Student: {$doc->submitted_by_email}] (expired 30-day revision window).");
+            } catch (\Throwable $e) {
+                Log::warning("Failed to auto-purge stale manuscript #{$doc->id}: " . $e->getMessage());
+            }
+        }
+
+        return $purgedCount;
+    }
+
+    /**
+     * Delete physical manuscript file from Supabase storage and remove database records.
+     */
+    protected function deleteManuscriptFileAndRecord(Document $document): void
+    {
+        if (!empty($document->file_path)) {
+            try {
+                $baseUrl = rtrim((string) env('SUPABASE_URL'), '/');
+                $serviceKey = (string) (env('SUPABASE_SERVICE_ROLE_KEY') ?: env('SUPABASE_PUBLISHABLE_KEY'));
+                $bucket = (string) config('services.supabase.bucket', env('SUPABASE_STORAGE_BUCKET', 'theses'));
+
+                $path = ltrim(trim((string) $document->file_path), '/');
+                if (str_starts_with($path, $bucket . '/')) {
+                    $path = substr($path, strlen($bucket) + 1);
+                }
+
+                if ($baseUrl && $serviceKey) {
+                    Http::withoutVerifying()->withHeaders([
+                        'apikey' => $serviceKey,
+                        'Authorization' => "Bearer {$serviceKey}",
+                    ])->delete("{$baseUrl}/storage/v1/object/{$bucket}", [
+                        'prefixes' => [$path],
+                    ]);
+                }
+            } catch (\Throwable $stErr) {
+                Log::warning("Storage file deletion error for document #{$document->id}: " . $stErr->getMessage());
+            }
+        }
+
+        // Cascade deletes chunks, bookmarks, and notifications automatically via FK constraints
+        $document->delete();
     }
 }

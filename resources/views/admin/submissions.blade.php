@@ -98,6 +98,17 @@
                 </div>
             </div>
 
+            <!-- Stale Revision 30-Day Policy Alert -->
+            <div id="resubmitPolicyNotice" class="hidden mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 text-xs text-amber-900 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2.5">
+                    <span class="p-1.5 rounded-xl bg-amber-100 text-amber-800 text-sm">⏳</span>
+                    <div>
+                        <span class="font-bold text-amber-950">Institutional 30-Day Revision Policy:</span>
+                        <span class="text-amber-800">Manuscripts marked for revisions must be re-uploaded within 30 days. Submissions without re-uploads after 1 month are automatically deleted from storage and database.</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Submissions Table Container -->
             <div class="rounded-3xl border border-gray-200 bg-white shadow-xs overflow-hidden">
                 <table class="w-full text-left border-collapse table-auto">
@@ -393,6 +404,16 @@
             if (activeBtn) {
                 activeBtn.className = 'tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#700000] shadow-xs';
             }
+
+            const policyNotice = document.getElementById('resubmitPolicyNotice');
+            if (policyNotice) {
+                if (tab === 'resubmit') {
+                    policyNotice.classList.remove('hidden');
+                } else {
+                    policyNotice.classList.add('hidden');
+                }
+            }
+
             fetchSubmissions();
         }
 
@@ -468,10 +489,19 @@
                         </span>
                     `;
                 } else if (sub.status === 'resubmit') {
+                    let expiryBadge = '';
+                    if (sub.updated_at) {
+                        const updatedTime = new Date(sub.updated_at).getTime();
+                        const nowTime = new Date().getTime();
+                        const daysPassed = Math.floor((nowTime - updatedTime) / (1000 * 60 * 60 * 24));
+                        const daysLeft = Math.max(0, 30 - daysPassed);
+                        expiryBadge = `<span class="ml-1 text-[10px] font-mono bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded-md font-semibold" title="Manuscript will auto-delete if not revised within 30 days">⏳ ${daysLeft}d left</span>`;
+                    }
                     statusBadgeHtml = `
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                             Needs Revisions
+                            ${expiryBadge}
                             ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
                         </span>
                     `;

@@ -155,9 +155,9 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         if (in_array($role, ['admin', 'librarian', 'coordinator'], true)) {
-            return redirect()->route('admin.login')->with('success', 'You have been logged out of the Administrator Portal.');
+            return redirect()->route('admin.login');
         }
 
-        return redirect()->route('login')->with('success', 'You have successfully signed out.');
+        return redirect()->route('login');
     }
 }
