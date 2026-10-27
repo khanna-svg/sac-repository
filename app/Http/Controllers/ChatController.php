@@ -40,6 +40,15 @@ class ChatController extends Controller
         $history = (array) $request->input('history', []);
         $documentId = $request->input('document_id');
 
+        // Instant Out-of-Scope Guardrail Check (Refuses external code generation or non-repository queries)
+        if ($this->isOutOfScopeQuery($userQuestion)) {
+            return response()->json([
+                'error' => false,
+                'answer' => "I am AIRIS Assistant, an AI dedicated exclusively to the St. Anthony's College Institutional Research Repository. I cannot assist with external coding requests or general topics outside the repository archive.",
+                'sources' => []
+            ]);
+        }
+
         // Instant Direct Metadata Resolution (Researchers, Title, Department, Year, Abstract)
         // Resolves 100% accurately in ~2ms without burning Google AI quota or hitting rate limits
         if ($documentId) {
@@ -60,6 +69,14 @@ class ChatController extends Controller
                 }
             }
         } else {
+            // Check for repository-wide inventory queries (e.g. "Is there any IoT projects or capstone in the repository?")
+            if ($this->isInventoryQuery($userQuestion)) {
+                $inventoryAnswer = $this->handleInventoryQuery($userQuestion, $history);
+                if ($inventoryAnswer !== null) {
+                    return response()->json($inventoryAnswer);
+                }
+            }
+
             $globalMatch = $this->resolveGlobalDirectMetadataAnswer($userQuestion);
             if ($globalMatch !== null) {
                 return response()->json([
@@ -371,14 +388,21 @@ class ChatController extends Controller
 
         // 1. Keyword search inside this document
         if (!empty($keywords)) {
+            $isPgsql = DB::getDriverName() === 'pgsql';
             $scoreClauses = [];
             $whereClauses = [];
             $bindings = [];
 
             foreach ($keywords as $kw) {
-                $scoreClauses[] = "(CASE WHEN dc.chunk_text ILIKE ? THEN 3 ELSE 0 END)";
-                $whereClauses[] = "dc.chunk_text ILIKE ?";
-                $bindings[] = "%{$kw}%";
+                if ($isPgsql) {
+                    $scoreClauses[] = "(CASE WHEN dc.chunk_text ~* ? THEN 3 ELSE 0 END)";
+                    $whereClauses[] = "dc.chunk_text ~* ?";
+                    $bindings[] = '\m' . preg_quote($kw, '/') . '\M';
+                } else {
+                    $scoreClauses[] = "(CASE WHEN dc.chunk_text ILIKE ? THEN 3 ELSE 0 END)";
+                    $whereClauses[] = "dc.chunk_text ILIKE ?";
+                    $bindings[] = "%{$kw}%";
+                }
             }
 
             $adminPenalty = "(CASE 
@@ -503,16 +527,26 @@ class ChatController extends Controller
 
         // 1. Keyword search across ALL approved documents and chunks
         if (!empty($keywords)) {
+            $isPgsql = DB::getDriverName() === 'pgsql';
+
             // Find top matching documents based on title + abstract relevance
             $docScoreClauses = [];
             $docWhereClauses = [];
             $docBindings = [];
 
             foreach ($keywords as $kw) {
-                $docScoreClauses[] = "(CASE WHEN title ILIKE ? THEN 5 WHEN abstract ILIKE ? THEN 2 ELSE 0 END)";
-                $docWhereClauses[] = "title ILIKE ? OR abstract ILIKE ?";
-                $docBindings[] = "%{$kw}%";
-                $docBindings[] = "%{$kw}%";
+                if ($isPgsql) {
+                    $docScoreClauses[] = "(CASE WHEN title ~* ? THEN 5 WHEN abstract ~* ? THEN 2 ELSE 0 END)";
+                    $docWhereClauses[] = "title ~* ? OR abstract ~* ?";
+                    $reg = '\m' . preg_quote($kw, '/') . '\M';
+                    $docBindings[] = $reg;
+                    $docBindings[] = $reg;
+                } else {
+                    $docScoreClauses[] = "(CASE WHEN title ILIKE ? THEN 5 WHEN abstract ILIKE ? THEN 2 ELSE 0 END)";
+                    $docWhereClauses[] = "title ILIKE ? OR abstract ILIKE ?";
+                    $docBindings[] = "%{$kw}%";
+                    $docBindings[] = "%{$kw}%";
+                }
             }
 
             $docScoreSql = implode(' + ', $docScoreClauses);
@@ -534,9 +568,15 @@ class ChatController extends Controller
             $bindings = [];
 
             foreach ($keywords as $kw) {
-                $scoreClauses[] = "(CASE WHEN dc.chunk_text ILIKE ? THEN 3 ELSE 0 END)";
-                $whereClauses[] = "dc.chunk_text ILIKE ?";
-                $bindings[] = "%{$kw}%";
+                if ($isPgsql) {
+                    $scoreClauses[] = "(CASE WHEN dc.chunk_text ~* ? THEN 3 ELSE 0 END)";
+                    $whereClauses[] = "dc.chunk_text ~* ?";
+                    $bindings[] = '\m' . preg_quote($kw, '/') . '\M';
+                } else {
+                    $scoreClauses[] = "(CASE WHEN dc.chunk_text ILIKE ? THEN 3 ELSE 0 END)";
+                    $whereClauses[] = "dc.chunk_text ILIKE ?";
+                    $bindings[] = "%{$kw}%";
+                }
             }
 
             $adminPenalty = "(CASE 
@@ -787,5 +827,208 @@ class ChatController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Detects queries strictly outside the scope of St. Anthony's College Research Repository.
+     * Rejects generic code generation, non-repository trivia, and unrelated requests.
+     */
+    protected function isOutOfScopeQuery(string $q): bool
+    {
+        $clean = mb_strtolower(trim($q));
+
+        // If explicitly mentioning repository, thesis, capstone, manuscript, research, study, or SAC departments:
+        if (preg_match('/\b(thesis|theses|manuscript|manuscripts|capstone|capstones|repository|archive|st\.\s*anthony|sac\b|research|researcher|researchers|author|authors|study|studies|findings|recommendation|department|proponents?|abstract)\b/i', $clean)) {
+            return false;
+        }
+
+        // External programming code generation requests
+        if (preg_match('/\b(python|javascript|java|c\+\+|c#|php|html|css|sql|rust|golang|ruby|bash|powershell|script|calculator)\b/i', $clean)) {
+            if (preg_match('/\b(code|script|program|write|create|generate|give\s+me|make|build|solve)\b/i', $clean)) {
+                return true;
+            }
+        }
+
+        // General non-institutional / conversational queries
+        $outOfScopePatterns = [
+            '/^(write|generate|compose)\s+(a\s+)?(poem|song|story|joke|essay|letter|email)\b/i',
+            '/^(tell\s+me\s+a\s+joke|how\s+to\s+bake|recipe\s+for|weather\s+(today|tomorrow|in))\b/i',
+            '/^(who\s+is\s+the\s+president\s+of|capital\s+of|highest\s+mountain|how\s+tall\s+is)\b/i',
+            '/^(solve|calculate|evaluate)\s+[\d\(\)x\+\-\*\/\^\=]+/i',
+            '/^(what\s+is\s+the\s+meaning\s+of\s+life|who\s+won\s+the\s+world\s+cup)\b/i',
+        ];
+
+        foreach ($outOfScopePatterns as $pattern) {
+            if (preg_match($pattern, $clean)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the user is inquiring about repository inventory/catalog availability
+     * (e.g. "is there any iot projects or capstone here in the repository?", "what nursing theses exist?")
+     */
+    protected function isInventoryQuery(string $q): bool
+    {
+        $clean = mb_strtolower(trim($q));
+
+        return (bool) preg_match('/\b(is\s+there\s+any|are\s+there\s+any|what\s+.*(available|exist|do\s+we\s+have|in\s+the\s+repository|archived)|list\s+(all\s+)?(theses|thesis|manuscripts|studies|projects|capstones?)|do\s+we\s+have\s+any|how\s+many\s+.*(theses|thesis|manuscripts|studies|projects|capstones?)|show\s+me\s+(theses|thesis|capstone|projects?|studies|any))\b/i', $clean);
+    }
+
+    /**
+     * Retrieves approved thesis documents from the catalog matching specific topic keywords.
+     */
+    protected function retrieveCatalogDocuments(array $keywords, string $userQuestion): array
+    {
+        $isPgsql = DB::getDriverName() === 'pgsql';
+
+        if (empty($keywords)) {
+            // General repository catalog inquiry (e.g. "how many theses are in the repository")
+            return DB::table('documents')
+                ->where('status', 'approved')
+                ->orderBy('publication_date', 'desc')
+                ->limit(6)
+                ->get(['id', 'title', 'author', 'department', 'course_code', 'publication_date', 'abstract'])
+                ->all();
+        }
+
+        $whereClauses = [];
+        $bindings = [];
+
+        foreach ($keywords as $kw) {
+            if (strlen($kw) < 2) {
+                continue;
+            }
+
+            if ($isPgsql) {
+                $whereClauses[] = "(title ~* ? OR abstract ~* ? OR department ~* ? OR course_code ~* ?)";
+                $regex = '\m' . preg_quote($kw, '/') . '\M';
+                $bindings = array_merge($bindings, [$regex, $regex, $regex, $regex]);
+            } else {
+                $whereClauses[] = "(title LIKE ? OR abstract LIKE ? OR department LIKE ? OR course_code LIKE ?)";
+                $pattern = "%{$kw}%";
+                $bindings = array_merge($bindings, [$pattern, $pattern, $pattern, $pattern]);
+            }
+        }
+
+        if (empty($whereClauses)) {
+            return [];
+        }
+
+        $sql = "
+            SELECT id, title, author, department, course_code, publication_date, abstract
+            FROM documents
+            WHERE status = 'approved' AND (" . implode(' OR ', $whereClauses) . ")
+            ORDER BY publication_date DESC, id DESC
+            LIMIT 6
+        ";
+
+        return DB::select($sql, $bindings);
+    }
+
+    /**
+     * Handles repository-wide inventory and availability queries by querying
+     * the catalog database directly and synthesizing an accurate, grounded response.
+     */
+    protected function handleInventoryQuery(string $userQuestion, array $history = []): ?array
+    {
+        $allKeywords = $this->extractSearchKeywords($userQuestion);
+
+        $metaWords = [
+            'capstone', 'capstones', 'manuscript', 'manuscripts', 'project', 'projects',
+            'thesis', 'theses', 'study', 'studies', 'paper', 'papers',
+            'repository', 'reposito', 'archive', 'archives', 'archived',
+            'available', 'exist', 'exists', 'inside', 'here', 'there',
+            'what', 'which', 'list', 'show', 'give', 'find', 'have',
+            'about', 'related', 'any', 'some', 'many', 'much', 'college', 'sac'
+        ];
+
+        $topicKeywords = array_values(array_filter($allKeywords, fn($w) => !in_array($w, $metaWords, true)));
+
+        $docs = $this->retrieveCatalogDocuments($topicKeywords, $userQuestion);
+
+        if (empty($docs)) {
+            if (!empty($topicKeywords)) {
+                $terms = implode(', ', $topicKeywords);
+                return [
+                    'error' => false,
+                    'answer' => "No research manuscripts or capstones specifically matching **{$terms}** were found in the St. Anthony's College Institutional Repository archive.\n\nYou may explore available records by academic department or try searching using related keywords.",
+                    'sources' => []
+                ];
+            }
+
+            return [
+                'error' => false,
+                'answer' => "The St. Anthony's College Institutional Research Repository archive contains approved academic theses and capstone projects across various departments. Please specify a topic, department, or keyword to find relevant studies.",
+                'sources' => []
+            ];
+        }
+
+        $sources = [];
+        $contextLines = [];
+
+        foreach ($docs as $idx => $doc) {
+            $year = !empty($doc->publication_date) ? date('Y', strtotime($doc->publication_date)) : 'N/A';
+            $abstractSnippet = mb_substr(trim((string)$doc->abstract), 0, 300);
+
+            $contextLines[] = "Manuscript #" . ($idx + 1) . ":\n" .
+                "Title: {$doc->title}\n" .
+                "Authors/Researchers: {$doc->author}\n" .
+                "Department: {$doc->department}\n" .
+                "Year: {$year}\n" .
+                "Abstract/Summary: {$abstractSnippet}";
+
+            $sources[] = [
+                'id' => $doc->id,
+                'title' => $doc->title,
+                'author' => $doc->author,
+                'similarity' => 95
+            ];
+        }
+
+        $catalogContext = implode("\n\n---\n\n", $contextLines);
+
+        // Attempt Gemini synthesis with the catalog context
+        try {
+            $totalCount = count($docs);
+            $instruction = "The user is asking about the availability/inventory of theses in the St. Anthony's College Repository.\n" .
+                "There are exactly {$totalCount} matching manuscript(s) found in the repository archive catalog below.\n" .
+                "State clearly: 'Yes, there are {$totalCount} thesis/manuscript(s) inside the repository...' and list ALL {$totalCount} manuscripts with their title, researchers, and a brief 1-sentence description based on the provided context.\n" .
+                "Do NOT omit or skip any of the {$totalCount} manuscripts.\n\n" .
+                $catalogContext;
+
+            $answer = $this->geminiService->generateChatResponse($userQuestion, $instruction, $history);
+        } catch (\Throwable $e) {
+            Log::warning('RAG: Inventory Gemini generation failed: ' . $e->getMessage());
+
+            // High-reliability structured markdown fallback
+            $count = count($docs);
+            $noun = $count === 1 ? 'manuscript' : 'manuscripts/theses';
+            $lines = ["Yes, there are **{$count}** {$noun} found in the St. Anthony's College Repository matching your inquiry:\n"];
+
+            foreach ($docs as $i => $doc) {
+                $num = $i + 1;
+                $year = !empty($doc->publication_date) ? ' (' . date('Y', strtotime($doc->publication_date)) . ')' : '';
+                $lines[] = "{$num}. **{$doc->title}**{$year}";
+                $lines[] = "   * **Researchers:** {$doc->author}";
+                $lines[] = "   * **Department:** {$doc->department}";
+                if (!empty($doc->abstract)) {
+                    $brief = mb_substr(trim((string)$doc->abstract), 0, 160) . '...';
+                    $lines[] = "   * **Overview:** {$brief}";
+                }
+                $lines[] = "";
+            }
+
+            $answer = implode("\n", $lines);
+        }
+
+        return [
+            'error' => false,
+            'answer' => $answer,
+            'sources' => $sources
+        ];
     }
 }

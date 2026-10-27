@@ -58,7 +58,7 @@
 
     @include('partials.sidebar')
 
-    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-20 md:pt-28">
+    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-20 md:pt-24">
         <div class="mx-auto max-w-5xl">
 
             <!-- SUB-HEADER -->

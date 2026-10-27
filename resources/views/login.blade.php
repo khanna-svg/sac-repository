@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>AIRIS - Sign In</title>
+    <title>AIRIS - Student Sign In</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
 
@@ -60,18 +60,6 @@
                 AIRIS
             </h1>
             <p class="mt-1 text-xs sm:text-sm text-amber-100/90 font-semibold tracking-wide">AI-Powered Institutional Research Repository</p>
-        </div>
-
-        <!-- Role Toggle Tabs -->
-        <div class="mb-6 flex rounded-2xl bg-black/40 p-1.5 border border-white/15">
-            <span class="flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-[#700000] text-[#FFD700] shadow-sm text-center select-none cursor-default">
-                Student
-            </span>
-            <a 
-                href="{{ route('admin.login') }}" 
-                class="flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-gray-300 hover:text-white transition text-center cursor-pointer">
-                Admin
-            </a>
         </div>
 
         @if (session('success'))
@@ -144,6 +132,18 @@
                 <span>Sign in</span>
             </button>
         </form>
+
+        <!-- Discreet Administrator Portal Link -->
+        <div class="mt-6 pt-5 border-t border-white/10 text-center">
+            <a 
+                href="{{ route('admin.login') }}" 
+                class="text-xs text-white/50 hover:text-[#FFD700] transition inline-flex items-center gap-1.5 font-medium group">
+                <svg class="w-3.5 h-3.5 text-white/40 group-hover:text-[#FFD700] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span>Admin Portal &rarr;</span>
+            </a>
+        </div>
     </main>
 
     <div>

@@ -58,7 +58,7 @@
 
     @include('partials.sidebar')
 
-    <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-20 md:pt-28">
+    <main class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all pt-20 md:pt-24">
         <div class="mx-auto max-w-6xl space-y-6">
 
             <!-- Top Sub-Header & Breadcrumb -->

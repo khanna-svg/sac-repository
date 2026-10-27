@@ -43,19 +43,19 @@
     class="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-[#600000] bg-[#700000] text-white transition-all duration-300 ease-in-out -translate-x-full md:translate-x-0 shadow-2xl">
 
     <!-- Sidebar Brand & Collapse Header (Whole Sidebar Style) -->
-    <div class="h-16 md:h-20 px-3 sm:px-4 flex items-center justify-between gap-2.5 shrink-0 select-none border-b border-[#600000] bg-[#700000]">
+    <div class="h-14 md:h-16 px-3 sm:px-4 flex items-center justify-between gap-2.5 shrink-0 select-none border-b border-[#5e0000] bg-[#700000]">
         <a href="{{ route('documents') }}" class="flex items-center gap-2.5 group min-w-0 flex-1">
-            <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white p-1 flex items-center justify-center shrink-0 shadow-md transition-transform group-hover:scale-105 border border-[#D4AF37]/40">
+            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white p-1 flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-105 border border-[#D4AF37]/40">
                 <img
                     src="{{ asset('images/airis-logo.webp') }}"
                     alt="AIRIS Logo"
                     class="h-full w-full object-contain">
             </div>
             <div class="flex flex-col leading-tight truncate justify-center">
-                <span class="text-lg sm:text-xl font-black tracking-wide text-[#FFD700] group-hover:text-white transition font-['Outfit',sans-serif] drop-shadow-xs">
+                <span class="text-base sm:text-lg font-black tracking-wide text-[#FFD700] group-hover:text-white transition font-['Outfit',sans-serif]">
                     AIRIS
                 </span>
-                <span class="text-[9px] sm:text-[10px] font-semibold text-amber-100/90 tracking-wider uppercase">
+                <span class="text-[8px] sm:text-[9px] font-semibold text-amber-100/80 tracking-wider uppercase">
                     Manuscript Repository
                 </span>
             </div>
@@ -68,8 +68,8 @@
             onclick="toggleSidebarGlobal()"
             title="Toggle Navigation Menu"
             aria-label="Toggle Navigation Menu"
-            class="rounded-xl p-1.5 text-[#FFD700] hover:bg-[#8d0000] hover:text-white transition cursor-pointer flex items-center justify-center shrink-0">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            class="rounded-lg p-1.5 text-amber-200 hover:bg-white/10 hover:text-white transition cursor-pointer flex items-center justify-center shrink-0">
+            <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
         </button>

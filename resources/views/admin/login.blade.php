@@ -7,7 +7,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>AIRIS - Admin Sign In</title>
+    <title>AIRIS - Administrator Sign In</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
 
@@ -39,7 +39,7 @@
 </head>
 <body class="min-h-screen text-slate-800 flex items-center justify-center p-4 sm:p-6 font-sans relative overflow-x-hidden">
 
-    <!-- Blurred Background Layer (Admin Background: Replace /images/admin-bg.webp with your custom image) -->
+    <!-- Blurred Background Layer -->
     <div class="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat blur-sm scale-105"
          style="background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/images/admin-bg.webp');">
     </div>
@@ -60,18 +60,6 @@
                 AIRIS
             </h1>
             <p class="mt-1 text-xs sm:text-sm text-amber-100/90 font-semibold tracking-wide">AI-Powered Institutional Research Repository</p>
-        </div>
-
-        <!-- Role Toggle Tabs -->
-        <div class="mb-6 flex rounded-2xl bg-black/40 p-1.5 border border-white/15">
-            <a 
-                href="{{ route('login') }}" 
-                class="flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-gray-300 hover:text-white transition text-center cursor-pointer">
-                Student
-            </a>
-            <span class="flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-[#700000] text-[#FFD700] shadow-sm text-center select-none cursor-default">
-                Admin
-            </span>
         </div>
 
         @if (session('success'))
@@ -101,10 +89,10 @@
                     name="email" 
                     type="email" 
                     value="{{ old('email') }}" 
-                    placeholder=" " 
+                    placeholder=" "
                     required 
                     autocomplete="email"
-                    class="floating-badge-input block w-full rounded-2xl border border-white/30 bg-white/95 px-4 py-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700]/50 transition-all shadow-inner">
+                    class="floating-badge-input block w-full rounded-2xl border border-white/30 bg-white/95 px-4 py-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-white focus:ring-1 focus:ring-white/40 transition-all shadow-inner">
                 <label 
                     for="admin_email" 
                     class="floating-badge-label">
@@ -114,7 +102,7 @@
 
             <div class="floating-badge-group">
                 <input 
-                    id="password" 
+                    id="admin_password" 
                     name="password" 
                     type="password" 
                     placeholder=" " 
@@ -122,16 +110,16 @@
                     autocomplete="current-password"
                     class="floating-badge-input block w-full rounded-2xl border border-white/30 bg-white/95 px-4 pr-11 py-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700]/50 transition-all shadow-inner">
                 <label 
-                    for="password" 
+                    for="admin_password" 
                     class="floating-badge-label">
                     Password
                 </label>
                 <button 
                     type="button" 
-                    onclick="togglePasswordVisibility()" 
+                    onclick="toggleAdminPasswordVisibility()" 
                     title="Show/Hide Password"
                     class="absolute right-3 top-2.5 sm:top-3 text-gray-400 hover:text-[#700000] transition p-1 cursor-pointer z-10">
-                    <svg id="passwordEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <svg id="adminPasswordEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
@@ -144,6 +132,18 @@
                 <span>Sign in</span>
             </button>
         </form>
+
+        <!-- Discreet Return to User Portal Link -->
+        <div class="mt-6 pt-5 border-t border-white/10 text-center">
+            <a 
+                href="{{ route('login') }}" 
+                class="text-xs text-white/50 hover:text-[#FFD700] transition inline-flex items-center gap-1.5 font-medium group">
+                <svg class="w-3.5 h-3.5 text-white/40 group-hover:text-[#FFD700] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                </svg>
+                <span>Return to User Portal</span>
+            </a>
+        </div>
     </main>
 
     <div>
@@ -153,9 +153,9 @@
     </div>
 
     <script>
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('password');
-            const eyeIcon = document.getElementById('passwordEyeIcon');
+        function toggleAdminPasswordVisibility() {
+            const passwordInput = document.getElementById('admin_password');
+            const eyeIcon = document.getElementById('adminPasswordEyeIcon');
             if (!passwordInput || !eyeIcon) return;
 
             if (passwordInput.type === 'password') {

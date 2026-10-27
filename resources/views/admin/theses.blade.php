@@ -21,7 +21,7 @@
 
     @include('partials.sidebar')
 
-    <div id="mainContent" class="md:ml-64 flex-1 transition-all duration-300 flex flex-col pt-16 md:pt-20">
+    <div id="mainContent" class="md:ml-64 flex-1 transition-all duration-300 flex flex-col pt-14 md:pt-16">
 
         <!-- Top Action Bar -->
         <div class="border-b border-gray-200 bg-white/95 backdrop-blur-md px-4 sm:px-8 py-3 shadow-xs flex items-center justify-between">

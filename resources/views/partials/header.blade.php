@@ -37,9 +37,9 @@
     }
 @endphp
 
-<header id="sacTopHeader" data-csrf="{{ csrf_token() }}" class="fixed top-0 right-0 left-0 md:left-64 h-16 md:h-20 z-40 bg-[#700000] border-b border-[#600000] shadow-md px-4 sm:px-6 flex items-center justify-between transition-all duration-300 select-none">
+<header id="sacTopHeader" data-csrf="{{ csrf_token() }}" class="fixed top-0 right-0 left-0 md:left-64 h-14 md:h-16 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between transition-all duration-300 select-none shadow-2xs">
     
-    <!-- LEFT: Mobile/Collapsed Toggle & Current Page Title -->
+    <!-- LEFT: Mobile/Collapsed Toggle & Current Page Title (Clean Minimalist without "AIRIS /") -->
     <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
         <!-- Sidebar Toggle (Visible on Mobile & when Desktop Sidebar is Collapsed) -->
         <button
@@ -48,25 +48,32 @@
             onclick="toggleSidebarGlobal()"
             title="Toggle Navigation Menu"
             aria-label="Toggle Navigation Menu"
-            class="rounded-xl p-1.5 sm:p-2 text-[#FFD700] hover:bg-[#8d0000] hover:text-white transition cursor-pointer flex items-center justify-center md:hidden shrink-0">
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            class="rounded-xl p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer flex items-center justify-center md:hidden shrink-0">
+            <svg class="h-5 w-5 sm:h-6 sm:w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
         </button>
 
-        <h1 class="font-sans text-base sm:text-xl md:text-2xl font-black text-[#FFD700] tracking-wider uppercase drop-shadow-md truncate">
+        <h1 class="font-sans text-sm sm:text-base md:text-lg font-bold text-slate-900 tracking-tight uppercase truncate">
             {{ $title ?? 'AIRIS' }}
         </h1>
     </div>
 
-    <!-- RIGHT: User Greeting & Notifications -->
-    <div class="flex items-center gap-2 sm:gap-4 shrink-0 justify-end bg-[#5b0000]/70 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/15 shadow-xs">
+    <!-- RIGHT: User Profile & Notifications (Clean Frosted Light Minimalist) -->
+    <div class="flex items-center gap-3 sm:gap-4 shrink-0 justify-end">
         @if($userEmail)
-            <div class="flex items-center">
-                <span class="text-xs sm:text-sm md:text-base font-semibold text-white tracking-tight truncate max-w-[120px] sm:max-w-[220px] md:max-w-none">
-                    Hi, <span class="font-bold text-[#FFD700]">{{ $userName }}</span>
+            <!-- User Name & Role in Crisp Slate -->
+            <div class="flex flex-col text-right sm:text-left leading-tight">
+                <span class="text-xs sm:text-sm font-semibold text-slate-800 tracking-tight truncate max-w-[140px] sm:max-w-[220px]">
+                    {{ $userName }}
+                </span>
+                <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                    {{ in_array($userRole, ['admin', 'librarian', 'coordinator'], true) ? ucfirst($userRole) : 'Student' }}
                 </span>
             </div>
+
+            <!-- Hairline Divider -->
+            <div class="h-4 sm:h-5 w-px bg-slate-200 block"></div>
 
             <!-- Header Notifications Bell & Dropdown -->
             <div class="relative">
@@ -76,15 +83,15 @@
                     onclick="toggleHeaderNotifDropdown(event)"
                     title="Notifications"
                     aria-label="Notifications"
-                    class="relative p-1.5 sm:p-2 rounded-xl text-[#FFD700] hover:text-white hover:bg-[#8d0000] transition cursor-pointer flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-[#FFD700]/50">
-                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    class="relative p-1.5 sm:p-2 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer flex items-center justify-center focus:outline-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                     </svg>
 
                     <!-- Unread Count Badge -->
                     <span
                         id="headerNotifBadge"
-                        class="{{ $initialNotifCount > 0 ? '' : 'hidden' }} absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-600 border border-white text-white text-[10px] font-extrabold rounded-full flex items-center justify-center shadow-md">
+                        class="{{ $initialNotifCount > 0 ? '' : 'hidden' }} absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 bg-red-600 border-2 border-white text-white text-[9px] font-extrabold rounded-full flex items-center justify-center shadow-xs">
                         {{ $initialNotifCount > 99 ? '99+' : $initialNotifCount }}
                     </span>
                 </button>
@@ -92,7 +99,7 @@
                 <!-- Notifications Dropdown Popup -->
                 <div
                     id="headerNotifDropdown"
-                    class="hidden absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl bg-white p-4 shadow-2xl border border-gray-200 z-50 text-left transition-all">
+                    class="hidden absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl bg-white p-4 shadow-xl border border-slate-200 z-50 text-left transition-all">
                     <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-2">
                         <div class="flex items-center gap-2">
                             <h3 class="text-xs font-bold text-gray-900 uppercase tracking-wider">Notifications</h3>
@@ -111,7 +118,7 @@
                 </div>
             </div>
         @else
-            <div class="w-10 sm:w-14 shrink-0" aria-hidden="true"></div>
+            <div class="w-6 sm:w-8 shrink-0" aria-hidden="true"></div>
         @endif
     </div>
 

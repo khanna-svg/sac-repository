@@ -129,21 +129,27 @@ class GeminiService
     {
         // Strict system prompt to avoid hallucinations
         $prompt =
-            "You are an expert AI Manuscript Assistant for St. Anthony's College Institutional Research Repository.\n\n" .
-            "Answer the student's question using ONLY the manuscript context provided below.\n" .
-            "Do not invent or fabricate information.\n" .
-            "If the context does not contain enough information, clearly state that the answer could not be found in the uploaded manuscript documents.\n\n" .
+            "You are AIRIS Assistant, the dedicated academic AI for the St. Anthony's College (SAC) Institutional Research Repository.\n\n" .
+            "STRICT INSTITUTIONAL POLICY:\n" .
+            "1. You must ONLY answer questions directly pertaining to St. Anthony's College, its research repository, archived manuscripts, thesis authors, methodologies, and findings.\n" .
+            "2. If the user asks for general programming scripts (e.g. 'give me basic calculator python script', 'write code'), general trivia, or anything outside the SAC research archive, you must politely decline with:\n" .
+            "\"I am AIRIS Assistant, an AI dedicated exclusively to the St. Anthony's College Institutional Research Repository. I cannot assist with external coding requests or general topics outside the repository archive.\"\n" .
+            "3. When asked if specific topics are available in the repository, synthesize a helpful overview listing the matching manuscripts from the provided context.\n" .
+            "4. Answer the student's question using ONLY the manuscript context provided below. Do not invent or fabricate information.\n\n" .
             "--- RETRIEVED MANUSCRIPT CONTEXT ---\n" .
             $contextText .
             "\n\n" .
             "--- USER QUESTION ---\n" .
             $userQuestion;
 
-        $modelsToTry = [
+        $configuredModel = env('GEMINI_MODEL');
+        $modelsToTry = array_values(array_unique(array_filter([
+            $configuredModel,
             'gemini-3.6-flash',
+            'gemini-3.5-flash',
             'gemini-3.8-flash',
             'gemini-3.7-flash',
-        ];
+        ])));
 
         foreach (array_unique($modelsToTry) as $modelName) {
             try {
@@ -157,7 +163,7 @@ class GeminiService
                         ],
                     ],
                     'generationConfig' => [
-                        'temperature' => 0.3,
+                        'temperature' => 0.2,
                     ],
                 ];
 
@@ -166,7 +172,7 @@ class GeminiService
                 }
 
                 $response = Http::withoutVerifying()
-                    ->timeout(8.5)
+                    ->timeout(22.0)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
@@ -191,11 +197,14 @@ class GeminiService
 
     public function generateChatResponse(string $userQuestion, string $contextText, array $history = []): string
     {
-        $systemInstruction = "You are an expert AI Research Assistant for St. Anthony's College Institutional Research Repository.\n" .
-            "Answer the student's questions accurately using the provided manuscript context and conversation history.\n" .
-            "Maintain conversational continuity: if the user asks a follow-up question (such as 'Who were the authors of it?', 'What did they find?', or 'Summarize chapter 3'), understand that 'it' refers to the manuscript previously discussed.\n" .
-            "Do not invent facts not grounded in the manuscript context.\n" .
-            "If the information is not in the manuscript context or previous messages, politely explain that the detail is not found in the uploaded documents.";
+        $systemInstruction = "You are AIRIS Assistant, the dedicated academic AI for the St. Anthony's College (SAC) Institutional Research Repository.\n" .
+            "STRICT INSTITUTIONAL POLICY:\n" .
+            "1. You must ONLY answer questions directly pertaining to St. Anthony's College, its research repository, archived manuscripts, thesis authors, methodologies, and findings.\n" .
+            "2. If the user asks for general programming scripts (e.g. 'give me basic calculator python script', 'write code', 'create a website'), general trivia, non-academic chit-chat, or anything outside the SAC research archive, you must politely decline with:\n" .
+            "\"I am AIRIS Assistant, an AI dedicated exclusively to the St. Anthony's College Institutional Research Repository. I cannot assist with external coding requests or general topics outside the repository archive.\"\n" .
+            "3. When asked if specific topics (such as IoT, computer vision, artificial intelligence, agriculture, nursing, criminology) are available in the repository, synthesize a helpful overview listing the matching manuscripts from the provided context.\n" .
+            "4. Maintain conversational continuity: if the user asks a follow-up question (such as 'Who were the authors of it?' or 'What did they find?'), understand that 'it' refers to the manuscript previously discussed.\n" .
+            "5. Do not invent facts not grounded in the manuscript context.";
 
         $rawTurns = [];
         $recentHistory = array_slice($history, -8);
@@ -245,18 +254,21 @@ class GeminiService
             }
         }
 
-        $modelsToTry = [
+        $configuredModel = env('GEMINI_MODEL');
+        $modelsToTry = array_values(array_unique(array_filter([
+            $configuredModel,
             'gemini-3.6-flash',
+            'gemini-3.5-flash',
             'gemini-3.8-flash',
             'gemini-3.7-flash',
-        ];
+        ])));
 
-        foreach (array_unique($modelsToTry) as $modelName) {
+        foreach ($modelsToTry as $modelName) {
             try {
                 $payload = [
                     'contents' => $contents,
                     'generationConfig' => [
-                        'temperature' => 0.3,
+                        'temperature' => 0.2,
                     ],
                 ];
 
@@ -277,7 +289,7 @@ class GeminiService
                 }
 
                 $response = Http::withoutVerifying()
-                    ->timeout(8.5)
+                    ->timeout(22.0)
                     ->withHeaders([
                         'Content-Type' => 'application/json',
                         'x-goog-api-key' => $this->apiKey,
@@ -564,12 +576,22 @@ Manuscript Front Matter:
 
                         $data = json_decode($clean, true);
                         if (is_array($data) && (!empty($data['title']) || !empty($data['abstract']))) {
+                            $dept = !empty($data['department']) ? strtolower((string) $data['department']) : null;
+                            $course = !empty($data['course_code']) ? strtolower((string) $data['course_code']) : null;
+
+                            // Complement missing department or course_code with heuristic rule detection
+                            if (!$dept || !$course) {
+                                $heuristic = self::heuristicExtractMetadata($truncated);
+                                $dept = $dept ?: $heuristic['department'];
+                                $course = $course ?: $heuristic['course_code'];
+                            }
+
                             return [
                                 'title' => (string) ($data['title'] ?? ''),
                                 'author' => (string) ($data['author'] ?? ''),
                                 'abstract' => (string) ($data['abstract'] ?? ''),
-                                'department' => !empty($data['department']) ? strtolower((string) $data['department']) : null,
-                                'course_code' => !empty($data['course_code']) ? strtolower((string) $data['course_code']) : null,
+                                'department' => $dept,
+                                'course_code' => $course,
                             ];
                         }
                     }

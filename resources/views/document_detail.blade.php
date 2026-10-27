@@ -67,7 +67,7 @@
         data-year="{{ $document->publication_date ? $document->publication_date->format('Y') : ($document->created_at ? $document->created_at->format('Y') : date('Y')) }}"
         class="hidden"></div>
 
-    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-20 md:pt-28">
+    <main id="mainContent" class="md:ml-64 min-h-screen p-4 sm:p-6 md:p-10 transition-all duration-300 ease-in-out pt-20 md:pt-24">
         <div class="mx-auto max-w-4xl">
 
             {{-- Breadcrumb Navigation --}}

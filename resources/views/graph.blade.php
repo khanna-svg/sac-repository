@@ -27,7 +27,7 @@
 
     @include('partials.sidebar')
 
-    <main id="mainContent" class="md:ml-64 h-screen flex flex-col pt-16 md:pt-20 transition-all duration-300 overflow-hidden">
+    <main id="mainContent" class="md:ml-64 h-screen flex flex-col pt-14 md:pt-16 transition-all duration-300 overflow-hidden">
 
         <!-- Top Control Toolbar & Subtitle -->
         <div class="border-b border-gray-200 bg-white px-4 md:px-8 py-3 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
