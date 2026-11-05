@@ -264,10 +264,14 @@
 
             {{-- 4. THESIS CARDS LIST CONTAINER --}}
             <section id="documentsList" class="mt-6 space-y-4">
-            <p class="text-center text-sm text-gray-500 py-10">
-                Loading AIRIS repository...
-            </p>
-        </section>
+                <div class="flex flex-col items-center justify-center py-16 sm:py-20 text-center">
+                    <div class="relative flex items-center justify-center mb-4">
+                        <div class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-[#700000] animate-spin"></div>
+                    </div>
+                    <p class="text-sm font-bold text-gray-800">Loading AIRIS repository...</p>
+                    <p class="text-xs text-gray-400 mt-1">Accessing published institutional manuscripts</p>
+                </div>
+            </section>
 
         </div>
     </main>
@@ -1036,7 +1040,33 @@
         // Fetch theses from backend with Search, Department filter, and Sort order
         async function fetchDocuments(search = '') {
             currentSearchQuery = (search || '').trim();
-            documentsList.innerHTML = `<p class="text-center text-sm text-gray-500 py-10">Searching documents...</p>`;
+
+            // Circular looping loading animation
+            documentsList.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-16 sm:py-24 text-center">
+                    <div class="relative flex items-center justify-center mb-4">
+                        <div class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-[#700000] animate-spin"></div>
+                    </div>
+                    <p class="text-sm font-bold text-gray-800">
+                        ${currentSearchQuery ? `Searching for "${escapeHtml(currentSearchQuery)}"...` : 'Loading repository manuscripts...'}
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">Filtering through institutional research documents</p>
+                </div>
+            `;
+
+            const searchBtn = document.getElementById('searchSubmitBtn');
+            const originalSearchBtnHtml = searchBtn ? searchBtn.innerHTML : null;
+            if (searchBtn) {
+                searchBtn.disabled = true;
+                searchBtn.innerHTML = `
+                    <svg class="w-5 h-5 text-[#700000] animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span class="sr-only">Searching...</span>
+                `;
+            }
+
             try {
                 const url = new URL('/backend/documents', window.location.origin);
 
@@ -1082,6 +1112,11 @@
                         Could not load documents from server.
                     </div>
                 `;
+            } finally {
+                if (searchBtn && originalSearchBtnHtml !== null) {
+                    searchBtn.disabled = false;
+                    searchBtn.innerHTML = originalSearchBtnHtml;
+                }
             }
         }
 

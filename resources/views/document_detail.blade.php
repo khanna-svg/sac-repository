@@ -313,76 +313,188 @@
                     <div class="space-y-6 max-h-[750px] overflow-y-auto pr-2">
                         @foreach($document->chunks as $chunk)
                         <div class="rounded-2xl border border-gray-200 bg-white p-6 sm:p-8 shadow-xs hover:shadow-sm transition">
-                            {{-- Manuscript Page Header Bar --}}
+                            {{-- Manuscript Page Indicator Bar (Clean, no redundant paper header) --}}
                             <div class="mb-5 flex items-center justify-between border-b border-gray-100 pb-2.5">
                                 <span class="rounded-lg bg-[#700000]/10 border border-[#700000]/20 px-3 py-1 text-xs font-bold text-[#700000]">
                                     Page {{ $chunk->page_number ?? $loop->iteration }}
                                 </span>
-                                <span class="text-[11px] text-gray-400 truncate max-w-xs hidden sm:inline font-medium">
-                                    {{ $document->title }}
+                                <span class="text-[11px] text-gray-400 font-medium">
+                                    Page {{ $chunk->page_number ?? $loop->iteration }} of {{ $document->chunks->count() }}
                                 </span>
                             </div>
 
-                            {{-- Formatted Academic Manuscript Text --}}
-                            <div class="text-xs sm:text-sm text-gray-800 leading-relaxed font-sans space-y-3.5">
+                            @php
+                                $rawText = str_replace(["\r\n", "\r"], "\n", trim($chunk->chunk_text));
+                                $pageNum = (int) ($chunk->page_number ?? $loop->iteration);
+
+                                // If legacy unformatted single-line text, structure it
+                                if (!str_contains($rawText, "\n")) {
+                                    if ($pageNum === 1 || stripos($rawText, 'A Thesis Presented') !== false) {
+                                        $rawText = preg_replace('/(A Thesis Presented to)/i', "\n\n$1", $rawText);
+                                        $rawText = preg_replace('/(In Partial Fulfil?ment)/i', "\n\n$1", $rawText);
+                                        $rawText = preg_replace('/(Bachelor of [A-Za-z\s\(\)]+)/i', "$1\n\n", $rawText);
+                                        $rawText = preg_replace('/(May 202\s*6|\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{4})/i', "\n\n$1\n\n", $rawText);
+                                        $rawText = preg_replace('/(ST\.?\s*ANTHONY[’\']S\s*COLLEGE)/i', "\n\n$1", $rawText);
+                                    } else {
+                                        $rawText = preg_replace('/(Chapter\s+[0-9IVXLCDM]+)/i', "\n\n$1\n\n", $rawText);
+                                        $rawText = preg_replace('/(INTRODUCTION|APPROVAL SHEET|ACKNOWLEDGEMENT|ABSTRACT|TABLE OF CONTENTS|LIST OF TABLES|LIST OF FIGURES|REFERENCES|BIBLIOGRAPHY)/i', "\n\n$1\n\n", $rawText);
+                                        $rawText = preg_replace('/(Background of the Study|Statement of the Problem|Significance of the Study|Scope and Delimitation|Theoretical Framework|Conceptual Framework|Definition of Terms|Research Design|Participants of the Study)/i', "\n\n$1\n\n", $rawText);
+                                    }
+                                }
+
+                                // Strip top running header/page numbers and trailing page numbers for pages > 1
+                                $pageLines = explode("\n", $rawText);
+                                if ($pageNum > 1) {
+                                    $cleanTitle = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($document->title ?? ''));
+                                    while (!empty($pageLines)) {
+                                        $first = trim($pageLines[0]);
+                                        if ($first === '') { array_shift($pageLines); continue; }
+                                        if (preg_match('/^([0-9]{1,4}|[ivxlcdm]{1,6})$/i', $first)) { array_shift($pageLines); continue; }
+                                        $cleanFirst = preg_replace('/[^a-zA-Z0-9]/', '', strtolower($first));
+                                        if ($cleanTitle !== '' && strlen($cleanFirst) >= 15 && str_starts_with($cleanTitle, substr($cleanFirst, 0, 30))) {
+                                            array_shift($pageLines);
+                                            continue;
+                                        }
+                                        break;
+                                    }
+                                    while (!empty($pageLines)) {
+                                        $lastIdx = count($pageLines) - 1;
+                                        $last = trim($pageLines[$lastIdx]);
+                                        if ($last === '') { array_pop($pageLines); continue; }
+                                        if (preg_match('/^([0-9]{1,4}|[ivxlcdm]{1,6})$/i', $last)) { array_pop($pageLines); continue; }
+                                        if (preg_match('/^(.*?)\s+([ivxlcdm]{1,6}|[0-9]{1,4})$/i', $last, $m)) {
+                                            if (strlen($m[2]) <= 4 && !preg_match('/^(in|am|an|or|to|we|he|by|at|is|it|as|do|if|my|no|so|up|us)$/i', $m[2])) {
+                                                $pageLines[$lastIdx] = $m[1];
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                                $rawText = implode("\n", $pageLines);
+
+                                $isTitlePage = ($pageNum === 1) || (
+                                    str_contains(strtolower($rawText), 'a thesis presented to') ||
+                                    str_contains(strtolower($rawText), 'in partial fulfilment') ||
+                                    str_contains(strtolower($rawText), 'in partial fulfillment')
+                                );
+                            @endphp
+
+                            @if($isTitlePage)
                                 @php
-                                $rawText = str_replace(["\r\n", "\r"], "\n", $chunk->chunk_text);
-                                $rawParagraphs = preg_split('/\n\s*\n/', $rawText);
-
-                                // If no double newlines, group lines intelligently
-                                if (count($rawParagraphs) <= 1 && str_contains($rawText, "\n" )) {
-                                    $lines=explode("\n", $rawText);
-                                    $grouped=[];
-                                    $current='' ;
-                                    foreach ($lines as $line) {
-                                    $trimmed=trim($line);
-                                    if ($trimmed==='' ) continue;
-
-                                    $isHeading=(
-                                    strlen($trimmed) < 70 && (
-                                    mb_strtoupper($trimmed)===$trimmed ||
-                                    preg_match('/^(Chapter|Approval|Table of|List of|Abstract|Acknowledgement|References|Bibliography|Appendix|A Capstone|Presented to|In Partial|Bachelor of|By|Panel of)/i', $trimmed)
-                                    )
-                                    );
-
-                                    if ($isHeading) {
-                                    if ($current !=='' ) {
-                                    $grouped[]=$current;
-                                    $current='' ;
-                                    }
-                                    $grouped[]='##HEADING##' . $trimmed;
-                                    } else {
-                                    if ($current !=='' ) {
-                                    $current .=' ' . $trimmed;
-                                    } else {
-                                    $current=$trimmed;
-                                    }
-                                    }
-                                    }
-                                    if ($current !=='' ) $grouped[]=$current;
-                                    if (!empty($grouped)) $rawParagraphs=$grouped;
-                                    }
-                                    @endphp
-
-                                    @foreach($rawParagraphs as $para)
-                                    @php $cleanPara=trim($para); @endphp
-                                    @if($cleanPara !=='' )
-                                    @if(str_starts_with($cleanPara, '##HEADING##' ))
-                                    <h3 class="text-center font-bold text-xs sm:text-sm text-gray-900 tracking-wider uppercase my-3 py-1">
-                                    {{ substr($cleanPara, 11) }}
-                                    </h3>
-                                    @elseif(strlen($cleanPara) < 60 && (mb_strtoupper($cleanPara)===$cleanPara || preg_match('/^(Chapter|Approval|Table of|List of|Abstract|Acknowledgement|References|By)/i', $cleanPara)))
-                                        <h3 class="text-center font-bold text-xs sm:text-sm text-gray-900 tracking-wider uppercase my-3 py-1">
-                                        {{ $cleanPara }}
-                                        </h3>
+                                    $titleBlocks = preg_split('/\n\s*\n+/', trim($rawText));
+                                @endphp
+                                <div class="text-center py-6 px-4 space-y-6 max-w-2xl mx-auto font-sans">
+                                    @foreach($titleBlocks as $idx => $block)
+                                        @php $b = trim($block); @endphp
+                                        @if($b !== '')
+                                            @if($idx === 0)
+                                                <h1 class="text-base sm:text-lg font-black text-gray-900 uppercase tracking-wide leading-snug my-3">
+                                                    {{ $b }}
+                                                </h1>
+                                            @elseif(stripos($b, 'A Thesis Presented') !== false)
+                                                <div class="my-3 text-xs sm:text-sm text-gray-700 italic font-medium leading-relaxed">
+                                                    {!! nl2br(e($b)) !!}
+                                                </div>
+                                            @elseif(stripos($b, 'Partial Fulfil') !== false || stripos($b, 'Requirements for the Degree') !== false)
+                                                <div class="my-3 text-xs sm:text-sm text-gray-800 font-medium leading-relaxed">
+                                                    {!! nl2br(e($b)) !!}
+                                                </div>
+                                            @elseif(stripos($b, 'ST. ANTHONY') !== false || preg_match('/May \d{4}/i', $b))
+                                                <div class="pt-4 border-t border-gray-100 text-xs sm:text-sm text-gray-700 font-bold uppercase space-y-1">
+                                                    {!! nl2br(e($b)) !!}
+                                                </div>
+                                            @else
+                                                <div class="my-4 py-2 border-y border-gray-100/80">
+                                                    <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-2">Researchers / Authors</p>
+                                                    <div class="text-xs sm:text-sm font-semibold text-gray-900 leading-relaxed">
+                                                        {!! nl2br(e($b)) !!}
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @else
+                                @php
+                                    $lines = explode("\n", $rawText);
+                                    $currPara = '';
+                                @endphp
+                                <div class="space-y-3.5 text-xs sm:text-sm text-gray-800 leading-relaxed font-sans">
+                                    @foreach($lines as $line)
+                                        @php
+                                            $trimmed = trim($line);
+                                        @endphp
+                                        @if($trimmed === '')
+                                            @if($currPara !== '')
+                                                <p class="text-justify indent-8 sm:indent-10 leading-relaxed text-gray-800 mb-3">
+                                                    {{ $currPara }}
+                                                </p>
+                                                @php $currPara = ''; @endphp
+                                            @endif
                                         @else
-                                        <p class="text-justify indent-6 sm:indent-8 leading-relaxed text-gray-800">
-                                            {{ $cleanPara }}
+                                            @php
+                                                $isChapter = (bool) preg_match('/^(Chapter\s+[0-9IVXLCDM]+)/i', $trimmed);
+                                                $isMajorHeading = (
+                                                    preg_match('/^(APPROVAL SHEET|ACKNOWLEDGEMENT|DEDICATION|ABSTRACT|TABLE OF CONTENTS|LIST OF TABLES|LIST OF FIGURES|REFERENCES|BIBLIOGRAPHY|APPENDICES|APPENDIX\s+[A-Z0-9]+|CURRICULUM VITAE)$/i', $trimmed) ||
+                                                    (strlen($trimmed) < 45 && mb_strtoupper($trimmed) === $trimmed && !preg_match('/[0-9]{3,}/', $trimmed) && !preg_match('/^(BY|ON|IN|THE|AND|FOR|OF|TO|WITH)$/i', $trimmed))
+                                                );
+                                                $isSubHeading = (
+                                                    strlen($trimmed) < 65 &&
+                                                    preg_match('/^(Background of the Study|Statement of the Problem|Significance of the Study|Scope and Delimitation|Theoretical Framework|Conceptual Framework|Definition of Terms|Research Design|Participants of the Study|Data Gathering Procedure|Ethical Considerations|Data Analysis|Summary of Findings|Conclusions|Recommendations|Chapter [0-9]+|Phase [0-9]+)/i', $trimmed)
+                                                );
+                                            @endphp
+
+                                            @if($isChapter || $isMajorHeading || $isSubHeading)
+                                                @if($currPara !== '')
+                                                    <p class="text-justify indent-8 sm:indent-10 leading-relaxed text-gray-800 mb-3">
+                                                        {{ $currPara }}
+                                                    </p>
+                                                    @php $currPara = ''; @endphp
+                                                @endif
+
+                                                @if($isChapter)
+                                                    <div class="text-center my-3">
+                                                        <span class="text-xs font-bold uppercase tracking-widest text-[#700000] block">{{ $trimmed }}</span>
+                                                    </div>
+                                                @elseif($isMajorHeading)
+                                                    <h3 class="text-center font-bold text-xs sm:text-sm text-gray-900 tracking-wider uppercase my-3 py-1 border-b border-gray-100">
+                                                        {{ $trimmed }}
+                                                    </h3>
+                                                @else
+                                                    <h4 class="font-bold text-xs sm:text-sm text-gray-900 tracking-wide mt-4 mb-2 flex items-center gap-1.5">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-[#700000] shrink-0"></span>
+                                                        <span>{{ $trimmed }}</span>
+                                                    </h4>
+                                                @endif
+                                            @elseif(preg_match('/^(Table\s+\d+|Figure\s+\d+|[0-9]+\.\s+)/i', $trimmed))
+                                                @if($currPara !== '')
+                                                    <p class="text-justify indent-8 sm:indent-10 leading-relaxed text-gray-800 mb-3">
+                                                        {{ $currPara }}
+                                                    </p>
+                                                    @php $currPara = ''; @endphp
+                                                @endif
+                                                <div class="py-1 px-3 rounded-lg bg-slate-50 border border-gray-100 text-xs text-gray-700 font-mono my-1">
+                                                    {{ $trimmed }}
+                                                </div>
+                                            @else
+                                                @php
+                                                    if ($currPara !== '') {
+                                                        $currPara .= ' ' . $trimmed;
+                                                    } else {
+                                                        $currPara = $trimmed;
+                                                    }
+                                                @endphp
+                                            @endif
+                                        @endif
+                                    @endforeach
+
+                                    @if($currPara !== '')
+                                        <p class="text-justify indent-8 sm:indent-10 leading-relaxed text-gray-800 mb-3">
+                                            {{ $currPara }}
                                         </p>
-                                        @endif
-                                        @endif
-                                        @endforeach
-                            </div>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                         @endforeach
                     </div>

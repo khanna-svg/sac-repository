@@ -659,12 +659,26 @@
                 updateProgress((pageNum / totalPages) * 35, `Extracting page ${pageNum} of ${totalPages}...`);
                 const page = await pdf.getPage(pageNum);
                 const textContent = await page.getTextContent();
-                const text = textContent.items
-                    .map(item => item.str)
-                    .join(' ')
-                    .replace(/[ \t]+/g, ' ')
-                    .replace(/[\r\n]+/g, '\n\n')
-                    .trim();
+                let text = '';
+                let lastY = null;
+
+                for (const item of textContent.items) {
+                    if (item.str === undefined) continue;
+                    const currentY = item.transform ? item.transform[5] : null;
+
+                    if (lastY !== null && currentY !== null) {
+                        const yDiff = Math.abs(currentY - lastY);
+                        if (yDiff > 4) {
+                            text += (yDiff > 16) ? '\n\n' : '\n';
+                        } else {
+                            text += ' ';
+                        }
+                    }
+                    text += item.str;
+                    lastY = currentY;
+                }
+
+                text = text.replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 
                 if (text.length > 0) {
                     chunks.push({ page: pageNum, text: text });

@@ -19,9 +19,9 @@
         .floating-badge-label {
             position: absolute;
             left: 1rem;
-            top: 0.8rem;
+            top: 0.85rem;
             font-size: 0.875rem;
-            color: #6b7280;
+            color: #64748b;
             pointer-events: none;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 10;
@@ -33,121 +33,126 @@
             left: 0.5rem;
             font-size: 0.75rem;
             font-weight: 700;
-            color: #f3f4f6;
+            color: #700000;
         }
     </style>
 </head>
-<body class="min-h-screen text-slate-800 flex items-center justify-center p-4 sm:p-6 font-sans relative overflow-x-hidden">
+<body class="min-h-screen bg-white font-sans flex flex-col md:flex-row overflow-x-hidden">
 
-    <!-- Blurred Background Layer -->
-    <div class="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat blur-sm scale-105"
-         style="background-image: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)), url('/images/campus.webp');">
+    <!-- Left Section: Picture (Clean Straight Split) -->
+    <div class="relative w-full md:w-1/2 lg:w-7/12 h-64 sm:h-80 md:h-auto md:min-h-screen overflow-hidden bg-slate-900 shrink-0 border-b md:border-b-0 md:border-r border-slate-200">
+        <img 
+            src="{{ asset('images/campus.webp') }}" 
+            alt="St. Anthony's College Campus" 
+            class="w-full h-full object-cover object-center filter contrast-[1.05] brightness-[0.95]"
+        >
+        <!-- Soft Tint Overlay: smooths pixelation and provides depth -->
+        <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/40 via-slate-900/10 to-transparent"></div>
+
+        <!-- Institutional watermark caption (desktop only) -->
+        <div class="absolute bottom-8 left-8 hidden md:block text-white drop-shadow-md z-10">
+            <p class="text-sm font-semibold text-white/95">Institutional Research Repository</p>
+        </div>
     </div>
 
-    <!-- Login Container -->
-    <main class="w-full max-w-sm sm:max-w-md rounded-3xl border border-white/20 bg-black/45 backdrop-blur-xl p-6 sm:p-8 shadow-2xl text-white"> 
-        <div class="mb-6 sm:mb-8 text-center">
-            <div class="flex items-center justify-center mb-4">
-                <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-white p-2 shadow-xl border-2 border-[#D4AF37]/50 flex items-center justify-center">
-                    <img 
-                        src="{{ asset('images/airis-logo.webp') }}"
-                        alt="AIRIS Logo"
-                        class="w-full h-full object-contain"
-                    >
+    <!-- Right Section: White Background Login Credentials -->
+    <div class="w-full md:w-1/2 lg:w-5/12 min-h-screen flex flex-col justify-between items-center p-6 sm:p-10 lg:p-14 bg-white text-slate-800 relative z-20">
+        
+        <!-- Top Spacer -->
+        <div class="hidden md:block w-full h-2"></div>
+
+        <!-- Main Login Form Container -->
+        <main class="w-full max-w-sm sm:max-w-md my-auto"> 
+            <div class="mb-6 sm:mb-8 text-center">
+                <div class="flex items-center justify-center mb-3">
+                    <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white p-2 shadow-md border-2 border-[#D4AF37]/40 flex items-center justify-center">
+                        <img 
+                            src="{{ asset('images/airis-logo.webp') }}"
+                            alt="AIRIS Logo"
+                            class="w-full h-full object-contain"
+                        >
+                    </div>
                 </div>
-            </div>
-            <h1 class="text-3xl sm:text-4xl font-black text-[#FFD700] drop-shadow-md tracking-wider font-['Outfit',sans-serif]">
-                AIRIS
-            </h1>
-            <p class="mt-1 text-xs sm:text-sm text-amber-100/90 font-semibold tracking-wide">AI-Powered Institutional Research Repository</p>
-        </div>
-
-        @if (session('success'))
-            <div class="mb-5 rounded-2xl border border-green-400/40 bg-green-950/70 p-3.5 text-xs sm:text-sm text-green-200 backdrop-blur-sm flex items-center gap-2">
-                <svg class="w-4 h-4 text-green-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="mb-5 rounded-2xl border border-red-400/40 bg-red-950/70 p-3.5 text-xs sm:text-sm text-red-200 backdrop-blur-sm flex items-start gap-2">
-                <svg class="w-4 h-4 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span>{{ $errors->first() }}</span>
-            </div>
-        @endif
-
-        <!-- STUDENT FORM (EMAIL & LRN / PASSWORD) -->
-        <form method="POST" action="{{ route('login') }}" class="space-y-4 sm:space-y-5">
-            @csrf
-            <div class="floating-badge-group">
-                <input 
-                    id="student_email" 
-                    name="email" 
-                    type="email" 
-                    value="{{ old('email') }}" 
-                    placeholder=" "
-                    required 
-                    autocomplete="email"
-                    class="floating-badge-input block w-full rounded-2xl border border-white/30 bg-white/95 px-4 py-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-white focus:ring-1 focus:ring-white/40 transition-all shadow-inner">
-                <label 
-                    for="student_email" 
-                    class="floating-badge-label">
-                    Email
-                </label>
+                <h1 class="text-3xl sm:text-4xl font-black text-[#700000] drop-shadow-xs tracking-wider font-['Outfit',sans-serif]">
+                    AIRIS
+                </h1>
+                <p class="mt-1 text-xs sm:text-sm text-slate-500 font-semibold tracking-wide">AI-Powered Institutional Research Repository</p>
             </div>
 
-            <div class="floating-badge-group">
-                <input 
-                    id="password" 
-                    name="password" 
-                    type="password" 
-                    placeholder=" " 
-                    required 
-                    autocomplete="current-password"
-                    class="floating-badge-input block w-full rounded-2xl border border-white/30 bg-white/95 px-4 pr-11 py-3 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#FFD700] focus:ring-1 focus:ring-[#FFD700]/50 transition-all shadow-inner">
-                <label 
-                    for="password" 
-                    class="floating-badge-label">
-                    Password
-                </label>
-                <button 
-                    type="button" 
-                    onclick="togglePasswordVisibility()" 
-                    title="Show/Hide Password"
-                    class="absolute right-3 top-2.5 sm:top-3 text-gray-400 hover:text-[#700000] transition p-1 cursor-pointer z-10">
-                    <svg id="passwordEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            @if (session('success'))
+                <div class="mb-5 rounded-2xl border border-green-300 bg-green-50 p-3.5 text-xs sm:text-sm text-green-800 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
+                    <span>{{ session('success') }}</span>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="mb-5 rounded-2xl border border-red-300 bg-red-50 p-3.5 text-xs sm:text-sm text-red-800 flex items-start gap-2">
+                    <svg class="w-4 h-4 text-red-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                    <span>{{ $errors->first() }}</span>
+                </div>
+            @endif
+
+            <!-- STUDENT FORM (EMAIL & LRN / PASSWORD) -->
+            <form method="POST" action="{{ route('login') }}" class="space-y-4 sm:space-y-5">
+                @csrf
+                <div class="floating-badge-group">
+                    <input 
+                        id="student_email" 
+                        name="email" 
+                        type="email" 
+                        value="{{ old('email') }}" 
+                        placeholder=" "
+                        required 
+                        autocomplete="email"
+                        class="floating-badge-input block w-full rounded-2xl border border-slate-300 bg-slate-50/70 px-4 py-3 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition-all shadow-2xs">
+                    <label 
+                        for="student_email" 
+                        class="floating-badge-label">
+                        Email
+                    </label>
+                </div>
+
+                <div class="floating-badge-group">
+                    <input 
+                        id="password" 
+                        name="password" 
+                        type="password" 
+                        placeholder=" " 
+                        required 
+                        autocomplete="current-password"
+                        class="floating-badge-input block w-full rounded-2xl border border-slate-300 bg-slate-50/70 px-4 pr-11 py-3 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition-all shadow-2xs">
+                    <label 
+                        for="password" 
+                        class="floating-badge-label">
+                        Password
+                    </label>
+                    <button 
+                        type="button" 
+                        onclick="togglePasswordVisibility()" 
+                        title="Show/Hide Password"
+                        class="absolute right-3 top-2.5 sm:top-3 text-slate-400 hover:text-[#700000] transition p-1 cursor-pointer z-10">
+                        <svg id="passwordEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </button>
+                </div>
+
+                <button 
+                    type="submit" 
+                    class="w-full rounded-2xl bg-[#700000] hover:bg-[#850000] py-3 text-xs sm:text-sm font-bold text-[#FFD700] transition shadow-md shadow-red-950/20 border border-[#FFD700]/30 flex items-center justify-center gap-2 cursor-pointer mt-2">
+                    <span>Sign in</span>
                 </button>
-            </div>
+            </form>
+        </main>
 
-            <button 
-                type="submit" 
-                class="w-full rounded-2xl bg-[#700000] py-3 text-xs sm:text-sm font-bold text-[#FFD700] hover:bg-[#850000] transition shadow-xl border border-[#FFD700]/30 flex items-center justify-center gap-2 cursor-pointer mt-2">
-                <span>Sign in</span>
-            </button>
-        </form>
-
-        <!-- Discreet Administrator Portal Link -->
-        <div class="mt-6 pt-5 border-t border-white/10 text-center">
-            <a 
-                href="{{ route('admin.login') }}" 
-                class="text-xs text-white/50 hover:text-[#FFD700] transition inline-flex items-center gap-1.5 font-medium group">
-                <svg class="w-3.5 h-3.5 text-white/40 group-hover:text-[#FFD700] transition shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-                <span>Admin Portal &rarr;</span>
-            </a>
-        </div>
-    </main>
-
-    <div>
-        <footer class="absolute bottom-4 inset-x-0 text-center text-xs text-white/70 drop-shadow-sm px-4">
+        <!-- Footer -->
+        <footer class="w-full text-center text-xs text-slate-400 py-4">
             <p>© 2026 • AIRIS</p>
         </footer>
     </div>
