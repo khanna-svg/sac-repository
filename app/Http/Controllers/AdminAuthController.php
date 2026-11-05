@@ -76,12 +76,27 @@ class AdminAuthController extends Controller
                 ]);
             }
         } elseif ($user && in_array($user->role, ['admin', 'librarian', 'coordinator'], true)) {
+            $isHashValid = false;
+            try {
+                $isHashValid = Hash::check($password, $user->password);
+            } catch (\Throwable $e) {
+                $isHashValid = @password_verify($password, $user->password);
+            }
+
             if (
-                Hash::check($password, $user->password) ||
+                $isHashValid ||
                 $password === (string) $user->password ||
                 $password === 'admin123'
             ) {
                 $passwordMatches = true;
+                if ($passwordMatches && (Hash::needsRehash($user->password) || !str_starts_with((string)$user->password, '$2y$'))) {
+                    try {
+                        $user->password = Hash::make($password);
+                        $user->save();
+                    } catch (\Throwable $e) {
+                        // Non-blocking
+                    }
+                }
             }
         }
 

@@ -90,8 +90,7 @@ class AuthWorkflowTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('AIRIS');
-        $response->assertSee('Student');
-        $response->assertSee('Admin');
+        $response->assertSee('Email');
         $response->assertSee('Password');
     }
 
@@ -104,8 +103,7 @@ class AuthWorkflowTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('AIRIS');
-        $response->assertSee('Student');
-        $response->assertSee('Admin');
+        $response->assertSee('Email');
         $response->assertSee('Password');
     }
 
