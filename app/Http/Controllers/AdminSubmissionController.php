@@ -129,7 +129,7 @@ class AdminSubmissionController extends Controller
 
             ThesisNotification::create([
                 'user_email' => $document->submitted_by_email,
-                'title' => '🎉 Manuscript Approved & Published',
+                'title' => 'Manuscript Approved & Published',
                 'message' => $msg,
                 'type' => 'approved',
                 'document_id' => $document->id,

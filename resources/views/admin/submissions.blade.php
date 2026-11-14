@@ -700,7 +700,7 @@
                     }
                 }
 
-                showToast('🎉 Manuscript approved & officially published to the repository! Student notified via in-app alert & email.', true);
+                showToast('Manuscript approved & officially published to the repository! Student notified via in-app alert & email.', true);
                 closeApproveModal();
                 fetchSubmissions();
             } catch (err) {

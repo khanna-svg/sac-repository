@@ -33,11 +33,11 @@ class ThesisClearanceMail extends Mailable
         $shortTitle = Str::limit($document->title, 45);
 
         if ($this->type === 'passed') {
-            $this->subjectTitle = "🎉 [SAC Clearance Passed] Turnitin & Grammarly Review: {$shortTitle}";
+            $this->subjectTitle = "[SAC Clearance Passed] Turnitin & Grammarly Review: {$shortTitle}";
         } elseif ($this->type === 'resubmit') {
-            $this->subjectTitle = "⚠️ [SAC Action Required] Turnitin Revisions Needed: {$shortTitle}";
+            $this->subjectTitle = "[SAC Action Required] Turnitin Revisions Needed: {$shortTitle}";
         } else {
-            $this->subjectTitle = "📄 [SAC Clearance] Manuscript Queued for Screening: {$shortTitle}";
+            $this->subjectTitle = "[SAC Clearance] Manuscript Queued for Screening: {$shortTitle}";
         }
     }
 

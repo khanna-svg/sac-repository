@@ -232,7 +232,7 @@ class StudentSubmissionController extends Controller
 
                 ThesisNotification::create([
                     'user_email' => $email,
-                    'title' => '📄 Revised Manuscript Submitted for Turnitin Review',
+                    'title' => 'Revised Manuscript Submitted for Turnitin Review',
                     'message' => "Your revised manuscript \"{$title}\" has been re-uploaded and moved to Pending for Turnitin & Grammarly screening.",
                     'type' => 'info',
                     'document_id' => $existingDoc->id,
@@ -301,7 +301,7 @@ class StudentSubmissionController extends Controller
             // Create initial notification for the student
             ThesisNotification::create([
                 'user_email' => $email,
-                'title' => '📄 Submission Received for Turnitin Review',
+                'title' => 'Submission Received for Turnitin Review',
                 'message' => "Your manuscript \"{$title}\" has been successfully uploaded and is queued for Turnitin similarity screening (<15%) and Grammarly review.",
                 'type' => 'info',
                 'document_id' => $document->id,

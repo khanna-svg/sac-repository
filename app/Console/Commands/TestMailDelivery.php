@@ -69,13 +69,13 @@ class TestMailDelivery extends Command
             );
 
             if ($mailer === 'log') {
-                $this->info("✅ SUCCESS: Email rendered and recorded in storage/logs/laravel.log.");
+                $this->info("[SUCCESS] Email rendered and recorded in storage/logs/laravel.log.");
             } else {
-                $this->info("🎉 SUCCESS: Email successfully delivered via {$mailer} to {$recipient}!");
+                $this->info("[SUCCESS] Email successfully delivered via {$mailer} to {$recipient}!");
             }
             return 0;
         } catch (\Throwable $e) {
-            $this->error("❌ FAILED to send email: " . $e->getMessage());
+            $this->error("[FAILED] to send email: " . $e->getMessage());
             return 1;
         }
     }

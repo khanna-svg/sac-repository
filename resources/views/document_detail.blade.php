@@ -208,11 +208,72 @@
                             {{ $document->title }}
                         </h1>
 
-                        <div class="mt-3 flex flex-wrap items-center gap-y-1 gap-x-4 text-xs md:text-sm text-gray-600">
-                            <p>
-                                <span class="font-bold text-[#700000]">Author(s):</span>
-                                <span class="font-semibold text-gray-800">{{ $document->author }}</span>
-                            </p>
+                        {{-- Dublin Core Academic Metadata Block --}}
+                        <div class="mt-4 p-4 rounded-2xl bg-stone-50/80 border border-stone-200 space-y-3.5">
+                            {{-- Authors row --}}
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1.5">Author(s)</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    @php
+                                        $authorsList = preg_split('/[,;]\s*|\s+and\s+/i', (string) $document->author);
+                                    @endphp
+                                    @foreach($authorsList as $auth)
+                                        @if(trim($auth))
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-stone-200 text-xs font-semibold text-stone-800 shadow-2xs">
+                                                <svg class="w-3.5 h-3.5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                                </svg>
+                                                <span>{{ trim($auth) }}</span>
+                                            </span>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Category and Academic Level --}}
+                            <div class="pt-2 border-t border-stone-200/60 flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">Research Category</span>
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-900 shadow-2xs">
+                                        <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                                        </svg>
+                                        <span>{{ $document->research_category ?: 'Capstone Project' }}</span>
+                                    </span>
+                                </div>
+
+                                @if(!empty($document->academic_level))
+                                <div>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1 text-right">Academic Level</span>
+                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-stone-100 text-stone-700 text-xs font-medium">
+                                        {{ $document->academic_level }}
+                                    </span>
+                                </div>
+                                @endif
+                            </div>
+
+                            {{-- Topics & Keywords --}}
+                            @php
+                                $topicsList = [];
+                                if (!empty($document->keywords)) {
+                                    $topicsList = array_map('trim', explode(',', $document->keywords));
+                                }
+                            @endphp
+                            @if(!empty($topicsList))
+                            <div class="pt-2 border-t border-stone-200/60">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1.5">Topics &amp; Subject Descriptors</span>
+                                <div class="flex flex-wrap gap-1.5">
+                                    @foreach($topicsList as $topic)
+                                        @if(!empty($topic))
+                                        <a href="{{ route('documents', ['search' => $topic]) }}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#700000]/5 hover:bg-[#700000]/10 border border-[#700000]/20 text-[#700000] text-xs font-semibold transition cursor-pointer" title="Find manuscripts matching {{ $topic }}">
+                                            <span class="text-[11px] text-stone-400 font-mono">#</span>
+                                            <span>{{ $topic }}</span>
+                                        </a>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -661,29 +722,41 @@
                     <button
                         type="button"
                         onclick="sendQuickQuestion('Summarize this manuscript in 3 concise bullet points.')"
-                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
-                        📑 Summarize this manuscript
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#700000] hover:shadow-xs transition cursor-pointer flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-[#700000] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <span>Summarize this manuscript</span>
                     </button>
 
                     <button
                         type="button"
                         onclick="sendQuickQuestion('What is the main problem and objective of this research?')"
-                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
-                        🎯 What problem does this study solve?
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#700000] hover:shadow-xs transition cursor-pointer flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-[#700000] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                        <span>What problem does this study solve?</span>
                     </button>
 
                     <button
                         type="button"
                         onclick="sendQuickQuestion('What methodology, tools, and technologies were used in this system?')"
-                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
-                        💻 What methodology and tech stack was used?
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#700000] hover:shadow-xs transition cursor-pointer flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-[#700000] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                        </svg>
+                        <span>What methodology and tech stack was used?</span>
                     </button>
 
                     <button
                         type="button"
                         onclick="sendQuickQuestion('What are the key conclusions, findings, and recommendations of this study?')"
-                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#700000] hover:shadow-xs transition cursor-pointer">
-                        📊 What are the conclusions & findings?
+                        class="text-left px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs font-semibold text-gray-700 hover:border-[#D4AF37] hover:text-[#700000] hover:shadow-xs transition cursor-pointer flex items-center gap-2">
+                        <svg class="w-3.5 h-3.5 text-[#700000] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                        </svg>
+                        <span>What are the conclusions &amp; findings?</span>
                     </button>
                 </div>
             </div>

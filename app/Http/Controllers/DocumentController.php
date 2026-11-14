@@ -862,7 +862,7 @@ class DocumentController extends Controller
                 if ($document->submitted_by_email) {
                     ThesisNotification::create([
                         'user_email' => $document->submitted_by_email,
-                        'title' => '🎉 Congratulations your thesis was approved',
+                        'title' => 'Congratulations - your thesis was approved',
                         'message' => "Congratulations! Your thesis \"{$document->title}\" has been approved and is now officially published in the St. Anthony's College Repository.",
                         'type' => 'approved',
                         'document_id' => $document->id,
