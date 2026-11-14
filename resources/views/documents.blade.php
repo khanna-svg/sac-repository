@@ -171,8 +171,9 @@
                                 <select
                                     id="courseFilter"
                                     onchange="onFilterChange()"
-                                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs cursor-pointer max-w-[210px] truncate">
-                                    <option value="all">All Courses</option>
+                                    disabled
+                                    class="rounded-xl border border-gray-300 bg-slate-100 px-3 py-1.5 text-xs font-semibold text-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs cursor-not-allowed max-w-[210px] truncate">
+                                    <option value="all">Select Department First</option>
                                 </select>
                             </div>
 
@@ -583,30 +584,33 @@
             if (!courseFilter) return;
             courseFilter.innerHTML = '';
 
+            if (!selectedDept || selectedDept === 'all') {
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = 'all';
+                defaultOpt.textContent = 'Select Department First';
+                courseFilter.appendChild(defaultOpt);
+                courseFilter.value = 'all';
+                courseFilter.disabled = true;
+                courseFilter.classList.add('bg-slate-100', 'text-gray-400', 'cursor-not-allowed');
+                courseFilter.classList.remove('bg-white', 'text-gray-700', 'cursor-pointer');
+                return;
+            }
+
+            courseFilter.disabled = false;
+            courseFilter.classList.remove('bg-slate-100', 'text-gray-400', 'cursor-not-allowed');
+            courseFilter.classList.add('bg-white', 'text-gray-700', 'cursor-pointer');
+
             const defaultOpt = document.createElement('option');
             defaultOpt.value = 'all';
-            defaultOpt.textContent = selectedDept && selectedDept !== 'all' ? 'All Courses in Dept' : 'All Courses';
+            defaultOpt.textContent = 'All Courses';
             courseFilter.appendChild(defaultOpt);
 
-            if (selectedDept && deptPrograms[selectedDept]) {
+            if (deptPrograms[selectedDept]) {
                 deptPrograms[selectedDept].forEach(p => {
                     const opt = document.createElement('option');
                     opt.value = p.code;
                     opt.textContent = p.name;
                     courseFilter.appendChild(opt);
-                });
-            } else if (!selectedDept || selectedDept === 'all') {
-                Object.keys(deptPrograms).forEach(deptKey => {
-                    const group = document.createElement('optgroup');
-                    const deptOption = deptFilter ? deptFilter.querySelector(`option[value="${deptKey}"]`) : null;
-                    group.label = deptOption ? deptOption.textContent : deptKey;
-                    deptPrograms[deptKey].forEach(p => {
-                        const opt = document.createElement('option');
-                        opt.value = p.code;
-                        opt.textContent = p.name;
-                        group.appendChild(opt);
-                    });
-                    courseFilter.appendChild(group);
                 });
             }
 
