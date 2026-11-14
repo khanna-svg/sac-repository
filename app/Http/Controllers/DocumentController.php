@@ -208,9 +208,95 @@ class DocumentController extends Controller
                 $q->whereIn(DB::raw('LOWER(department)'), ['nursing'])
                   ->orWhereIn(DB::raw('LOWER(course_code)'), ['bsn'])
                   ->orWhereRaw('LOWER(department) LIKE ?', ['%nursing%']);
+            } elseif (in_array($dept, ['high_school', 'hs', 'shs', 'senior_high', 'basic_ed', 'abm', 'humss', 'stem'])) {
+                $q->whereIn(DB::raw('LOWER(department)'), ['high_school', 'hs', 'shs', 'senior_high', 'basic_ed'])
+                  ->orWhereIn(DB::raw('LOWER(course_code)'), ['abm', 'humss', 'stem'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%high school%'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%senior high%'])
+                  ->orWhereRaw('LOWER(department) LIKE ?', ['%shs%']);
             } else {
                 $q->whereRaw('LOWER(department) = ?', [$dept])
                   ->orWhereRaw('LOWER(course_code) = ?', [$dept]);
+            }
+        });
+    }
+
+    protected function applyCourseFilter($query, string $course): void
+    {
+        $course = strtolower(trim($course));
+        if ($course === '' || $course === 'all') {
+            return;
+        }
+
+        $query->where(function ($q) use ($course) {
+            if ($course === 'bsa' || str_contains($course, 'accountan')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bsa', 'accountancy', 'business accountancy'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bsa%'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%accountan%']);
+            } elseif ($course === 'bsais' || str_contains($course, 'accounting information')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bsais', 'accounting information system'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bsais%'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%accounting info%']);
+            } elseif ($course === 'finance' || str_contains($course, 'finance')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['finance', 'bsba_fm', 'financial management'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%finance%'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%fm%']);
+            } elseif ($course === 'bshm' || str_contains($course, 'hospitality')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bshm', 'hospitality management', 'hospitality'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bshm%'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%hospitality%']);
+            } elseif ($course === 'marketing' || str_contains($course, 'marketing')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['marketing', 'bsba_mm', 'marketing management'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%marketing%'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%mm%']);
+            } elseif ($course === 'bsed_science' || str_contains($course, 'science')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bsed_science', 'science', 'major in science'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%science%']);
+            } elseif ($course === 'bsed_filipino' || str_contains($course, 'filipino')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bsed_filipino', 'filipino', 'major in filipino'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%filipino%']);
+            } elseif ($course === 'bsed_math' || str_contains($course, 'math')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bsed_math', 'math', 'mathematics', 'major in math', 'major in mathematics'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%math%']);
+            } elseif ($course === 'bsed_english' || str_contains($course, 'english')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bsed_english', 'english', 'major in english'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%english%']);
+            } elseif ($course === 'beed' || str_contains($course, 'elementary')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['beed', 'elementary', 'major in elementary'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%beed%'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%elementary%']);
+            } elseif ($course === 'bsce' || str_contains($course, 'civil')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bsce', 'civil engineering', 'civil'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bsce%'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%civil%']);
+            } elseif ($course === 'bscpe' || str_contains($course, 'computer engineer')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bscpe', 'cpe', 'computer engineering'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bscpe%'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%computer engineer%']);
+            } elseif ($course === 'abm') {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['abm', 'accountancy, business and management'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%abm%']);
+            } elseif ($course === 'humss') {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['humss', 'humanities and social sciences'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%humss%']);
+            } elseif ($course === 'stem') {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['stem', 'science, technology, engineering, and mathematics'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%stem%']);
+            } elseif ($course === 'bsit' || str_contains($course, 'it') || str_contains($course, 'information tech')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bsit', 'it', 'information technology'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bsit%']);
+            } elseif ($course === 'bscrim' || str_contains($course, 'criminology')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bscrim', 'bsc', 'criminology'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bscrim%']);
+            } elseif ($course === 'bsn' || str_contains($course, 'nursing')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['bsn', 'nursing'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bsn%']);
+            } elseif ($course === 'ab_philo' || str_contains($course, 'philosophy')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['ab_philo', 'ab_phil', 'philosophy'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%philo%']);
+            } else {
+                $q->whereRaw('LOWER(course_code) = ?', [$course])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%' . $course . '%']);
             }
         });
     }
@@ -220,6 +306,7 @@ class DocumentController extends Controller
         try {
             $search = trim((string) $request->input('search', ''));
             $department = trim((string) $request->input('department', ''));
+            $course = trim((string) $request->input('course', $request->input('course_code', '')));
             $sort = trim((string) $request->input('sort', 'latest'));
 
             $approvedScope = fn($q) => $q->where(fn($sub) => $sub->where('status', 'approved')->orWhere(fn($s2) => $s2->whereNull('status')->whereNull('submitted_by_email')));
@@ -229,6 +316,10 @@ class DocumentController extends Controller
 
                 if ($department !== '' && $department !== 'all') {
                     $this->applyDepartmentFilter($query, $department);
+                }
+
+                if ($course !== '' && $course !== 'all') {
+                    $this->applyCourseFilter($query, $course);
                 }
 
                 if ($sort === 'oldest') {
@@ -339,6 +430,9 @@ class DocumentController extends Controller
             if ($department !== '' && $department !== 'all') {
                 $this->applyDepartmentFilter($keywordQuery, $department);
             }
+            if ($course !== '' && $course !== 'all') {
+                $this->applyCourseFilter($keywordQuery, $course);
+            }
 
             $keywordDocs = $keywordQuery->get();
             $searchLower = strtolower($search);
@@ -436,6 +530,9 @@ class DocumentController extends Controller
                 $semanticQuery = Document::whereIn('id', $semanticDocIds)->where($approvedScope);
                 if ($department !== '' && $department !== 'all') {
                     $this->applyDepartmentFilter($semanticQuery, $department);
+                }
+                if ($course !== '' && $course !== 'all') {
+                    $this->applyCourseFilter($semanticQuery, $course);
                 }
                 $semanticDocs = $semanticQuery->get();
 
@@ -1354,6 +1451,7 @@ class DocumentController extends Controller
         try {
             $search = trim((string) $request->input('search', ''));
             $department = trim((string) $request->input('department', ''));
+            $course = trim((string) $request->input('course', $request->input('course_code', '')));
             $tab = trim((string) $request->input('tab', 'published'));
 
             if ($tab === 'archived') {
@@ -1377,6 +1475,9 @@ class DocumentController extends Controller
 
             if ($department !== '' && $department !== 'all') {
                 $this->applyDepartmentFilter($query, $department);
+            }
+            if ($course !== '' && $course !== 'all') {
+                $this->applyCourseFilter($query, $course);
             }
 
             $documents = $query->orderByRaw('COALESCE(publication_date, created_at::date) desc')->latest()->get();

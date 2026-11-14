@@ -78,19 +78,27 @@
                         class="w-full rounded-2xl border border-gray-300 bg-slate-50 pl-10 pr-4 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] transition">
                 </div>
 
-                <div class="flex items-center gap-3 w-full sm:w-auto shrink-0">
+                <div class="flex items-center gap-2.5 w-full sm:w-auto shrink-0 flex-wrap">
                     <select
                         id="adminDeptFilter"
-                        onchange="loadTheses()"
-                        class="w-full sm:w-56 rounded-2xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] transition font-medium shadow-2xs">
+                        onchange="onAdminDeptChange()"
+                        class="w-full sm:w-52 rounded-2xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] transition font-medium shadow-2xs">
                         <option value="all">All Academic Departments</option>
-                        <option value="bused">Business Education</option>
+                        <option value="bused">Business Education Department</option>
                         <option value="cjed">Criminal Justice Education</option>
-                        <option value="dte">Teacher Education</option>
+                        <option value="dte">Department of Teacher Education</option>
                         <option value="eng">Engineering Department</option>
+                        <option value="high_school">High School Department</option>
                         <option value="itd">Information Technology</option>
-                        <option value="lad">Liberal Arts</option>
+                        <option value="lad">Liberal Arts Department</option>
                         <option value="nursing">Nursing Department</option>
+                    </select>
+
+                    <select
+                        id="adminCourseFilter"
+                        onchange="loadTheses()"
+                        class="w-full sm:w-52 rounded-2xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] transition font-medium shadow-2xs">
+                        <option value="all">All Courses</option>
                     </select>
 
                     <span id="thesesCountBadge" class="text-xs font-bold text-gray-500 whitespace-nowrap px-1">
@@ -165,6 +173,7 @@
                             <option value="cjed">Criminal Justice Education Department</option>
                             <option value="dte">Department of Teacher Education</option>
                             <option value="eng">Engineering Department</option>
+                            <option value="high_school">High School Department</option>
                             <option value="itd">Information Technology Department</option>
                             <option value="lad">Liberal Arts Department</option>
                             <option value="nursing">Nursing Department</option>
@@ -350,55 +359,113 @@
             'marine': 'eng',
             'hospitality': 'bused',
             'education': 'dte',
-            'criminology': 'cjed'
+            'criminology': 'cjed',
+            'hs': 'high_school',
+            'shs': 'high_school'
         };
 
         const programMap = {
             bused: [
-                { code: 'bsa', name: 'BSA - Accountancy' },
-                { code: 'bsais', name: 'BSAIS - Accounting Information System' },
-                { code: 'ba', name: 'BA - Business Research' },
-                { code: 'bshm', name: 'BSHM - Hospitality Management' }
+                { code: 'bsa', name: 'Business Accountancy' },
+                { code: 'bsais', name: 'Accounting Information System' },
+                { code: 'finance', name: 'Finance' },
+                { code: 'bshm', name: 'Hospitality Management' },
+                { code: 'marketing', name: 'Marketing' }
             ],
             cjed: [
-                { code: 'bscrim', name: 'BSCRIM - Criminology' }
+                { code: 'bscrim', name: 'Criminology' }
             ],
             dte: [
-                { code: 'bsed_english', name: 'BSED - Major in English' },
-                { code: 'bsed_math', name: 'BSED - Major in Mathematics' },
-                { code: 'bsed_science', name: 'BSED - Major in Science' },
-                { code: 'beed', name: 'BEED - Elementary Education' }
+                { code: 'bsed_science', name: 'Major in Science' },
+                { code: 'bsed_filipino', name: 'Major in Filipino' },
+                { code: 'bsed_math', name: 'Major in Math' },
+                { code: 'bsed_english', name: 'Major in English' },
+                { code: 'beed', name: 'Major in Elementary' }
             ],
             eng: [
-                { code: 'bsce', name: 'BSCE - Civil Engineering' },
-                { code: 'bscpe', name: 'BSCpE - Computer Engineering' }
+                { code: 'bsce', name: 'Civil Engineering' },
+                { code: 'bscpe', name: 'Computer Engineering' }
+            ],
+            high_school: [
+                { code: 'abm', name: 'ABM' },
+                { code: 'humss', name: 'HUMSS' },
+                { code: 'stem', name: 'STEM' }
             ],
             itd: [
-                { code: 'bsit', name: 'BSIT - Information Technology' }
+                { code: 'bsit', name: 'Information Technology' }
             ],
             lad: [
-                { code: 'ab_philo', name: 'AB Philosophy - Philosophy' }
+                { code: 'ab_philo', name: 'Philosophy' }
             ],
             nursing: [
-                { code: 'bsn', name: 'BSN - Nursing' }
+                { code: 'bsn', name: 'Nursing' }
             ]
         };
 
         const deptNames = {
-            bused: { name: 'Business Education', cover: 'BUSINESS.webp' },
+            bused: { name: 'Business Education Department', cover: 'BUSINESS.webp' },
             cjed: { name: 'Criminal Justice Education', cover: 'CRIMINAL_JUSTICE.webp' },
-            dte: { name: 'Teacher Education', cover: 'TEACHER_EDUCATION.webp' },
+            dte: { name: 'Department of Teacher Education', cover: 'TEACHER_EDUCATION.webp' },
             eng: { name: 'Engineering Department', cover: 'ENGINEERING.webp' },
+            high_school: { name: 'High School Department', cover: 'IT.webp' },
             itd: { name: 'Information Technology', cover: 'IT.webp' },
             lad: { name: 'Liberal Arts Department', cover: 'LIBERAL_ARTS.webp' },
             nursing: { name: 'Nursing Department', cover: 'NURSING.webp' },
             // Legacy fallbacks
             it: { name: 'Information Technology', cover: 'IT.webp' },
-            hospitality: { name: 'Business Education', cover: 'BUSINESS.webp' },
-            education: { name: 'Teacher Education', cover: 'TEACHER_EDUCATION.webp' },
+            hospitality: { name: 'Business Education Department', cover: 'BUSINESS.webp' },
+            education: { name: 'Department of Teacher Education', cover: 'TEACHER_EDUCATION.webp' },
             criminology: { name: 'Criminal Justice Education', cover: 'CRIMINAL_JUSTICE.webp' },
-            marine: { name: 'Engineering Department', cover: 'ENGINEERING.webp' }
+            marine: { name: 'Engineering Department', cover: 'ENGINEERING.webp' },
+            hs: { name: 'High School Department', cover: 'IT.webp' },
+            shs: { name: 'High School Department', cover: 'IT.webp' }
         };
+
+        function updateAdminCourseOptions(selectedDept, selectedCourse = 'all') {
+            const courseSelect = document.getElementById('adminCourseFilter');
+            if (!courseSelect) return;
+            courseSelect.innerHTML = '';
+
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = 'all';
+            defaultOpt.textContent = selectedDept && selectedDept !== 'all' ? 'All Courses in Department' : 'All Courses';
+            courseSelect.appendChild(defaultOpt);
+
+            const cleanDept = deptAliases[selectedDept] || selectedDept;
+            if (cleanDept && programMap[cleanDept]) {
+                programMap[cleanDept].forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.code;
+                    opt.textContent = p.name;
+                    courseSelect.appendChild(opt);
+                });
+            } else if (!cleanDept || cleanDept === 'all') {
+                Object.keys(programMap).forEach(deptKey => {
+                    const group = document.createElement('optgroup');
+                    const deptObj = deptNames[deptKey];
+                    group.label = deptObj ? deptObj.name : deptKey;
+                    programMap[deptKey].forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.code;
+                        opt.textContent = p.name;
+                        group.appendChild(opt);
+                    });
+                    courseSelect.appendChild(group);
+                });
+            }
+
+            if (selectedCourse && selectedCourse !== 'all') {
+                courseSelect.value = selectedCourse;
+            } else {
+                courseSelect.value = 'all';
+            }
+        }
+
+        function onAdminDeptChange() {
+            const dept = document.getElementById('adminDeptFilter').value;
+            updateAdminCourseOptions(dept, 'all');
+            loadTheses();
+        }
 
         function showToast(message, isSuccess = true) {
             const toast = document.getElementById('adminToast');
@@ -443,7 +510,8 @@
 
         async function loadTheses() {
             const tbody = document.getElementById('thesesTableBody');
-            const deptFilter = document.getElementById('adminDeptFilter').value;
+            const deptFilter = document.getElementById('adminDeptFilter') ? document.getElementById('adminDeptFilter').value : 'all';
+            const courseFilter = document.getElementById('adminCourseFilter') ? document.getElementById('adminCourseFilter').value : 'all';
             const search = document.getElementById('adminSearchInput').value.trim();
 
             tbody.innerHTML = `
@@ -460,6 +528,7 @@
                 url.searchParams.set('tab', currentTab);
                 if (search) url.searchParams.set('search', search);
                 if (deptFilter && deptFilter !== 'all') url.searchParams.set('department', deptFilter);
+                if (courseFilter && courseFilter !== 'all') url.searchParams.set('course', courseFilter);
 
                 const res = await fetch(url.toString(), {
                     headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
@@ -974,6 +1043,7 @@
             }
         });
 
+        updateAdminCourseOptions('all');
         loadTheses();
     </script>
 </body>

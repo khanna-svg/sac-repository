@@ -131,6 +131,7 @@
                                 <option value="cjed">Criminal Justice Education Department (CJED)</option>
                                 <option value="dte">Department of Teacher Education (DTE)</option>
                                 <option value="eng">Engineering Department (ENG)</option>
+                                <option value="high_school">High School Department (SHS)</option>
                                 <option value="itd">Information Technology Department (ITD)</option>
                                 <option value="lad">Liberal Arts Department (LAD)</option>
                                 <option value="nursing">Nursing Department (NURSING)</option>
@@ -311,23 +312,30 @@
 
         const deptPrograms = {
             'bused': [
-                { code: 'bsa', name: 'Bachelor of Science in Accountancy (BSA)' },
-                { code: 'bsais', name: 'Bachelor of Science in Accounting Information System (BSAIS)' },
-                { code: 'ba', name: 'Business Research (BA)' },
-                { code: 'bshm', name: 'Bachelor of Science in Hospitality Management (BSHM)' }
+                { code: 'bsa', name: 'Business Accountancy' },
+                { code: 'bsais', name: 'Accounting Information System' },
+                { code: 'finance', name: 'Finance' },
+                { code: 'bshm', name: 'Hospitality Management' },
+                { code: 'marketing', name: 'Marketing' }
             ],
             'cjed': [
                 { code: 'bscrim', name: 'Bachelor of Science in Criminology (BSCrim)' }
             ],
             'dte': [
-                { code: 'bsed_english', name: 'Bachelor of Secondary Education Major in English' },
-                { code: 'bsed_math', name: 'Bachelor of Secondary Education Major in Mathematics' },
-                { code: 'bsed_science', name: 'Bachelor of Secondary Education Major in Science' },
-                { code: 'beed', name: 'Bachelor of Elementary Education (BEED)' }
+                { code: 'bsed_science', name: 'Major in Science' },
+                { code: 'bsed_filipino', name: 'Major in Filipino' },
+                { code: 'bsed_math', name: 'Major in Math' },
+                { code: 'bsed_english', name: 'Major in English' },
+                { code: 'beed', name: 'Major in Elementary' }
             ],
             'eng': [
-                { code: 'bsce', name: 'Bachelor of Science in Civil Engineering (BSCE)' },
-                { code: 'bscpe', name: 'Bachelor of Science in Computer Engineering (BSCpE)' }
+                { code: 'bsce', name: 'Civil Engineering' },
+                { code: 'bscpe', name: 'Computer Engineering' }
+            ],
+            'high_school': [
+                { code: 'abm', name: 'Accountancy, Business and Management (ABM)' },
+                { code: 'humss', name: 'Humanities and Social Sciences (HUMSS)' },
+                { code: 'stem', name: 'Science, Technology, Engineering, and Mathematics (STEM)' }
             ],
             'itd': [
                 { code: 'bsit', name: 'Bachelor of Science in Information Technology (BSIT)' }
@@ -346,7 +354,9 @@
             'marine': 'eng',
             'hospitality': 'bused',
             'education': 'dte',
-            'criminology': 'cjed'
+            'criminology': 'cjed',
+            'hs': 'high_school',
+            'shs': 'high_school'
         };
 
         let submissionId = null;

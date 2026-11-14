@@ -151,16 +151,28 @@
                                 <label for="deptFilter" class="text-xs font-bold text-gray-500">Department:</label>
                                 <select
                                     id="deptFilter"
-                                    onchange="onFilterChange()"
+                                    onchange="onDeptFilterChange()"
                                     class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs cursor-pointer">
                                     <option value="all">All Departments</option>
-                                    <option value="bused">Business Education</option>
+                                    <option value="bused">Business Education Department</option>
                                     <option value="cjed">Criminal Justice Education</option>
-                                    <option value="dte">Teacher Education</option>
+                                    <option value="dte">Department of Teacher Education</option>
                                     <option value="eng">Engineering Department</option>
+                                    <option value="high_school">High School Department</option>
                                     <option value="itd">Information Technology</option>
                                     <option value="lad">Liberal Arts</option>
                                     <option value="nursing">Nursing Department</option>
+                                </select>
+                            </div>
+
+                            {{-- Course Filter Dropdown (Cascades based on chosen Department) --}}
+                            <div class="flex items-center gap-1.5" id="courseFilterWrapper">
+                                <label for="courseFilter" class="text-xs font-bold text-gray-500">Course:</label>
+                                <select
+                                    id="courseFilter"
+                                    onchange="onFilterChange()"
+                                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] shadow-2xs cursor-pointer max-w-[210px] truncate">
+                                    <option value="all">All Courses</option>
                                 </select>
                             </div>
 
@@ -524,8 +536,92 @@
         const searchForm = document.getElementById('searchForm');
         const searchInput = document.getElementById('searchInput');
         const deptFilter = document.getElementById('deptFilter');
+        const courseFilter = document.getElementById('courseFilter');
         const sortFilter = document.getElementById('sortFilter');
         const docCountBadge = document.getElementById('docCountBadge');
+
+        // Department-to-Course mapping for cascading filter
+        const deptPrograms = {
+            'bused': [
+                { code: 'bsa', name: 'Business Accountancy' },
+                { code: 'bsais', name: 'Accounting Information System' },
+                { code: 'finance', name: 'Finance' },
+                { code: 'bshm', name: 'Hospitality Management' },
+                { code: 'marketing', name: 'Marketing' }
+            ],
+            'dte': [
+                { code: 'bsed_science', name: 'Major in Science' },
+                { code: 'bsed_filipino', name: 'Major in Filipino' },
+                { code: 'bsed_math', name: 'Major in Math' },
+                { code: 'bsed_english', name: 'Major in English' },
+                { code: 'beed', name: 'Major in Elementary' }
+            ],
+            'eng': [
+                { code: 'bsce', name: 'Civil Engineering' },
+                { code: 'bscpe', name: 'Computer Engineering' }
+            ],
+            'high_school': [
+                { code: 'abm', name: 'ABM' },
+                { code: 'humss', name: 'HUMSS' },
+                { code: 'stem', name: 'STEM' }
+            ],
+            'itd': [
+                { code: 'bsit', name: 'Information Technology' }
+            ],
+            'cjed': [
+                { code: 'bscrim', name: 'Criminology' }
+            ],
+            'lad': [
+                { code: 'ab_philo', name: 'Philosophy' }
+            ],
+            'nursing': [
+                { code: 'bsn', name: 'Nursing' }
+            ]
+        };
+
+        function updateCourseOptions(selectedDept, selectedCourse = 'all') {
+            if (!courseFilter) return;
+            courseFilter.innerHTML = '';
+
+            const defaultOpt = document.createElement('option');
+            defaultOpt.value = 'all';
+            defaultOpt.textContent = selectedDept && selectedDept !== 'all' ? 'All Courses in Dept' : 'All Courses';
+            courseFilter.appendChild(defaultOpt);
+
+            if (selectedDept && deptPrograms[selectedDept]) {
+                deptPrograms[selectedDept].forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.code;
+                    opt.textContent = p.name;
+                    courseFilter.appendChild(opt);
+                });
+            } else if (!selectedDept || selectedDept === 'all') {
+                Object.keys(deptPrograms).forEach(deptKey => {
+                    const group = document.createElement('optgroup');
+                    const deptOption = deptFilter ? deptFilter.querySelector(`option[value="${deptKey}"]`) : null;
+                    group.label = deptOption ? deptOption.textContent : deptKey;
+                    deptPrograms[deptKey].forEach(p => {
+                        const opt = document.createElement('option');
+                        opt.value = p.code;
+                        opt.textContent = p.name;
+                        group.appendChild(opt);
+                    });
+                    courseFilter.appendChild(group);
+                });
+            }
+
+            if (selectedCourse && selectedCourse !== 'all') {
+                courseFilter.value = selectedCourse;
+            } else {
+                courseFilter.value = 'all';
+            }
+        }
+
+        function onDeptFilterChange() {
+            const selectedDept = deptFilter ? deptFilter.value : 'all';
+            updateCourseOptions(selectedDept, 'all');
+            onFilterChange();
+        }
 
         // Trigger search by topic keyword pill click
         function filterByTopic(topic) {
@@ -663,23 +759,29 @@
         function getProgramDegreeName(courseVal, deptVal, titleVal) {
             const course = (courseVal || '').toLowerCase().trim();
             const courseNames = {
-                'bsa': 'Bachelor of Science in Accountancy (BSA)',
-                'bsais': 'Bachelor of Science in Accounting Information System (BSAIS)',
-                'ba': 'Business Administration (BSBA)',
-                'bshm': 'Bachelor of Science in Hospitality Management (BSHM)',
-                'bscrim': 'Bachelor of Science in Criminology (BSCrim)',
-                'bsc': 'Bachelor of Science in Criminology (BSCrim)',
-                'bsed_english': 'Bachelor of Secondary Education Major in English',
-                'bsed_math': 'Bachelor of Secondary Education Major in Mathematics',
-                'bsed_science': 'Bachelor of Secondary Education Major in Science',
-                'bsed': 'Bachelor of Secondary Education (BSEd)',
-                'beed': 'Bachelor of Elementary Education (BEEd)',
-                'bsce': 'Bachelor of Science in Civil Engineering (BSCE)',
-                'bscpe': 'Bachelor of Science in Computer Engineering (BSCpE)',
-                'bsit': 'Bachelor of Science in Information Technology (BSIT)',
-                'ab_philo': 'Bachelor of Arts in Philosophy (AB Philosophy)',
-                'bsn': 'Bachelor of Science in Nursing (BSN)',
-                'bsmare': 'BS in Marine Engineering (BSMarE)'
+                'bsa': 'Business Accountancy',
+                'bsais': 'Accounting Information System',
+                'finance': 'Finance',
+                'ba': 'Business Administration',
+                'bshm': 'Hospitality Management',
+                'marketing': 'Marketing',
+                'bscrim': 'Criminology',
+                'bsc': 'Criminology',
+                'bsed_english': 'Major in English',
+                'bsed_math': 'Major in Math',
+                'bsed_science': 'Major in Science',
+                'bsed_filipino': 'Major in Filipino',
+                'bsed': 'Teacher Education',
+                'beed': 'Major in Elementary',
+                'bsce': 'Civil Engineering',
+                'bscpe': 'Computer Engineering',
+                'abm': 'ABM',
+                'humss': 'HUMSS',
+                'stem': 'STEM',
+                'bsit': 'Information Technology',
+                'ab_philo': 'Philosophy',
+                'bsn': 'Nursing',
+                'bsmare': 'Marine Engineering'
             };
 
             if (courseNames[course]) {
@@ -760,6 +862,12 @@
                     cover: 'ENGINEERING.webp',
                     name: 'Engineering Department',
                     badgeBg: 'bg-cyan-50 text-cyan-800 border-cyan-200'
+                };
+            } else if (['high_school', 'hs', 'shs', 'senior_high', 'basic_ed'].includes(dept) || ['abm', 'humss', 'stem'].includes(course)) {
+                res = {
+                    cover: 'TEACHER_EDUCATION.webp',
+                    name: 'High School Department',
+                    badgeBg: 'bg-emerald-50 text-emerald-800 border-emerald-200'
                 };
             } else if (['itd', 'it', 'computer'].includes(dept) || course === 'bsit') {
                 res = {
@@ -1131,6 +1239,12 @@
                     url.searchParams.set('department', selectedDept);
                 }
 
+                // Add course filter
+                const selectedCourse = courseFilter ? courseFilter.value : 'all';
+                if (selectedCourse && selectedCourse !== 'all') {
+                    url.searchParams.set('course', selectedCourse);
+                }
+
                 // Add sort order
                 const selectedSort = sortFilter ? sortFilter.value : 'latest';
                 if (selectedSort) {
@@ -1285,6 +1399,9 @@
                 formData.append('proposal_file', selectedProposalFile);
                 if (deptFilter && deptFilter.value !== 'all') {
                     formData.append('department', deptFilter.value);
+                }
+                if (courseFilter && courseFilter.value !== 'all') {
+                    formData.append('course', courseFilter.value);
                 }
                 if (sortFilter && sortFilter.value) {
                     formData.append('sort', sortFilter.value);
@@ -1882,6 +1999,13 @@
         // Initial load on page ready
         async function init() {
             const urlParams = new URLSearchParams(window.location.search);
+            const deptParam = urlParams.get('department') || urlParams.get('dept');
+            const courseParam = urlParams.get('course') || urlParams.get('course_code');
+            if (deptParam && deptFilter) {
+                deptFilter.value = deptParam;
+            }
+            updateCourseOptions(deptFilter ? deptFilter.value : 'all', courseParam || 'all');
+
             const searchParam = urlParams.get('search') || urlParams.get('q');
             if (searchParam && searchInput) {
                 searchInput.value = searchParam;
