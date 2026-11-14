@@ -314,9 +314,9 @@
             'bused': [
                 { code: 'bsa', name: 'Business Accountancy' },
                 { code: 'bsais', name: 'Accounting Information System' },
-                { code: 'finance', name: 'Finance' },
+                { code: 'ba', name: 'Business Research (BA)' },
                 { code: 'bshm', name: 'Hospitality Management' },
-                { code: 'marketing', name: 'Marketing' }
+                { code: 'marketing', name: 'Business Administration Major in Marketing' }
             ],
             'cjed': [
                 { code: 'bscrim', name: 'Bachelor of Science in Criminology (BSCrim)' }

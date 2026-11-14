@@ -545,9 +545,9 @@
             'bused': [
                 { code: 'bsa', name: 'Business Accountancy' },
                 { code: 'bsais', name: 'Accounting Information System' },
-                { code: 'finance', name: 'Finance' },
+                { code: 'ba', name: 'Business Research (BA)' },
                 { code: 'bshm', name: 'Hospitality Management' },
-                { code: 'marketing', name: 'Marketing' }
+                { code: 'marketing', name: 'Business Administration Major in Marketing' }
             ],
             'dte': [
                 { code: 'bsed_science', name: 'Major in Science' },
@@ -759,10 +759,10 @@
             const courseNames = {
                 'bsa': 'Business Accountancy',
                 'bsais': 'Accounting Information System',
-                'finance': 'Finance',
-                'ba': 'Business Administration',
+                'finance': 'Business Research (BA)',
+                'ba': 'Business Research (BA)',
                 'bshm': 'Hospitality Management',
-                'marketing': 'Marketing',
+                'marketing': 'Business Administration Major in Marketing',
                 'bscrim': 'Criminology',
                 'bsc': 'Criminology',
                 'bsed_english': 'Major in English',

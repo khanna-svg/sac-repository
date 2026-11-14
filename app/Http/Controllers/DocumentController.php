@@ -237,16 +237,17 @@ class DocumentController extends Controller
                 $q->whereIn(DB::raw('LOWER(course_code)'), ['bsais', 'accounting information system'])
                   ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bsais%'])
                   ->orWhereRaw('LOWER(course_code) LIKE ?', ['%accounting info%']);
-            } elseif ($course === 'finance' || str_contains($course, 'finance')) {
-                $q->whereIn(DB::raw('LOWER(course_code)'), ['finance', 'bsba_fm', 'financial management'])
+            } elseif (in_array($course, ['ba', 'finance', 'business_research']) || str_contains($course, 'business research') || str_contains($course, 'finance')) {
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['ba', 'finance', 'bsba', 'business research', 'business administration', 'bsba_fm', 'financial management'])
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%business research%'])
                   ->orWhereRaw('LOWER(course_code) LIKE ?', ['%finance%'])
-                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%fm%']);
+                  ->orWhereRaw('LOWER(course_code) LIKE ?', ['%ba%']);
             } elseif ($course === 'bshm' || str_contains($course, 'hospitality')) {
                 $q->whereIn(DB::raw('LOWER(course_code)'), ['bshm', 'hospitality management', 'hospitality'])
                   ->orWhereRaw('LOWER(course_code) LIKE ?', ['%bshm%'])
                   ->orWhereRaw('LOWER(course_code) LIKE ?', ['%hospitality%']);
             } elseif ($course === 'marketing' || str_contains($course, 'marketing')) {
-                $q->whereIn(DB::raw('LOWER(course_code)'), ['marketing', 'bsba_mm', 'marketing management'])
+                $q->whereIn(DB::raw('LOWER(course_code)'), ['marketing', 'bsba_mm', 'marketing management', 'business administration major in marketing'])
                   ->orWhereRaw('LOWER(course_code) LIKE ?', ['%marketing%'])
                   ->orWhereRaw('LOWER(course_code) LIKE ?', ['%mm%']);
             } elseif ($course === 'bsed_science' || str_contains($course, 'science')) {

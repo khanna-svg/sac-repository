@@ -687,7 +687,9 @@
             const courseNames = {
                 'bsa': 'Bachelor of Science in Accountancy (BSA)',
                 'bsais': 'Bachelor of Science in Accounting Information System (BSAIS)',
-                'ba': 'Business Administration (BSBA)',
+                'ba': 'Business Research (BA)',
+                'finance': 'Business Research (BA)',
+                'marketing': 'Business Administration Major in Marketing',
                 'bshm': 'Bachelor of Science in Hospitality Management (BSHM)',
                 'bscrim': 'Bachelor of Science in Criminology (BSCrim)',
                 'bsc': 'Bachelor of Science in Criminology (BSCrim)',
