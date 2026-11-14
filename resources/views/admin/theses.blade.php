@@ -97,9 +97,8 @@
                     <select
                         id="adminCourseFilter"
                         onchange="loadTheses()"
-                        disabled
-                        class="w-full sm:w-52 rounded-2xl border border-gray-300 bg-slate-100 px-3.5 py-2.5 text-xs sm:text-sm text-gray-400 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] transition font-medium shadow-2xs cursor-not-allowed">
-                        <option value="all">Select Department First</option>
+                        class="w-full sm:w-56 rounded-2xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-700 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] transition font-medium shadow-2xs cursor-pointer">
+                        <option value="all">Select Program</option>
                     </select>
 
                     <span id="thesesCountBadge" class="text-xs font-bold text-gray-500 whitespace-nowrap px-1">
@@ -427,30 +426,14 @@
             if (!courseSelect) return;
             courseSelect.innerHTML = '';
 
-            const cleanDept = deptAliases[selectedDept] || selectedDept;
-
-            if (!cleanDept || cleanDept === 'all') {
-                const defaultOpt = document.createElement('option');
-                defaultOpt.value = 'all';
-                defaultOpt.textContent = 'Select Department First';
-                courseSelect.appendChild(defaultOpt);
-                courseSelect.value = 'all';
-                courseSelect.disabled = true;
-                courseSelect.classList.add('bg-slate-100', 'text-gray-400', 'cursor-not-allowed');
-                courseSelect.classList.remove('bg-white', 'text-gray-700');
-                return;
-            }
-
-            courseSelect.disabled = false;
-            courseSelect.classList.remove('bg-slate-100', 'text-gray-400', 'cursor-not-allowed');
-            courseSelect.classList.add('bg-white', 'text-gray-700');
-
             const defaultOpt = document.createElement('option');
             defaultOpt.value = 'all';
-            defaultOpt.textContent = 'All Courses';
+            defaultOpt.textContent = 'Select Program';
             courseSelect.appendChild(defaultOpt);
 
-            if (programMap[cleanDept]) {
+            const cleanDept = deptAliases[selectedDept] || selectedDept;
+
+            if (cleanDept && cleanDept !== 'all' && programMap[cleanDept]) {
                 programMap[cleanDept].forEach(p => {
                     const opt = document.createElement('option');
                     opt.value = p.code;
