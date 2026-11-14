@@ -208,71 +208,16 @@
                             {{ $document->title }}
                         </h1>
 
-                        {{-- Dublin Core Academic Metadata Block --}}
-                        <div class="mt-4 p-4 rounded-2xl bg-stone-50/80 border border-stone-200 space-y-3.5">
-                            {{-- Authors row --}}
-                            <div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1.5">Author(s)</span>
-                                <div class="flex flex-wrap gap-1.5">
-                                    @php
-                                        $authorsList = preg_split('/[,;]\s*|\s+and\s+/i', (string) $document->author);
-                                    @endphp
-                                    @foreach($authorsList as $auth)
-                                        @if(trim($auth))
-                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-white border border-stone-200 text-xs font-semibold text-stone-800 shadow-2xs">
-                                                <svg class="w-3.5 h-3.5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-                                                </svg>
-                                                <span>{{ trim($auth) }}</span>
-                                            </span>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            {{-- Category and Academic Level --}}
-                            <div class="pt-2 border-t border-stone-200/60 flex flex-wrap items-center justify-between gap-2">
-                                <div>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1">Research Category</span>
-                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-50 border border-amber-200 text-xs font-bold text-amber-900 shadow-2xs">
-                                        <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-                                        </svg>
-                                        <span>{{ $document->research_category ?: 'Capstone Project' }}</span>
-                                    </span>
-                                </div>
-
-                                @if(!empty($document->academic_level))
-                                <div>
-                                    <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1 text-right">Academic Level</span>
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-stone-100 text-stone-700 text-xs font-medium">
-                                        {{ $document->academic_level }}
-                                    </span>
-                                </div>
-                                @endif
-                            </div>
-
-                            {{-- Topics & Keywords --}}
-                            @php
-                                $topicsList = [];
-                                if (!empty($document->keywords)) {
-                                    $topicsList = array_map('trim', explode(',', $document->keywords));
-                                }
-                            @endphp
-                            @if(!empty($topicsList))
-                            <div class="pt-2 border-t border-stone-200/60">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-stone-500 block mb-1.5">Topics &amp; Subject Descriptors</span>
-                                <div class="flex flex-wrap gap-1.5">
-                                    @foreach($topicsList as $topic)
-                                        @if(!empty($topic))
-                                        <a href="{{ route('documents', ['search' => $topic]) }}" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#700000]/5 hover:bg-[#700000]/10 border border-[#700000]/20 text-[#700000] text-xs font-semibold transition cursor-pointer" title="Find manuscripts matching {{ $topic }}">
-                                            <span class="text-[11px] text-stone-400 font-mono">#</span>
-                                            <span>{{ $topic }}</span>
-                                        </a>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
+                        <div class="mt-3 space-y-1.5 text-xs md:text-sm text-gray-600">
+                            <p>
+                                <span class="font-bold text-[#700000]">Author(s):</span>
+                                <span class="font-semibold text-gray-800">{{ $document->author }}</span>
+                            </p>
+                            @if(!empty($document->keywords))
+                            <p>
+                                <span class="font-bold text-[#700000]">Topics:</span>
+                                <span class="font-semibold text-gray-800">{{ $document->keywords }}</span>
+                            </p>
                             @endif
                         </div>
                     </div>
