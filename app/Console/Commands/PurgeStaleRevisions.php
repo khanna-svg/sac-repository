@@ -19,21 +19,21 @@ class PurgeStaleRevisions extends Command
      *
      * @var string
      */
-    protected $description = 'Purge unrevised thesis manuscripts older than 30 days (1 month)';
+    protected $description = 'Purge unrevised thesis manuscripts older than 3 months (90 days)';
 
     /**
      * Execute the console command.
      */
     public function handle(AdminSubmissionController $controller): int
     {
-        $this->info('Scanning for stale unrevised submissions (>30 days)...');
+        $this->info('Scanning for stale unrevised submissions (>3 months)...');
 
         $purgedCount = $controller->purgeStaleRevisions();
 
         if ($purgedCount > 0) {
             $this->info("Successfully purged {$purgedCount} expired revision manuscript(s) from Supabase and database.");
         } else {
-            $this->info('No stale submissions found. All revisions are within the 30-day grace period.');
+            $this->info('No stale submissions found. All revisions are within the 3-month grace period.');
         }
 
         return Command::SUCCESS;

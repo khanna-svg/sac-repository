@@ -175,7 +175,7 @@
                                     </p>
                                 @elseif($type === 'resubmit')
                                     <p style="margin: 0;">
-                                        <strong>Next Step:</strong> Please address the reviewer's feedback, paraphrase all flagged text, verify in-text citations, and re-upload your updated PDF manuscript via the link below.
+                                        <strong>Next Step:</strong> Please address the reviewer's feedback, paraphrase all flagged text, verify in-text citations, and re-upload your updated PDF manuscript via the link below. Under institutional policy, unrevised manuscripts must be resubmitted within 3 months (90 days).
                                     </p>
                                 @else
                                     <p style="margin: 0;">

@@ -98,13 +98,17 @@
                 </div>
             </div>
 
-            <!-- Stale Revision 30-Day Policy Alert -->
+            <!-- Stale Revision 3-Month Policy Alert -->
             <div id="resubmitPolicyNotice" class="hidden mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 text-xs text-amber-900 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-2.5">
-                    <span class="p-1.5 rounded-xl bg-amber-100 text-amber-800 text-sm">⏳</span>
+                    <span class="p-1.5 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </span>
                     <div>
-                        <span class="font-bold text-amber-950">Institutional 30-Day Revision Policy:</span>
-                        <span class="text-amber-800">Manuscripts marked for revisions must be re-uploaded within 30 days. Submissions without re-uploads after 1 month are automatically deleted from storage and database.</span>
+                        <span class="font-bold text-amber-950">Institutional 3-Month Revision Policy:</span>
+                        <span class="text-amber-800">Manuscripts marked for revisions must be re-uploaded within 3 months. Submissions without re-uploads after 3 months (90 days) are automatically deleted from storage and database.</span>
                     </div>
                 </div>
             </div>
@@ -494,8 +498,8 @@
                         const updatedTime = new Date(sub.updated_at).getTime();
                         const nowTime = new Date().getTime();
                         const daysPassed = Math.floor((nowTime - updatedTime) / (1000 * 60 * 60 * 24));
-                        const daysLeft = Math.max(0, 30 - daysPassed);
-                        expiryBadge = `<span class="ml-1 text-[10px] font-mono bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded-md font-semibold" title="Manuscript will auto-delete if not revised within 30 days">⏳ ${daysLeft}d left</span>`;
+                        const daysLeft = Math.max(0, 90 - daysPassed);
+                        expiryBadge = `<span class="ml-1 text-[10px] font-mono bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded-md font-semibold" title="Manuscript will auto-delete if not revised within 3 months">${daysLeft}d left</span>`;
                     }
                     statusBadgeHtml = `
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">

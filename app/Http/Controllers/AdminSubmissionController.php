@@ -33,7 +33,7 @@ class AdminSubmissionController extends Controller
      */
     public function list(Request $request)
     {
-        // Auto-purge stale revisions (unrevised after 30 days / 1 month)
+        // Auto-purge stale revisions (unrevised after 3 months / 90 days)
         $this->purgeStaleRevisions();
 
         $tab = $request->input('tab', 'pending');
@@ -216,11 +216,12 @@ class AdminSubmissionController extends Controller
         if ($document->submitted_by_email) {
             $msg = "Your thesis \"{$document->title}\" requires revisions before clearance can be granted."
                 . ($similarity ? "\nTurnitin Similarity: {$similarity} (exceeds threshold)." : "")
-                . "\n\nReviewer Feedback:\n{$notes}";
+                . "\n\nReviewer Feedback:\n{$notes}"
+                . "\n\nInstitutional Policy: Please submit your revisions within 3 months. Unrevised submissions are automatically removed after 90 days.";
 
             ThesisNotification::create([
                 'user_email' => $document->submitted_by_email,
-                'title' => '⚠️ Turnitin / Grammarly Revisions Required',
+                'title' => 'Turnitin / Grammarly Revisions Required',
                 'message' => $msg,
                 'type' => 'resubmit',
                 'document_id' => $document->id,
@@ -310,11 +311,11 @@ class AdminSubmissionController extends Controller
 
     /**
      * Automatically purge manuscripts that were marked as 'resubmit' (needs revision)
-     * over 30 days ago (1 month) and have not been re-uploaded by the student.
+     * over 3 months ago (90 days) and have not been re-uploaded by the student.
      */
     public function purgeStaleRevisions(): int
     {
-        $cutoff = Carbon::now()->subDays(30);
+        $cutoff = Carbon::now()->subMonths(3);
 
         $staleDocuments = Document::whereNotNull('submitted_by_email')
             ->where('status', 'resubmit')
@@ -326,7 +327,7 @@ class AdminSubmissionController extends Controller
             try {
                 $this->deleteManuscriptFileAndRecord($doc);
                 $purgedCount++;
-                Log::info("Auto-purged stale unrevised manuscript [ID: {$doc->id}, Title: '{$doc->title}', Student: {$doc->submitted_by_email}] (expired 30-day revision window).");
+                Log::info("Auto-purged stale unrevised manuscript [ID: {$doc->id}, Title: '{$doc->title}', Student: {$doc->submitted_by_email}] (expired 3-month revision window).");
             } catch (\Throwable $e) {
                 Log::warning("Failed to auto-purge stale manuscript #{$doc->id}: " . $e->getMessage());
             }

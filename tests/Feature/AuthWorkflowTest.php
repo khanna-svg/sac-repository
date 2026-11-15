@@ -288,11 +288,11 @@ class AuthWorkflowTest extends TestCase
     }
 
     /**
-     * Test stale unrevised submissions (>30 days) are purged while active revisions are kept.
+     * Test stale unrevised submissions (>3 months / 90 days) are purged while active revisions and pending are kept.
      */
     public function test_purge_stale_revisions_command(): void
     {
-        // 1. Create a 35-day-old unrevised document
+        // 1. Create a 95-day-old unrevised document (>3 months)
         $staleDoc = \App\Models\Document::create([
             'title' => 'Stale Unrevised Manuscript Test',
             'author' => 'Test Author',
@@ -303,10 +303,10 @@ class AuthWorkflowTest extends TestCase
             'submitted_by_email' => 'student.test@sac.edu.ph',
             'submitted_by_name' => 'Test Student',
         ]);
-        $staleDoc->updated_at = \Illuminate\Support\Carbon::now()->subDays(35);
+        $staleDoc->updated_at = \Illuminate\Support\Carbon::now()->subDays(95);
         $staleDoc->saveQuietly();
 
-        // 2. Create a recent 10-day-old document requiring revision
+        // 2. Create a 30-day-old document requiring revision (within 3-month window)
         $activeDoc = \App\Models\Document::create([
             'title' => 'Active Revision Manuscript Test',
             'author' => 'Active Author',
@@ -317,19 +317,35 @@ class AuthWorkflowTest extends TestCase
             'submitted_by_email' => 'active.student@sac.edu.ph',
             'submitted_by_name' => 'Active Student',
         ]);
-        $activeDoc->updated_at = \Illuminate\Support\Carbon::now()->subDays(10);
+        $activeDoc->updated_at = \Illuminate\Support\Carbon::now()->subDays(30);
         $activeDoc->saveQuietly();
 
-        // 3. Run the purge command
+        // 3. Create a 100-day-old pending document (should NOT be purged; only resubmit is purged)
+        $pendingDoc = \App\Models\Document::create([
+            'title' => 'Old Pending Manuscript Test',
+            'author' => 'Pending Author',
+            'department' => 'itd',
+            'course_code' => 'bsit',
+            'abstract' => 'Sample abstract for old pending manuscript',
+            'status' => 'pending',
+            'submitted_by_email' => 'pending.student@sac.edu.ph',
+            'submitted_by_name' => 'Pending Student',
+        ]);
+        $pendingDoc->updated_at = \Illuminate\Support\Carbon::now()->subDays(100);
+        $pendingDoc->saveQuietly();
+
+        // 4. Run the purge command
         $this->artisan('submissions:purge-stale-revisions')
             ->assertExitCode(0);
 
-        // 4. Assert stale document was purged, active document preserved
+        // 5. Assert stale document was purged, active revision and pending documents preserved
         $this->assertDatabaseMissing('documents', ['id' => $staleDoc->id]);
         $this->assertDatabaseHas('documents', ['id' => $activeDoc->id]);
+        $this->assertDatabaseHas('documents', ['id' => $pendingDoc->id]);
 
-        // Cleanup active test doc
+        // Cleanup test docs
         $activeDoc->delete();
+        $pendingDoc->delete();
     }
 }
 
