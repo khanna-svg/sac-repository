@@ -121,20 +121,32 @@
             <div class="w-6 sm:w-8 shrink-0" aria-hidden="true"></div>
         @endif
     </div>
-
-    <!-- Live Toast Notification Container -->
-    <div id="sacLiveToastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-3 pointer-events-none max-w-sm sm:max-w-md w-full px-4 sm:px-0"></div>
 </header>
+
+<!-- Live Toast Notification Container (Fixed to Viewport, Top Right below Header) -->
+<div id="sacLiveToastContainer" class="fixed top-20 right-4 sm:right-6 z-[9999] flex flex-col gap-3 pointer-events-none max-w-sm sm:max-w-md w-full px-4 sm:px-0"></div>
 
 <script>
     // Header Notifications Logic
+    function dismissLiveToast(toastId) {
+        const toast = document.getElementById(toastId);
+        if (!toast) return;
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('-translate-y-2', 'opacity-0');
+        setTimeout(() => {
+            if (toast && toast.parentNode) {
+                toast.remove();
+            }
+        }, 350);
+    }
+
     function showLiveToast(n) {
         const container = document.getElementById('sacLiveToastContainer');
         if (!container) return;
 
         const isCleared = (n.type === 'cleared' || n.type === 'approved');
         const isResubmit = (n.type === 'resubmit');
-        const borderCol = isCleared ? 'border-emerald-300 bg-white/95' : (isResubmit ? 'border-rose-300 bg-white/95' : 'border-amber-300 bg-white/95');
+        const borderCol = isCleared ? 'border-emerald-300' : (isResubmit ? 'border-rose-300' : 'border-amber-300');
         const titleCol = isCleared ? 'text-emerald-900' : (isResubmit ? 'text-rose-900' : 'text-blue-900');
         const badgeCol = isCleared ? 'bg-emerald-600 text-white' : (isResubmit ? 'bg-rose-600 text-white' : 'bg-blue-600 text-white');
         const linkUrl = n.link || '/student/submit';
@@ -142,7 +154,7 @@
         const toastId = 'toast_' + Math.random().toString(36).substring(2, 9);
         const toast = document.createElement('div');
         toast.id = toastId;
-        toast.className = `pointer-events-auto rounded-3xl border ${borderCol} p-4 shadow-2xl backdrop-blur-md transition-all duration-500 transform translate-y-4 opacity-0 flex items-start gap-3.5`;
+        toast.className = `pointer-events-auto rounded-2xl border ${borderCol} p-4 shadow-2xl bg-white/95 backdrop-blur-md transition-all duration-300 transform -translate-y-4 opacity-0 flex items-start gap-3.5`;
         toast.innerHTML = `
             <div class="w-10 h-10 rounded-2xl ${badgeCol} flex items-center justify-center shrink-0 shadow-md">
                 ${isCleared ? `
@@ -162,7 +174,7 @@
             <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between gap-2">
                     <h4 class="font-bold text-xs ${titleCol} truncate">${n.title}</h4>
-                    <button type="button" onclick="document.getElementById('${toastId}')?.remove()" class="text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer">
+                    <button type="button" onclick="dismissLiveToast('${toastId}')" class="text-gray-400 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100 transition cursor-pointer" title="Dismiss notification">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -170,9 +182,9 @@
                 </div>
                 <p class="text-[11px] text-gray-700 mt-1 leading-snug line-clamp-2">${n.message}</p>
                 <div class="mt-2.5 flex items-center gap-2">
-                    <a href="${linkUrl}" onclick="handleHeaderNotifClick('${n.id}', '${linkUrl}', event)" class="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#8d0000] text-[11px] font-bold shadow-xs transition">
+                    <a href="${linkUrl}" onclick="handleHeaderNotifClick('${n.id}', '${linkUrl}', event)" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] text-[11px] font-bold shadow-xs transition cursor-pointer">
                         <span>View Details</span>
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                         </svg>
                     </a>
@@ -182,16 +194,13 @@
 
         container.appendChild(toast);
         requestAnimationFrame(() => {
-            toast.classList.remove('translate-y-4', 'opacity-0');
+            toast.classList.remove('-translate-y-4', 'opacity-0');
             toast.classList.add('translate-y-0', 'opacity-100');
         });
 
         setTimeout(() => {
-            if (toast.parentNode) {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 500);
-            }
-        }, 10000);
+            dismissLiveToast(toastId);
+        }, 8000);
 
         if ('Notification' in window && Notification.permission === 'granted') {
             try {
@@ -259,17 +268,17 @@
                 }).join('');
             }
 
-            // Check for new unread notifications and pop up live toast
+            // Check for new unread notifications and pop up live toast (limit to newest unread only)
             if (data.notifications && data.notifications.length > 0) {
-                data.notifications.forEach(n => {
-                    if (!n.is_read) {
-                        const storageKey = 'sac_toast_shown_' + n.id;
-                        if (!sessionStorage.getItem(storageKey)) {
-                            sessionStorage.setItem(storageKey, '1');
-                            showLiveToast(n);
-                        }
+                const unreadNotifs = data.notifications.filter(n => !n.is_read);
+                if (unreadNotifs.length > 0) {
+                    const newest = unreadNotifs[0];
+                    const storageKey = 'sac_toast_shown_' + newest.id;
+                    if (!sessionStorage.getItem(storageKey)) {
+                        sessionStorage.setItem(storageKey, '1');
+                        showLiveToast(newest);
                     }
-                });
+                }
             }
         } catch (e) {
             console.error('Failed to fetch header notifications:', e);
