@@ -124,12 +124,12 @@ class AdminSubmissionController extends Controller
                 . ($similarity ? " (Similarity: {$similarity})" : "")
                 . " and Grammarly review. It has been officially approved and published to the SAC Research Repository.";
             if ($notes !== '') {
-                $msg .= "\n\nReviewer Remarks:\n{$notes}";
+                $msg .= "\n\nAdmin Feedback:\n{$notes}";
             }
 
             ThesisNotification::create([
                 'user_email' => $document->submitted_by_email,
-                'title' => 'Manuscript Approved & Published',
+                'title' => 'Manuscript Approved',
                 'message' => $msg,
                 'type' => 'approved',
                 'document_id' => $document->id,
@@ -216,12 +216,12 @@ class AdminSubmissionController extends Controller
         if ($document->submitted_by_email) {
             $msg = "Your thesis \"{$document->title}\" requires revisions before clearance can be granted."
                 . ($similarity ? "\nTurnitin Similarity: {$similarity} (exceeds threshold)." : "")
-                . "\n\nReviewer Feedback:\n{$notes}"
+                . "\n\nAdmin Feedback:\n{$notes}"
                 . "\n\nInstitutional Policy: Please submit your revisions within 3 months. Unrevised submissions are automatically removed after 90 days.";
 
             ThesisNotification::create([
                 'user_email' => $document->submitted_by_email,
-                'title' => 'Turnitin / Grammarly Revisions Required',
+                'title' => 'Needs Revision',
                 'message' => $msg,
                 'type' => 'resubmit',
                 'document_id' => $document->id,

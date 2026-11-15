@@ -62,7 +62,7 @@ class NotificationController extends Controller
             }
 
             foreach ($recentReviewed as $doc) {
-                $statusText = in_array($doc->status, ['cleared', 'approved'], true) ? 'Cleared' : 'Needs Revisions';
+                $statusText = in_array($doc->status, ['cleared', 'approved'], true) ? 'Approved' : 'Needs Revision';
                 $notifications[] = [
                     'id' => 'doc_reviewed_' . $doc->id,
                     'title' => "Submission {$statusText}",

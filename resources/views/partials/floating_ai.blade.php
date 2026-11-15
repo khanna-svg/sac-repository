@@ -365,7 +365,7 @@
         errBubble.className = 'flex justify-center';
         errBubble.innerHTML = `
             <div class="rounded-xl bg-red-50 border border-red-200 px-3 py-1.5 text-[11px] text-red-700 font-medium text-center">
-                ⚠️ ${escapeHtml(msg)}
+                ${escapeHtml(msg)}
             </div>
         `;
         thread.appendChild(errBubble);

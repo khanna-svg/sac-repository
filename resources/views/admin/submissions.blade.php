@@ -69,7 +69,7 @@
                         onclick="switchTab('resubmit')"
                         id="tab-resubmit"
                         class="tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 text-gray-600 hover:text-gray-900">
-                        <span>Needs Revisions</span>
+                        <span>Needs Revision</span>
                         <span class="font-normal opacity-80">(<span id="badge-resubmit">0</span>)</span>
                     </button>
                     <button
@@ -488,7 +488,7 @@
                     statusBadgeHtml = `
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            Approved &amp; Published
+                            Approved
                             ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
                         </span>
                     `;
@@ -504,7 +504,7 @@
                     statusBadgeHtml = `
                         <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
                             <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                            Needs Revisions
+                            Needs Revision
                             ${expiryBadge}
                             ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
                         </span>
@@ -534,7 +534,7 @@
                                 <p class="text-[11px] text-gray-400 mt-0.5">Submitted on ${formattedDate}</p>
                                 ${sub.admin_notes ? `
                                     <div class="mt-1.5 rounded-lg bg-slate-50 border border-gray-200 p-2 text-[11px] text-gray-700">
-                                        <span class="font-bold text-[#700000]">Feedback:</span> ${escapeHtml(sub.admin_notes)}
+                                        <span class="font-bold text-[#700000]">Admin Feedback:</span> ${escapeHtml(sub.admin_notes)}
                                      </div>
                                  ` : ''}
                             </div>
@@ -680,7 +680,7 @@
                 if (data.unembedded_chunks && data.unembedded_chunks > 0) {
                     btn.innerHTML = `
                         <svg class="w-4 h-4 animate-spin shrink-0" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
-                        <span>Indexing for AI Search...</span>
+                        <span>Uploading...</span>
                     `;
                     try {
                         let remaining = data.unembedded_chunks;
@@ -744,7 +744,7 @@
             const similarity = document.getElementById('resubmitSimilarityInput').value.trim();
 
             if (!notes) {
-                alert('Please enter reviewer feedback notes for the student.');
+                alert('Please enter admin feedback notes for the student.');
                 return;
             }
 
@@ -769,7 +769,7 @@
                 const data = await res.json();
                 if (!res.ok || data.error) throw new Error(data.message || 'Failed to send revision request');
 
-                showToast('⚠️ Revisions requested. Student notified via in-app alert and @sac.edu.ph email.', true);
+                showToast('Revisions requested. Student notified via in-app alert and @sac.edu.ph email.', true);
                 closeResubmitModal();
                 fetchSubmissions();
             } catch (err) {

@@ -281,7 +281,7 @@
             
             <h3 class="text-xl font-bold text-gray-900">Manuscript Published!</h3>
             <p id="successModalMessage" class="mt-2 text-xs md:text-sm text-gray-600 leading-relaxed">
-                Manuscript uploaded, text extracted, and vectorized successfully.
+                Manuscript uploaded and saved successfully.
             </p>
             
             <div class="mt-6 flex flex-col gap-2">
@@ -433,7 +433,7 @@
             return div.innerHTML;
         }
 
-        function openSuccessModal(message = 'Manuscript uploaded and indexed successfully.') {
+        function openSuccessModal(message = 'Manuscript uploaded and saved successfully.') {
             successModalMessage.textContent = message;
             successModal.classList.remove('hidden');
             successModal.classList.add('flex');
@@ -691,12 +691,12 @@
                     if (embData.processed === 0 || remaining === 0) break;
                 }
 
-                updateProgress(100, 'Upload and indexing complete!');
+                updateProgress(100, 'Upload complete!');
                 uploadForm.reset();
                 filePreviewCard.classList.add('hidden');
                 filePreviewCard.classList.remove('flex');
 
-                openSuccessModal(`"${thesisTitle}" has been officially published and indexed in the repository.`);
+                openSuccessModal(`"${thesisTitle}" has been officially published in the repository.`);
 
             } catch (err) {
                 showErrorAlert('Upload Failed', err.message || 'There was a problem uploading the manuscript.');

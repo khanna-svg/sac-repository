@@ -96,7 +96,7 @@
                                     {{ $latestSub->title }}
                                 </h4>
                                 <p class="text-xs text-gray-500 mt-0.5">
-                                    Cleared for defense. Plagiarism and formatting screening passed.
+                                    Approved and published to repository.
                                 </p>
                             </div>
                         </div>
@@ -104,7 +104,7 @@
                             <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                             </svg>
-                            Cleared
+                            Approved
                         </span>
                     </div>
                 @elseif($latestSub->status === 'pending')
@@ -392,7 +392,7 @@
                                                         <svg class="w-3.5 h-3.5 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                                         </svg>
-                                                        <span>Cleared for Oral Defense &bull; Published</span>
+                                                        <span>Approved</span>
                                                     </p>
                                                     @if($sub->turnitin_similarity)
                                                         <span class="font-mono text-[10px] bg-emerald-100 text-emerald-900 px-1.5 py-0.5 rounded font-semibold border border-emerald-200">
@@ -402,7 +402,7 @@
                                                 </div>
                                                 @if(!empty($sub->admin_notes))
                                                     <div class="bg-white rounded p-2 border border-emerald-100 text-[11px] text-gray-700">
-                                                        <span class="font-semibold text-emerald-800 block text-[10px] uppercase tracking-wider mb-0.5">Feedback:</span>
+                                                        <span class="font-semibold text-emerald-800 block text-[10px] uppercase tracking-wider mb-0.5">Admin Feedback:</span>
                                                         <span class="whitespace-pre-line">{{ $sub->admin_notes }}</span>
                                                     </div>
                                                 @endif
@@ -411,7 +411,7 @@
                                                         <span>View Published in Repository</span>
                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
                                                     </a>
-                                                    <span class="text-[10px] text-emerald-700 font-medium">Publicly Live</span>
+                                                    <span class="text-[10px] text-emerald-700 font-medium">Approved</span>
                                                 </div>
                                             </div>
                                         @elseif($isResubmit)
@@ -425,7 +425,7 @@
                                                         <svg class="w-3.5 h-3.5 shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                                                         </svg>
-                                                        <span>Revisions Required</span>
+                                                        <span>Needs Revision</span>
                                                     </p>
                                                     @if($sub->turnitin_similarity)
                                                         <span class="font-mono text-[10px] bg-rose-100 text-rose-900 px-1.5 py-0.5 rounded font-semibold border border-rose-200">
@@ -451,7 +451,7 @@
 
                                                 @if(!empty($sub->admin_notes))
                                                     <div class="bg-white rounded p-2 border border-rose-100 text-[11px] text-gray-700">
-                                                        <span class="font-semibold text-rose-800 block text-[10px] uppercase tracking-wider mb-0.5">Reviewer Feedback:</span>
+                                                        <span class="font-semibold text-rose-800 block text-[10px] uppercase tracking-wider mb-0.5">Admin Feedback:</span>
                                                         <span class="whitespace-pre-line select-all font-medium text-rose-950">{{ $sub->admin_notes }}</span>
                                                     </div>
                                                 @endif

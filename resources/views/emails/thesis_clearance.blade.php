@@ -88,7 +88,7 @@
                                                     Turnitin / Grammarly Revisions Needed
                                                 </h2>
                                                 <p style="margin: 6px 0 0 0; color: #be123c; font-size: 13px; line-height: 1.5;">
-                                                    Your manuscript requires revisions before official clearance can be granted. Please see reviewer feedback below.
+                                                    Your manuscript requires revisions before official clearance can be granted. Please see admin feedback below.
                                                 </p>
                                             </td>
                                         </tr>
@@ -156,7 +156,7 @@
 
                                     @if(!empty($notes) || !empty($document->admin_notes))
                                     <tr>
-                                        <td style="padding: 8px 0 4px 0; color: #64748b; font-weight: 600; vertical-align: top;">Reviewer Notes:</td>
+                                        <td style="padding: 8px 0 4px 0; color: #64748b; font-weight: 600; vertical-align: top;">Admin Feedback:</td>
                                         <td style="padding: 8px 0 4px 0; color: #0f172a;">
                                             <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #334155; line-height: 1.5; white-space: pre-line;">
                                                 {{ $notes ?? $document->admin_notes }}
@@ -175,7 +175,7 @@
                                     </p>
                                 @elseif($type === 'resubmit')
                                     <p style="margin: 0;">
-                                        <strong>Next Step:</strong> Please address the reviewer's feedback, paraphrase all flagged text, verify in-text citations, and re-upload your updated PDF manuscript via the link below. Under institutional policy, unrevised manuscripts must be resubmitted within 3 months (90 days).
+                                        <strong>Next Step:</strong> Please address the admin feedback, paraphrase all flagged text, verify in-text citations, and re-upload your updated PDF manuscript via the link below. Under institutional policy, unrevised manuscripts must be resubmitted within 3 months (90 days).
                                     </p>
                                 @else
                                     <p style="margin: 0;">

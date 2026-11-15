@@ -43,7 +43,7 @@ class TestMailDelivery extends Command
         }
 
         if ($mailer === 'log') {
-            $this->warn("⚠️ NOTICE: MAIL_MAILER is currently set to 'log' in .env!");
+            $this->warn("NOTICE: MAIL_MAILER is currently set to 'log' in .env!");
             $this->warn("Emails are written to storage/logs/laravel.log and NOT delivered to real Gmail inboxes.");
             $this->warn("To send real emails to your Gmail, configure SMTP in .env (e.g. smtp.gmail.com).");
         }
