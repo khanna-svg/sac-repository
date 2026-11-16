@@ -92,9 +92,9 @@
                 @endphp
 
                 @if($latestCleared)
-                    <div class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="rounded-2xl bg-emerald-50/70 p-4 sm:p-5 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div class="flex items-start sm:items-center gap-3.5 min-w-0">
-                            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-200/60 flex items-center justify-center shrink-0">
+                            <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                 </svg>
@@ -108,17 +108,15 @@
                                 </p>
                             </div>
                         </div>
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-200 shrink-0">
-                            <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                            </svg>
-                            Approved
-                        </span>
+                        <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 shrink-0">
+                            <span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+                            <span>Approved</span>
+                        </div>
                     </div>
                 @elseif($latestSub->status === 'pending')
-                    <div class="rounded-2xl border border-gray-200 bg-white p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="rounded-2xl bg-amber-50/70 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div class="flex items-start sm:items-center gap-3.5 min-w-0">
-                            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 border border-amber-200/60 flex items-center justify-center shrink-0">
+                            <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
                                 <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
@@ -132,15 +130,15 @@
                                 </p>
                             </div>
                         </div>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-xs font-medium border border-amber-200/80 shrink-0 self-start sm:self-center">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                            Pending
-                        </span>
+                        <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 shrink-0 self-start sm:self-center">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                            <span>Pending</span>
+                        </div>
                     </div>
                 @elseif($latestSub->status === 'resubmit')
-                    <div class="rounded-2xl border border-rose-200 bg-rose-50/60 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="rounded-2xl bg-rose-50/70 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div class="flex items-start sm:items-center gap-3.5 min-w-0">
-                            <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-600 border border-rose-300/60 flex items-center justify-center shrink-0">
+                            <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                                 </svg>
@@ -154,9 +152,10 @@
                                 </p>
                             </div>
                         </div>
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold border border-rose-300 shrink-0 self-start sm:self-center">
-                            Needs Revision
-                        </span>
+                        <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-800 shrink-0 self-start sm:self-center">
+                            <span class="w-2 h-2 rounded-full bg-rose-600 shrink-0"></span>
+                            <span>Needs Revision</span>
+                        </div>
                     </div>
                 @endif
             @endif
@@ -170,7 +169,7 @@
 
                 <!-- Submission Form Column (7 cols) -->
                 <div class="lg:col-span-7 space-y-6">
-                    <form id="studentUploadForm" class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-xs space-y-5"
+                    <form id="studentUploadForm" class="rounded-2xl bg-white p-5 sm:p-6 shadow-xs space-y-5"
                         data-resubmit-dept="{{ strtolower($activeResubmitDoc->department ?? '') }}"
                         data-resubmit-course="{{ strtolower($activeResubmitDoc->course_code ?? '') }}">
                         <input type="hidden" id="submission_id" name="submission_id" hidden class="hidden" value="{{ $activeResubmitDoc ? $activeResubmitDoc->id : '' }}">
@@ -340,8 +339,8 @@
 
                 <!-- My Submissions History Column (5 cols) -->
                 <div class="lg:col-span-5 space-y-4">
-                    <div class="rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-xs">
-                        <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+                    <div class="rounded-2xl bg-white p-5 sm:p-6 shadow-xs">
+                        <div class="flex items-center justify-between pb-3 mb-4">
                             <div class="flex items-center gap-2">
                                 <svg class="w-4 h-4 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -361,24 +360,29 @@
                                     @php
                                         $isCleared = in_array($sub->status, ['cleared', 'approved'], true);
                                         $isResubmit = ($sub->status === 'resubmit');
-
-                                        $statusBadge = $isCleared
-                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                            : ($isResubmit ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-amber-50 text-amber-700 border-amber-200');
-
-                                        $statusLabel = $isCleared
-                                            ? 'Approved'
-                                            : ($isResubmit ? 'Needs Revision' : 'Pending');
                                     @endphp
 
-                                    <div class="rounded-xl border border-gray-200 bg-slate-50/50 p-3.5 sm:p-4 space-y-2 hover:bg-white hover:border-gray-300 transition">
+                                    <div class="rounded-2xl bg-slate-50/80 p-4 space-y-2.5 transition shadow-2xs">
                                         <div class="flex items-start justify-between gap-2">
                                             <h4 class="font-semibold text-xs text-gray-900 leading-snug line-clamp-2">
                                                 {{ $sub->title }}
                                             </h4>
-                                            <span class="shrink-0 rounded-md border px-2 py-0.5 text-[10px] font-medium {{ $statusBadge }}">
-                                                {{ $statusLabel }}
-                                            </span>
+                                            @if($isCleared)
+                                                <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 shrink-0">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0"></span>
+                                                    <span>Approved</span>
+                                                </div>
+                                            @elseif($isResubmit)
+                                                <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-800 shrink-0">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
+                                                    <span>Needs Revision</span>
+                                                </div>
+                                            @else
+                                                <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800 shrink-0">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                                                    <span>Pending</span>
+                                                </div>
+                                            @endif
                                         </div>
 
                                         <p class="text-[11px] text-gray-500">
@@ -390,54 +394,53 @@
                                         </p>
 
                                         @if($isCleared)
-                                            <div class="mt-2 rounded-lg bg-emerald-50/50 border border-emerald-200/80 p-2.5 text-xs text-emerald-900 space-y-1.5">
+                                            <div class="mt-2.5 rounded-xl bg-emerald-50/80 p-3 text-xs text-emerald-950 space-y-2">
                                                 <div class="flex items-center justify-between">
-                                                    <p class="font-semibold text-xs flex items-center gap-1.5 text-emerald-700">
+                                                    <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800">
                                                         <svg class="w-3.5 h-3.5 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                                                         </svg>
-                                                        <span>Approved</span>
-                                                    </p>
+                                                        <span>Clearance Approved</span>
+                                                    </div>
                                                     @if($sub->turnitin_similarity)
-                                                        <span class="font-mono text-[10px] bg-emerald-100 text-emerald-900 px-1.5 py-0.5 rounded font-semibold border border-emerald-200">
-                                                            {{ $sub->turnitin_similarity }}
+                                                        <span class="font-inter font-semibold text-xs text-emerald-800">
+                                                            Turnitin: {{ $sub->turnitin_similarity }}
                                                         </span>
                                                     @endif
                                                 </div>
                                                 @if(!empty($sub->admin_notes))
-                                                    <div class="bg-white rounded p-2 border border-emerald-100 text-[11px] text-gray-700">
-                                                        <span class="font-semibold text-emerald-800 block text-[10px] uppercase tracking-wider mb-0.5">Admin Feedback:</span>
-                                                        <span class="whitespace-pre-line">{{ $sub->admin_notes }}</span>
+                                                    <div class="pt-0.5 text-xs text-emerald-900 leading-relaxed">
+                                                        <span class="font-bold text-emerald-800 block text-[10px] uppercase tracking-wider mb-0.5">Admin Feedback:</span>
+                                                        <p class="whitespace-pre-line">{{ $sub->admin_notes }}</p>
                                                     </div>
                                                 @endif
-                                                <div class="pt-1 border-t border-emerald-200/60 flex items-center justify-between">
-                                                    <a href="/documents/{{ $sub->id }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-[#700000] hover:text-[#850000] hover:underline">
+                                                <div class="pt-1 flex items-center justify-between">
+                                                    <a href="/documents/{{ $sub->id }}" target="_blank" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#700000] hover:text-[#850000] hover:underline transition">
                                                         <span>View Published in Repository</span>
-                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
                                                     </a>
-                                                    <span class="text-[10px] text-emerald-700 font-medium">Approved</span>
                                                 </div>
                                             </div>
                                         @elseif($isResubmit)
-                                            <div class="mt-2 rounded-lg bg-rose-50/50 border border-rose-200/80 p-2.5 text-xs text-rose-900 space-y-2">
+                                            <div class="mt-2.5 rounded-xl bg-rose-50/80 p-3 text-xs text-rose-950 space-y-2">
                                                 <div class="flex items-center justify-between">
-                                                    <p class="font-semibold text-xs flex items-center gap-1.5 text-rose-700">
+                                                    <div class="inline-flex items-center gap-1.5 text-xs font-bold text-rose-800">
                                                         <svg class="w-3.5 h-3.5 shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                                                         </svg>
-                                                        <span>Needs Revision</span>
-                                                    </p>
+                                                        <span>Action Required</span>
+                                                    </div>
                                                     @if($sub->turnitin_similarity)
-                                                        <span class="font-mono text-[10px] bg-rose-100 text-rose-900 px-1.5 py-0.5 rounded font-semibold border border-rose-200">
-                                                            {{ $sub->turnitin_similarity }}
+                                                        <span class="font-inter font-semibold text-xs text-rose-800">
+                                                            Turnitin: {{ $sub->turnitin_similarity }}
                                                         </span>
                                                     @endif
                                                 </div>
 
                                                 @if(!empty($sub->admin_notes))
-                                                    <div class="bg-white rounded p-2 border border-rose-100 text-[11px] text-gray-700">
-                                                        <span class="font-semibold text-rose-800 block text-[10px] uppercase tracking-wider mb-0.5">Admin Feedback:</span>
-                                                        <span class="whitespace-pre-line select-all font-medium text-rose-950">{{ $sub->admin_notes }}</span>
+                                                    <div class="pt-0.5 text-xs text-rose-950 leading-relaxed">
+                                                        <span class="font-bold text-rose-800 block text-[10px] uppercase tracking-wider mb-0.5">Admin Feedback:</span>
+                                                        <p class="whitespace-pre-line select-all font-medium text-rose-950">{{ $sub->admin_notes }}</p>
                                                     </div>
                                                 @endif
                                             </div>
@@ -577,7 +580,7 @@
             if (!file) return;
             const statusBadge = document.getElementById('autofillStatus');
             if (statusBadge) {
-                statusBadge.className = "flex items-center gap-2 text-xs rounded-xl px-3.5 py-2 mt-2.5 bg-amber-50 border border-amber-200 text-amber-800 transition";
+                statusBadge.className = "flex items-center gap-2 text-xs rounded-xl px-3.5 py-2 mt-2.5 bg-amber-50 text-amber-800 shadow-2xs transition";
                 statusBadge.innerHTML = `
                     <svg class="w-3.5 h-3.5 animate-spin text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -643,7 +646,7 @@
                             }
 
                             if (statusBadge && filledFields.length > 0) {
-                                statusBadge.className = "flex items-center justify-between text-xs rounded-xl px-3.5 py-2 mt-2.5 bg-emerald-50 border border-emerald-200 text-emerald-800 transition";
+                                statusBadge.className = "flex items-center justify-between text-xs rounded-xl px-3.5 py-2 mt-2.5 bg-emerald-50 text-emerald-800 shadow-2xs transition";
                                 statusBadge.innerHTML = `
                                     <div class="flex items-center gap-2">
                                         <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
@@ -675,7 +678,7 @@
         function showError(msg) {
             const box = document.getElementById('uploadMessage');
             box.innerHTML = `
-                <div class="rounded-2xl bg-rose-50 border border-rose-200 p-3.5 text-xs text-rose-800 font-semibold flex items-center gap-2">
+                <div class="rounded-2xl bg-rose-50 p-3.5 text-xs text-rose-800 font-semibold flex items-center gap-2 shadow-2xs">
                     <svg class="w-4 h-4 shrink-0 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                     </svg>

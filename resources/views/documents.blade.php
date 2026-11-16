@@ -63,7 +63,7 @@
             <section class="mb-6 md:mb-8">
                 <div>
                     <p class="text-xs md:text-sm text-gray-500 font-medium">
-                        Published St. Anthony's College manuscript documents and institutional research archive.
+                        Uploaded manuscript documents and institutional research.
                     </p>
                 </div>
             </section>
@@ -1003,7 +1003,7 @@
                         <div class="flex-1 min-w-0 pr-8">
                             <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 font-semibold">
                                 ${doc.similarity_score ? `<span class="font-bold text-[#700000]">${doc.similarity_score}% Similarity</span><span class="text-gray-300">•</span>` : ''}
-                                <span class="font-bold text-[#700000]">AIRIS • St. Anthony's College</span>
+                                <span class="font-bold text-[#700000]">AIRIS</span>
                                 <span class="text-gray-300">•</span>
                                 <span class="text-gray-700">${escapeHtml(details.name)}</span>
                                 ${details.degree ? `<span class="text-gray-300">•</span><span class="text-gray-800 font-bold">${escapeHtml(details.degree)}</span>` : ''}
