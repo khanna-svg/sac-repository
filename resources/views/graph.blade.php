@@ -79,18 +79,6 @@
                     </svg>
                     <span>Reset View</span>
                 </button>
-
-                <!-- Physics Toggle Button -->
-                <button
-                    id="physicsToggleBtn"
-                    onclick="togglePhysics()"
-                    title="Toggle Node Physics"
-                    class="rounded-xl border border-gray-300 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-slate-50 transition shadow-sm flex items-center gap-1.5 cursor-pointer">
-                    <svg class="w-3.5 h-3.5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                    </svg>
-                    <span id="physicsStatusText">Freeze</span>
-                </button>
             </div>
         </div>
 
@@ -1061,7 +1049,9 @@
             physicsEnabled = !physicsEnabled;
             network.setOptions({ physics: { enabled: physicsEnabled } });
             const btnText = document.getElementById('physicsStatusText');
-            btnText.textContent = physicsEnabled ? 'Freeze' : 'Unfreeze';
+            if (btnText) {
+                btnText.textContent = physicsEnabled ? 'Freeze' : 'Unfreeze';
+            }
         }
 
         // Department Cluster Filter Function
