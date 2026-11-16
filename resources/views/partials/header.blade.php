@@ -203,9 +203,6 @@
                         </svg>
                     </div>
                     <div class="min-w-0 flex-1">
-                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200 mb-1">
-                            Notice: Action Required
-                        </span>
                         <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">
                             Manuscript Revision Required
                         </h3>
@@ -225,16 +222,16 @@
                     </div>
 
                     @if($studentRevisionDoc->turnitin_similarity)
-                        <div class="flex items-center gap-2">
-                            <span class="text-[11px] text-gray-500 font-medium">Turnitin Similarity:</span>
-                            <span class="px-2 py-0.5 rounded-md font-mono text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                        <div class="flex items-center gap-1.5 text-xs">
+                            <span class="text-gray-500 font-medium">Turnitin Similarity:</span>
+                            <span class="font-mono font-bold text-rose-700">
                                 {{ $studentRevisionDoc->turnitin_similarity }}
                             </span>
                         </div>
                     @endif
 
                     @if(!empty($studentRevisionDoc->admin_notes))
-                        <div class="rounded-xl border border-rose-200 bg-white p-3 space-y-1">
+                        <div class="pt-2.5 border-t border-gray-200/80 space-y-1">
                             <p class="text-[10px] uppercase font-bold text-rose-800 tracking-wider">Admin Feedback</p>
                             <p class="text-xs text-gray-800 whitespace-pre-line leading-relaxed">
                                 {{ $studentRevisionDoc->admin_notes }}
@@ -243,35 +240,45 @@
                     @endif
                 </div>
 
-                <!-- 3-Month Institutional Policy Notice Box -->
-                <div class="rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 flex items-start gap-3">
-                    <svg class="w-5 h-5 text-amber-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <div class="text-xs text-amber-950 space-y-1">
-                        <p class="font-bold">
-                            Revision Window: {{ $revDaysRemaining }} days remaining
-                        </p>
-                        <p class="text-[11px] text-amber-800 leading-relaxed">
-                            Under institutional policy, please re-upload your revised manuscript before <span class="font-bold underline">{{ $revDeadline->format('F d, Y') }}</span> (3-month policy). Unrevised manuscripts are automatically deleted from the repository queue after 90 days.
-                        </p>
+                <!-- Revision Deadline Box (matching fifth photo) -->
+                <div class="rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 sm:p-5 space-y-2.5">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#b45309] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <h4 class="text-xs sm:text-sm font-bold text-gray-900 tracking-tight">
+                            Revision Deadline
+                        </h4>
                     </div>
+
+                    <div>
+                        <div class="text-2xl sm:text-3xl font-extrabold text-[#b45309] tracking-tight">
+                            {{ $revDaysRemaining }} days
+                        </div>
+                        <div class="text-xs text-amber-900/90 font-medium mt-0.5">
+                            Remaining to resubmit your manuscript
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-gray-700 leading-relaxed">
+                        Please upload your revised manuscript before <span class="font-semibold">{{ $revDeadline->format('F d, Y') }}</span>. Unresubmitted manuscripts will be automatically deleted after the 90-day revision period.
+                    </p>
                 </div>
 
-                <!-- Action Button: "OK" -->
+                <!-- Action Buttons: "Go to Upload" (Red Button) & "Dismiss" (Beside it) -->
                 <div class="pt-1 flex flex-col sm:flex-row items-center gap-2.5">
-                    <button
-                        type="button"
-                        onclick="dismissRevisionNoticeModal()"
-                        class="w-full py-3 px-6 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
-                        OK
-                    </button>
                     <a
                         href="{{ route('student.submit') }}"
                         onclick="dismissRevisionNoticeModal()"
-                        class="w-full sm:w-auto text-center py-2.5 px-4 rounded-xl text-xs font-semibold text-gray-600 hover:text-[#700000] hover:bg-gray-100 transition whitespace-nowrap">
-                        Go to Upload &rarr;
+                        class="w-full sm:flex-1 py-3 px-6 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
+                        Go to Upload
                     </a>
+                    <button
+                        type="button"
+                        onclick="dismissRevisionNoticeModal()"
+                        class="w-full sm:w-auto text-center py-2.5 px-4 rounded-xl text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition whitespace-nowrap cursor-pointer">
+                        Dismiss
+                    </button>
                 </div>
             </div>
         </div>

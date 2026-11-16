@@ -394,7 +394,9 @@ class AuthWorkflowTest extends TestCase
         $response->assertOk();
         $response->assertSee('id="revisionNoticeModal"', false);
         $response->assertSee('Manuscript Revision Required');
-        $response->assertSee('OK');
+        $response->assertSee('Go to Upload');
+        $response->assertSee('Dismiss');
+        $response->assertSee('Revision Deadline');
         $response->assertSee('Automated Operations System for Blood Donor-Recipient Matching');
         $response->assertSee('Please revise flagged sections.');
 
