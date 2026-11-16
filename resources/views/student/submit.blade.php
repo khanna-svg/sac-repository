@@ -136,25 +136,46 @@
                         </div>
                     </div>
                 @elseif($latestSub->status === 'resubmit')
-                    <div class="rounded-2xl bg-rose-50/70 p-4 sm:p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div class="flex items-start sm:items-center gap-3.5 min-w-0">
-                            <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                                </svg>
+                    @php
+                        $subAttempts = (int) ($latestSub->scan_attempts ?: 1);
+                        $subFreeRemaining = max(0, 3 - $subAttempts);
+                        $subExceeded = ($subAttempts >= 3);
+                    @endphp
+                    <div class="rounded-2xl bg-rose-50/70 p-4 sm:p-5 shadow-2xs space-y-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-start sm:items-center gap-3.5 min-w-0">
+                                <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <h4 class="text-sm font-semibold text-gray-900 truncate">
+                                        {{ $latestSub->title }}
+                                    </h4>
+                                    <p class="text-xs text-rose-800 mt-0.5">
+                                        Manuscript requires revisions. Please review the admin feedback and upload your revised file.
+                                    </p>
+                                </div>
                             </div>
-                            <div class="min-w-0">
-                                <h4 class="text-sm font-semibold text-gray-900 truncate">
-                                    {{ $latestSub->title }}
-                                </h4>
-                                <p class="text-xs text-rose-800 mt-0.5">
-                                    Manuscript requires revisions. Please review the admin feedback and upload your revised file.
-                                </p>
+                            <div class="flex flex-wrap items-center gap-2 self-start sm:self-center shrink-0">
+                                <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full {{ $subExceeded ? 'bg-rose-200 text-rose-900' : 'bg-amber-100 text-amber-900' }}">
+                                    {{ $subExceeded ? 'Free Scans Exhausted' : "{$subFreeRemaining} of 3 Free " . Str::plural('Try', $subFreeRemaining) . " Left" }}
+                                </span>
+                                <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-800">
+                                    <span class="w-2 h-2 rounded-full bg-rose-600 shrink-0"></span>
+                                    <span>Needs Revision</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-800 shrink-0 self-start sm:self-center">
-                            <span class="w-2 h-2 rounded-full bg-rose-600 shrink-0"></span>
-                            <span>Needs Revision</span>
+
+                        <!-- Scan Quota Alert Notice -->
+                        <div class="rounded-xl {{ $subExceeded ? 'bg-rose-100/90 border border-rose-300 text-rose-950 font-medium' : 'bg-white/80 border border-slate-200/60 text-gray-700' }} p-3 text-xs leading-relaxed">
+                            @if(!$subExceeded)
+                                <span class="font-bold text-gray-900">Scanning Quota Notice:</span> Each group receives 3 free Turnitin and Grammarly scans. You have used <strong class="text-rose-700">{{ $subAttempts }}</strong> of 3 scans (<strong class="text-amber-800">{{ $subFreeRemaining }} {{ Str::plural('try', $subFreeRemaining) }} remaining</strong>). If your manuscript still does not pass after 3 scans, you must pay for the 4th scan.
+                            @else
+                                <span class="font-bold text-rose-900">4th Scan Payment Required:</span> Your group has used all 3 complimentary scans. In accordance with RESO policy, this 4th submission requires payment of the re-screening fee at the Cashier / RESO office.
+                            @endif
                         </div>
                     </div>
                 @endif
@@ -389,9 +410,13 @@
                                             Author: <span class="text-gray-700">{{ $sub->author }}</span>
                                         </p>
                                         
-                                        <p class="text-[10px] text-gray-400">
-                                            Submitted: <span class="font-inter font-normal">{{ $sub->created_at ? $sub->created_at->format('M d, Y') : 'N/A' }}</span>
-                                        </p>
+                                        <div class="flex items-center gap-2 text-[10px] text-gray-400">
+                                            <span>Submitted: <span class="font-inter font-normal">{{ $sub->created_at ? $sub->created_at->format('M d, Y') : 'N/A' }}</span></span>
+                                            <span>•</span>
+                                            <span class="font-semibold {{ ($sub->scan_attempts ?? 1) >= 4 ? 'text-rose-700' : 'text-slate-600' }}">
+                                                Scan #{{ $sub->scan_attempts ?? 1 }} {{ ($sub->scan_attempts ?? 1) > 3 ? '(Paid)' : 'of 3 Free' }}
+                                            </span>
+                                        </div>
 
                                         @if($isCleared)
                                             <div class="mt-2.5 rounded-xl bg-emerald-50/80 p-3 text-xs text-emerald-950 space-y-2">

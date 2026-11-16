@@ -45,6 +45,24 @@ class AuthWorkflowTest extends TestCase
                 $table->string('submitted_by_email')->nullable();
                 $table->text('admin_notes')->nullable();
                 $table->string('turnitin_similarity')->nullable();
+                $table->unsignedSmallInteger('scan_attempts')->default(1);
+                $table->timestamps();
+            });
+        }
+
+        if (!\Illuminate\Support\Facades\Schema::hasColumn('documents', 'scan_attempts')) {
+            \Illuminate\Support\Facades\Schema::table('documents', function ($table) {
+                $table->unsignedSmallInteger('scan_attempts')->default(1);
+            });
+        }
+
+        if (!\Illuminate\Support\Facades\Schema::hasTable('document_chunks')) {
+            \Illuminate\Support\Facades\Schema::create('document_chunks', function ($table) {
+                $table->id();
+                $table->unsignedBigInteger('document_id');
+                $table->integer('page_number')->default(1);
+                $table->text('chunk_text')->nullable();
+                $table->text('embedding')->nullable();
                 $table->timestamps();
             });
         }
@@ -399,6 +417,11 @@ class AuthWorkflowTest extends TestCase
         $response->assertSee('Revision Deadline');
         $response->assertSee('Automated Operations System for Blood Donor-Recipient Matching');
         $response->assertSee('Please revise flagged sections.');
+        $response->assertSee('Turnitin & Grammarly Scanning Quota');
+        $response->assertSee('2 of 3 Free Tries Remaining');
+        $response->assertSee('Scan 1');
+        $response->assertSee('Scan 2');
+        $response->assertSee('Scan 3');
 
         // 2. Dismiss the notice via POST endpoint
         $dismissRes = $this->withSession([
@@ -606,6 +629,170 @@ class AuthWorkflowTest extends TestCase
         // Clean up test document
         $doc->delete();
     }
+
+    /**
+     * Test Turnitin and Grammarly 3 free scans quota lifecycle, deduction, and 4th scan payment notice.
+     */
+    public function test_turnitin_and_grammarly_three_free_scans_quota_lifecycle(): void
+    {
+        $studentEmail = 'scan.quota.test@sac.edu.ph';
+        $studentName = 'Scan Quota Student';
+
+        // 1. Initial thesis submission (Scan Attempt 1)
+        $initialRes = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+            'sac_user_name' => $studentName,
+        ])->postJson('/backend/student/submit', [
+            'title' => 'IoT Environmental Monitoring for Local Agriculture',
+            'author' => $studentName,
+            'department' => 'eng',
+            'course_code' => 'bscpe',
+            'abstract' => 'Comprehensive IoT sensor network for agricultural soil monitoring.',
+            'file_path' => 'student-submissions/iot-env-v1.pdf',
+        ]);
+
+        $initialRes->assertStatus(201);
+        $doc = \App\Models\Document::where('submitted_by_email', $studentEmail)->first();
+        $this->assertNotNull($doc);
+        $this->assertEquals(1, $doc->scan_attempts);
+        $this->assertEquals('pending', $doc->status);
+
+        // 2. Admin evaluates scan #1 and requests revision (Similarity: 32%)
+        $reject1Res = $this->withSession([
+            'sac_user_email' => 'admin@sac.edu.ph',
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Administrator',
+        ])->postJson("/backend/admin/submissions/{$doc->id}/reject", [
+            'admin_notes' => 'Similarity index exceeds threshold (32%). Please paraphrase chapter 2.',
+            'turnitin_similarity' => '32%',
+        ]);
+
+        $reject1Res->assertOk();
+        $doc->refresh();
+        $this->assertEquals('resubmit', $doc->status);
+        $this->assertEquals(1, $doc->scan_attempts);
+
+        // Verify modal display after 1st failed scan (2 tries remaining)
+        $modalRes1 = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+            'sac_user_name' => $studentName,
+        ])->get('/documents');
+
+        $modalRes1->assertOk();
+        $modalRes1->assertSee('Turnitin & Grammarly Scanning Quota');
+        $modalRes1->assertSee('2 of 3 Free Tries Remaining');
+        $modalRes1->assertSee('Scan 1');
+        $modalRes1->assertSee('Used');
+
+        // 3. Student uploads Revision 1 -> scan_attempts increments to 2
+        $resubmit1Res = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+            'sac_user_name' => $studentName,
+        ])->postJson('/backend/student/submit', [
+            'submission_id' => $doc->id,
+            'title' => 'IoT Environmental Monitoring for Local Agriculture',
+            'author' => $studentName,
+            'department' => 'eng',
+            'course_code' => 'bscpe',
+            'abstract' => 'Updated abstract with revised literature review.',
+            'file_path' => 'student-submissions/iot-env-v2.pdf',
+        ]);
+
+        $resubmit1Res->assertOk();
+        $doc->refresh();
+        $this->assertEquals('pending', $doc->status);
+        $this->assertEquals(2, $doc->scan_attempts);
+
+        // 4. Admin evaluates scan #2 and requests revision again (Similarity: 25%)
+        $reject2Res = $this->withSession([
+            'sac_user_email' => 'admin@sac.edu.ph',
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Administrator',
+        ])->postJson("/backend/admin/submissions/{$doc->id}/reject", [
+            'admin_notes' => 'Similarity index reduced to 25%, but still above 15% threshold.',
+            'turnitin_similarity' => '25%',
+        ]);
+
+        $reject2Res->assertOk();
+        $doc->refresh();
+        $this->assertEquals('resubmit', $doc->status);
+
+        // Verify modal display after 2nd failed scan (1 try remaining)
+        $modalRes2 = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+            'sac_user_name' => $studentName,
+        ])->get('/documents');
+
+        $modalRes2->assertOk();
+        $modalRes2->assertSee('1 of 3 Free Try Remaining');
+
+        // 5. Student uploads Revision 2 -> scan_attempts increments to 3 (Final Free Try)
+        $resubmit2Res = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+            'sac_user_name' => $studentName,
+        ])->postJson('/backend/student/submit', [
+            'submission_id' => $doc->id,
+            'title' => 'IoT Environmental Monitoring for Local Agriculture',
+            'author' => $studentName,
+            'department' => 'eng',
+            'course_code' => 'bscpe',
+            'abstract' => 'Final free revision attempt abstract.',
+            'file_path' => 'student-submissions/iot-env-v3.pdf',
+        ]);
+
+        $resubmit2Res->assertOk();
+        $doc->refresh();
+        $this->assertEquals('pending', $doc->status);
+        $this->assertEquals(3, $doc->scan_attempts);
+
+        // 6. Admin evaluates scan #3 and requests revision (Similarity: 20%) -> 3rd scan failed!
+        $reject3Res = $this->withSession([
+            'sac_user_email' => 'admin@sac.edu.ph',
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Administrator',
+        ])->postJson("/backend/admin/submissions/{$doc->id}/reject", [
+            'admin_notes' => 'All 3 free scans evaluated. Similarity index is 20%. 4th scan requires cashier payment.',
+            'turnitin_similarity' => '20%',
+        ]);
+
+        $reject3Res->assertOk();
+        $doc->refresh();
+        $this->assertEquals('resubmit', $doc->status);
+        $this->assertEquals(3, $doc->scan_attempts);
+
+        // 7. Verify modal display after 3 failed scans -> Free Quota Exhausted & Payment Required for 4th Scan
+        $modalRes3 = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+            'sac_user_name' => $studentName,
+        ])->get('/documents');
+
+        $modalRes3->assertOk();
+        $modalRes3->assertSee('Free Quota Exhausted');
+        $modalRes3->assertSee('Payment Required for 4th Scan');
+        $modalRes3->assertSee('In accordance with RESO regulations, you must settle the re-screening fee');
+
+        // 8. Verify submission page also warns that 4th scan payment is required
+        $submitPageRes = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+            'sac_user_name' => $studentName,
+        ])->get('/student/submit');
+
+        $submitPageRes->assertOk();
+        $submitPageRes->assertSee('Free Scans Exhausted');
+        $submitPageRes->assertSee('4th Scan Payment Required');
+
+        // Clean up test document
+        \Illuminate\Support\Facades\DB::table('thesis_notifications')->where('user_email', $studentEmail)->delete();
+        $doc->delete();
+    }
 }
+
 
 

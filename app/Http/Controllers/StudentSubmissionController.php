@@ -206,6 +206,10 @@ class StudentSubmissionController extends Controller
                 // Update in place: replace file, refresh chunks, reset status back to pending
                 $prevNotes = $existingDoc->admin_notes ? "Previous Feedback: " . $existingDoc->admin_notes : null;
 
+                // When resubmitting from 'resubmit' status, increment scan_attempts
+                $currentAttempts = (int) ($existingDoc->scan_attempts ?: 1);
+                $newAttempts = ($existingDoc->status === 'resubmit') ? $currentAttempts + 1 : $currentAttempts;
+
                 $updateData = [
                     'title' => $title,
                     'author' => $author,
@@ -216,6 +220,7 @@ class StudentSubmissionController extends Controller
                     'file_url' => "/backend/documents/{$existingDoc->id}/view",
                     'status' => 'pending', // Resets from 'resubmit' back to 'pending' (moves from Needs Revisions to Pending tab)
                     'turnitin_similarity' => null, // Reset Turnitin score until admin re-checks
+                    'scan_attempts' => $newAttempts,
                     'submitted_by_name' => $submittedByName,
                     'admin_notes' => $prevNotes,
                 ];
@@ -250,10 +255,14 @@ class StudentSubmissionController extends Controller
                     }
                 }
 
+                $scanNoticeText = $newAttempts <= 3
+                    ? "Scan attempt #{$newAttempts} of 3 free scans."
+                    : "Scan attempt #{$newAttempts}. Your 3 free scans have been used; re-screening fee required.";
+
                 ThesisNotification::create([
                     'user_email' => $email,
                     'title' => 'Revised Manuscript Submitted for Turnitin Review',
-                    'message' => "Your revised manuscript \"{$title}\" has been re-uploaded and moved to Pending for Turnitin & Grammarly screening.",
+                    'message' => "Your revised manuscript \"{$title}\" has been re-uploaded and moved to Pending for Turnitin & Grammarly screening. ({$scanNoticeText})",
                     'type' => 'info',
                     'document_id' => $existingDoc->id,
                     'is_read' => false,
@@ -285,6 +294,7 @@ class StudentSubmissionController extends Controller
                 'file_path' => $filePath,
                 'file_url' => '',
                 'status' => 'pending',
+                'scan_attempts' => 1,
                 'submitted_by_name' => $submittedByName,
                 'submitted_by_email' => $email,
                 'admin_notes' => null,
