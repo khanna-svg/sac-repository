@@ -142,6 +142,8 @@ class AuthController extends Controller
             $request->session()->put('sac_user_lrn', (string) $user->lrn);
         }
 
+        $request->session()->forget('revision_notice_dismissed');
+
         return redirect()->intended(route('documents'))->with('success', 'Welcome, ' . ($user->name ?? 'Student') . '!');
     }
 
@@ -168,6 +170,7 @@ class AuthController extends Controller
             'sac_user_lrn',
             'pending_email',
             'admin_notifications_read_at',
+            'revision_notice_dismissed',
         ]);
         $request->session()->invalidate();
         $request->session()->regenerateToken();

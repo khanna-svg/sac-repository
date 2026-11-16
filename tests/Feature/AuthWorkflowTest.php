@@ -347,6 +347,64 @@ class AuthWorkflowTest extends TestCase
         $activeDoc->delete();
         $pendingDoc->delete();
     }
+
+    /**
+     * Test revision notice pop-up is shown when student has a manuscript needing revision,
+     * and is successfully dismissed via the dismissal endpoint.
+     */
+    public function test_student_revision_notice_popup_and_dismissal(): void
+    {
+        $revisionDoc = \App\Models\Document::create([
+            'title' => 'Automated Operations System for Blood Donor-Recipient Matching',
+            'author' => 'Ryan Figueroa',
+            'department' => 'itd',
+            'course_code' => 'bsit',
+            'abstract' => 'Sample abstract for revision testing',
+            'status' => 'resubmit',
+            'turnitin_similarity' => '30%',
+            'admin_notes' => 'Please revise flagged sections.',
+            'submitted_by_email' => 'figueroaryan@sac.edu.ph',
+            'submitted_by_name' => 'Ryan Figueroa',
+        ]);
+
+        // 1. Visit /documents with student session -> should see revisionNoticeModal
+        $response = $this->withSession([
+            'sac_user_email' => 'figueroaryan@sac.edu.ph',
+            'sac_user_role' => 'student',
+            'sac_user_name' => 'Ryan Figueroa',
+        ])->get('/documents');
+
+        $response->assertOk();
+        $response->assertSee('id="revisionNoticeModal"', false);
+        $response->assertSee('Manuscript Revision Required');
+        $response->assertSee('OK');
+        $response->assertSee('Automated Operations System for Blood Donor-Recipient Matching');
+        $response->assertSee('Please revise flagged sections.');
+
+        // 2. Dismiss the notice via POST endpoint
+        $dismissRes = $this->withSession([
+            'sac_user_email' => 'figueroaryan@sac.edu.ph',
+            'sac_user_role' => 'student',
+            'sac_user_name' => 'Ryan Figueroa',
+        ])->postJson('/backend/student/dismiss-revision-notice');
+
+        $dismissRes->assertOk();
+        $dismissRes->assertJson(['success' => true]);
+
+        // 3. Visit again with session containing revision_notice_dismissed -> should NOT see modal
+        $responseAfter = $this->withSession([
+            'sac_user_email' => 'figueroaryan@sac.edu.ph',
+            'sac_user_role' => 'student',
+            'sac_user_name' => 'Ryan Figueroa',
+            'revision_notice_dismissed' => true,
+        ])->get('/documents');
+
+        $responseAfter->assertOk();
+        $responseAfter->assertDontSee('id="revisionNoticeModal"', false);
+
+        // Cleanup
+        $revisionDoc->delete();
+    }
 }
 
 

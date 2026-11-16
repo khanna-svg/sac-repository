@@ -122,6 +122,7 @@ Route::middleware('sac.auth')->group(function () {
     Route::post('/backend/student/upload-url', [\App\Http\Controllers\StudentSubmissionController::class, 'createUploadUrl']);
     Route::post('/backend/student/submit', [\App\Http\Controllers\StudentSubmissionController::class, 'store']);
     Route::post('/backend/student/extract-metadata', [\App\Http\Controllers\StudentSubmissionController::class, 'extractMetadata']);
+    Route::post('/backend/student/dismiss-revision-notice', [\App\Http\Controllers\StudentSubmissionController::class, 'dismissRevisionNotice'])->name('student.dismissRevisionNotice');
 
     // Student In-App Notifications
     Route::get('/backend/notifications', [\App\Http\Controllers\NotificationController::class, 'index']);

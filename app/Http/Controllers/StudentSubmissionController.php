@@ -366,5 +366,16 @@ class StudentSubmissionController extends Controller
             ]);
         }
     }
+
+    /**
+     * Dismisses the student revision notice pop-up modal for the active session.
+     */
+    public function dismissRevisionNotice(Request $request)
+    {
+        $request->session()->put('revision_notice_dismissed', true);
+        return response()->json([
+            'success' => true,
+        ]);
+    }
 }
 

@@ -35,6 +35,24 @@
             ->where('is_read', false)
             ->count();
     }
+
+    $studentRevisionDoc = null;
+    $hasRevisionNotice = false;
+    $revDeadline = null;
+    $revDaysRemaining = 0;
+    if ($userEmail && !in_array($userRole, ['admin', 'librarian', 'coordinator'], true)) {
+        if (!session()->has('revision_notice_dismissed')) {
+            $studentRevisionDoc = \App\Models\Document::where('submitted_by_email', strtolower($userEmail))
+                ->where('status', 'resubmit')
+                ->latest('updated_at')
+                ->first();
+            if ($studentRevisionDoc) {
+                $hasRevisionNotice = true;
+                $revDeadline = $studentRevisionDoc->updated_at ? $studentRevisionDoc->updated_at->copy()->addMonths(3) : now()->addMonths(3);
+                $revDaysRemaining = max(0, (int) now()->diffInDays($revDeadline, false));
+            }
+        }
+    }
 @endphp
 
 <header id="sacTopHeader" data-csrf="{{ csrf_token() }}" class="fixed top-0 right-0 left-0 md:left-64 h-14 md:h-16 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between transition-all duration-300 select-none shadow-2xs">
@@ -125,6 +143,122 @@
 
 <!-- Live Toast Notification Container (Fixed to Viewport, Top Right below Header) -->
 <div id="sacLiveToastContainer" class="fixed top-20 right-4 sm:right-6 z-[9999] flex flex-col gap-3 pointer-events-none max-w-sm sm:max-w-md w-full px-4 sm:px-0"></div>
+
+@if($hasRevisionNotice && $studentRevisionDoc)
+    <!-- Student Revision Notice Pop-up Modal -->
+    <div id="revisionNoticeModal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 transition-all duration-300">
+        <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl border border-gray-100 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+            
+            <!-- Top Color Accent Bar -->
+            <div class="h-2 bg-gradient-to-r from-[#700000] via-rose-600 to-amber-500"></div>
+
+            <div class="p-6 sm:p-7 space-y-5">
+                <!-- Icon & Header -->
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center shrink-0 shadow-xs">
+                        <svg class="w-6 h-6 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-rose-100 text-rose-800 border border-rose-200 mb-1">
+                            Notice: Action Required
+                        </span>
+                        <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">
+                            Manuscript Revision Required
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-0.5">
+                            Your submitted research manuscript requires revisions.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Manuscript Info Card -->
+                <div class="rounded-2xl border border-gray-200 bg-slate-50/70 p-4 space-y-3">
+                    <div>
+                        <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Research Title</p>
+                        <h4 class="text-xs sm:text-sm font-bold text-gray-900 mt-0.5 leading-snug">
+                            {{ $studentRevisionDoc->title }}
+                        </h4>
+                    </div>
+
+                    @if($studentRevisionDoc->turnitin_similarity)
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-gray-500 font-medium">Turnitin Similarity:</span>
+                            <span class="px-2 py-0.5 rounded-md font-mono text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200">
+                                {{ $studentRevisionDoc->turnitin_similarity }}
+                            </span>
+                        </div>
+                    @endif
+
+                    @if(!empty($studentRevisionDoc->admin_notes))
+                        <div class="rounded-xl border border-rose-200 bg-white p-3 space-y-1">
+                            <p class="text-[10px] uppercase font-bold text-rose-800 tracking-wider">Admin Feedback</p>
+                            <p class="text-xs text-gray-800 whitespace-pre-line leading-relaxed">
+                                {{ $studentRevisionDoc->admin_notes }}
+                            </p>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- 3-Month Institutional Policy Notice Box -->
+                <div class="rounded-2xl border border-amber-200 bg-amber-50/80 p-3.5 flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="text-xs text-amber-950 space-y-1">
+                        <p class="font-bold">
+                            Revision Window: {{ $revDaysRemaining }} days remaining
+                        </p>
+                        <p class="text-[11px] text-amber-800 leading-relaxed">
+                            Under institutional policy, please re-upload your revised manuscript before <span class="font-bold underline">{{ $revDeadline->format('F d, Y') }}</span> (3-month policy). Unrevised manuscripts are automatically deleted from the repository queue after 90 days.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Action Button: "OK" -->
+                <div class="pt-1 flex flex-col sm:flex-row items-center gap-2.5">
+                    <button
+                        type="button"
+                        onclick="dismissRevisionNoticeModal()"
+                        class="w-full py-3 px-6 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
+                        OK
+                    </button>
+                    <a
+                        href="{{ route('student.submit') }}"
+                        onclick="dismissRevisionNoticeModal()"
+                        class="w-full sm:w-auto text-center py-2.5 px-4 rounded-xl text-xs font-semibold text-gray-600 hover:text-[#700000] hover:bg-gray-100 transition whitespace-nowrap">
+                        Go to Upload &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function dismissRevisionNoticeModal() {
+            const modal = document.getElementById('revisionNoticeModal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            try {
+                const token = document.getElementById('sacTopHeader')?.dataset.csrf ||
+                    document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                fetch('/backend/student/dismiss-revision-notice', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': token
+                    }
+                }).catch(() => {});
+            } catch (err) {
+                console.warn('Failed to dismiss revision notice on server:', err);
+            }
+        }
+    </script>
+@endif
 
 <script>
     // Header Notifications Logic

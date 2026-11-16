@@ -130,10 +130,6 @@
                         </span>
                     </div>
                 @elseif($latestSub->status === 'resubmit')
-                    @php
-                        $topDeadline = $latestSub->updated_at ? $latestSub->updated_at->copy()->addMonths(3) : now()->addMonths(3);
-                        $topDaysRemaining = max(0, (int) now()->diffInDays($topDeadline, false));
-                    @endphp
                     <div class="rounded-2xl border border-rose-200 bg-rose-50/60 p-4 sm:p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div class="flex items-start sm:items-center gap-3.5 min-w-0">
                             <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-600 border border-rose-300/60 flex items-center justify-center shrink-0">
@@ -146,7 +142,7 @@
                                     {{ $latestSub->title }}
                                 </h4>
                                 <p class="text-xs text-rose-800 mt-0.5">
-                                    Manuscript requires revisions. Please re-upload before <span class="font-bold underline">{{ $topDeadline->format('F d, Y') }}</span> ({{ $topDaysRemaining }} days remaining &bull; 3-month policy).
+                                    Manuscript requires revisions. Please review the admin feedback and upload your revised file.
                                 </p>
                             </div>
                         </div>
@@ -415,10 +411,6 @@
                                                 </div>
                                             </div>
                                         @elseif($isResubmit)
-                                            @php
-                                                $deadlineDate = $sub->updated_at ? $sub->updated_at->copy()->addMonths(3) : now()->addMonths(3);
-                                                $daysRemaining = max(0, (int) now()->diffInDays($deadlineDate, false));
-                                            @endphp
                                             <div class="mt-2 rounded-lg bg-rose-50/50 border border-rose-200/80 p-2.5 text-xs text-rose-900 space-y-2">
                                                 <div class="flex items-center justify-between">
                                                     <p class="font-semibold text-xs flex items-center gap-1.5 text-rose-700">
@@ -432,21 +424,6 @@
                                                             {{ $sub->turnitin_similarity }}
                                                         </span>
                                                     @endif
-                                                </div>
-
-                                                <!-- 3-Month Policy Expiration Notice -->
-                                                <div class="rounded-lg bg-amber-50 border border-amber-200/80 p-2 text-[11px] text-amber-900 flex items-start gap-2">
-                                                    <svg class="w-4 h-4 text-amber-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <div class="min-w-0">
-                                                        <p class="font-bold text-amber-950">
-                                                            Revision Window: {{ $daysRemaining }} days remaining
-                                                        </p>
-                                                        <p class="text-amber-800 text-[10px]">
-                                                            Please upload your revised manuscript before <span class="font-semibold underline">{{ $deadlineDate->format('M d, Y') }}</span> (3-month policy). Unrevised manuscripts are automatically deleted after this date.
-                                                        </p>
-                                                    </div>
                                                 </div>
 
                                                 @if(!empty($sub->admin_notes))
