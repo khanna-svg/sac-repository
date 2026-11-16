@@ -406,10 +406,9 @@
                         <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                     </div>
                     <div class="min-w-0">
-                        <h3 class="text-sm sm:text-base font-bold text-white tracking-wide truncate flex items-center gap-2">
+                        <h3 class="text-sm sm:text-base font-bold text-white tracking-wide truncate flex items-center gap-1.5">
                             <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
                             <span>Admin Activity Logs</span>
-                            <span id="logHeaderBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-white/15 text-amber-100 font-semibold font-mono">0 total</span>
                         </h3>
                         <p class="text-[11px] sm:text-xs text-amber-100/90 truncate mt-0.5">
                             History of administrative actions: approving, requesting revisions, archiving, editing, and restoring.
@@ -484,16 +483,7 @@
                 </div>
             </div>
 
-            <!-- Modal Footer -->
-            <div class="p-4 sm:px-6 bg-slate-50/70 flex items-center justify-between shrink-0">
-                <span id="activityLogsFooterCount" class="text-xs text-slate-500 font-medium font-inter">Showing 0 activities</span>
-                <button
-                    type="button"
-                    onclick="closeActivityLogsModal()"
-                    class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-200/70 hover:bg-slate-200 transition cursor-pointer">
-                    Close
-                </button>
-            </div>
+
         </div>
     </div>
 @endif
@@ -804,14 +794,12 @@
                 const cRev = document.getElementById('logCountRevision');
                 const cArc = document.getElementById('logCountArchive');
                 const cEd = document.getElementById('logCountEdit');
-                const hBadge = document.getElementById('logHeaderBadge');
 
                 if (cAll) cAll.textContent = data.counts.all || 0;
                 if (cApp) cApp.textContent = data.counts.approve || 0;
                 if (cRev) cRev.textContent = data.counts.revision || 0;
                 if (cArc) cArc.textContent = data.counts.archive || 0;
                 if (cEd) cEd.textContent = data.counts.edit || 0;
-                if (hBadge) hBadge.textContent = `${data.counts.all || 0} total`;
             }
 
             renderActivityLogs(data.logs || []);
@@ -827,12 +815,7 @@
 
     function renderActivityLogs(logs) {
         const body = document.getElementById('activityLogsBody');
-        const footerCount = document.getElementById('activityLogsFooterCount');
         if (!body) return;
-
-        if (footerCount) {
-            footerCount.textContent = `Showing ${logs.length} ${logs.length === 1 ? 'activity' : 'activities'}`;
-        }
 
         if (!logs || logs.length === 0) {
             body.innerHTML = `
