@@ -879,53 +879,46 @@
     @if(!empty($showPolicyModal))
         <!-- Admin Institutional Revision Policy Pop-up Modal -->
         <div id="adminPolicyModal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 transition-all duration-300">
-            <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl border border-gray-100 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+            <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-gray-200 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200 p-6 sm:p-7 space-y-4">
                 
-                <!-- Top Color Accent Bar -->
-                <div class="h-2 bg-gradient-to-r from-[#700000] via-rose-600 to-amber-500"></div>
+                <!-- Icon & Header (matching media_1794794054924_e38e4afd.png) -->
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-[#b45309] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
+                        Institutional Revision Policy
+                    </h3>
+                </div>
 
-                <div class="p-6 sm:p-7 space-y-5">
-                    <!-- Icon & Header -->
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 shadow-xs">
-                            <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                <!-- Policy Content (matching media_1794794054924_e38e4afd.png) -->
+                <div class="space-y-4 text-slate-800 text-xs sm:text-sm">
+                    <p class="leading-normal">
+                        Manuscripts marked for revision must be resubmitted within:
+                    </p>
+
+                    <div>
+                        <div class="text-3xl sm:text-4xl font-extrabold text-[#b45309] tracking-tight">
+                            90 days
                         </div>
-                        <h3 class="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
-                            Institutional Revision Policy
-                        </h3>
-                    </div>
-
-                    <!-- Policy Box Content (matching media_1794794054924_e38e4afd.png) -->
-                    <div class="space-y-4 text-slate-700">
-                        <p class="text-xs sm:text-sm text-slate-700">
-                            Manuscripts marked for revision must be resubmitted within:
-                        </p>
-
-                        <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200">
-                            <div class="text-3xl font-extrabold text-[#700000] tracking-tight">
-                                90 days
-                            </div>
-                            <div class="text-xs text-slate-500 font-medium mt-1">
-                                3 months from the date of revision notification
-                            </div>
+                        <div class="text-xs text-slate-500 font-medium mt-1">
+                            3 months from the date of revision notification
                         </div>
-
-                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                            Submissions that are not resubmitted within this period will be automatically deleted from the institutional storage and database.
-                        </p>
                     </div>
 
-                    <!-- Action Button: "OK" -->
-                    <div class="pt-2">
-                        <button
-                            type="button"
-                            onclick="dismissAdminPolicyModal()"
-                            class="w-full py-3 px-6 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
-                            OK
-                        </button>
-                    </div>
+                    <p class="leading-relaxed text-slate-700">
+                        Submissions that are not resubmitted within this period will be automatically deleted from the institutional storage and database.
+                    </p>
+                </div>
+
+                <!-- Action Button: "OK" -->
+                <div class="pt-2">
+                    <button
+                        type="button"
+                        onclick="dismissAdminPolicyModal()"
+                        class="w-full py-2.5 px-6 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
+                        OK
+                    </button>
                 </div>
             </div>
         </div>
