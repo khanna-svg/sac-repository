@@ -49,8 +49,12 @@
                 ->first();
             if ($studentRevisionDoc) {
                 $hasRevisionNotice = true;
-                $revDeadline = $studentRevisionDoc->updated_at ? $studentRevisionDoc->updated_at->copy()->addMonths(3) : now()->addMonths(3);
-                $revDaysRemaining = max(0, (int) now()->diffInDays($revDeadline, false));
+                $revDeadline = $studentRevisionDoc->updated_at ? $studentRevisionDoc->updated_at->copy()->addDays(90) : now()->addDays(90);
+                $revDaysRemaining = max(0, (int) ceil(now()->floatDiffInDays($revDeadline, false)));
+                $maxFreeScans = 3;
+                $currentAttempts = (int) ($studentRevisionDoc->scan_attempts ?: 1);
+                $freeScansRemaining = max(0, $maxFreeScans - $currentAttempts);
+                $isExceededFree = ($currentAttempts >= $maxFreeScans);
             }
         }
     }
@@ -253,6 +257,50 @@
                             <p class="text-xs text-gray-800 whitespace-pre-line leading-relaxed">
                                 {{ $studentRevisionDoc->admin_notes }}
                             </p>
+                        </div>
+                    @endif
+                </div>
+
+                <!-- Turnitin & Grammarly Free Scanning Quota Notice Box (100% Borderless Design) -->
+                <div class="rounded-2xl {{ $isExceededFree ? 'bg-rose-50/80' : 'bg-slate-50/90' }} p-4 sm:p-5 space-y-3 shadow-2xs">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 {{ $isExceededFree ? 'text-rose-700' : 'text-[#700000]' }} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-2.182 7.027a9 9 0 118.232-4.492" />
+                            </svg>
+                            <h4 class="text-xs sm:text-sm font-bold text-gray-900 tracking-tight truncate">
+                                Turnitin &amp; Grammarly Scanning Quota
+                            </h4>
+                        </div>
+                        <span class="inline-flex items-center text-[11px] font-bold px-3 py-1 rounded-full {{ $isExceededFree ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-900' }} shrink-0">
+                            {{ $isExceededFree ? 'Free Tries Exhausted' : "{$freeScansRemaining} of {$maxFreeScans} Free Tries Left" }}
+                        </span>
+                    </div>
+
+                    <!-- 3-Slot Visual Try Progress Indicator (Borderless) -->
+                    <div class="grid grid-cols-3 gap-2 pt-0.5">
+                        <div class="rounded-xl px-2.5 py-1.5 text-center {{ $currentAttempts >= 1 ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800' }}">
+                            <p class="text-[9px] uppercase font-bold tracking-wider opacity-75">Scan 1</p>
+                            <p class="text-[11px] font-extrabold leading-tight mt-0.5">{{ $currentAttempts >= 1 ? 'Used' : 'Available' }}</p>
+                        </div>
+                        <div class="rounded-xl px-2.5 py-1.5 text-center {{ $currentAttempts >= 2 ? 'bg-rose-100 text-rose-800' : ($currentAttempts === 1 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/60 text-slate-500') }}">
+                            <p class="text-[9px] uppercase font-bold tracking-wider opacity-75">Scan 2</p>
+                            <p class="text-[11px] font-extrabold leading-tight mt-0.5">{{ $currentAttempts >= 2 ? 'Used' : ($currentAttempts === 1 ? 'Next' : 'Available') }}</p>
+                        </div>
+                        <div class="rounded-xl px-2.5 py-1.5 text-center {{ $currentAttempts >= 3 ? 'bg-rose-100 text-rose-800' : ($currentAttempts === 2 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200/60 text-slate-500') }}">
+                            <p class="text-[9px] uppercase font-bold tracking-wider opacity-75">Scan 3</p>
+                            <p class="text-[11px] font-extrabold leading-tight mt-0.5">{{ $currentAttempts >= 3 ? 'Used' : ($currentAttempts === 2 ? 'Next' : 'Available') }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Policy Explanation -->
+                    @if(!$isExceededFree)
+                        <p class="text-xs text-gray-700 leading-relaxed">
+                            <span class="font-bold text-gray-900">Scanning Quota Notice:</span> Each research group receives <strong>three (3) free Turnitin and Grammarly scans</strong>. You have used <span class="font-bold text-rose-700">{{ $currentAttempts }}</span> of 3 scans (<span class="font-bold text-amber-900">{{ $freeScansRemaining }} {{ Str::plural('try', $freeScansRemaining) }} remaining</span>). If your manuscript still does not pass after 3 scans, you must pay for the 4th scan.
+                        </p>
+                    @else
+                        <div class="rounded-xl bg-rose-100/70 p-3 text-xs text-rose-950 leading-relaxed font-medium">
+                            <span class="font-bold text-rose-900">Payment Required for 4th Scan:</span> Your group has exhausted all 3 free Turnitin and Grammarly screening attempts. In accordance with RESO regulations, you must settle the re-screening fee at the Cashier / RESO office for your 4th manuscript scan before clearance review can proceed.
                         </div>
                     @endif
                 </div>

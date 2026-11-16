@@ -189,6 +189,7 @@ class AdminSubmissionController extends Controller
             'submitted_by_email' => $document->submitted_by_email,
             'status' => $document->status,
             'turnitin_similarity' => $document->turnitin_similarity,
+            'scan_attempts' => (int) ($document->scan_attempts ?: 1),
             'admin_notes' => $document->admin_notes,
             'chunks_count' => $chunkCount,
         ]);
@@ -210,6 +211,14 @@ class AdminSubmissionController extends Controller
             $similarity .= '%';
         }
 
+        $currentAttempt = (int) ($document->scan_attempts ?: 1);
+        $maxFreeScans = 3;
+        $freeRemaining = max(0, $maxFreeScans - $currentAttempt);
+
+        $quotaNote = $freeRemaining > 0
+            ? "Turnitin & Grammarly Scan: Attempt {$currentAttempt} of {$maxFreeScans} used ({$freeRemaining} free " . ($freeRemaining === 1 ? 'try' : 'tries') . " remaining)."
+            : "Turnitin & Grammarly Scan: All 3 free scans have been used. Payment is required for the 4th scan.";
+
         $updateData = [
             'status' => 'resubmit',
             'admin_notes' => $notes,
@@ -225,7 +234,7 @@ class AdminSubmissionController extends Controller
             'revision_request',
             $document->id,
             $document->title,
-            "Requested revisions" . ($similarity ? " (Similarity: {$similarity})" : "") . ($notes ? " - Feedback: {$notes}" : "")
+            "Requested revisions (Scan attempt #{$currentAttempt})" . ($similarity ? " (Similarity: {$similarity})" : "") . ($notes ? " - Feedback: {$notes}" : "")
         );
 
         // Dispatch resubmission in-app notification to student
@@ -233,6 +242,7 @@ class AdminSubmissionController extends Controller
             $msg = "Your thesis \"{$document->title}\" requires revisions before clearance can be granted."
                 . ($similarity ? "\nTurnitin Similarity: {$similarity} (exceeds threshold)." : "")
                 . "\n\nAdmin Feedback:\n{$notes}"
+                . "\n\nScan Quota: {$quotaNote}"
                 . "\n\nInstitutional Policy: Please submit your revisions within 3 months. Unrevised submissions are automatically removed after 90 days.";
 
             ThesisNotification::create([
@@ -331,7 +341,7 @@ class AdminSubmissionController extends Controller
      */
     public function purgeStaleRevisions(): int
     {
-        $cutoff = Carbon::now()->subMonths(3);
+        $cutoff = Carbon::now()->subDays(90);
 
         $staleDocuments = Document::whereNotNull('submitted_by_email')
             ->where('status', 'resubmit')

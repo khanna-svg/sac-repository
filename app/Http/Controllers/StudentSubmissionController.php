@@ -205,6 +205,10 @@ class StudentSubmissionController extends Controller
                 // Update in place: replace file, refresh chunks, reset status back to pending
                 $prevNotes = $existingDoc->admin_notes ? "Previous Feedback: " . $existingDoc->admin_notes : null;
 
+                // When resubmitting from 'resubmit' status, increment scan_attempts
+                $currentAttempts = (int) ($existingDoc->scan_attempts ?: 1);
+                $newAttempts = ($existingDoc->status === 'resubmit') ? $currentAttempts + 1 : $currentAttempts;
+
                 $updateData = [
                     'title' => $title,
                     'author' => $author,
@@ -215,6 +219,7 @@ class StudentSubmissionController extends Controller
                     'file_url' => "/backend/documents/{$existingDoc->id}/view",
                     'status' => 'pending', // Resets from 'resubmit' back to 'pending' (moves from Needs Revisions to Pending tab)
                     'turnitin_similarity' => null, // Reset Turnitin score until admin re-checks
+                    'scan_attempts' => $newAttempts,
                     'submitted_by_name' => $submittedByName,
                     'admin_notes' => $prevNotes,
                 ];
@@ -284,6 +289,7 @@ class StudentSubmissionController extends Controller
                 'file_path' => $filePath,
                 'file_url' => '',
                 'status' => 'pending',
+                'scan_attempts' => 1,
                 'submitted_by_name' => $submittedByName,
                 'submitted_by_email' => $email,
                 'admin_notes' => null,

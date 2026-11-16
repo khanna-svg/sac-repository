@@ -233,7 +233,10 @@
 
             <div>
                 <h4 id="resubmitModalDocTitle" class="text-xs font-bold text-gray-800 line-clamp-1"></h4>
-                <p id="resubmitModalStudentEmail" class="text-[11px] text-gray-500 font-mono mt-0.5"></p>
+                <div class="flex items-center gap-2 mt-0.5">
+                    <p id="resubmitModalStudentEmail" class="text-[11px] text-gray-500 font-mono"></p>
+                    <span id="resubmitModalScanBadge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700"></span>
+                </div>
             </div>
 
             <div class="space-y-3">
@@ -512,6 +515,11 @@
                     `;
                 }
 
+                const scanNum = sub.scan_attempts || 1;
+                const scanBadgeHtml = scanNum <= 3
+                    ? `<span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${scanNum === 3 ? 'bg-amber-100 text-amber-900 border border-amber-200' : 'bg-slate-100 text-slate-700'}">Scan #${scanNum} (Free)</span>`
+                    : `<span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">Scan #${scanNum} (Paid)</span>`;
+
                 const safeTitle = escapeHtml(sub.title).replace(/'/g, "\\'");
                 const safeEmail = escapeHtml(sub.submitted_by_email || '').replace(/'/g, "\\'");
                 const safeNotes = escapeHtml(sub.admin_notes || '').replace(/'/g, "\\'");
@@ -547,7 +555,10 @@
 
                         <!-- Status -->
                         <td class="py-4 px-4 text-center whitespace-nowrap text-xs font-medium">
-                            ${statusBadgeHtml}
+                            <div class="inline-flex flex-col items-center">
+                                ${statusBadgeHtml}
+                                ${scanBadgeHtml}
+                            </div>
                         </td>
 
                         <!-- Actions (STRICTLY SVG ICONS, NO TEXT!) -->
@@ -594,7 +605,7 @@
                                 <!-- 4. Reject / Request Resubmission (SVG Icon) -->
                                 <button
                                     type="button"
-                                    onclick="openResubmitModal(${sub.id}, '${safeTitle}', '${safeEmail}', '${safeNotes}', '${safeSimilarity}')"
+                                    onclick="openResubmitModal(${sub.id}, '${safeTitle}', '${safeEmail}', '${safeNotes}', '${safeSimilarity}', ${sub.scan_attempts || 1})"
                                     title="Request Revisions (Turnitin / Grammarly)"
                                     aria-label="Request Resubmission"
                                     class="p-2 rounded-xl border border-gray-200 text-gray-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition cursor-pointer">
@@ -701,10 +712,23 @@
         }
 
         // Resubmission Modal logic
-        function openResubmitModal(id, title, email, notes = '', similarity = '') {
+        function openResubmitModal(id, title, email, notes = '', similarity = '', scanAttempts = 1) {
             activeTargetDocId = id;
             document.getElementById('resubmitModalDocTitle').textContent = title;
             document.getElementById('resubmitModalStudentEmail').textContent = 'Student: ' + (email || 'N/A');
+
+            const scanBadge = document.getElementById('resubmitModalScanBadge');
+            if (scanBadge) {
+                const scanNum = parseInt(scanAttempts, 10) || 1;
+                if (scanNum <= 3) {
+                    scanBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200';
+                    scanBadge.textContent = `Scan #${scanNum} of 3 Free`;
+                } else {
+                    scanBadge.className = 'text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-200';
+                    scanBadge.textContent = `Scan #${scanNum} (Paid Scan Required)`;
+                }
+            }
+
             document.getElementById('resubmitSimilarityInput').value = similarity || '';
             document.getElementById('adminNotesInput').value = notes || '';
             document.getElementById('resubmitModal').classList.remove('hidden');

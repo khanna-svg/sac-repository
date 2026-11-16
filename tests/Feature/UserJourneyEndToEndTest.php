@@ -47,7 +47,14 @@ class UserJourneyEndToEndTest extends TestCase
                 $table->string('submitted_by_email')->nullable();
                 $table->text('admin_notes')->nullable();
                 $table->string('turnitin_similarity')->nullable();
+                $table->unsignedSmallInteger('scan_attempts')->default(1);
                 $table->timestamps();
+            });
+        }
+
+        if (!Schema::hasColumn('documents', 'scan_attempts')) {
+            Schema::table('documents', function ($table) {
+                $table->unsignedSmallInteger('scan_attempts')->default(1);
             });
         }
 

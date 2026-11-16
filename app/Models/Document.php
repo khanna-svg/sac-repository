@@ -27,10 +27,12 @@ class Document extends Model
         'submitted_by_email',
         'admin_notes',
         'turnitin_similarity',
+        'scan_attempts',
     ];
 
     protected $casts = [
         'publication_date' => 'date',
+        'scan_attempts' => 'integer',
     ];
 
     public function chunks()
