@@ -6,6 +6,7 @@ use App\Mail\ThesisClearanceMail;
 use App\Models\Document;
 use App\Models\ThesisNotification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,10 @@ class StudentSubmissionController extends Controller
     public function showForm(Request $request)
     {
         $email = strtolower((string) $request->session()->get('sac_user_email'));
+
+        // Visiting the upload/submit page automatically marks revision notice as seen/dismissed
+        $request->session()->put('revision_notice_dismissed', true);
+        Cookie::queue('sac_rev_dismissed', '1', 1440);
 
         $submissions = Document::where('submitted_by_email', $email)
             ->orderBy('created_at', 'desc')
@@ -375,7 +380,7 @@ class StudentSubmissionController extends Controller
         $request->session()->put('revision_notice_dismissed', true);
         return response()->json([
             'success' => true,
-        ]);
+        ])->cookie('sac_rev_dismissed', '1', 1440, '/', null, false, false);
     }
 }
 

@@ -409,8 +409,20 @@ class AuthWorkflowTest extends TestCase
 
         $dismissRes->assertOk();
         $dismissRes->assertJson(['success' => true]);
+        $dismissRes->assertCookie('sac_rev_dismissed', '1');
 
-        // 3. Visit again with session containing revision_notice_dismissed -> should NOT see modal
+        // 3. Visit submit page -> should NEVER see modal because user is already on submit page
+        $submitPageRes = $this->withSession([
+            'sac_user_email' => 'figueroaryan@sac.edu.ph',
+            'sac_user_role' => 'student',
+            'sac_user_name' => 'Ryan Figueroa',
+        ])->get('/student/submit');
+
+        $submitPageRes->assertOk();
+        $submitPageRes->assertDontSee('id="revisionNoticeModal"', false);
+        $submitPageRes->assertSessionHas('revision_notice_dismissed', true);
+
+        // 4. Visit again with session containing revision_notice_dismissed -> should NOT see modal
         $responseAfter = $this->withSession([
             'sac_user_email' => 'figueroaryan@sac.edu.ph',
             'sac_user_role' => 'student',
@@ -420,6 +432,16 @@ class AuthWorkflowTest extends TestCase
 
         $responseAfter->assertOk();
         $responseAfter->assertDontSee('id="revisionNoticeModal"', false);
+
+        // 5. Visit with cookie sac_rev_dismissed -> should NOT see modal
+        $responseCookie = $this->withSession([
+            'sac_user_email' => 'figueroaryan@sac.edu.ph',
+            'sac_user_role' => 'student',
+            'sac_user_name' => 'Ryan Figueroa',
+        ])->withCookie('sac_rev_dismissed', '1')->get('/documents');
+
+        $responseCookie->assertOk();
+        $responseCookie->assertDontSee('id="revisionNoticeModal"', false);
 
         // Cleanup
         $revisionDoc->delete();

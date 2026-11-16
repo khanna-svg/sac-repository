@@ -41,7 +41,9 @@
     $revDeadline = null;
     $revDaysRemaining = 0;
     if ($userEmail && !in_array($userRole, ['admin', 'librarian', 'coordinator'], true)) {
-        if (!session()->has('revision_notice_dismissed')) {
+        $isSubmitPage = request()->routeIs('student.submit') || request()->is('student/submit*');
+        $isDismissedCookie = (bool) request()->cookie('sac_rev_dismissed');
+        if (!session()->has('revision_notice_dismissed') && !$isDismissedCookie && !$isSubmitPage) {
             $studentRevisionDoc = \App\Models\Document::where('submitted_by_email', strtolower($userEmail))
                 ->where('status', 'resubmit')
                 ->latest('updated_at')
@@ -199,7 +201,13 @@
 @if($hasRevisionNotice && $studentRevisionDoc)
     <!-- Student Revision Notice Pop-up Modal -->
     <div id="revisionNoticeModal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 transition-all duration-300">
-        <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl border border-gray-100 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+        <script>
+            if (sessionStorage.getItem('sac_revision_notice_dismissed') === '1' || (document.cookie && document.cookie.indexOf('sac_rev_dismissed=1') !== -1)) {
+                const _rm = document.getElementById('revisionNoticeModal');
+                if (_rm) _rm.remove();
+            }
+        </script>
+        <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
             
             <!-- Top Color Accent Bar -->
             <div class="h-2 bg-gradient-to-r from-[#700000] via-rose-600 to-amber-500"></div>
@@ -207,7 +215,7 @@
             <div class="p-6 sm:p-7 space-y-5">
                 <!-- Icon & Header -->
                 <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center shrink-0 shadow-xs">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center shrink-0 shadow-2xs">
                         <svg class="w-6 h-6 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                         </svg>
@@ -223,7 +231,7 @@
                 </div>
 
                 <!-- Manuscript Info Card -->
-                <div class="rounded-2xl border border-gray-200 bg-slate-50/70 p-4 space-y-3">
+                <div class="rounded-2xl bg-slate-50/90 p-4 space-y-3 shadow-2xs">
                     <div>
                         <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Research Title</p>
                         <h4 class="text-xs sm:text-sm font-bold text-gray-900 mt-0.5 leading-snug">
@@ -234,14 +242,14 @@
                     @if($studentRevisionDoc->turnitin_similarity)
                         <div class="flex items-center gap-1.5 text-xs">
                             <span class="text-gray-500 font-medium">Turnitin Similarity:</span>
-                            <span class="font-mono font-bold text-rose-700">
+                            <span class="font-inter font-semibold text-rose-700">
                                 {{ $studentRevisionDoc->turnitin_similarity }}
                             </span>
                         </div>
                     @endif
 
                     @if(!empty($studentRevisionDoc->admin_notes))
-                        <div class="pt-2.5 border-t border-gray-200/80 space-y-1">
+                        <div class="pt-2 space-y-1">
                             <p class="text-[10px] uppercase font-bold text-rose-800 tracking-wider">Admin Feedback</p>
                             <p class="text-xs text-gray-800 whitespace-pre-line leading-relaxed">
                                 {{ $studentRevisionDoc->admin_notes }}
@@ -250,8 +258,8 @@
                     @endif
                 </div>
 
-                <!-- Revision Deadline Box (matching fifth photo) -->
-                <div class="rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 sm:p-5 space-y-2.5">
+                <!-- Revision Deadline Box (matching option 1 borderless design) -->
+                <div class="rounded-2xl bg-amber-50/80 p-4 sm:p-5 space-y-2.5 shadow-2xs">
                     <div class="flex items-center gap-2">
                         <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#b45309] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -277,12 +285,12 @@
 
                 <!-- Action Buttons: "Go to Upload" (Red Button) & "Dismiss" (Beside it) -->
                 <div class="pt-1 flex flex-col sm:flex-row items-center gap-2.5">
-                    <a
-                        href="{{ route('student.submit') }}"
-                        onclick="dismissRevisionNoticeModal()"
+                    <button
+                        type="button"
+                        onclick="dismissRevisionNoticeModal('{{ route('student.submit') }}')"
                         class="w-full sm:flex-1 py-3 px-6 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
                         Go to Upload
-                    </a>
+                    </button>
                     <button
                         type="button"
                         onclick="dismissRevisionNoticeModal()"
@@ -295,12 +303,18 @@
     </div>
 
     <script>
-        function dismissRevisionNoticeModal() {
+        function dismissRevisionNoticeModal(targetUrl = null) {
             const modal = document.getElementById('revisionNoticeModal');
             if (modal) {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
             }
+
+            try {
+                sessionStorage.setItem('sac_revision_notice_dismissed', '1');
+                document.cookie = "sac_rev_dismissed=1; path=/; max-age=86400; SameSite=Lax";
+            } catch (e) {}
+
             try {
                 const token = document.getElementById('sacTopHeader')?.dataset.csrf ||
                     document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -310,10 +324,15 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': token
-                    }
+                    },
+                    keepalive: true
                 }).catch(() => {});
             } catch (err) {
                 console.warn('Failed to dismiss revision notice on server:', err);
+            }
+
+            if (targetUrl) {
+                window.location.href = targetUrl;
             }
         }
     </script>
@@ -416,6 +435,17 @@
                 <div class="py-12 text-center text-xs text-slate-400 font-medium">
                     Loading activity history...
                 </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 sm:px-6 bg-slate-50/70 flex items-center justify-between shrink-0">
+                <span id="activityLogsFooterCount" class="text-xs text-slate-500 font-medium font-inter">Showing 0 activities</span>
+                <button
+                    type="button"
+                    onclick="closeActivityLogsModal()"
+                    class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-200/70 hover:bg-slate-200 transition cursor-pointer">
+                    Close
+                </button>
             </div>
         </div>
     </div>
