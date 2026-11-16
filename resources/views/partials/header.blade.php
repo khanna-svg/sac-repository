@@ -55,6 +55,16 @@
     }
 @endphp
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    .font-inter, .font-date-time {
+        font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+        font-weight: 400 !important;
+    }
+</style>
+
 <header id="sacTopHeader" data-csrf="{{ csrf_token() }}" class="fixed top-0 right-0 left-0 md:left-64 h-14 md:h-16 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between transition-all duration-300 select-none shadow-2xs">
     
     <!-- LEFT: Mobile/Collapsed Toggle & Current Page Title (Clean Minimalist without "AIRIS /") -->
@@ -261,7 +271,7 @@
                     </div>
 
                     <p class="text-xs text-gray-700 leading-relaxed">
-                        Please upload your revised manuscript before <span class="font-semibold">{{ $revDeadline->format('F d, Y') }}</span>. Unresubmitted manuscripts will be automatically deleted after the 90-day revision period.
+                        Please upload your revised manuscript before <span class="font-semibold font-inter">{{ $revDeadline->format('F d, Y') }}</span>. Unresubmitted manuscripts will be automatically deleted after the 90-day revision period.
                     </p>
                 </div>
 
@@ -545,7 +555,7 @@
                                     ${!n.is_read ? '<span class="w-2 h-2 rounded-full bg-[#700000] shrink-0"></span>' : ''}
                                     <h4 class="font-bold text-xs truncate ${iconColor}">${n.title}</h4>
                                 </div>
-                                <span class="text-[9px] text-gray-400 shrink-0 font-mono">${timeAgo}</span>
+                                <span class="text-[9px] text-gray-400 shrink-0 font-inter font-normal">${timeAgo}</span>
                             </div>
                             <p class="text-[11px] text-gray-600 mt-1 leading-relaxed whitespace-pre-line line-clamp-3">${n.message}</p>
                         </a>
@@ -831,7 +841,7 @@
                                 ${docLink}
                             </span>
                         </div>
-                        <span class="text-[11px] text-slate-400 font-mono shrink-0 whitespace-nowrap">
+                        <span class="text-[11px] text-slate-400 font-inter font-normal shrink-0 whitespace-nowrap">
                             ${formattedDate}
                         </span>
                     </div>

@@ -9,7 +9,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="/images/airis-logo.webp" type="image/webp">
@@ -18,6 +18,11 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
     <style>
+        .font-inter, .font-date-time {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-weight: 400 !important;
+        }
+
         /* Antigravity-Style Right AI Sidebar Squeeze Layout */
         @media (min-width: 1024px) {
             html.ai-drawer-open main,
@@ -190,7 +195,7 @@
                     @endif
 
                     <span class="text-gray-300">•</span>
-                    <span class="text-gray-500">{{ $document->publication_date ? $document->publication_date->format('F Y') : ($document->created_at ? $document->created_at->format('F Y') : 'Recent') }}</span>
+                    <span class="text-gray-500 font-inter font-normal">{{ $document->publication_date ? $document->publication_date->format('F Y') : ($document->created_at ? $document->created_at->format('F Y') : 'Recent') }}</span>
                 </div>
 
                 {{-- Book Cover & Title Header Row --}}

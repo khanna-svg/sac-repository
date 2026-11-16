@@ -12,6 +12,15 @@
     </script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .font-inter, .font-date-time {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-weight: 400 !important;
+        }
+    </style>
 </head>
 
 <body class="bg-slate-50 text-slate-800 min-h-screen font-sans flex flex-col antialiased">
@@ -640,7 +649,7 @@
                                         ${escapeHtml(doc.title)}
                                     </h4>
                                     <div class="flex items-center flex-wrap gap-2 mt-1">
-                                        <span class="text-[11px] text-gray-500"><span class="font-semibold text-gray-700">Uploaded:</span> ${pubDateFormatted}</span>
+                                        <span class="text-[11px] text-gray-500"><span class="font-semibold text-gray-700">Uploaded:</span> <span class="font-inter font-normal">${pubDateFormatted}</span></span>
                                         ${statusBadge}
                                     </div>
                                 </div>

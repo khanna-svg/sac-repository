@@ -12,6 +12,15 @@
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
     <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .font-inter, .font-date-time {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-weight: 400 !important;
+        }
+    </style>
 </head>
 
 <body class="min-h-screen bg-slate-50 text-slate-800 font-sans">
@@ -480,7 +489,7 @@
                                 <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                <span>${daysLeft} days remaining to resubmit</span>
+                                <span class="font-inter font-normal">${daysLeft} days remaining to resubmit</span>
                             </div>
                         `;
                     }
@@ -516,7 +525,7 @@
                                 <h4 class="font-bold text-gray-900 leading-snug" title="${escapeHtml(sub.title)}">
                                     ${escapeHtml(sub.title)}
                                 </h4>
-                                <p class="text-[11px] text-gray-400 mt-0.5">Submitted on ${formattedDate}</p>
+                                <p class="text-[11px] text-gray-400 mt-0.5">Submitted on <span class="font-inter font-normal">${formattedDate}</span></p>
                                 ${sub.admin_notes ? `
                                     <div class="mt-1.5 rounded-lg bg-slate-50 border border-gray-200 p-2 text-[11px] text-gray-700">
                                         <span class="font-bold text-[#700000]">Admin Feedback:</span> ${escapeHtml(sub.admin_notes)}

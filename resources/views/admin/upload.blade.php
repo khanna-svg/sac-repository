@@ -25,8 +25,16 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="icon" href="{{ asset('images/airis-logo.webp') }}" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        .font-inter, .font-date-time {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+            font-weight: 400 !important;
+        }
+
         #progressContainer {
             display: none;
         }
