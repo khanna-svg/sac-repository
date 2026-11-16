@@ -81,13 +81,55 @@
     <div class="flex items-center gap-3 sm:gap-4 shrink-0 justify-end">
         @if($userEmail)
             <!-- User Name & Role in Crisp Slate -->
-            <div class="flex flex-col text-right sm:text-left leading-tight">
-                <span class="text-xs sm:text-sm font-semibold text-slate-800 tracking-tight truncate max-w-[140px] sm:max-w-[220px]">
-                    {{ $userName }}
-                </span>
-                <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
-                    {{ in_array($userRole, ['admin', 'librarian', 'coordinator'], true) ? ucfirst($userRole) : 'Student' }}
-                </span>
+            <div class="flex items-center gap-2">
+                <div class="flex flex-col text-right sm:text-left leading-tight">
+                    <span class="text-xs sm:text-sm font-semibold text-slate-800 tracking-tight truncate max-w-[140px] sm:max-w-[220px]">
+                        {{ $userName }}
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
+                        {{ in_array($userRole, ['admin', 'librarian', 'coordinator'], true) ? ucfirst($userRole) : 'Student' }}
+                    </span>
+                </div>
+
+                @if(in_array($userRole, ['admin', 'librarian', 'coordinator'], true))
+                    <!-- Profile User SVG Button & Dropdown Menu -->
+                    <div class="relative">
+                        <button
+                            type="button"
+                            id="adminProfileMenuBtn"
+                            onclick="toggleAdminProfileDropdown(event)"
+                            title="Profile & Options"
+                            aria-label="Profile & Options"
+                            class="p-1 sm:p-1.5 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer flex items-center justify-center focus:outline-none">
+                            <svg class="w-5 h-5 text-slate-600 hover:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                        </button>
+
+                        <!-- Profile User Dropdown -->
+                        <div
+                            id="adminProfileDropdown"
+                            class="hidden absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white p-2 shadow-xl border border-slate-200 z-50 text-left transition-all">
+                            <div class="px-3 py-2 border-b border-gray-100 mb-1">
+                                <p class="text-xs font-bold text-gray-900 truncate">{{ $userName }}</p>
+                                <p class="text-[11px] text-gray-500 truncate">{{ $userEmail }}</p>
+                                <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-rose-50 text-[#700000] border border-rose-200">
+                                    {{ ucfirst($userRole) }}
+                                </span>
+                            </div>
+
+                            <button
+                                type="button"
+                                onclick="openActivityLogsModal(event)"
+                                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#700000] transition cursor-pointer text-left group">
+                                <svg class="w-4 h-4 text-slate-500 group-hover:text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0zM3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                                </svg>
+                                <span>View Logs</span>
+                            </button>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Hairline Divider -->
@@ -258,6 +300,121 @@
             }
         }
     </script>
+@endif
+
+@if(in_array($userRole, ['admin', 'librarian', 'coordinator'], true))
+    <!-- Admin Activity Logs Modal -->
+    <div id="adminActivityLogsModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-6 transition-all duration-300">
+        <div class="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-white shadow-2xl border border-gray-100 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+            <!-- Top Gradient Bar -->
+            <div class="h-2 bg-gradient-to-r from-[#700000] via-rose-600 to-amber-500 shrink-0"></div>
+
+            <!-- Modal Header -->
+            <div class="p-5 sm:p-6 border-b border-gray-100 flex items-start justify-between gap-4 shrink-0 bg-slate-50/50">
+                <div class="flex items-center gap-3.5 min-w-0">
+                    <div class="w-10 h-10 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center shrink-0 shadow-xs">
+                        <svg class="w-5 h-5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                            <span>Admin Activity Logs</span>
+                            <span id="logHeaderBadge" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold font-mono">0 total</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            History of administrative actions: approving, requesting revisions, archiving, editing, and restoring.
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="closeActivityLogsModal()"
+                    class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                    title="Close">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Filter Tabs & Search Bar -->
+            <div class="p-4 sm:p-5 border-b border-gray-100 bg-white flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
+                <!-- Action Tabs -->
+                <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0" id="activityLogTabs">
+                    <button
+                        type="button"
+                        onclick="setActivityLogFilter('all')"
+                        id="logTab_all"
+                        class="activity-log-tab px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-[#700000] text-[#FFD700] shadow-xs cursor-pointer">
+                        All (<span id="logCountAll">0</span>)
+                    </button>
+                    <button
+                        type="button"
+                        onclick="setActivityLogFilter('approve')"
+                        id="logTab_approve"
+                        class="activity-log-tab px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition whitespace-nowrap cursor-pointer">
+                        Approved (<span id="logCountApprove">0</span>)
+                    </button>
+                    <button
+                        type="button"
+                        onclick="setActivityLogFilter('revision')"
+                        id="logTab_revision"
+                        class="activity-log-tab px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition whitespace-nowrap cursor-pointer">
+                        Needs Revision (<span id="logCountRevision">0</span>)
+                    </button>
+                    <button
+                        type="button"
+                        onclick="setActivityLogFilter('archive')"
+                        id="logTab_archive"
+                        class="activity-log-tab px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition whitespace-nowrap cursor-pointer">
+                        Archived (<span id="logCountArchive">0</span>)
+                    </button>
+                    <button
+                        type="button"
+                        onclick="setActivityLogFilter('edit')"
+                        id="logTab_edit"
+                        class="activity-log-tab px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition whitespace-nowrap cursor-pointer">
+                        Edited (<span id="logCountEdit">0</span>)
+                    </button>
+                </div>
+
+                <!-- Search Input -->
+                <div class="relative w-full sm:w-64">
+                    <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                    <input
+                        type="text"
+                        id="activityLogSearchInput"
+                        oninput="handleActivityLogSearch(event)"
+                        placeholder="Search logs..."
+                        class="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#700000]/20 focus:border-[#700000] transition" />
+                </div>
+            </div>
+
+            <!-- Logs List Body (Scrollable) -->
+            <div id="activityLogsBody" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 min-h-[260px] max-h-[55vh] bg-slate-50/30">
+                <div class="py-12 text-center text-xs text-slate-400 font-medium">
+                    Loading activity history...
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 sm:p-5 border-t border-gray-100 bg-white flex items-center justify-between shrink-0">
+                <span class="text-xs text-slate-500 font-medium" id="activityLogsFooterCount">
+                    Showing 0 activities
+                </span>
+                <button
+                    type="button"
+                    onclick="closeActivityLogsModal()"
+                    class="py-2 px-5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 @endif
 
 <script>
@@ -475,6 +632,270 @@
         const btn = document.getElementById('headerNotifBellBtn');
         if (dd && btn && !dd.contains(e.target) && !btn.contains(e.target)) {
             dd.classList.add('hidden');
+        }
+
+        const profileDd = document.getElementById('adminProfileDropdown');
+        const profileBtn = document.getElementById('adminProfileMenuBtn');
+        if (profileDd && profileBtn && !profileDd.contains(e.target) && !profileBtn.contains(e.target)) {
+            profileDd.classList.add('hidden');
+        }
+    });
+
+    // Admin Profile & Activity Logs Logic
+    function toggleAdminProfileDropdown(e) {
+        if (e) e.stopPropagation();
+        const dd = document.getElementById('adminProfileDropdown');
+        if (!dd) return;
+        dd.classList.toggle('hidden');
+    }
+
+    let currentActivityLogFilter = 'all';
+    let currentActivityLogSearch = '';
+    let activityLogSearchTimeout = null;
+
+    function openActivityLogsModal(e) {
+        if (e) e.stopPropagation();
+        const dd = document.getElementById('adminProfileDropdown');
+        if (dd) dd.classList.add('hidden');
+
+        const modal = document.getElementById('adminActivityLogsModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            fetchActivityLogs();
+        }
+    }
+
+    function closeActivityLogsModal() {
+        const modal = document.getElementById('adminActivityLogsModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    function setActivityLogFilter(filter) {
+        currentActivityLogFilter = filter;
+        document.querySelectorAll('.activity-log-tab').forEach(tab => {
+            tab.className = 'activity-log-tab px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition whitespace-nowrap cursor-pointer';
+        });
+        const activeTab = document.getElementById(`logTab_${filter}`);
+        if (activeTab) {
+            activeTab.className = 'activity-log-tab px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap bg-[#700000] text-[#FFD700] shadow-xs cursor-pointer';
+        }
+        fetchActivityLogs();
+    }
+
+    function handleActivityLogSearch(e) {
+        clearTimeout(activityLogSearchTimeout);
+        currentActivityLogSearch = e.target.value.trim();
+        activityLogSearchTimeout = setTimeout(() => {
+            fetchActivityLogs();
+        }, 300);
+    }
+
+    async function fetchActivityLogs() {
+        const body = document.getElementById('activityLogsBody');
+        if (!body) return;
+
+        body.innerHTML = `
+            <div class="py-12 text-center text-xs text-slate-400 font-medium flex flex-col items-center justify-center gap-2">
+                <svg class="w-6 h-6 animate-spin text-slate-400" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Loading activity history...</span>
+            </div>
+        `;
+
+        try {
+            const url = `/backend/admin/activity-logs?action=${encodeURIComponent(currentActivityLogFilter)}&search=${encodeURIComponent(currentActivityLogSearch)}`;
+            const res = await fetch(url, {
+                headers: { 'Accept': 'application/json' }
+            });
+            if (!res.ok) throw new Error('Failed to fetch activity logs');
+            const data = await res.json();
+
+            // Update badge counts
+            if (data.counts) {
+                const cAll = document.getElementById('logCountAll');
+                const cApp = document.getElementById('logCountApprove');
+                const cRev = document.getElementById('logCountRevision');
+                const cArc = document.getElementById('logCountArchive');
+                const cEd = document.getElementById('logCountEdit');
+                const hBadge = document.getElementById('logHeaderBadge');
+
+                if (cAll) cAll.textContent = data.counts.all || 0;
+                if (cApp) cApp.textContent = data.counts.approve || 0;
+                if (cRev) cRev.textContent = data.counts.revision || 0;
+                if (cArc) cArc.textContent = data.counts.archive || 0;
+                if (cEd) cEd.textContent = data.counts.edit || 0;
+                if (hBadge) hBadge.textContent = `${data.counts.all || 0} total`;
+            }
+
+            renderActivityLogs(data.logs || []);
+        } catch (err) {
+            console.error('Error loading activity logs:', err);
+            body.innerHTML = `
+                <div class="py-12 text-center text-xs text-rose-500 font-medium">
+                    Failed to load activity logs. Please try again.
+                </div>
+            `;
+        }
+    }
+
+    function renderActivityLogs(logs) {
+        const body = document.getElementById('activityLogsBody');
+        const footerCount = document.getElementById('activityLogsFooterCount');
+        if (!body) return;
+
+        if (footerCount) {
+            footerCount.textContent = `Showing ${logs.length} ${logs.length === 1 ? 'activity' : 'activities'}`;
+        }
+
+        if (!logs || logs.length === 0) {
+            body.innerHTML = `
+                <div class="py-12 text-center text-xs text-slate-400 font-medium space-y-1">
+                    <p class="font-bold text-slate-600">No activity logs recorded yet.</p>
+                    <p class="text-slate-400">Actions like approving, requesting revisions, archiving, and editing will appear here.</p>
+                </div>
+            `;
+            return;
+        }
+
+        body.innerHTML = logs.map(log => {
+            const act = log.action ? log.action.toLowerCase() : '';
+            let badgeHtml = '';
+            let borderStyle = 'border-slate-200';
+
+            if (act === 'approve' || act === 'approved') {
+                borderStyle = 'border-emerald-200 hover:border-emerald-300';
+                badgeHtml = `
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                        Approved
+                    </span>
+                `;
+            } else if (act === 'revision_request' || act === 'revision' || act === 'reject') {
+                borderStyle = 'border-rose-200 hover:border-rose-300';
+                badgeHtml = `
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-800 border border-rose-200">
+                        <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                        </svg>
+                        Needs Revision
+                    </span>
+                `;
+            } else if (act === 'archive' || act === 'archived') {
+                borderStyle = 'border-amber-200 hover:border-amber-300';
+                badgeHtml = `
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                        </svg>
+                        Archived
+                    </span>
+                `;
+            } else if (act === 'restore') {
+                borderStyle = 'border-sky-200 hover:border-sky-300';
+                badgeHtml = `
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 text-sky-800 border border-sky-200">
+                        <svg class="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                        Restored
+                    </span>
+                `;
+            } else if (act === 'edit' || act === 'edited' || act === 'update') {
+                borderStyle = 'border-blue-200 hover:border-blue-300';
+                badgeHtml = `
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                        <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                        </svg>
+                        Edited
+                    </span>
+                `;
+            } else if (act === 'upload') {
+                borderStyle = 'border-purple-200 hover:border-purple-300';
+                badgeHtml = `
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-800 border border-purple-200">
+                        <svg class="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        </svg>
+                        Uploaded
+                    </span>
+                `;
+            } else {
+                borderStyle = 'border-slate-200 hover:border-slate-300';
+                badgeHtml = `
+                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                        ${escapeHtml(log.action || 'Activity')}
+                    </span>
+                `;
+            }
+
+            const formattedDate = log.created_at ? new Date(log.created_at).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) : '';
+
+            const docLink = log.document_id ? `<a href="/documents/${log.document_id}" target="_blank" class="hover:text-[#700000] hover:underline">${escapeHtml(log.document_title || 'Untitled Manuscript')}</a>` : `<span>${escapeHtml(log.document_title || 'Untitled Manuscript')}</span>`;
+
+            return `
+                <div class="p-4 rounded-2xl bg-white border ${borderStyle} shadow-2xs hover:shadow-xs transition space-y-2">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            ${badgeHtml}
+                            <span class="text-xs font-bold text-slate-900 leading-snug">
+                                ${docLink}
+                            </span>
+                        </div>
+                        <span class="text-[11px] text-slate-400 font-mono shrink-0 whitespace-nowrap">
+                            ${formattedDate}
+                        </span>
+                    </div>
+
+                    ${log.details ? `
+                        <p class="text-xs text-slate-600 leading-relaxed pl-2 border-l-2 border-slate-200">
+                            ${escapeHtml(log.details)}
+                        </p>
+                    ` : ''}
+
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+                        <div class="flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                            <span>${escapeHtml(log.admin_name || 'Administrator')}</span>
+                            <span class="text-slate-300">&bull;</span>
+                            <span class="text-slate-400">${escapeHtml(log.admin_email || '')}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
+
+    // Close activity logs modal on Escape
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeActivityLogsModal();
         }
     });
 

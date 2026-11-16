@@ -140,6 +140,7 @@ Route::middleware('sac.auth')->group(function () {
         Route::get('/backend/admin/submissions/{document}/download', [\App\Http\Controllers\AdminSubmissionController::class, 'download']);
         Route::get('/backend/admin/submissions/{document}/prefill', [\App\Http\Controllers\AdminSubmissionController::class, 'prefill']);
         Route::post('/backend/admin/dismiss-policy-notice', [\App\Http\Controllers\AdminSubmissionController::class, 'dismissPolicyNotice'])->name('admin.dismissPolicyNotice');
+        Route::get('/backend/admin/activity-logs', [\App\Http\Controllers\AdminActivityLogController::class, 'index'])->name('admin.activityLogs');
 
         Route::get('/admin/theses', function () {
             return view('admin.theses');

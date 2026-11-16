@@ -593,21 +593,6 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                                     </svg>
                                 </button>
-
-                                <!-- 5. Direct View Published Manuscript in Repository (when approved) -->
-                                ${(sub.status === 'approved' || sub.status === 'cleared') ? `
-                                <a
-                                    href="/documents/${sub.id}"
-                                    target="_blank"
-                                    title="View Published Manuscript in Repository"
-                                    aria-label="View Published Manuscript in Repository"
-                                    class="p-2 rounded-xl border border-emerald-200 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100 hover:text-emerald-800 transition cursor-pointer">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-                                    </svg>
-                                </a>
-                                ` : ''}
-
                             </div>
                         </td>
                     </tr>
@@ -901,44 +886,39 @@
 
                 <div class="p-6 sm:p-7 space-y-5">
                     <!-- Icon & Header -->
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 shadow-xs">
-                            <svg class="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-                            </svg>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200 mb-1">
-                                Institutional Policy
-                            </span>
-                            <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">
-                                Institutional Revision Policy
-                            </h3>
-                            <p class="text-xs text-gray-500 mt-0.5">
-                                Standard operating policy for research manuscripts requiring revision
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Policy Card -->
-                    <div class="rounded-2xl border border-amber-200 bg-amber-50/80 p-4 space-y-2">
-                        <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-amber-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 shadow-xs">
+                            <svg class="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <div class="text-xs text-amber-950 space-y-1.5 leading-relaxed">
-                                <p class="font-bold text-sm text-amber-950">
-                                    Institutional Revision Policy
-                                </p>
-                                <p class="text-amber-900 text-xs">
-                                    Manuscripts marked for revision must be resubmitted within <span class="font-bold underline">90 days (3 months)</span>. Submissions that are not resubmitted within this period will be automatically deleted from the institutional storage and database.
-                                </p>
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
+                            Institutional Revision Policy
+                        </h3>
+                    </div>
+
+                    <!-- Policy Box Content (matching media_1794794054924_e38e4afd.png) -->
+                    <div class="space-y-4 text-slate-700">
+                        <p class="text-xs sm:text-sm text-slate-700">
+                            Manuscripts marked for revision must be resubmitted within:
+                        </p>
+
+                        <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200">
+                            <div class="text-3xl font-extrabold text-[#700000] tracking-tight">
+                                90 days
+                            </div>
+                            <div class="text-xs text-slate-500 font-medium mt-1">
+                                3 months from the date of revision notification
                             </div>
                         </div>
+
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                            Submissions that are not resubmitted within this period will be automatically deleted from the institutional storage and database.
+                        </p>
                     </div>
 
                     <!-- Action Button: "OK" -->
-                    <div class="pt-1">
+                    <div class="pt-2">
                         <button
                             type="button"
                             onclick="dismissAdminPolicyModal()"

@@ -62,9 +62,26 @@ class AuthWorkflowTest extends TestCase
             });
         }
 
+        if (!\Illuminate\Support\Facades\Schema::hasTable('admin_activity_logs')) {
+            \Illuminate\Support\Facades\Schema::create('admin_activity_logs', function ($table) {
+                $table->id();
+                $table->string('admin_email');
+                $table->string('admin_name');
+                $table->string('action', 50);
+                $table->unsignedBigInteger('document_id')->nullable();
+                $table->string('document_title');
+                $table->text('details')->nullable();
+                $table->string('ip_address', 45)->nullable();
+                $table->timestamps();
+            });
+        }
+
         User::truncate();
         \App\Models\Document::truncate();
         \App\Models\ThesisNotification::truncate();
+        if (\Illuminate\Support\Facades\Schema::hasTable('admin_activity_logs')) {
+            \App\Models\AdminActivityLog::truncate();
+        }
 
         User::create([
             'name' => 'Ryan Figueroa',
@@ -422,7 +439,8 @@ class AuthWorkflowTest extends TestCase
         $response->assertOk();
         $response->assertSee('id="adminPolicyModal"', false);
         $response->assertSee('Institutional Revision Policy');
-        $response->assertSee('90 days (3 months)');
+        $response->assertSee('90 days');
+        $response->assertSee('3 months from the date of revision notification');
         $response->assertSee('OK');
 
         // 2. Dismiss via POST endpoint
@@ -445,6 +463,85 @@ class AuthWorkflowTest extends TestCase
 
         $responseAfter->assertOk();
         $responseAfter->assertDontSee('id="adminPolicyModal"', false);
+    }
+
+    /**
+     * Test admin profile user button, dropdown, and activity logs endpoints.
+     */
+    public function test_admin_profile_menu_and_activity_logs(): void
+    {
+        // 1. Visit admin submissions page -> should render admin profile button and activity logs modal
+        $response = $this->withSession([
+            'sac_user_email' => 'admin@sac.edu.ph',
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Administrator',
+        ])->get('/admin/submissions');
+
+        $response->assertOk();
+        $response->assertSee('id="adminProfileMenuBtn"', false);
+        $response->assertSee('id="adminProfileDropdown"', false);
+        $response->assertSee('View Logs');
+        $response->assertSee('id="adminActivityLogsModal"', false);
+        $response->assertSee('Admin Activity Logs');
+
+        // 2. Student should NOT see admin profile menu or activity logs modal
+        $studentResponse = $this->withSession([
+            'sac_user_email' => 'figueroaryan@sac.edu.ph',
+            'sac_user_role' => 'student',
+            'sac_user_name' => 'Ryan Figueroa',
+        ])->get('/documents');
+
+        $studentResponse->assertOk();
+        $studentResponse->assertDontSee('id="adminProfileMenuBtn"', false);
+        $studentResponse->assertDontSee('id="adminActivityLogsModal"', false);
+
+        // 3. Unauthorized access to /backend/admin/activity-logs is blocked
+        $guestLogs = $this->getJson('/backend/admin/activity-logs');
+        $guestLogs->assertStatus(403);
+
+        // 4. Record sample activity log and fetch via authenticated admin session
+        \App\Models\AdminActivityLog::record(
+            'approve',
+            101,
+            'Automated Operations System for Blood Donor-Recipient',
+            'Approved manuscript clearance and published to repository (Turnitin: 10%)'
+        );
+
+        \App\Models\AdminActivityLog::record(
+            'revision_request',
+            102,
+            'Smart Procurement System: QR-Based Asset Inventory',
+            'Requested revisions (Turnitin: 30%) - Feedback: need to revise, exceeded from >28% threshold'
+        );
+
+        $adminLogs = $this->withSession([
+            'sac_user_email' => 'admin@sac.edu.ph',
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Administrator',
+        ])->getJson('/backend/admin/activity-logs');
+
+        $adminLogs->assertOk();
+        $adminLogs->assertJsonStructure([
+            'success',
+            'logs',
+            'counts' => ['all', 'approve', 'revision', 'archive', 'edit'],
+        ]);
+        $data = $adminLogs->json();
+        $this->assertCount(2, $data['logs']);
+        $this->assertEquals(2, $data['counts']['all']);
+        $this->assertEquals(1, $data['counts']['approve']);
+        $this->assertEquals(1, $data['counts']['revision']);
+
+        // 5. Test filter action
+        $filtered = $this->withSession([
+            'sac_user_email' => 'admin@sac.edu.ph',
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Administrator',
+        ])->getJson('/backend/admin/activity-logs?action=approve');
+
+        $filtered->assertOk();
+        $this->assertCount(1, $filtered->json('logs'));
+        $this->assertEquals('approve', $filtered->json('logs.0.action'));
     }
 }
 

@@ -1012,6 +1012,14 @@ class DocumentController extends Controller
             $totalChunks = DB::table('document_chunks')
                 ->where('document_id', $document->id)
                 ->count();
+
+            \App\Models\AdminActivityLog::record(
+                'upload',
+                $document->id,
+                $document->title,
+                'Directly uploaded and published new manuscript'
+            );
+
             return response()->json([
                 'error' => false,
                 'message' => 'Thesis metadata and pages saved successfully.',
@@ -1513,6 +1521,13 @@ class DocumentController extends Controller
             $document = Document::findOrFail($id);
             $document->update(['status' => 'archived']);
 
+            \App\Models\AdminActivityLog::record(
+                'archive',
+                $document->id,
+                $document->title,
+                "Archived manuscript and moved to Archived Manuscripts"
+            );
+
             return response()->json([
                 'error' => false,
                 'message' => "Manuscript '{$document->title}' has been archived and moved to Archived Manuscripts."
@@ -1531,6 +1546,13 @@ class DocumentController extends Controller
         try {
             $document = Document::findOrFail($id);
             $document->update(['status' => 'approved']);
+
+            \App\Models\AdminActivityLog::record(
+                'restore',
+                $document->id,
+                $document->title,
+                "Restored manuscript and republished to repository"
+            );
 
             return response()->json([
                 'error' => false,
@@ -1567,6 +1589,13 @@ class DocumentController extends Controller
                 'publication_date' => !empty($validated['publication_date']) ? \Carbon\Carbon::parse($validated['publication_date'])->toDateString() : $document->publication_date,
                 'abstract' => isset($validated['abstract']) ? trim($validated['abstract']) : $document->abstract,
             ]);
+
+            \App\Models\AdminActivityLog::record(
+                'edit',
+                $document->id,
+                $document->title,
+                "Updated manuscript metadata (Title, Author, Department, Course)"
+            );
 
             return response()->json([
                 'error' => false,
@@ -1606,6 +1635,13 @@ class DocumentController extends Controller
             }
 
             $document->delete();
+
+            \App\Models\AdminActivityLog::record(
+                'delete',
+                null,
+                $title,
+                "Permanently deleted manuscript from repository"
+            );
 
             return response()->json([
                 'error' => false,

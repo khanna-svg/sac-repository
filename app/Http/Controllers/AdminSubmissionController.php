@@ -106,6 +106,14 @@ class AdminSubmissionController extends Controller
 
         $document->update($updateData);
 
+        // Record audit activity log
+        \App\Models\AdminActivityLog::record(
+            'approve',
+            $document->id,
+            $document->title,
+            "Approved clearance and published to repository" . ($similarity ? " (Similarity: {$similarity})" : "") . ($notes ? " - Feedback: {$notes}" : "")
+        );
+
         // If chunks are completely missing, extract them
         if (DB::table('document_chunks')->where('document_id', $document->id)->count() === 0) {
             try {
@@ -214,6 +222,14 @@ class AdminSubmissionController extends Controller
         }
 
         $document->update($updateData);
+
+        // Record audit activity log
+        \App\Models\AdminActivityLog::record(
+            'revision_request',
+            $document->id,
+            $document->title,
+            "Requested revisions" . ($similarity ? " (Similarity: {$similarity})" : "") . ($notes ? " - Feedback: {$notes}" : "")
+        );
 
         // Dispatch resubmission in-app notification to student
         if ($document->submitted_by_email) {
