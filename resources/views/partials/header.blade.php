@@ -128,9 +128,6 @@
                             <div class="px-3 py-2 bg-slate-50/80 rounded-xl mb-1">
                                 <p class="text-xs font-bold text-gray-900 truncate">{{ $userName }}</p>
                                 <p class="text-[11px] text-gray-500 truncate">{{ $userEmail }}</p>
-                                <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-rose-50 text-[#700000]">
-                                    {{ ucfirst($userRole) }}
-                                </span>
                             </div>
 
                             <button
