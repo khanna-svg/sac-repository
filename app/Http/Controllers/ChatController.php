@@ -219,7 +219,7 @@ class ChatController extends Controller
                 ]);
             }
 
-            // Step 4: Build rich thesis context text to feed into Gemini AI (up to 8 chunks, 1400 chars each)
+            // Step 4: Build rich thesis context text to feed into Gemini AI
             $contextParts = [];
 
             if ($documentId) {
@@ -233,21 +233,54 @@ class ChatController extends Controller
                         "Abstract:\n" .
                         mb_substr((string) $mainDoc->abstract, 0, 1200);
                 }
-            }
 
-            foreach (array_slice($chunks, 0, 5) as $index => $chunk) {
-                $score = round(((float) ($chunk->similarity ?? 0.85)) * 100, 1);
-                $docTitle = $chunk->document_title ?? 'Thesis Document';
-                $docAuthor = $chunk->document_author ?? 'Unknown Author';
-                $cleanText = mb_substr(trim((string) $chunk->chunk_text), 0, 750);
+                foreach (array_slice($chunks, 0, 5) as $index => $chunk) {
+                    $score = round(((float) ($chunk->similarity ?? 0.85)) * 100, 1);
+                    $docTitle = $chunk->document_title ?? 'Thesis Document';
+                    $docAuthor = $chunk->document_author ?? 'Unknown Author';
+                    $cleanText = mb_substr(trim((string) $chunk->chunk_text), 0, 750);
 
-                $contextParts[] =
-                    "[Source #" . ($index + 1) . "]\n" .
-                    "Thesis Title: {$docTitle}\n" .
-                    "Author: {$docAuthor}\n" .
-                    "Similarity: {$score}%\n" .
-                    "Content:\n" .
-                    $cleanText;
+                    $contextParts[] =
+                        "[Source #" . ($index + 1) . "]\n" .
+                        "Thesis Title: {$docTitle}\n" .
+                        "Author: {$docAuthor}\n" .
+                        "Similarity: {$score}%\n" .
+                        "Content:\n" .
+                        $cleanText;
+                }
+            } else {
+                // Global repository search: ensure diverse matching manuscripts are surfaced,
+                // rather than letting multiple chunks from 1 or 2 papers fill all available context slots.
+                $docIds = array_unique(array_column($chunks, 'document_id'));
+                $docRecords = DB::table('documents')->whereIn('id', $docIds)->get()->keyBy('id');
+
+                $seenDocs = [];
+                $docCounter = 1;
+
+                foreach ($chunks as $chunk) {
+                    $dId = $chunk->document_id ?? null;
+                    if (!$dId || isset($seenDocs[$dId])) continue;
+                    $seenDocs[$dId] = true;
+
+                    $d = $docRecords[$dId] ?? null;
+                    $title = $d->title ?? ($chunk->document_title ?? 'Manuscript');
+                    $author = $d->author ?? ($chunk->document_author ?? 'Unknown Author');
+                    $dept = $d->department ?? 'General';
+                    $abstract = !empty($d->abstract) ? mb_substr(trim($d->abstract), 0, 450) : '';
+                    $cleanText = mb_substr(trim((string) $chunk->chunk_text), 0, 600);
+
+                    $contextParts[] =
+                        "[Manuscript #{$docCounter}]\n" .
+                        "Title: {$title}\n" .
+                        "Department: {$dept}\n" .
+                        "Authors: {$author}\n" .
+                        "Executive Abstract: {$abstract}\n" .
+                        "Relevant Excerpt:\n" .
+                        $cleanText;
+
+                    $docCounter++;
+                    if ($docCounter > 6) break;
+                }
             }
 
             $contextText = implode("\n\n---\n\n", $contextParts);
