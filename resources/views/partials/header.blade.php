@@ -212,36 +212,33 @@
         </script>
         <div class="w-full max-w-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3.5rem)] my-auto rounded-3xl bg-white shadow-2xl overflow-hidden flex flex-col transform transition-all animate-in fade-in zoom-in-95 duration-200">
             
-            <!-- Pinned Modal Header (Always Visible) -->
-            <div class="shrink-0 bg-white">
-                <!-- Top Color Accent Bar -->
-                <div class="h-1.5 bg-gradient-to-r from-[#700000] via-rose-600 to-amber-500"></div>
-                <div class="px-5 sm:px-6 pt-4 pb-3 flex items-start justify-between gap-3 border-b border-gray-100">
-                    <div class="flex items-start gap-3 min-w-0">
-                        <div class="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center shrink-0 shadow-2xs">
-                            <svg class="w-5 h-5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                            </svg>
-                        </div>
-                        <div class="min-w-0 flex-1">
-                            <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">
-                                Manuscript Revision Required
-                            </h3>
-                            <p class="text-xs text-gray-500 mt-0.5 truncate">
-                                Your submitted research manuscript requires revisions.
-                            </p>
-                        </div>
+            <!-- Pinned Modal Header (AIRIS Maroon Style matching Picture 2) -->
+            <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[#600000] bg-[#700000] text-white shrink-0">
+                <div class="flex items-center gap-3 min-w-0 pr-2">
+                    <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#D4AF37]/40 flex items-center justify-center">
+                        <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                     </div>
-                    <button
-                        type="button"
-                        onclick="dismissRevisionNoticeModal()"
-                        title="Close notice"
-                        class="p-1.5 -mr-1 rounded-xl text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer shrink-0">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                    <div class="min-w-0">
+                        <h3 class="text-sm sm:text-base font-bold text-white tracking-wide truncate flex items-center gap-1.5">
+                            <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
+                            <span>Manuscript Revision Required</span>
+                        </h3>
+                        <p class="text-[11px] sm:text-xs text-amber-100/90 truncate mt-0.5">
+                            Your submitted research manuscript requires revisions.
+                        </p>
+                    </div>
                 </div>
+
+                <button
+                    type="button"
+                    onclick="dismissRevisionNoticeModal()"
+                    aria-label="Close Revision Notice"
+                    class="p-1.5 rounded-lg text-amber-100/80 hover:text-white hover:bg-white/10 transition cursor-pointer shrink-0"
+                    title="Close">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
 
             <!-- Scrollable Modal Body (Smoothly scrolls if viewport height is compact) -->
