@@ -93,6 +93,43 @@ class ChatController extends Controller
         }
 
         try {
+            // Conversational Follow-Up Resolution (e.g. "what is the comparison of these titles", "compare them", "who wrote both?")
+            // If the user's question references items from the immediate conversation history, synthesize directly from history
+            // to avoid wiping conversational context with an irrelevant database search.
+            if (!empty($history)) {
+                $isFollowUpComparison = (bool) preg_match('/\b(these|this|those|both|the\s+two|the\s+above|them|they|their)\b/i', $userQuestion)
+                    && (bool) preg_match('/\b(compare|comparison|comparis|difference|differences|versus|vs|titles?|projects?|studies?|theses?|authors?|researchers?)\b/i', $userQuestion);
+
+                if ($isFollowUpComparison) {
+                    $lastAssistantResponse = '';
+                    for ($i = count($history) - 1; $i >= 0; $i--) {
+                        if (isset($history[$i]['role']) && $history[$i]['role'] === 'assistant') {
+                            $lastAssistantResponse = trim((string)($history[$i]['content'] ?? ''));
+                            break;
+                        }
+                    }
+
+                    if (!empty($lastAssistantResponse)) {
+                        try {
+                            $instruction = "The user is asking a conversational follow-up question comparing or referencing the specific research manuscripts provided in your immediately preceding response below:\n\n" .
+                                "--- PREVIOUS RETRIEVED MANUSCRIPTS ---\n" .
+                                $lastAssistantResponse . "\n" .
+                                "--------------------------------------\n\n" .
+                                "Answer the user's question directly based on these specific manuscripts. Compare their research domains, objectives, technical components, target beneficiaries, or methodology as requested. Do NOT introduce or switch to unrelated manuscripts.";
+
+                            $answer = $this->geminiService->generateChatResponse($userQuestion, $instruction, $history);
+                            return response()->json([
+                                'error' => false,
+                                'answer' => $answer,
+                                'sources' => []
+                            ]);
+                        } catch (\Throwable $e) {
+                            Log::warning('RAG: Follow-up comparison generation error: ' . $e->getMessage());
+                        }
+                    }
+                }
+            }
+
             $embeddingVector = null;
             $keywords = $this->extractSearchKeywords($userQuestion);
 
@@ -103,12 +140,17 @@ class ChatController extends Controller
                 $lastUserMsg = '';
                 for ($i = count($history) - 1; $i >= 0; $i--) {
                     if (isset($history[$i]['role']) && $history[$i]['role'] === 'user') {
-                        $lastUserMsg = trim((string)($history[$i]['content'] ?? ''));
-                        break;
+                        $cText = trim((string)($history[$i]['content'] ?? ''));
+                        if ($cText !== '' && strcasecmp($cText, $userQuestion) !== 0) {
+                            $lastUserMsg = $cText;
+                            break;
+                        }
                     }
                 }
                 if ($lastUserMsg !== '' && strlen($userQuestion) < 60) {
                     $searchQuery = $lastUserMsg . ' ' . $userQuestion;
+                    $priorKeywords = $this->extractSearchKeywords($lastUserMsg);
+                    $keywords = array_values(array_unique(array_merge($keywords, $priorKeywords)));
                 }
             }
 
@@ -351,7 +393,7 @@ class ChatController extends Controller
             'can', 'will', 'just', 'should', 'now', 'used', 'using', 'study', 'thesis',
             'paper', 'project', 'document', 'documents', 'tell', 'about',
             'give', 'summarize', 'summary', 'explain', 'detail', 'details', 'find',
-            'their', 'they', 'them', 'these', 'those', 'also', 'with',
+            'their', 'they', 'them', 'these', 'those', 'this', 'also', 'with',
             'could', 'would', 'done', 'does', 'item', 'items', 'make', 'made'
         ];
 
@@ -529,21 +571,26 @@ class ChatController extends Controller
         if (!empty($keywords)) {
             $isPgsql = DB::getDriverName() === 'pgsql';
 
-            // Find top matching documents based on title + abstract relevance
+            // Find top matching documents based on title + keywords + abstract relevance
             $docScoreClauses = [];
             $docWhereClauses = [];
             $docBindings = [];
 
+            $genericWords = ['based', 'project', 'projects', 'study', 'studies', 'system', 'systems', 'thesis', 'theses', 'paper', 'papers'];
+
             foreach ($keywords as $kw) {
+                $weight = in_array(strtolower($kw), $genericWords, true) ? 1 : 6;
                 if ($isPgsql) {
-                    $docScoreClauses[] = "(CASE WHEN title ~* ? THEN 5 WHEN abstract ~* ? THEN 2 ELSE 0 END)";
-                    $docWhereClauses[] = "title ~* ? OR abstract ~* ?";
+                    $docScoreClauses[] = "(CASE WHEN title ~* ? THEN " . ($weight * 2) . " WHEN keywords ~* ? THEN " . ($weight + 2) . " WHEN abstract ~* ? THEN " . $weight . " ELSE 0 END)";
+                    $docWhereClauses[] = "title ~* ? OR keywords ~* ? OR abstract ~* ?";
                     $reg = '\m' . preg_quote($kw, '/') . '\M';
                     $docBindings[] = $reg;
                     $docBindings[] = $reg;
+                    $docBindings[] = $reg;
                 } else {
-                    $docScoreClauses[] = "(CASE WHEN title ILIKE ? THEN 5 WHEN abstract ILIKE ? THEN 2 ELSE 0 END)";
-                    $docWhereClauses[] = "title ILIKE ? OR abstract ILIKE ?";
+                    $docScoreClauses[] = "(CASE WHEN title ILIKE ? THEN " . ($weight * 2) . " WHEN keywords ILIKE ? THEN " . ($weight + 2) . " WHEN abstract ILIKE ? THEN " . $weight . " ELSE 0 END)";
+                    $docWhereClauses[] = "title ILIKE ? OR keywords ILIKE ? OR abstract ILIKE ?";
+                    $docBindings[] = "%{$kw}%";
                     $docBindings[] = "%{$kw}%";
                     $docBindings[] = "%{$kw}%";
                 }
@@ -557,7 +604,7 @@ class ChatController extends Controller
                 FROM documents
                 WHERE status = 'approved' AND ($docWhereSql)
                 ORDER BY score DESC
-                LIMIT 4
+                LIMIT 8
             ", array_merge($docBindings, $docBindings));
 
             $matchedDocIds = array_column($topDocs, 'id');
