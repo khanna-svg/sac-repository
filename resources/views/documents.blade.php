@@ -1002,7 +1002,6 @@
 
                         <div class="flex-1 min-w-0 pr-8">
                             <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 font-semibold">
-                                ${doc.similarity_score ? `<span class="font-bold text-[#700000]">${doc.similarity_score}% Similarity</span><span class="text-gray-300">•</span>` : ''}
                                 <span class="font-bold text-[#700000]">AIRIS</span>
                                 <span class="text-gray-300">•</span>
                                 <span class="text-gray-700">${escapeHtml(details.name)}</span>
@@ -1449,7 +1448,7 @@
                     const bestDoc = allDocuments[0];
                     if (titleEl) titleEl.textContent = bestDoc.title || 'Top Literature Match';
                     if (scoreEl) {
-                        scoreEl.textContent = bestDoc.similarity_score ? `${bestDoc.similarity_score}% Similarity` : 'Top Match';
+                        scoreEl.textContent = 'Top Match';
                     }
                     if (fileEl) fileEl.textContent = `from ${data.filename || (selectedProposalFile ? selectedProposalFile.name : 'file')}`;
                     if (metaEl) {
