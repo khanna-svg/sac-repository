@@ -462,11 +462,11 @@
                 let statusBadgeHtml = '';
                 if (sub.status === 'approved' || sub.status === 'cleared') {
                     statusBadgeHtml = `
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            Approved
-                            ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
-                        </span>
+                        <div class="inline-flex items-center gap-1.5 text-xs sm:text-sm">
+                            <span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+                            <span class="font-semibold text-emerald-800">Approved</span>
+                            ${sub.turnitin_similarity ? `<span class="text-xs text-slate-500 font-normal ml-0.5">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
+                        </div>
                     `;
                 } else if (sub.status === 'resubmit') {
                     let expiryNoticeHtml = '';
@@ -486,20 +486,20 @@
                     }
                     statusBadgeHtml = `
                         <div class="inline-flex flex-col items-start text-left">
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                Needs Revision
-                                ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
-                            </span>
+                            <div class="inline-flex items-center gap-1.5 text-xs sm:text-sm">
+                                <span class="w-2 h-2 rounded-full bg-rose-600 shrink-0"></span>
+                                <span class="font-semibold text-rose-800">Needs Revision</span>
+                                ${sub.turnitin_similarity ? `<span class="text-xs text-slate-500 font-normal ml-0.5">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
+                            </div>
                             ${expiryNoticeHtml}
                         </div>
                     `;
                 } else {
                     statusBadgeHtml = `
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-amber-50 text-amber-700">
-                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-                            Pending
-                        </span>
+                        <div class="inline-flex items-center gap-1.5 text-xs sm:text-sm">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                            <span class="font-semibold text-amber-800">Pending</span>
+                        </div>
                     `;
                 }
 
