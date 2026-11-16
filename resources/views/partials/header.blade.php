@@ -312,14 +312,14 @@
 @if(in_array($userRole, ['admin', 'librarian', 'coordinator'], true))
     <!-- Admin Activity Logs Modal -->
     <div id="adminActivityLogsModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-6 transition-all duration-300">
-        <div class="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-white shadow-2xl border border-gray-100 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+        <div class="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-white shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
             <!-- Top Gradient Bar -->
             <div class="h-2 bg-gradient-to-r from-[#700000] via-rose-600 to-amber-500 shrink-0"></div>
 
             <!-- Modal Header -->
-            <div class="p-5 sm:p-6 border-b border-gray-100 flex items-start justify-between gap-4 shrink-0 bg-slate-50/50">
+            <div class="p-5 sm:p-6 flex items-start justify-between gap-4 shrink-0 bg-slate-50/50">
                 <div class="flex items-center gap-3.5 min-w-0">
-                    <div class="w-10 h-10 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center shrink-0 shadow-xs">
+                    <div class="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center shrink-0 shadow-xs">
                         <svg class="w-5 h-5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
                         </svg>
@@ -347,7 +347,7 @@
             </div>
 
             <!-- Filter Tabs & Search Bar -->
-            <div class="p-4 sm:p-5 border-b border-gray-100 bg-white flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
+            <div class="p-4 sm:p-5 bg-white flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shrink-0">
                 <!-- Action Tabs -->
                 <div class="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0" id="activityLogTabs">
                     <button
@@ -397,28 +397,15 @@
                         id="activityLogSearchInput"
                         oninput="handleActivityLogSearch(event)"
                         placeholder="Search logs..."
-                        class="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#700000]/20 focus:border-[#700000] transition" />
+                        class="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl bg-slate-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#700000]/20 transition" />
                 </div>
             </div>
 
             <!-- Logs List Body (Scrollable) -->
-            <div id="activityLogsBody" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 min-h-[260px] max-h-[55vh] bg-slate-50/30">
+            <div id="activityLogsBody" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 min-h-[260px] max-h-[60vh] bg-slate-50/30">
                 <div class="py-12 text-center text-xs text-slate-400 font-medium">
                     Loading activity history...
                 </div>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="p-4 sm:p-5 border-t border-gray-100 bg-white flex items-center justify-between shrink-0">
-                <span class="text-xs text-slate-500 font-medium" id="activityLogsFooterCount">
-                    Showing 0 activities
-                </span>
-                <button
-                    type="button"
-                    onclick="closeActivityLogsModal()"
-                    class="py-2 px-5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer">
-                    Close
-                </button>
             </div>
         </div>
     </div>
@@ -773,74 +760,55 @@
         body.innerHTML = logs.map(log => {
             const act = log.action ? log.action.toLowerCase() : '';
             let badgeHtml = '';
-            let borderStyle = 'border-slate-200';
 
             if (act === 'approve' || act === 'approved') {
-                borderStyle = 'border-emerald-200 hover:border-emerald-300';
                 badgeHtml = `
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
-                        Approved
-                    </span>
+                    <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0"></span>
+                        <span>Approved</span>
+                    </div>
                 `;
             } else if (act === 'revision_request' || act === 'revision' || act === 'reject') {
-                borderStyle = 'border-rose-200 hover:border-rose-300';
                 badgeHtml = `
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-800 border border-rose-200">
-                        <svg class="w-3.5 h-3.5 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                        </svg>
-                        Needs Revision
-                    </span>
+                    <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-rose-800">
+                        <span class="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
+                        <span>Needs Revision</span>
+                    </div>
                 `;
             } else if (act === 'archive' || act === 'archived') {
-                borderStyle = 'border-amber-200 hover:border-amber-300';
                 badgeHtml = `
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                        <svg class="w-3.5 h-3.5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
-                        </svg>
-                        Archived
-                    </span>
+                    <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-800">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0"></span>
+                        <span>Archived</span>
+                    </div>
                 `;
             } else if (act === 'restore') {
-                borderStyle = 'border-sky-200 hover:border-sky-300';
                 badgeHtml = `
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-50 text-sky-800 border border-sky-200">
-                        <svg class="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                        </svg>
-                        Restored
-                    </span>
+                    <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-800">
+                        <span class="w-1.5 h-1.5 rounded-full bg-sky-600 shrink-0"></span>
+                        <span>Restored</span>
+                    </div>
                 `;
             } else if (act === 'edit' || act === 'edited' || act === 'update') {
-                borderStyle = 'border-blue-200 hover:border-blue-300';
                 badgeHtml = `
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-800 border border-blue-200">
-                        <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                        </svg>
-                        Edited
-                    </span>
+                    <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-800">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-600 shrink-0"></span>
+                        <span>Edited</span>
+                    </div>
                 `;
             } else if (act === 'upload') {
-                borderStyle = 'border-purple-200 hover:border-purple-300';
                 badgeHtml = `
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-purple-50 text-purple-800 border border-purple-200">
-                        <svg class="w-3.5 h-3.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                        </svg>
-                        Uploaded
-                    </span>
+                    <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-800">
+                        <span class="w-1.5 h-1.5 rounded-full bg-purple-600 shrink-0"></span>
+                        <span>Uploaded</span>
+                    </div>
                 `;
             } else {
-                borderStyle = 'border-slate-200 hover:border-slate-300';
                 badgeHtml = `
-                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-800 border border-slate-200">
-                        ${escapeHtml(log.action || 'Activity')}
-                    </span>
+                    <div class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></span>
+                        <span>${escapeHtml(log.action || 'Activity')}</span>
+                    </div>
                 `;
             }
 
@@ -855,7 +823,7 @@
             const docLink = log.document_id ? `<a href="/documents/${log.document_id}" target="_blank" class="hover:text-[#700000] hover:underline">${escapeHtml(log.document_title || 'Untitled Manuscript')}</a>` : `<span>${escapeHtml(log.document_title || 'Untitled Manuscript')}</span>`;
 
             return `
-                <div class="p-4 rounded-2xl bg-white border ${borderStyle} shadow-2xs hover:shadow-xs transition space-y-2">
+                <div class="p-4 rounded-2xl bg-white shadow-2xs hover:shadow-xs transition space-y-2">
                     <div class="flex items-start justify-between gap-3">
                         <div class="flex items-center gap-2 flex-wrap">
                             ${badgeHtml}
@@ -869,12 +837,12 @@
                     </div>
 
                     ${log.details ? `
-                        <p class="text-xs text-slate-600 leading-relaxed pl-2 border-l-2 border-slate-200">
+                        <p class="text-xs text-slate-600 leading-relaxed pl-1">
                             ${escapeHtml(log.details)}
                         </p>
                     ` : ''}
 
-                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-100">
+                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1">
                         <div class="flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
