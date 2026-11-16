@@ -462,10 +462,10 @@
                 let statusBadgeHtml = '';
                 if (sub.status === 'approved' || sub.status === 'cleared') {
                     statusBadgeHtml = `
-                        <div class="inline-flex items-center gap-1.5 text-xs sm:text-sm">
-                            <span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>
+                        <div class="inline-flex items-center gap-1.5 text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0"></span>
                             <span class="font-semibold text-emerald-800">Approved</span>
-                            ${sub.turnitin_similarity ? `<span class="text-xs text-slate-500 font-normal ml-0.5">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
+                            ${sub.turnitin_similarity ? `<span class="text-[11px] text-slate-500 font-normal ml-0.5">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
                         </div>
                     `;
                 } else if (sub.status === 'resubmit') {
@@ -476,8 +476,8 @@
                         const daysPassed = Math.floor((nowTime - updatedTime) / (1000 * 60 * 60 * 24));
                         const daysLeft = Math.max(0, 90 - daysPassed);
                         expiryNoticeHtml = `
-                            <div class="flex items-center gap-1 text-[11px] text-gray-500 mt-1">
-                                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <div class="flex items-center gap-1 text-[10px] text-gray-500 mt-0.5">
+                                <svg class="w-3 h-3 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                                 <span>${daysLeft} days remaining to resubmit</span>
@@ -486,18 +486,18 @@
                     }
                     statusBadgeHtml = `
                         <div class="inline-flex flex-col items-start text-left">
-                            <div class="inline-flex items-center gap-1.5 text-xs sm:text-sm">
-                                <span class="w-2 h-2 rounded-full bg-rose-600 shrink-0"></span>
+                            <div class="inline-flex items-center gap-1.5 text-xs">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-600 shrink-0"></span>
                                 <span class="font-semibold text-rose-800">Needs Revision</span>
-                                ${sub.turnitin_similarity ? `<span class="text-xs text-slate-500 font-normal ml-0.5">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
+                                ${sub.turnitin_similarity ? `<span class="text-[11px] text-slate-500 font-normal ml-0.5">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
                             </div>
                             ${expiryNoticeHtml}
                         </div>
                     `;
                 } else {
                     statusBadgeHtml = `
-                        <div class="inline-flex items-center gap-1.5 text-xs sm:text-sm">
-                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
+                        <div class="inline-flex items-center gap-1.5 text-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse shrink-0"></span>
                             <span class="font-semibold text-amber-800">Pending</span>
                         </div>
                     `;
