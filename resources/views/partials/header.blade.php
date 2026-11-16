@@ -402,13 +402,6 @@
                     </button>
                     <button
                         type="button"
-                        onclick="setActivityLogFilter('archive')"
-                        id="logTab_archive"
-                        class="activity-log-tab px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition whitespace-nowrap cursor-pointer">
-                        Archived (<span id="logCountArchive">0</span>)
-                    </button>
-                    <button
-                        type="button"
                         onclick="setActivityLogFilter('edit')"
                         id="logTab_edit"
                         class="activity-log-tab px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition whitespace-nowrap cursor-pointer">
@@ -791,7 +784,7 @@
             body.innerHTML = `
                 <div class="py-12 text-center text-xs text-slate-400 font-medium space-y-1">
                     <p class="font-bold text-slate-600">No activity logs recorded yet.</p>
-                    <p class="text-slate-400">Actions like approving, requesting revisions, archiving, and editing will appear here.</p>
+                    <p class="text-slate-400">Actions like approving submissions, requesting revisions, and editing metadata will appear here.</p>
                 </div>
             `;
             return;

@@ -156,21 +156,6 @@ Route::middleware('sac.auth')->group(function () {
             [DocumentController::class, 'update']
         );
 
-        Route::post(
-            '/backend/admin/theses/{document}/archive',
-            [DocumentController::class, 'archive']
-        );
-
-        Route::post(
-            '/backend/admin/theses/{document}/restore',
-            [DocumentController::class, 'restore']
-        );
-
-        Route::delete(
-            '/backend/admin/theses/{document}',
-            [DocumentController::class, 'destroy']
-        );
-
         Route::get('/admin/upload', function () {
             return view('admin.upload');
         })->name('admin.upload');

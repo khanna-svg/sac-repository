@@ -1478,16 +1478,11 @@ class DocumentController extends Controller
             $search = trim((string) $request->input('search', ''));
             $department = trim((string) $request->input('department', ''));
             $course = trim((string) $request->input('course', $request->input('course_code', '')));
-            $tab = trim((string) $request->input('tab', 'published'));
 
-            if ($tab === 'archived') {
-                $query = Document::query()->where('status', 'archived')->withCount('chunks');
-            } else {
-                $query = Document::query()->where(function ($q) {
-                    $q->where('status', 'approved')
-                        ->orWhere(fn($s) => $s->whereNull('status')->whereNull('submitted_by_email'));
-                })->withCount('chunks');
-            }
+            $query = Document::query()->where(function ($q) {
+                $q->where('status', 'approved')
+                    ->orWhere(fn($s) => $s->whereNull('status')->whereNull('submitted_by_email'));
+            })->withCount('chunks');
 
             if ($search !== '') {
                 $searchTerm = '%' . strtolower($search) . '%';
@@ -1513,14 +1508,12 @@ class DocumentController extends Controller
                     ->orWhere(fn($s) => $s->whereNull('status')->whereNull('submitted_by_email'));
             })->count();
 
-            $archivedCount = Document::where('status', 'archived')->count();
-
             return response()->json([
                 'error' => false,
                 'theses' => $documents,
                 'counts' => [
                     'published' => $publishedCount,
-                    'archived' => $archivedCount,
+                    'archived' => 0,
                 ],
             ]);
         } catch (\Throwable $e) {
@@ -1528,58 +1521,6 @@ class DocumentController extends Controller
             return response()->json([
                 'error' => true,
                 'message' => 'Failed to fetch theses: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function archive($id)
-    {
-        try {
-            $document = Document::findOrFail($id);
-            $document->update(['status' => 'archived']);
-
-            \App\Models\AdminActivityLog::record(
-                'archive',
-                $document->id,
-                $document->title,
-                "Archived manuscript and moved to Archived Manuscripts"
-            );
-
-            return response()->json([
-                'error' => false,
-                'message' => "Manuscript '{$document->title}' has been archived and moved to Archived Manuscripts."
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Admin thesis archive error: ' . $e->getMessage());
-            return response()->json([
-                'error' => true,
-                'message' => 'Failed to archive manuscript: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function restore($id)
-    {
-        try {
-            $document = Document::findOrFail($id);
-            $document->update(['status' => 'approved']);
-
-            \App\Models\AdminActivityLog::record(
-                'restore',
-                $document->id,
-                $document->title,
-                "Restored manuscript and republished to repository"
-            );
-
-            return response()->json([
-                'error' => false,
-                'message' => "Manuscript '{$document->title}' has been restored and republished."
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Admin thesis restore error: ' . $e->getMessage());
-            return response()->json([
-                'error' => true,
-                'message' => 'Failed to restore manuscript: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -1627,51 +1568,6 @@ class DocumentController extends Controller
                 'error' => true,
                 'message' => 'Failed to update manuscript: ' . $e->getMessage()
             ], 422);
-        }
-    }
-
-    public function destroy($id)
-    {
-        try {
-            $document = Document::findOrFail($id);
-            $title = $document->title;
-
-            if (!empty($document->file_path)) {
-                try {
-                    $baseUrl = rtrim((string) env('SUPABASE_URL'), '/');
-                    $serviceKey = (string) (env('SUPABASE_SERVICE_ROLE_KEY') ?: env('SUPABASE_PUBLISHABLE_KEY'));
-                    if ($baseUrl && $serviceKey) {
-                        Http::withoutVerifying()->withHeaders([
-                            'apikey' => $serviceKey,
-                            'Authorization' => "Bearer {$serviceKey}",
-                        ])->delete("{$baseUrl}/storage/v1/object/theses", [
-                            'prefixes' => [$document->file_path]
-                        ]);
-                    }
-                } catch (\Throwable $stErr) {
-                    Log::warning('Storage file deletion error (ignored): ' . $stErr->getMessage());
-                }
-            }
-
-            $document->delete();
-
-            \App\Models\AdminActivityLog::record(
-                'delete',
-                null,
-                $title,
-                "Permanently deleted manuscript from repository"
-            );
-
-            return response()->json([
-                'error' => false,
-                'message' => "Manuscript '{$title}' and its indexed vectors were permanently deleted."
-            ]);
-        } catch (\Throwable $e) {
-            Log::error('Admin thesis deletion error: ' . $e->getMessage());
-            return response()->json([
-                'error' => true,
-                'message' => 'Failed to delete manuscript: ' . $e->getMessage()
-            ], 500);
         }
     }
 
