@@ -1,11 +1,43 @@
+@php
+    $doc = $document ?? null;
+    $rawType = strtolower((string) ($type ?? ($doc->status ?? 'received')));
+    if (in_array($rawType, ['passed', 'approved', 'cleared'], true)) {
+        $type = 'passed';
+    } elseif (in_array($rawType, ['resubmit', 'revision', 'needs_revision', 'reject'], true)) {
+        $type = 'resubmit';
+    } else {
+        $type = 'received';
+    }
+
+    $similarity = $similarity ?? ($doc->turnitin_similarity ?? null);
+    $notes = $notes ?? ($doc->admin_notes ?? null);
+    $studentName = !empty($doc->submitted_by_name) ? $doc->submitted_by_name : 'SAC Student';
+    $studentEmail = !empty($doc->submitted_by_email) ? $doc->submitted_by_email : '';
+    $docTitle = !empty($doc->title) ? $doc->title : 'Untitled Manuscript';
+    $docAuthor = !empty($doc->author) ? $doc->author : ($studentName ?: 'N/A');
+
+    $dept = !empty($doc->department) ? strtoupper((string) $doc->department) : '';
+    $course = !empty($doc->course_code) ? strtoupper((string) $doc->course_code) : '';
+    $deptDisplay = $dept . ($course ? ($dept ? " ({$course})" : $course) : '');
+    if (empty($deptDisplay)) {
+        $deptDisplay = 'General Academic';
+    }
+
+    $actionUrl = ($type === 'passed' && !empty($doc->id))
+        ? url('/documents/' . $doc->id)
+        : url('/student/submit');
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $subjectTitle ?? 'AIRIS Manuscript Clearance Update' }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
-<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+<body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
 
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 30px 15px;">
         <tr>
@@ -43,7 +75,7 @@
                             
                             <!-- Greeting -->
                             <p style="margin: 0 0 16px 0; font-size: 15px; font-weight: 600; color: #334155;">
-                                Hello, <span style="color: #700000; font-weight: 700;">{{ $document->submitted_by_name ?: 'SAC Student' }}</span>
+                                Hello, <span style="color: #700000; font-weight: 700;">{{ $studentName }}</span>
                             </p>
 
                             @if($type === 'passed')
@@ -129,23 +161,23 @@
                                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="font-size: 13px;">
                                     <tr>
                                         <td style="padding: 6px 0; color: #64748b; width: 130px; font-weight: 600;">Research Title:</td>
-                                        <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">{{ $document->title }}</td>
+                                        <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">{{ $docTitle }}</td>
                                     </tr>
                                     <tr>
                                         <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Author(s):</td>
-                                        <td style="padding: 6px 0; color: #334155;">{{ $document->author }}</td>
+                                        <td style="padding: 6px 0; color: #334155;">{{ $docAuthor }}</td>
                                     </tr>
                                     <tr>
                                         <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Department:</td>
-                                        <td style="padding: 6px 0; color: #334155;">{{ strtoupper($document->department) }} ({{ strtoupper($document->course_code) }})</td>
+                                        <td style="padding: 6px 0; color: #334155;">{{ $deptDisplay }}</td>
                                     </tr>
 
-                                    @if(!empty($similarity) || !empty($document->turnitin_similarity))
+                                    @if(!empty($similarity))
                                     <tr>
                                         <td style="padding: 6px 0; color: #64748b; font-weight: 600;">Turnitin Score:</td>
                                         <td style="padding: 6px 0;">
-                                            <span style="display: inline-block; background-color: {{ $type === 'passed' ? '#dcfce7' : '#fee2e2' }}; color: {{ $type === 'passed' ? '#15803d' : '#b91c1c' }}; font-weight: 800; padding: 2px 8px; border-radius: 6px; font-family: monospace;">
-                                                {{ $similarity ?? $document->turnitin_similarity }}
+                                            <span style="display: inline-block; background-color: {{ $type === 'passed' ? '#dcfce7' : '#fee2e2' }}; color: {{ $type === 'passed' ? '#15803d' : '#b91c1c' }}; font-weight: 800; padding: 2px 8px; border-radius: 6px; font-family: 'Inter', sans-serif;">
+                                                {{ $similarity }}
                                             </span>
                                             <span style="font-size: 11px; color: #64748b; margin-left: 6px;">
                                                 (SAC Institutional Threshold: &le; 15%)
@@ -154,12 +186,12 @@
                                     </tr>
                                     @endif
 
-                                    @if(!empty($notes) || !empty($document->admin_notes))
+                                    @if(!empty($notes))
                                     <tr>
                                         <td style="padding: 8px 0 4px 0; color: #64748b; font-weight: 600; vertical-align: top;">Admin Feedback:</td>
                                         <td style="padding: 8px 0 4px 0; color: #0f172a;">
                                             <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #334155; line-height: 1.5; white-space: pre-line;">
-                                                {{ $notes ?? $document->admin_notes }}
+                                                {{ $notes }}
                                             </div>
                                         </td>
                                     </tr>
@@ -188,7 +220,7 @@
                             <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td align="center">
-                                        <a href="{{ $type === 'passed' ? url('/documents/' . $document->id) : url('/student/submit') }}" target="_blank" style="display: inline-block; background-color: #700000; color: #FFD700; font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(112, 0, 0, 0.2); letter-spacing: 0.02em;">
+                                        <a href="{{ $actionUrl }}" target="_blank" style="display: inline-block; background-color: #700000; color: #FFD700; font-size: 13px; font-weight: 700; text-decoration: none; padding: 12px 28px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(112, 0, 0, 0.2); letter-spacing: 0.02em;">
                                             {{ $type === 'resubmit' ? 'Revise & Resubmit Manuscript' : ($type === 'passed' ? 'View Published Manuscript in Repository' : 'View in Student Portal') }} &rarr;
                                         </a>
                                     </td>
@@ -208,7 +240,7 @@
                                 San Jose de Buenavista, Antique, Philippines
                             </p>
                             <p style="margin: 0; font-size: 10px; color: #94a3b8;">
-                                This is an automated academic notification sent to <span style="font-family: monospace; color: #64748b;">{{ $document->submitted_by_email }}</span>.
+                                This is an automated academic notification sent to <span style="font-family: 'Inter', sans-serif; color: #64748b;">{{ $studentEmail ?: 'your registered SAC student email' }}</span>.
                             </p>
                         </td>
                     </tr>

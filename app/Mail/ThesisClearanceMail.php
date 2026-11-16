@@ -26,11 +26,19 @@ class ThesisClearanceMail extends Mailable
     public function __construct(Document $document, string $type = 'passed', ?string $similarity = null, ?string $notes = null)
     {
         $this->document = $document;
-        $this->type = strtolower($type);
         $this->similarity = $similarity ?: $document->turnitin_similarity;
         $this->notes = $notes ?: $document->admin_notes;
 
-        $shortTitle = Str::limit($document->title, 45);
+        $rawType = strtolower($type ?: ($document->status ?? 'received'));
+        if (in_array($rawType, ['passed', 'approved', 'cleared'], true)) {
+            $this->type = 'passed';
+        } elseif (in_array($rawType, ['resubmit', 'revision', 'needs_revision', 'reject'], true)) {
+            $this->type = 'resubmit';
+        } else {
+            $this->type = 'received';
+        }
+
+        $shortTitle = Str::limit($document->title ?: 'Manuscript', 45);
 
         if ($this->type === 'passed') {
             $this->subjectTitle = "[SAC Clearance Passed] Turnitin & Grammarly Review: {$shortTitle}";
