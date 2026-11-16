@@ -418,7 +418,7 @@ class AuthWorkflowTest extends TestCase
         $response->assertSee('Automated Operations System for Blood Donor-Recipient Matching');
         $response->assertSee('Please revise flagged sections.');
         $response->assertSee('Turnitin & Grammarly Scanning Quota');
-        $response->assertSee('2 of 3 Free Tries Remaining');
+        $response->assertSee('2 of 3 Free Tries Left');
         $response->assertSee('Scan 1');
         $response->assertSee('Scan 2');
         $response->assertSee('Scan 3');
@@ -682,7 +682,7 @@ class AuthWorkflowTest extends TestCase
 
         $modalRes1->assertOk();
         $modalRes1->assertSee('Turnitin & Grammarly Scanning Quota');
-        $modalRes1->assertSee('2 of 3 Free Tries Remaining');
+        $modalRes1->assertSee('2 of 3 Free Tries Left');
         $modalRes1->assertSee('Scan 1');
         $modalRes1->assertSee('Used');
 
@@ -728,7 +728,7 @@ class AuthWorkflowTest extends TestCase
         ])->get('/documents');
 
         $modalRes2->assertOk();
-        $modalRes2->assertSee('1 of 3 Free Try Remaining');
+        $modalRes2->assertSee('1 of 3 Free Tries Left');
 
         // 5. Student uploads Revision 2 -> scan_attempts increments to 3 (Final Free Try)
         $resubmit2Res = $this->withSession([
@@ -773,11 +773,11 @@ class AuthWorkflowTest extends TestCase
         ])->get('/documents');
 
         $modalRes3->assertOk();
-        $modalRes3->assertSee('Free Quota Exhausted');
+        $modalRes3->assertSee('Free Tries Exhausted');
         $modalRes3->assertSee('Payment Required for 4th Scan');
         $modalRes3->assertSee('In accordance with RESO regulations, you must settle the re-screening fee');
 
-        // 8. Verify submission page also warns that 4th scan payment is required
+        // 8. Verify submission page is clean and does NOT contain the scanning quota box
         $submitPageRes = $this->withSession([
             'sac_user_email' => $studentEmail,
             'sac_user_role' => 'student',
@@ -785,8 +785,9 @@ class AuthWorkflowTest extends TestCase
         ])->get('/student/submit');
 
         $submitPageRes->assertOk();
-        $submitPageRes->assertSee('Free Scans Exhausted');
-        $submitPageRes->assertSee('4th Scan Payment Required');
+        $submitPageRes->assertDontSee('Scanning Quota Notice:');
+        $submitPageRes->assertDontSee('Free Scans Exhausted');
+        $submitPageRes->assertDontSee('Free Tries Exhausted');
 
         // Clean up test document
         \Illuminate\Support\Facades\DB::table('thesis_notifications')->where('user_email', $studentEmail)->delete();
