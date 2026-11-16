@@ -23,11 +23,8 @@ class AdminSubmissionController extends Controller
             ->where('status', 'pending')
             ->count();
 
-        $showPolicyModal = !$request->session()->has('admin_policy_notice_dismissed');
-
         return view('admin.submissions', [
             'pendingCount' => $pendingCount,
-            'showPolicyModal' => $showPolicyModal,
         ]);
     }
 
