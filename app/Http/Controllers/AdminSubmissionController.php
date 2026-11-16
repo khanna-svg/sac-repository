@@ -17,14 +17,17 @@ class AdminSubmissionController extends Controller
     /**
      * Show admin thesis submissions moderation dashboard.
      */
-    public function indexView()
+    public function indexView(Request $request)
     {
         $pendingCount = Document::whereNotNull('submitted_by_email')
             ->where('status', 'pending')
             ->count();
 
+        $showPolicyModal = !$request->session()->has('admin_policy_notice_dismissed');
+
         return view('admin.submissions', [
             'pendingCount' => $pendingCount,
+            'showPolicyModal' => $showPolicyModal,
         ]);
     }
 
@@ -367,5 +370,16 @@ class AdminSubmissionController extends Controller
 
         // Cascade deletes chunks, bookmarks, and notifications automatically via FK constraints
         $document->delete();
+    }
+
+    /**
+     * Dismiss the institutional revision policy modal for the active admin session.
+     */
+    public function dismissPolicyNotice(Request $request)
+    {
+        $request->session()->put('admin_policy_notice_dismissed', true);
+        return response()->json([
+            'success' => true,
+        ]);
     }
 }

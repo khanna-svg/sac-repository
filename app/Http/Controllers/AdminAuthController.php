@@ -105,6 +105,7 @@ class AdminAuthController extends Controller
             $request->session()->put('sac_user_role', $user->role);
             $request->session()->put('sac_user_email', strtolower($user->email));
             $request->session()->put('sac_user_name', $user->name ?? 'Administrator');
+            $request->session()->forget('admin_policy_notice_dismissed');
 
             if ($user->role === 'coordinator') {
                 return redirect()->route('admin.analytics');

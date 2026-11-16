@@ -98,21 +98,6 @@
                 </div>
             </div>
 
-            <!-- Stale Revision 3-Month Policy Alert -->
-            <div id="resubmitPolicyNotice" class="hidden mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-200/80 text-xs text-amber-900 flex items-center justify-between gap-3">
-                <div class="flex items-center gap-2.5">
-                    <span class="p-1.5 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4 text-amber-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </span>
-                    <div>
-                        <span class="font-bold text-amber-950">Institutional 3-Month Revision Policy:</span>
-                        <span class="text-amber-800">Manuscripts marked for revisions must be re-uploaded within 3 months. Submissions without re-uploads after 3 months (90 days) are automatically deleted from storage and database.</span>
-                    </div>
-                </div>
-            </div>
-
             <!-- Submissions Table Container -->
             <div class="rounded-3xl border border-gray-200 bg-white shadow-xs overflow-hidden">
                 <table class="w-full text-left border-collapse table-auto">
@@ -407,15 +392,6 @@
             const activeBtn = document.getElementById(`tab-${tab}`);
             if (activeBtn) {
                 activeBtn.className = 'tab-btn px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#700000] shadow-xs';
-            }
-
-            const policyNotice = document.getElementById('resubmitPolicyNotice');
-            if (policyNotice) {
-                if (tab === 'resubmit') {
-                    policyNotice.classList.remove('hidden');
-                } else {
-                    policyNotice.classList.add('hidden');
-                }
             }
 
             fetchSubmissions();
@@ -915,6 +891,88 @@
         // Initialize table
         fetchSubmissions();
     </script>
+    @if(!empty($showPolicyModal))
+        <!-- Admin Institutional Revision Policy Pop-up Modal -->
+        <div id="adminPolicyModal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 transition-all duration-300">
+            <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl border border-gray-100 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+                
+                <!-- Top Color Accent Bar -->
+                <div class="h-2 bg-gradient-to-r from-[#700000] via-rose-600 to-amber-500"></div>
+
+                <div class="p-6 sm:p-7 space-y-5">
+                    <!-- Icon & Header -->
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 shadow-xs">
+                            <svg class="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                            </svg>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200 mb-1">
+                                Institutional Policy
+                            </span>
+                            <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">
+                                Institutional Revision Policy
+                            </h3>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                Standard operating policy for research manuscripts requiring revision
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Policy Card -->
+                    <div class="rounded-2xl border border-amber-200 bg-amber-50/80 p-4 space-y-2">
+                        <div class="flex items-start gap-3">
+                            <svg class="w-5 h-5 text-amber-700 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div class="text-xs text-amber-950 space-y-1.5 leading-relaxed">
+                                <p class="font-bold text-sm text-amber-950">
+                                    Institutional Revision Policy
+                                </p>
+                                <p class="text-amber-900 text-xs">
+                                    Manuscripts marked for revision must be resubmitted within <span class="font-bold underline">90 days (3 months)</span>. Submissions that are not resubmitted within this period will be automatically deleted from the institutional storage and database.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Button: "OK" -->
+                    <div class="pt-1">
+                        <button
+                            type="button"
+                            onclick="dismissAdminPolicyModal()"
+                            class="w-full py-3 px-6 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
+                            OK
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function dismissAdminPolicyModal() {
+                const modal = document.getElementById('adminPolicyModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+                try {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                    fetch('/backend/admin/dismiss-policy-notice', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': token
+                        }
+                    }).catch(() => {});
+                } catch (err) {
+                    console.warn('Failed to dismiss admin policy modal on server:', err);
+                }
+            }
+        </script>
+    @endif
 </body>
 
 </html>

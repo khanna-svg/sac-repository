@@ -405,6 +405,47 @@ class AuthWorkflowTest extends TestCase
         // Cleanup
         $revisionDoc->delete();
     }
+
+    /**
+     * Test admin institutional revision policy pop-up appears on /admin/submissions
+     * and is successfully dismissed via the dismiss endpoint.
+     */
+    public function test_admin_policy_notice_popup_and_dismissal(): void
+    {
+        // 1. Visit /admin/submissions as authenticated admin -> should see adminPolicyModal
+        $response = $this->withSession([
+            'sac_user_email' => 'admin@sac.edu.ph',
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Administrator',
+        ])->get('/admin/submissions');
+
+        $response->assertOk();
+        $response->assertSee('id="adminPolicyModal"', false);
+        $response->assertSee('Institutional Revision Policy');
+        $response->assertSee('90 days (3 months)');
+        $response->assertSee('OK');
+
+        // 2. Dismiss via POST endpoint
+        $dismissRes = $this->withSession([
+            'sac_user_email' => 'admin@sac.edu.ph',
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Administrator',
+        ])->postJson('/backend/admin/dismiss-policy-notice');
+
+        $dismissRes->assertOk();
+        $dismissRes->assertJson(['success' => true]);
+
+        // 3. Visit again with admin_policy_notice_dismissed -> should NOT see modal
+        $responseAfter = $this->withSession([
+            'sac_user_email' => 'admin@sac.edu.ph',
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Administrator',
+            'admin_policy_notice_dismissed' => true,
+        ])->get('/admin/submissions');
+
+        $responseAfter->assertOk();
+        $responseAfter->assertDontSee('id="adminPolicyModal"', false);
+    }
 }
 
 

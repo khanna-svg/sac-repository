@@ -171,6 +171,7 @@ class AuthController extends Controller
             'pending_email',
             'admin_notifications_read_at',
             'revision_notice_dismissed',
+            'admin_policy_notice_dismissed',
         ]);
         $request->session()->invalidate();
         $request->session()->regenerateToken();
