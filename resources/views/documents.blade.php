@@ -425,10 +425,8 @@
             <!-- Initial Greeting & Quick Question Chips (YouTube Style) -->
             <div id="aiInitialCard" class="space-y-3.5">
                 <div class="flex items-start gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-sm border border-[#D4AF37]/30">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                        </svg>
+                    <div class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 shadow-2xs p-1">
+                        <img src="{{ asset('images/ask-ai-avatar.png') }}" class="w-full h-full object-contain" alt="Ask AI">
                     </div>
                     <div class="flex-1">
                         <p class="text-xs sm:text-sm text-gray-800 leading-relaxed font-medium">
@@ -1064,9 +1062,9 @@
                                         onclick="openDocAiDrawer(${idx})"
                                         class="rounded-xl border border-gray-200 bg-slate-50 px-3.5 py-2 text-xs font-bold text-gray-700 hover:bg-[#700000] hover:text-[#FFD700] hover:border-[#700000] transition flex items-center gap-1.5 cursor-pointer"
                                     >
-                                        <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                                        </svg>
+                                        <span class="w-4 h-4 rounded-md bg-slate-100 flex items-center justify-center shrink-0 p-0.5">
+                                            <img src="/images/ask-ai-avatar.png" class="w-full h-full object-contain" alt="Ask AI">
+                                        </span>
                                         <span>Ask AI</span>
                                     </button>
 
@@ -1954,10 +1952,8 @@
                 }
 
                 aiBubble.innerHTML = `
-                    <div class="w-6 h-6 rounded-lg bg-[#700000] text-[#FFD700] flex items-center justify-center shrink-0 shadow-2xs mt-0.5 border border-[#D4AF37]/30">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-                        </svg>
+                    <div class="w-7 h-7 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 shadow-2xs mt-0.5 p-1">
+                        <img src="/images/ask-ai-avatar.png" class="w-full h-full object-contain" alt="Ask AI">
                     </div>
                     <div class="flex-1 max-w-[90%] bg-white border border-gray-200 rounded-2xl rounded-tl-xs p-3.5 shadow-sm text-xs sm:text-sm text-gray-800 leading-relaxed space-y-2">
                         ${formattedAnswer}
