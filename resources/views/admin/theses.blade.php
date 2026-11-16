@@ -204,6 +204,12 @@
                 </div>
 
                 <div>
+                    <label for="editKeywords" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Topics / Keywords</label>
+                    <input id="editKeywords" type="text" placeholder="e.g. Disaster Preparedness, Nursing Education" class="w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000]">
+                    <p class="mt-0.5 text-[10px] text-gray-400">Comma-separated subject descriptors / topics</p>
+                </div>
+
+                <div>
                     <label for="editAbstract" class="mb-1 block text-xs font-bold uppercase tracking-wider text-gray-700">Abstract</label>
                     <textarea id="editAbstract" rows="4" class="w-full rounded-xl border border-gray-300 bg-white p-3 text-xs sm:text-sm text-gray-800 outline-none focus:border-[#700000] focus:ring-1 focus:ring-[#700000] leading-relaxed"></textarea>
                 </div>
@@ -707,6 +713,7 @@
 
             const pubDateStr = doc.publication_date ? doc.publication_date.substring(0, 7) : (doc.created_at ? doc.created_at.substring(0, 7) : '');
             document.getElementById('editPublicationDate').value = pubDateStr;
+            document.getElementById('editKeywords').value = doc.keywords || '';
             document.getElementById('editAbstract').value = doc.abstract || '';
 
             const modal = document.getElementById('editModal');
@@ -742,6 +749,7 @@
                         department: document.getElementById('editDepartment').value,
                         course_code: document.getElementById('editCourseCode').value,
                         publication_date: document.getElementById('editPublicationDate').value,
+                        keywords: document.getElementById('editKeywords').value.trim(),
                         abstract: document.getElementById('editAbstract').value.trim(),
                     })
                 });

@@ -540,6 +540,72 @@ class AuthWorkflowTest extends TestCase
         $this->assertCount(1, $filtered->json('logs'));
         $this->assertEquals('approve', $filtered->json('logs.0.action'));
     }
+
+    /**
+     * Test topic keywords are auto-generated when manuscripts are submitted without keywords,
+     * and that administrators can manually update keywords in the repository.
+     */
+    public function test_auto_generate_topic_keywords_on_submission_and_admin_update(): void
+    {
+        // 1. Direct keyword extraction verification
+        $directKeywords = \App\Services\GeminiService::extractOrGenerateKeywords(
+            'ATTITUDES AND PRACTICES TOWARD FAMILY DISASTER PREPAREDNESS PLAN AMONG NURSING STUDENTS',
+            'This descriptive-correlational study investigated emergency preparedness behaviors among nursing students in Antique.',
+            'nursing'
+        );
+        $this->assertStringContainsString('Disaster Preparedness', $directKeywords);
+        $this->assertStringContainsString('Nursing Students', $directKeywords);
+
+        // 2. Explicit author keywords extraction from abstract
+        $explicitKeywords = \App\Services\GeminiService::extractOrGenerateKeywords(
+            'Comparative Analysis of Deep Learning Models',
+            "Abstract text goes here.\nKeywords: Deep Learning, Neural Networks, Computer Vision, Pattern Recognition",
+            'itd'
+        );
+        $this->assertEquals('Deep Learning, Neural Networks, Computer Vision, Pattern Recognition', $explicitKeywords);
+
+        // 3. Auto-generation on student submission without explicit keywords
+        $submissionResponse = $this->withSession([
+            'sac_user_email' => 'student.topics@sac.edu.ph',
+            'sac_user_role' => 'student',
+            'sac_user_name' => 'Topic Test Student',
+        ])->postJson('/backend/student/submit', [
+            'title' => 'Smart Procurement System: QR-Based Asset Inventory and Tracking',
+            'author' => 'Earl Benedict Xander P. Lacson',
+            'department' => 'itd',
+            'course_code' => 'bsit',
+            'abstract' => 'This project developed an automated smart procurement and inventory system using QR codes.',
+            'file_path' => 'student-submissions/test-submission.pdf',
+        ]);
+
+        $submissionResponse->assertStatus(201);
+        $doc = \App\Models\Document::where('submitted_by_email', 'student.topics@sac.edu.ph')->first();
+        $this->assertNotNull($doc);
+        $this->assertNotEmpty($doc->keywords);
+        $this->assertStringContainsString('Smart Procurement', $doc->keywords);
+
+        // 4. Admin update of document metadata including keywords
+        $adminUpdateResponse = $this->withSession([
+            'sac_user_email' => 'admin@sac.edu.ph',
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Administrator',
+        ])->putJson("/backend/admin/theses/{$doc->id}", [
+            'title' => 'Smart Procurement System: QR-Based Asset Inventory and Tracking (Updated)',
+            'author' => 'Earl Benedict Xander P. Lacson',
+            'department' => 'itd',
+            'course_code' => 'bsit',
+            'publication_date' => '2026-10-01',
+            'keywords' => 'Asset Tracking, QR Code Inventory, Procurement Automation',
+            'abstract' => 'Updated abstract description.',
+        ]);
+
+        $adminUpdateResponse->assertOk();
+        $doc->refresh();
+        $this->assertEquals('Asset Tracking, QR Code Inventory, Procurement Automation', $doc->keywords);
+
+        // Clean up test document
+        $doc->delete();
+    }
 }
 
 

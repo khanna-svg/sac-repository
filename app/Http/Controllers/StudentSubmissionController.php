@@ -191,11 +191,22 @@ class StudentSubmissionController extends Controller
                     ->first();
             }
 
+            $rawKeywords = trim((string) $request->input('keywords', ''));
+            if ($rawKeywords === '') {
+                $chunksSnippet = '';
+                if (is_array($chunks)) {
+                    foreach (array_slice($chunks, 0, 5) as $c) {
+                        $chunksSnippet .= ' ' . ($c['text'] ?? '');
+                    }
+                }
+                $rawKeywords = \App\Services\GeminiService::extractOrGenerateKeywords($title, $abstract, $department, $chunksSnippet);
+            }
+
             if ($existingDoc) {
                 // Update in place: replace file, refresh chunks, reset status back to pending
                 $prevNotes = $existingDoc->admin_notes ? "Previous Feedback: " . $existingDoc->admin_notes : null;
 
-                $existingDoc->update([
+                $updateData = [
                     'title' => $title,
                     'author' => $author,
                     'department' => $department,
@@ -207,7 +218,11 @@ class StudentSubmissionController extends Controller
                     'turnitin_similarity' => null, // Reset Turnitin score until admin re-checks
                     'submitted_by_name' => $submittedByName,
                     'admin_notes' => $prevNotes,
-                ]);
+                ];
+                if (empty($existingDoc->keywords) && !empty($rawKeywords)) {
+                    $updateData['keywords'] = $rawKeywords;
+                }
+                $existingDoc->update($updateData);
 
                 // Replace document chunks with new version
                 DB::table('document_chunks')->where('document_id', $existingDoc->id)->delete();
@@ -266,6 +281,7 @@ class StudentSubmissionController extends Controller
                 'department' => $department,
                 'course_code' => $courseCode,
                 'abstract' => $abstract,
+                'keywords' => $rawKeywords,
                 'file_path' => $filePath,
                 'file_url' => '',
                 'status' => 'pending',

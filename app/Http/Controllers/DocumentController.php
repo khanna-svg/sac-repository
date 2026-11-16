@@ -915,9 +915,21 @@ class DocumentController extends Controller
             $rawPubDate = $request->input('publication_date');
             $publicationDate = !empty($rawPubDate) ? \Carbon\Carbon::parse($rawPubDate)->toDateString() : now()->toDateString();
 
+            // Auto-extract or generate topic keywords if not explicitly supplied
+            $rawKeywords = trim((string) $request->input('keywords', ''));
+            if ($rawKeywords === '') {
+                $chunksSnippet = '';
+                if (is_array($chunks)) {
+                    foreach (array_slice($chunks, 0, 5) as $c) {
+                        $chunksSnippet .= ' ' . ($c['text'] ?? '');
+                    }
+                }
+                $rawKeywords = \App\Services\GeminiService::extractOrGenerateKeywords($title, $abstract, $department, $chunksSnippet);
+            }
+
             if (!empty($submissionId)) {
                 $document = Document::findOrFail($submissionId);
-                $document->update([
+                $updateData = [
                     'title' => $title,
                     'author' => $author,
                     'department' => $department,
@@ -928,7 +940,11 @@ class DocumentController extends Controller
                     'file_url' => "/backend/documents/{$document->id}/view",
                     'status' => 'approved',
                     'admin_notes' => null,
-                ]);
+                ];
+                if (empty($document->keywords) && !empty($rawKeywords)) {
+                    $updateData['keywords'] = $rawKeywords;
+                }
+                $document->update($updateData);
 
                 // If new chunks provided, replace existing chunks
                 if (is_array($chunks) && !empty($chunks)) {
@@ -975,6 +991,7 @@ class DocumentController extends Controller
                     'course_code' => $courseCode,
                     'publication_date' => $publicationDate,
                     'abstract' => $abstract,
+                    'keywords' => $rawKeywords,
                     'file_path' => $filePath,
                     'file_url' => '',
                     'status' => 'approved',
@@ -1579,6 +1596,7 @@ class DocumentController extends Controller
                 'course_code' => ['required', 'string', 'max:50'],
                 'publication_date' => ['nullable', 'date'],
                 'abstract' => ['nullable', 'string'],
+                'keywords' => ['nullable', 'string', 'max:500'],
             ]);
 
             $document->update([
@@ -1588,6 +1606,7 @@ class DocumentController extends Controller
                 'course_code' => strtolower(trim($validated['course_code'])),
                 'publication_date' => !empty($validated['publication_date']) ? \Carbon\Carbon::parse($validated['publication_date'])->toDateString() : $document->publication_date,
                 'abstract' => isset($validated['abstract']) ? trim($validated['abstract']) : $document->abstract,
+                'keywords' => isset($validated['keywords']) ? trim($validated['keywords']) : $document->keywords,
             ]);
 
             \App\Models\AdminActivityLog::record(
