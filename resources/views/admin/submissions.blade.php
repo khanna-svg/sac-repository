@@ -493,21 +493,30 @@
                         </span>
                     `;
                 } else if (sub.status === 'resubmit') {
-                    let expiryBadge = '';
+                    let expiryNoticeHtml = '';
                     if (sub.updated_at) {
                         const updatedTime = new Date(sub.updated_at).getTime();
                         const nowTime = new Date().getTime();
                         const daysPassed = Math.floor((nowTime - updatedTime) / (1000 * 60 * 60 * 24));
                         const daysLeft = Math.max(0, 90 - daysPassed);
-                        expiryBadge = `<span class="ml-1 text-[10px] font-mono bg-amber-100 text-amber-900 border border-amber-300 px-1.5 py-0.5 rounded-md font-semibold" title="Manuscript will auto-delete if not revised within 3 months">${daysLeft}d left</span>`;
+                        expiryNoticeHtml = `
+                            <div class="flex items-center gap-1 text-[11px] text-gray-500 mt-1">
+                                <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>${daysLeft} days remaining to resubmit</span>
+                            </div>
+                        `;
                     }
                     statusBadgeHtml = `
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                            Needs Revision
-                            ${expiryBadge}
-                            ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
-                        </span>
+                        <div class="inline-flex flex-col items-start text-left">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                                Needs Revision
+                                ${sub.turnitin_similarity ? `<span class="ml-1 text-[10px] font-mono bg-rose-100 text-rose-800 px-1.5 py-0.5 rounded-md font-semibold">${escapeHtml(sub.turnitin_similarity)}</span>` : ''}
+                            </span>
+                            ${expiryNoticeHtml}
+                        </div>
                     `;
                 } else {
                     statusBadgeHtml = `
