@@ -158,6 +158,10 @@
     </div>
 
     <script>
+        try {
+            sessionStorage.removeItem('sac_revision_notice_dismissed');
+        } catch (e) {}
+
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('passwordEyeIcon');

@@ -143,6 +143,7 @@ class AuthController extends Controller
         }
 
         $request->session()->forget('revision_notice_dismissed');
+        \Illuminate\Support\Facades\Cookie::queue(\Illuminate\Support\Facades\Cookie::forget('sac_rev_dismissed'));
 
         return redirect()->intended(route('documents'))->with('success', 'Welcome, ' . ($user->name ?? 'Student') . '!');
     }
@@ -173,6 +174,7 @@ class AuthController extends Controller
             'revision_notice_dismissed',
             'admin_policy_notice_dismissed',
         ]);
+        \Illuminate\Support\Facades\Cookie::queue(\Illuminate\Support\Facades\Cookie::forget('sac_rev_dismissed'));
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

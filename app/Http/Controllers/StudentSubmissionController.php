@@ -22,9 +22,8 @@ class StudentSubmissionController extends Controller
     {
         $email = strtolower((string) $request->session()->get('sac_user_email'));
 
-        // Visiting the upload/submit page automatically marks revision notice as seen/dismissed
+        // Visiting the upload/submit page marks revision notice as seen for current session
         $request->session()->put('revision_notice_dismissed', true);
-        Cookie::queue('sac_rev_dismissed', '1', 1440);
 
         $submissions = Document::where('submitted_by_email', $email)
             ->orderBy('created_at', 'desc')

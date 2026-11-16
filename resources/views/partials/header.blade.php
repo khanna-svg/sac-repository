@@ -42,8 +42,7 @@
     $revDaysRemaining = 0;
     if ($userEmail && !in_array($userRole, ['admin', 'librarian', 'coordinator'], true)) {
         $isSubmitPage = request()->routeIs('student.submit') || request()->is('student/submit*');
-        $isDismissedCookie = (bool) request()->cookie('sac_rev_dismissed');
-        if (!session()->has('revision_notice_dismissed') && !$isDismissedCookie && !$isSubmitPage) {
+        if (!session()->has('revision_notice_dismissed') && !$isSubmitPage) {
             $studentRevisionDoc = \App\Models\Document::where('submitted_by_email', strtolower($userEmail))
                 ->where('status', 'resubmit')
                 ->latest('updated_at')
@@ -202,7 +201,7 @@
     <!-- Student Revision Notice Pop-up Modal -->
     <div id="revisionNoticeModal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 transition-all duration-300">
         <script>
-            if (sessionStorage.getItem('sac_revision_notice_dismissed') === '1' || (document.cookie && document.cookie.indexOf('sac_rev_dismissed=1') !== -1)) {
+            if (sessionStorage.getItem('sac_revision_notice_dismissed') === '1') {
                 const _rm = document.getElementById('revisionNoticeModal');
                 if (_rm) _rm.remove();
             }

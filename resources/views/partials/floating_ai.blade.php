@@ -159,9 +159,6 @@
                 </svg>
             </button>
         </form>
-        <p class="text-[9px] text-gray-400 text-center mt-1.5">
-            AIRIS • Powered by Gemini AI
-        </p>
     </div>
 
 </div>
