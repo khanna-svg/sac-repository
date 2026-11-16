@@ -49,7 +49,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                         </svg>
                         <span>Uploaded Manuscripts</span>
-                        <span id="publishedTabBadge" class="ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#5b0000] text-[#FFD700]">0</span>
+                        <span class="h-3.5 w-px bg-current opacity-30 mx-0.5" aria-hidden="true"></span>
+                        <span id="publishedTabBadge" class="font-bold text-xs sm:text-sm">0</span>
                     </button>
                     <button type="button" onclick="switchTab('archived')" id="tabBtnArchived"
                         class="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-gray-600 hover:text-gray-900 cursor-pointer">
@@ -57,7 +58,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m16.5 0v-1.5a1.125 1.125 0 00-1.125-1.125H4.875A1.125 1.125 0 003.75 6v1.5m16.5 0H3.75m10.5 3.75h-4.5" />
                         </svg>
                         <span>Archived Manuscripts</span>
-                        <span id="archivedTabBadge" class="ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-300 text-gray-700">0</span>
+                        <span class="h-3.5 w-px bg-current opacity-30 mx-0.5" aria-hidden="true"></span>
+                        <span id="archivedTabBadge" class="font-bold text-xs sm:text-sm">0</span>
                     </button>
                 </div>
             </div>
@@ -481,16 +483,16 @@
 
             if (tab === 'published') {
                 btnPub.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs bg-[#700000] text-[#FFD700] cursor-pointer';
-                badgePub.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#5b0000] text-[#FFD700]';
+                badgePub.className = 'font-bold text-xs sm:text-sm';
 
                 btnArc.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-gray-600 hover:text-gray-900 cursor-pointer';
-                badgeArc.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-300 text-gray-700';
+                badgeArc.className = 'font-bold text-xs sm:text-sm';
             } else {
                 btnPub.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all text-gray-600 hover:text-gray-900 cursor-pointer';
-                badgePub.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-300 text-gray-700';
+                badgePub.className = 'font-bold text-xs sm:text-sm';
 
                 btnArc.className = 'inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all shadow-xs bg-amber-600 text-white cursor-pointer';
-                badgeArc.className = 'ml-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-800 text-amber-100';
+                badgeArc.className = 'font-bold text-xs sm:text-sm';
             }
 
             loadTheses();
