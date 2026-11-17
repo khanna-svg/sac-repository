@@ -97,58 +97,121 @@
                 </div>
             @endif
 
-            <!-- STUDENT FORM (EMAIL & LRN / PASSWORD) -->
-            <form method="POST" action="{{ route('login') }}" class="space-y-4 sm:space-y-5">
-                @csrf
-                <div class="floating-badge-group">
-                    <input 
-                        id="student_email" 
-                        name="email" 
-                        type="email" 
-                        value="{{ old('email') }}" 
-                        placeholder=" "
-                        required 
-                        autocomplete="email"
-                        class="floating-badge-input block w-full rounded-2xl border border-slate-300 bg-slate-50/70 px-4 py-3 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition-all shadow-2xs">
-                    <label 
-                        for="student_email" 
-                        class="floating-badge-label">
-                        Email
-                    </label>
-                </div>
+            @if ($pendingEmail)
+                <!-- TWO-STEP 6-DIGIT VERIFICATION CODE FORM -->
+                <div class="space-y-5">
+                    <div class="rounded-2xl bg-amber-50/80 border border-amber-200/80 p-4 text-left">
+                        <div class="flex items-start gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 mt-0.5 text-[#700000] shadow-2xs">
+                                <svg class="w-5 h-5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+                                </svg>
+                            </div>
+                            <div class="min-w-0 flex-1 text-xs">
+                                <p class="font-bold text-gray-900 leading-snug">Verification Code Sent</p>
+                                <p class="text-gray-600 mt-0.5">
+                                    We sent a 6-digit login code to <strong class="text-[#700000] break-all">{{ $pendingEmail }}</strong>. Code expires in 10 minutes.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="floating-badge-group">
-                    <input 
-                        id="password" 
-                        name="password" 
-                        type="password" 
-                        placeholder=" " 
-                        required 
-                        autocomplete="current-password"
-                        class="floating-badge-input block w-full rounded-2xl border border-slate-300 bg-slate-50/70 px-4 pr-11 py-3 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition-all shadow-2xs">
-                    <label 
-                        for="password" 
-                        class="floating-badge-label">
-                        Password
-                    </label>
+                    <form method="POST" action="{{ route('login.verify') }}" class="space-y-4">
+                        @csrf
+                        <div>
+                            <label for="code" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 text-center">
+                                Enter 6-Digit Code
+                            </label>
+                            <input 
+                                id="code" 
+                                name="code" 
+                                type="text" 
+                                inputmode="numeric" 
+                                maxlength="6" 
+                                pattern="[0-9]{6}" 
+                                placeholder="······" 
+                                required 
+                                autofocus 
+                                autocomplete="one-time-code"
+                                class="w-full text-center text-3xl sm:text-4xl font-mono font-extrabold tracking-[0.35em] py-3.5 px-4 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            class="w-full rounded-2xl bg-[#700000] hover:bg-[#850000] py-3 text-xs sm:text-sm font-bold text-[#FFD700] transition shadow-md shadow-red-950/20 border border-[#FFD700]/30 flex items-center justify-center gap-2 cursor-pointer">
+                            <span>Verify and sign in</span>
+                        </button>
+                    </form>
+
+                    <div class="pt-1 flex items-center justify-between text-xs text-slate-500">
+                        <form method="POST" action="{{ route('login.resend') }}">
+                            @csrf
+                            <button type="submit" class="font-semibold text-[#700000] hover:text-[#900000] hover:underline cursor-pointer">
+                                Resend code
+                            </button>
+                        </form>
+                        <a href="{{ route('login.reset') }}" class="font-medium text-slate-500 hover:text-slate-900 transition">
+                            Use different email
+                        </a>
+                    </div>
+                </div>
+            @else
+                <!-- STUDENT FORM (EMAIL & LRN / PASSWORD) -->
+                <form method="POST" action="{{ route('login') }}" class="space-y-4 sm:space-y-5">
+                    @csrf
+                    <div class="floating-badge-group">
+                        <input 
+                            id="student_email" 
+                            name="email" 
+                            type="email" 
+                            value="{{ old('email') }}" 
+                            placeholder=" "
+                            required 
+                            autocomplete="email"
+                            class="floating-badge-input block w-full rounded-2xl border border-slate-300 bg-slate-50/70 px-4 py-3 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition-all shadow-2xs">
+                        <label 
+                            for="student_email" 
+                            class="floating-badge-label">
+                            Email
+                        </label>
+                    </div>
+
+                    <div class="floating-badge-group">
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            placeholder=" " 
+                            autocomplete="current-password"
+                            class="floating-badge-input block w-full rounded-2xl border border-slate-300 bg-slate-50/70 px-4 pr-11 py-3 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition-all shadow-2xs">
+                        <label 
+                            for="password" 
+                            class="floating-badge-label">
+                            Password
+                        </label>
+                        <button 
+                            type="button" 
+                            onclick="togglePasswordVisibility()" 
+                            title="Show/Hide Password"
+                            class="absolute right-3 top-2.5 sm:top-3 text-slate-400 hover:text-[#700000] transition p-1 cursor-pointer z-10">
+                            <svg id="passwordEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <p class="text-[11px] text-slate-500 px-1 -mt-1">
+                        A 6-digit login verification code will be dispatched to your official <span class="font-semibold text-slate-700">@sac.edu.ph</span> inbox.
+                    </p>
+
                     <button 
-                        type="button" 
-                        onclick="togglePasswordVisibility()" 
-                        title="Show/Hide Password"
-                        class="absolute right-3 top-2.5 sm:top-3 text-slate-400 hover:text-[#700000] transition p-1 cursor-pointer z-10">
-                        <svg id="passwordEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        type="submit" 
+                        class="w-full rounded-2xl bg-[#700000] hover:bg-[#850000] py-3 text-xs sm:text-sm font-bold text-[#FFD700] transition shadow-md shadow-red-950/20 border border-[#FFD700]/30 flex items-center justify-center gap-2 cursor-pointer mt-2">
+                        <span>Sign in</span>
                     </button>
-                </div>
-
-                <button 
-                    type="submit" 
-                    class="w-full rounded-2xl bg-[#700000] hover:bg-[#850000] py-3 text-xs sm:text-sm font-bold text-[#FFD700] transition shadow-md shadow-red-950/20 border border-[#FFD700]/30 flex items-center justify-center gap-2 cursor-pointer mt-2">
-                    <span>Sign in</span>
-                </button>
-            </form>
+                </form>
+            @endif
         </main>
 
         <!-- Footer -->

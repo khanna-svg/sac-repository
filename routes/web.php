@@ -11,13 +11,17 @@ use Illuminate\Support\Facades\Route;
 Route::get('/login', [AuthController::class, 'showLogin'])
     ->name('login');
 Route::post('/login', [AuthController::class, 'login'])
-    ->middleware('throttle:10,1');
-Route::get('/student/login', fn () => redirect()->route('login'));
-
-// Legacy fallback routes for login compatibility
+    ->middleware('throttle:15,1');
+Route::post('/login/verify-code', [AuthController::class, 'verifyCode'])
+    ->name('login.verify')
+    ->middleware('throttle:15,1');
+Route::post('/login/resend-code', [AuthController::class, 'resendCode'])
+    ->name('login.resend')
+    ->middleware('throttle:6,1');
+Route::match(['get', 'post'], '/login/reset', [AuthController::class, 'resetLogin'])
+    ->name('login.reset');
 Route::post('/login/send-code', [AuthController::class, 'login']);
-Route::post('/login/verify-code', [AuthController::class, 'login']);
-Route::any('/login/reset', fn () => redirect()->route('login'))->name('login.reset');
+Route::get('/student/login', fn () => redirect()->route('login'));
 
 // Admin Authentication Routes
 Route::get('/admin/login', [AdminAuthController::class, 'showLogin'])

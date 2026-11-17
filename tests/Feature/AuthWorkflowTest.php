@@ -186,6 +186,96 @@ class AuthWorkflowTest extends TestCase
     }
 
     /**
+     * Test student login dispatches six-digit verification code email.
+     */
+    public function test_student_login_dispatches_six_digit_verification_code(): void
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $response = $this->post('/login', [
+            'email' => 'figueroaryan@sac.edu.ph',
+            'force_2fa' => 1,
+        ]);
+
+        $response->assertRedirect(route('login'));
+        $this->assertEquals('figueroaryan@sac.edu.ph', session('pending_email'));
+        $this->assertNotNull(session('verification_code'));
+        $this->assertEquals(6, strlen((string) session('verification_code')));
+
+        \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\LoginVerificationCodeMail::class, function ($mail) {
+            return $mail->email === 'figueroaryan@sac.edu.ph' && strlen($mail->code) === 6;
+        });
+
+        // The login view should now render the verification form with the pending email
+        $getVerify = $this->get('/login');
+        $getVerify->assertOk();
+        $getVerify->assertSee('Enter 6-Digit Code');
+        $getVerify->assertSee('figueroaryan@sac.edu.ph');
+    }
+
+    /**
+     * Test student verification with valid 6-digit code authenticates user.
+     */
+    public function test_student_verification_with_valid_code_authenticates(): void
+    {
+        $code = '849201';
+
+        $verifyResponse = $this->withSession([
+            'pending_email' => 'figueroaryan@sac.edu.ph',
+            'pending_name' => 'Ryan Figueroa',
+            'verification_code' => $code,
+            'verification_expires_at' => now()->addMinutes(10)->timestamp,
+        ])->post('/login/verify-code', [
+            'code' => $code,
+        ]);
+
+        $verifyResponse->assertRedirect(route('documents'));
+        $this->assertEquals('student', session('sac_user_role'));
+        $this->assertEquals('figueroaryan@sac.edu.ph', session('sac_user_email'));
+        $this->assertNull(session('pending_email'));
+        $this->assertNull(session('verification_code'));
+    }
+
+    /**
+     * Test student verification with invalid code fails with validation error.
+     */
+    public function test_student_verification_with_invalid_code_fails(): void
+    {
+        $verifyResponse = $this->withSession([
+            'pending_email' => 'figueroaryan@sac.edu.ph',
+            'pending_name' => 'Ryan Figueroa',
+            'verification_code' => '849201',
+            'verification_expires_at' => now()->addMinutes(10)->timestamp,
+        ])->post('/login/verify-code', [
+            'code' => '000000',
+        ]);
+
+        $verifyResponse->assertSessionHasErrors('code');
+        $this->assertNull(session('sac_user_role'));
+    }
+
+    /**
+     * Test student resend code generates a new code and emails it.
+     */
+    public function test_student_resend_code_dispatches_new_email(): void
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $response = $this->withSession([
+            'pending_email' => 'figueroaryan@sac.edu.ph',
+            'pending_name' => 'Ryan Figueroa',
+            'verification_code' => '111111',
+            'verification_expires_at' => now()->addMinutes(10)->timestamp,
+        ])->post('/login/resend-code');
+
+        $response->assertRedirect(route('login'));
+        $this->assertNotEquals('111111', session('verification_code'));
+        $this->assertEquals(6, strlen((string) session('verification_code')));
+
+        \Illuminate\Support\Facades\Mail::assertSent(\App\Mail\LoginVerificationCodeMail::class);
+    }
+
+    /**
      * Test admin login with valid credentials.
      */
     public function test_admin_login_success(): void
