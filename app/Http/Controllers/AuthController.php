@@ -180,7 +180,7 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with(
             'success',
-            "A 6-digit verification code has been dispatched to {$email}. Please enter it below."
+            "A 6-digit code has been sent to {$email}."
         );
     }
 
@@ -276,7 +276,7 @@ class AuthController extends Controller
 
         return redirect()->route('login')->with(
             'success',
-            "A new 6-digit verification code was dispatched to {$pendingEmail}."
+            "A 6-digit code has been sent to {$pendingEmail}."
         );
     }
 

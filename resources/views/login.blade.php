@@ -100,40 +100,22 @@
             @if ($pendingEmail)
                 <!-- TWO-STEP 6-DIGIT VERIFICATION CODE FORM -->
                 <div class="space-y-5">
-                    <div class="rounded-2xl bg-amber-50/80 border border-amber-200/80 p-4 text-left">
-                        <div class="flex items-start gap-3">
-                            <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center shrink-0 mt-0.5 text-[#700000] shadow-2xs">
-                                <svg class="w-5 h-5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                                </svg>
-                            </div>
-                            <div class="min-w-0 flex-1 text-xs">
-                                <p class="font-bold text-gray-900 leading-snug">Verification Code Sent</p>
-                                <p class="text-gray-600 mt-0.5">
-                                    We sent a 6-digit login code to <strong class="text-[#700000] break-all">{{ $pendingEmail }}</strong>. Code expires in 10 minutes.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form method="POST" action="{{ route('login.verify') }}" class="space-y-4">
+                    <form method="POST" action="{{ route('login.verify') }}" id="otpForm" class="space-y-5">
                         @csrf
+                        <input type="hidden" name="code" id="full_code" value="">
+
                         <div>
-                            <label for="code" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 text-center">
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3 text-center">
                                 Enter 6-Digit Code
                             </label>
-                            <input 
-                                id="code" 
-                                name="code" 
-                                type="text" 
-                                inputmode="numeric" 
-                                maxlength="6" 
-                                pattern="[0-9]{6}" 
-                                placeholder="······" 
-                                required 
-                                autofocus 
-                                autocomplete="one-time-code"
-                                class="w-full text-center text-3xl sm:text-4xl font-mono font-extrabold tracking-[0.35em] py-3.5 px-4 rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                            <div class="flex items-center justify-between gap-1.5 sm:gap-2 max-w-xs sm:max-w-sm mx-auto" id="otpBoxContainer">
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]" autofocus>
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                            </div>
                         </div>
 
                         <button 
@@ -201,10 +183,6 @@
                         </button>
                     </div>
 
-                    <p class="text-[11px] text-slate-500 px-1 -mt-1">
-                        A 6-digit login verification code will be dispatched to your official <span class="font-semibold text-slate-700">@sac.edu.ph</span> inbox.
-                    </p>
-
                     <button 
                         type="submit" 
                         class="w-full rounded-2xl bg-[#700000] hover:bg-[#850000] py-3 text-xs sm:text-sm font-bold text-[#FFD700] transition shadow-md shadow-red-950/20 border border-[#FFD700]/30 flex items-center justify-center gap-2 cursor-pointer mt-2">
@@ -224,6 +202,80 @@
         try {
             sessionStorage.removeItem('sac_revision_notice_dismissed');
         } catch (e) {}
+
+        // OTP 6-Box Interaction Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const boxes = document.querySelectorAll('.otp-box');
+            const fullCodeInput = document.getElementById('full_code');
+            const otpForm = document.getElementById('otpForm');
+
+            if (boxes.length === 6) {
+                function updateFullCode() {
+                    let code = '';
+                    boxes.forEach(b => {
+                        code += (b.value || '');
+                    });
+                    if (fullCodeInput) fullCodeInput.value = code;
+                    return code;
+                }
+
+                boxes.forEach((box, index) => {
+                    box.addEventListener('input', function(e) {
+                        const val = this.value.replace(/[^0-9]/g, '');
+                        this.value = val ? val[val.length - 1] : '';
+
+                        if (this.value && index < boxes.length - 1) {
+                            boxes[index + 1].focus();
+                            boxes[index + 1].select();
+                        }
+                        updateFullCode();
+                    });
+
+                    box.addEventListener('keydown', function(e) {
+                        if (e.key === 'Backspace') {
+                            if (!this.value && index > 0) {
+                                boxes[index - 1].focus();
+                                boxes[index - 1].value = '';
+                                updateFullCode();
+                            }
+                        } else if (e.key === 'ArrowLeft' && index > 0) {
+                            boxes[index - 1].focus();
+                        } else if (e.key === 'ArrowRight' && index < boxes.length - 1) {
+                            boxes[index + 1].focus();
+                        }
+                    });
+
+                    box.addEventListener('paste', function(e) {
+                        e.preventDefault();
+                        const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim();
+                        const digits = pasteData.replace(/[^0-9]/g, '').slice(0, 6);
+                        if (digits) {
+                            digits.split('').forEach((d, i) => {
+                                if (boxes[i]) boxes[i].value = d;
+                            });
+                            const lastIndex = Math.min(digits.length, boxes.length) - 1;
+                            if (boxes[lastIndex]) boxes[lastIndex].focus();
+                            updateFullCode();
+                        }
+                    });
+                });
+
+                if (otpForm) {
+                    otpForm.addEventListener('submit', function(e) {
+                        const code = updateFullCode();
+                        if (code.length < 6) {
+                            e.preventDefault();
+                            for (let i = 0; i < boxes.length; i++) {
+                                if (!boxes[i].value) {
+                                    boxes[i].focus();
+                                    break;
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
 
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
