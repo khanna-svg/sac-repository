@@ -132,6 +132,26 @@
 
                             <button
                                 type="button"
+                                onclick="openHeaderAddStudentModal(event)"
+                                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#700000] transition cursor-pointer text-left group">
+                                <svg class="w-4 h-4 text-slate-500 group-hover:text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" />
+                                </svg>
+                                <span>Add Student</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                onclick="openHeaderStudentDirectoryModal(event)"
+                                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#700000] transition cursor-pointer text-left group">
+                                <svg class="w-4 h-4 text-slate-500 group-hover:text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                                </svg>
+                                <span>Student Directory</span>
+                            </button>
+
+                            <button
+                                type="button"
                                 onclick="openActivityLogsModal(event)"
                                 class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#700000] transition cursor-pointer text-left group">
                                 <svg class="w-4 h-4 text-slate-500 group-hover:text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -481,6 +501,196 @@
             </div>
 
 
+        </div>
+    </div>
+
+    <!-- Admin: Add Student Modal (Global Header) -->
+    <div id="adminAddStudentModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-6 transition-all duration-300">
+        <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[#600000] bg-[#700000] text-white shrink-0">
+                <div class="flex items-center gap-3 min-w-0 pr-2">
+                    <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#D4AF37]/40 flex items-center justify-center">
+                        <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-sm sm:text-base font-bold text-white tracking-wide truncate flex items-center gap-1.5">
+                            <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
+                            <span>Register Student Account</span>
+                        </h3>
+                        <p class="text-[11px] sm:text-xs text-amber-100/90 truncate mt-0.5">
+                            Provision institutional research credentials for an enrolled student.
+                        </p>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="closeHeaderAddStudentModal()"
+                    aria-label="Close"
+                    class="p-1.5 rounded-lg text-amber-100/80 hover:text-white hover:bg-white/10 transition cursor-pointer shrink-0"
+                    title="Close">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Form Body -->
+            <div class="p-6 space-y-4">
+                <div id="headerAddStudentAlert" class="hidden"></div>
+
+                <form id="headerAddStudentForm" onsubmit="submitHeaderAddStudent(event)" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label for="hdr_student_name" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                            Full Name <span class="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="hdr_student_name"
+                            name="name"
+                            required
+                            placeholder="e.g. Francis Dominic G. Tenorio"
+                            class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
+                    </div>
+
+                    <div>
+                        <label for="hdr_student_email" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                            Official Institutional Email <span class="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="email"
+                            id="hdr_student_email"
+                            name="email"
+                            required
+                            placeholder="e.g. tenoriofrancis@sac.edu.ph"
+                            class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
+                        <p class="text-[11px] text-gray-400 mt-1 font-medium">Must be an official <strong>@sac.edu.ph</strong> address.</p>
+                    </div>
+
+                    <div>
+                        <label for="hdr_student_lrn" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                            12-Digit Learner Reference Number (LRN) <span class="text-rose-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="hdr_student_lrn"
+                            name="lrn"
+                            required
+                            maxlength="12"
+                            pattern="[0-9]{12}"
+                            inputmode="numeric"
+                            placeholder="e.g. 107384920183"
+                            class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs font-mono font-semibold">
+                        <p class="text-[11px] text-gray-400 mt-1 font-medium">Exact 12-digit DepEd/CHED LRN.</p>
+                    </div>
+
+                    <div>
+                        <label for="hdr_student_password" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                            Initial Password <span class="text-[10px] text-gray-400 font-normal lowercase">(optional)</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="hdr_student_password"
+                            name="password"
+                            placeholder="Defaults to 12-digit LRN if left blank"
+                            class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
+                        <p class="text-[11px] text-gray-400 mt-1 font-medium">If blank, the student can log in using their 12-digit LRN.</p>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
+                        <button
+                            type="button"
+                            onclick="closeHeaderAddStudentModal()"
+                            class="rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer">
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            id="submitHeaderAddStudentBtn"
+                            class="rounded-xl bg-[#700000] hover:bg-[#850000] px-5 py-2.5 text-xs font-bold text-[#FFD700] transition shadow-md shadow-red-950/20 border border-[#FFD700]/30 cursor-pointer flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                            </svg>
+                            <span>Register Student</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin: Student Directory Modal (Global Header) -->
+    <div id="adminStudentDirectoryModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-6 transition-all duration-300">
+        <div class="w-full max-w-3xl max-h-[90vh] flex flex-col rounded-3xl bg-white shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[#600000] bg-[#700000] text-white shrink-0">
+                <div class="flex items-center gap-3 min-w-0 pr-2">
+                    <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#D4AF37]/40 flex items-center justify-center">
+                        <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-sm sm:text-base font-bold text-white tracking-wide truncate flex items-center gap-1.5">
+                            <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
+                            <span>Authorized Student Directory</span>
+                        </h3>
+                        <p class="text-[11px] sm:text-xs text-amber-100/90 truncate mt-0.5">
+                            Registered students permitted to access and submit manuscripts (<span id="headerStudentsCount">0</span> total).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button
+                        type="button"
+                        onclick="closeHeaderStudentDirectoryModal(); openHeaderAddStudentModal();"
+                        class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-[#FFD700] text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        <span>Add New</span>
+                    </button>
+                    <button
+                        type="button"
+                        onclick="closeHeaderStudentDirectoryModal()"
+                        class="p-1.5 rounded-lg text-amber-100/80 hover:text-white hover:bg-white/10 transition cursor-pointer"
+                        title="Close">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="p-4 bg-slate-50 border-b border-gray-100 shrink-0">
+                <input
+                    type="text"
+                    id="headerStudentSearchInput"
+                    oninput="debounceHeaderStudentSearch(this.value)"
+                    placeholder="Search by student name, institutional email, or 12-digit LRN..."
+                    class="w-full rounded-2xl border border-gray-200 bg-white px-4 py-2 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
+            </div>
+
+            <!-- Table Body -->
+            <div class="flex-1 overflow-y-auto p-2">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-[10.5px] font-bold text-gray-600 uppercase tracking-wider sticky top-0 rounded-xl">
+                        <tr>
+                            <th class="py-2.5 px-3">Student Name</th>
+                            <th class="py-2.5 px-3">Institutional Email</th>
+                            <th class="py-2.5 px-3">12-Digit LRN</th>
+                            <th class="py-2.5 px-3 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="headerStudentTableBody" class="divide-y divide-gray-100 bg-white">
+                        <tr>
+                            <td colspan="4" class="py-8 text-center text-gray-400 text-xs">Loading directory...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 @endif
@@ -934,12 +1144,201 @@
             .replace(/'/g, '&#039;');
     }
 
-    // Close activity logs modal on Escape
+    // Close modals on Escape
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeActivityLogsModal();
+            closeHeaderAddStudentModal();
+            closeHeaderStudentDirectoryModal();
         }
     });
+
+    // Admin Student Management (Header Modal)
+    function openHeaderAddStudentModal(e) {
+        if (e) e.stopPropagation();
+        const dd = document.getElementById('adminProfileDropdown');
+        if (dd) dd.classList.add('hidden');
+
+        const alertBox = document.getElementById('headerAddStudentAlert');
+        if (alertBox) {
+            alertBox.innerHTML = '';
+            alertBox.classList.add('hidden');
+        }
+        const form = document.getElementById('headerAddStudentForm');
+        if (form) form.reset();
+
+        const modal = document.getElementById('adminAddStudentModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                const nameInput = document.getElementById('hdr_student_name');
+                if (nameInput) nameInput.focus();
+            }, 100);
+        }
+    }
+
+    function closeHeaderAddStudentModal() {
+        const modal = document.getElementById('adminAddStudentModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    async function submitHeaderAddStudent(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitHeaderAddStudentBtn');
+        const alertBox = document.getElementById('headerAddStudentAlert');
+        alertBox.innerHTML = '';
+        alertBox.classList.add('hidden');
+
+        const name = document.getElementById('hdr_student_name').value.trim();
+        const email = document.getElementById('hdr_student_email').value.trim().toLowerCase();
+        const lrn = document.getElementById('hdr_student_lrn').value.trim();
+        const password = document.getElementById('hdr_student_password').value.trim();
+
+        if (!email.endsWith('@sac.edu.ph')) {
+            alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">Institutional email must end with @sac.edu.ph</div>`;
+            alertBox.classList.remove('hidden');
+            return;
+        }
+
+        if (!/^\d{12}$/.test(lrn)) {
+            alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">The LRN must be exactly 12 numeric digits.</div>`;
+            alertBox.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = `<span>Saving...</span>`;
+
+        try {
+            const response = await fetch('/backend/admin/students', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ name, email, lrn, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || data.error) {
+                const errorMsg = data.message || Object.values(data.errors || {}).flat().join('<br>') || 'Failed to register student.';
+                alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">${errorMsg}</div>`;
+                alertBox.classList.remove('hidden');
+            } else {
+                alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">${data.message}</div>`;
+                alertBox.classList.remove('hidden');
+                document.getElementById('headerAddStudentForm').reset();
+                setTimeout(() => {
+                    closeHeaderAddStudentModal();
+                    const dirModal = document.getElementById('adminStudentDirectoryModal');
+                    if (dirModal && !dirModal.classList.contains('hidden')) {
+                        fetchHeaderStudents();
+                    }
+                }, 1200);
+            }
+        } catch (err) {
+            alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">A network error occurred. Please try again.</div>`;
+            alertBox.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg><span>Register Student</span>`;
+        }
+    }
+
+    let headerStudentSearchTimer = null;
+    function debounceHeaderStudentSearch(val) {
+        clearTimeout(headerStudentSearchTimer);
+        headerStudentSearchTimer = setTimeout(() => {
+            fetchHeaderStudents(val);
+        }, 300);
+    }
+
+    function openHeaderStudentDirectoryModal(e) {
+        if (e) e.stopPropagation();
+        const dd = document.getElementById('adminProfileDropdown');
+        if (dd) dd.classList.add('hidden');
+
+        const modal = document.getElementById('adminStudentDirectoryModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            fetchHeaderStudents();
+        }
+    }
+
+    function closeHeaderStudentDirectoryModal() {
+        const modal = document.getElementById('adminStudentDirectoryModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    async function fetchHeaderStudents(search = '') {
+        const tbody = document.getElementById('headerStudentTableBody');
+        const countBadge = document.getElementById('headerStudentsCount');
+        if (!tbody) return;
+        const url = search ? `/backend/admin/students?search=${encodeURIComponent(search)}` : '/backend/admin/students';
+
+        try {
+            const res = await fetch(url, { credentials: 'same-origin' });
+            const data = await res.json();
+            const students = data.students || [];
+            if (countBadge) countBadge.textContent = data.total ?? students.length;
+
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-gray-400 text-xs">No registered students found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = students.map(s => `
+                <tr class="hover:bg-slate-50 transition border-b border-gray-100">
+                    <td class="py-2.5 px-3 font-bold text-gray-900">${escapeHtml(s.name)}</td>
+                    <td class="py-2.5 px-3 font-mono text-[11px] text-gray-600">${escapeHtml(s.email)}</td>
+                    <td class="py-2.5 px-3 font-mono text-[11px] text-[#700000] font-semibold">${escapeHtml(s.lrn || 'N/A')}</td>
+                    <td class="py-2.5 px-3 text-right">
+                        <button
+                            type="button"
+                            onclick="deleteHeaderStudent(${s.id}, '${escapeHtml(s.name).replace(/'/g, "\\'")}')"
+                            class="px-2 py-1 rounded-lg text-rose-600 hover:bg-rose-50 text-[11px] font-semibold transition cursor-pointer">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        } catch (e) {
+            tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-rose-500 text-xs">Failed to load student directory.</td></tr>`;
+        }
+    }
+
+    async function deleteHeaderStudent(id, name) {
+        if (!confirm(`Are you sure you want to remove ${name} from the repository authorization list?`)) return;
+
+        try {
+            const res = await fetch(`/backend/admin/students/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                }
+            });
+            const data = await res.json();
+            if (data.error) {
+                alert(data.message || 'Failed to remove student.');
+            } else {
+                const searchVal = document.getElementById('headerStudentSearchInput') ? document.getElementById('headerStudentSearchInput').value : '';
+                fetchHeaderStudents(searchVal);
+            }
+        } catch (err) {
+            alert('A network error occurred.');
+        }
+    }
 
     function initHeaderNotifications() {
         if (document.getElementById('headerNotifBellBtn')) {
