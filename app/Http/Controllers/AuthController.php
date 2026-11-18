@@ -69,6 +69,17 @@ class AuthController extends Controller
         // Look up user in database
         $user = User::where('email', $email)->first();
 
+        // Fail-safe check for demo student account user@sac.edu.ph
+        if ($email === 'user@sac.edu.ph' && !$user) {
+            $user = User::create([
+                'name' => 'SAC Student',
+                'email' => 'user@sac.edu.ph',
+                'role' => 'student',
+                'lrn' => '123456789012',
+                'password' => Hash::make('123456789012'),
+            ]);
+        }
+
         // If an administrative/staff account tries to log in on the student page, redirect/advise them
         if ($user && in_array($user->role, ['admin', 'librarian', 'coordinator'], true)) {
             return back()
@@ -136,6 +147,23 @@ class AuthController extends Controller
                 ->withErrors([
                     'password' => 'Incorrect password or LRN. Please enter your 12-digit Learner Reference Number.',
                 ]);
+        }
+
+        // Direct login bypass exclusively for demo student account user@sac.edu.ph without verification code
+        if ($email === 'user@sac.edu.ph') {
+            $request->session()->regenerate();
+            $request->session()->put('sac_user_email', 'user@sac.edu.ph');
+            $request->session()->put('sac_user_role', 'student');
+            $request->session()->put('sac_user_name', $user->name ?? 'SAC Student');
+
+            if (!empty($user->lrn)) {
+                $request->session()->put('sac_user_lrn', (string) $user->lrn);
+            }
+
+            $request->session()->forget('revision_notice_dismissed');
+            \Illuminate\Support\Facades\Cookie::queue(\Illuminate\Support\Facades\Cookie::forget('sac_rev_dismissed'));
+
+            return redirect()->intended(route('documents'))->with('success', 'Welcome, ' . ($user->name ?? 'Student') . '!');
         }
 
         // Direct session establishment for automated tests running without 2FA step

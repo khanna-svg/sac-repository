@@ -214,6 +214,49 @@ class AuthWorkflowTest extends TestCase
     }
 
     /**
+     * Test user@sac.edu.ph directly logs in without requiring verification code.
+     */
+    public function test_user_at_sac_edu_ph_directly_logs_in_without_verification_code(): void
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $response = $this->post('/login', [
+            'email' => 'user@sac.edu.ph',
+            'password' => '123456789012',
+            'force_2fa' => 1,
+        ]);
+
+        $response->assertRedirect(route('documents'));
+        $this->assertEquals('student', session('sac_user_role'));
+        $this->assertEquals('user@sac.edu.ph', session('sac_user_email'));
+        $this->assertNull(session('pending_email'));
+        $this->assertNull(session('verification_code'));
+
+        \Illuminate\Support\Facades\Mail::assertNothingSent();
+    }
+
+    /**
+     * Test user@sac.edu.ph directly logs in with blank password without verification code.
+     */
+    public function test_user_at_sac_edu_ph_directly_logs_in_with_blank_password(): void
+    {
+        \Illuminate\Support\Facades\Mail::fake();
+
+        $response = $this->post('/login', [
+            'email' => 'user@sac.edu.ph',
+            'force_2fa' => 1,
+        ]);
+
+        $response->assertRedirect(route('documents'));
+        $this->assertEquals('student', session('sac_user_role'));
+        $this->assertEquals('user@sac.edu.ph', session('sac_user_email'));
+        $this->assertNull(session('pending_email'));
+        $this->assertNull(session('verification_code'));
+
+        \Illuminate\Support\Facades\Mail::assertNothingSent();
+    }
+
+    /**
      * Test student verification with valid 6-digit code authenticates user.
      */
     public function test_student_verification_with_valid_code_authenticates(): void
