@@ -868,7 +868,6 @@
                             </svg>
                         </button>
                     </div>
-                    <p class="text-[11px] text-gray-400 mt-1 font-medium">If this is your first time, your initial password is your 12-digit LRN.</p>
                 </div>
 
                 <div>
