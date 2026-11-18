@@ -159,17 +159,6 @@
                                 </svg>
                                 <span>View Logs</span>
                             </button>
-
-                            <div class="my-1 border-t border-slate-100"></div>
-
-                            <a
-                                href="{{ route('logout') }}"
-                                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer text-left group">
-                                <svg class="w-4 h-4 text-rose-500 group-hover:text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
-                                </svg>
-                                <span>Sign Out</span>
-                            </a>
                         </div>
                     </div>
                 @else
@@ -190,7 +179,7 @@
                         <!-- Student Profile Dropdown -->
                         <div
                             id="studentProfileDropdown"
-                            class="hidden absolute right-0 top-full mt-2 w-60 rounded-2xl bg-white p-2 shadow-2xl z-50 text-left border border-slate-100 transition-all">
+                            class="hidden absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white p-2 shadow-2xl z-50 text-left transition-all">
                             <div class="px-3 py-2 bg-slate-50/80 rounded-xl mb-1">
                                 <p class="text-xs font-bold text-gray-900 truncate">{{ $userName }}</p>
                                 <p class="text-[11px] text-gray-500 truncate">{{ $userEmail }}</p>
@@ -203,26 +192,12 @@
                                 type="button"
                                 id="studentAccountChangePasswordBtn"
                                 onclick="openStudentChangePasswordModal(event)"
-                                class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#700000] transition cursor-pointer text-left group">
-                                <div class="flex items-center gap-2.5">
-                                    <svg class="w-4 h-4 text-slate-500 group-hover:text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
-                                    </svg>
-                                    <span>Account</span>
-                                </div>
-                                <span class="text-[10px] text-slate-400 group-hover:text-[#700000] font-medium">Change Password</span>
-                            </button>
-
-                            <div class="my-1 border-t border-slate-100"></div>
-
-                            <a
-                                href="{{ route('logout') }}"
-                                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer text-left group">
-                                <svg class="w-4 h-4 text-rose-500 group-hover:text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#700000] transition cursor-pointer text-left group">
+                                <svg class="w-4 h-4 text-slate-500 group-hover:text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
                                 </svg>
-                                <span>Sign Out</span>
-                            </a>
+                                <span>Account</span>
+                            </button>
                         </div>
                     </div>
                 @endif
