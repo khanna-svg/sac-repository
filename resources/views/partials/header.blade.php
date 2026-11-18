@@ -557,9 +557,6 @@
                             <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
                             <span>Register Student Account</span>
                         </h3>
-                        <p class="text-[11px] sm:text-xs text-amber-100/90 truncate mt-0.5">
-                            Provision institutional research credentials for an enrolled student.
-                        </p>
                     </div>
                 </div>
 
@@ -590,22 +587,21 @@
                             id="hdr_student_name"
                             name="name"
                             required
-                            placeholder="e.g. Francis Dominic G. Tenorio"
+                            placeholder="Enter Fullname"
                             class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
                     </div>
 
                     <div>
                         <label for="hdr_student_email" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                            Official Institutional Email <span class="text-rose-500">*</span>
+                            School Email <span class="text-rose-500">*</span>
                         </label>
                         <input
                             type="email"
                             id="hdr_student_email"
                             name="email"
                             required
-                            placeholder="e.g. tenoriofrancis@sac.edu.ph"
+                            placeholder="you@sac.edu.ph"
                             class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
-                        <p class="text-[11px] text-gray-400 mt-1 font-medium">Must be an official <strong>@sac.edu.ph</strong> address.</p>
                     </div>
 
                     <div>
@@ -620,9 +616,8 @@
                             maxlength="12"
                             pattern="[0-9]{12}"
                             inputmode="numeric"
-                            placeholder="e.g. 107384920183"
+                            placeholder="Enter LRN"
                             class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs font-mono font-semibold">
-                        <p class="text-[11px] text-gray-400 mt-1 font-medium">Exact 12-digit LRN. This will serve as their initial login password.</p>
                     </div>
 
                     <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
