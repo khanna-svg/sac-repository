@@ -112,6 +112,43 @@ class AdminStudentController extends Controller
     }
 
     /**
+     * Update/reset a student's password (e.g. when forgotten).
+     */
+    public function resetPassword(Request $request, $id)
+    {
+        $student = User::where('id', $id)->where('role', 'student')->first();
+        if (!$student) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Student record not found.',
+            ], 404);
+        }
+
+        $request->validate([
+            'new_password' => ['required', 'string', 'min:6'],
+        ], [
+            'new_password.required' => 'Please enter a new password.',
+            'new_password.min' => 'Password must be at least 6 characters.',
+        ]);
+
+        $newPassword = trim($request->new_password);
+        $student->password = Hash::make($newPassword);
+        $student->save();
+
+        AdminActivityLog::record(
+            'reset_student_password',
+            null,
+            "Student: {$student->name}",
+            "Admin updated password for student {$student->name} ({$student->email})."
+        );
+
+        return response()->json([
+            'error' => false,
+            'message' => "Password for {$student->name} has been successfully updated!",
+        ]);
+    }
+
+    /**
      * Delete student account.
      */
     public function destroy($id)

@@ -961,8 +961,34 @@ class AuthWorkflowTest extends TestCase
         $listRes->assertOk();
         $listRes->assertJsonFragment(['email' => $testStudentEmail]);
 
-        // 4. Admin deletes student
         $createdUser = \App\Models\User::where('email', $testStudentEmail)->first();
+
+        // 3b. Admin edits/resets forgotten student password
+        $resetRes = $this->withSession([
+            'sac_user_email' => $adminEmail,
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Admin',
+        ])->postJson("/backend/admin/students/{$createdUser->id}/reset-password", [
+            'new_password' => 'AdminResetPass777',
+        ]);
+
+        $resetRes->assertOk();
+        $resetRes->assertJsonPath('error', false);
+
+        // Verify student can now authenticate with the updated password
+        $reLoginRes = $this->post('/login', [
+            'email' => $testStudentEmail,
+            'password' => 'AdminResetPass777',
+        ]);
+        $reLoginRes->assertRedirect(route('documents'));
+
+        // Verify Admin Activity Log for password reset
+        $this->assertDatabaseHas('admin_activity_logs', [
+            'admin_email' => $adminEmail,
+            'action' => 'reset_student_password',
+        ]);
+
+        // 4. Admin deletes student
         $delRes = $this->withSession([
             'sac_user_email' => $adminEmail,
             'sac_user_role' => 'admin',

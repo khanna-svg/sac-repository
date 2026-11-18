@@ -153,6 +153,7 @@ Route::middleware('sac.auth')->group(function () {
         // Admin Student Account Management
         Route::get('/backend/admin/students', [\App\Http\Controllers\AdminStudentController::class, 'index'])->name('admin.students.list');
         Route::post('/backend/admin/students', [\App\Http\Controllers\AdminStudentController::class, 'store'])->name('admin.students.store');
+        Route::post('/backend/admin/students/{id}/reset-password', [\App\Http\Controllers\AdminStudentController::class, 'resetPassword'])->name('admin.students.resetPassword');
         Route::delete('/backend/admin/students/{id}', [\App\Http\Controllers\AdminStudentController::class, 'destroy'])->name('admin.students.destroy');
 
         Route::get('/admin/theses', function () {

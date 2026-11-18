@@ -654,11 +654,8 @@
                     <div class="min-w-0">
                         <h3 class="text-sm sm:text-base font-bold text-white tracking-wide truncate flex items-center gap-1.5">
                             <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
-                            <span>Authorized Student Directory</span>
+                            <span>Registered Student Directory</span>
                         </h3>
-                        <p class="text-[11px] sm:text-xs text-amber-100/90 truncate mt-0.5">
-                            Registered students permitted to access and submit manuscripts (<span id="headerStudentsCount">0</span> total).
-                        </p>
                     </div>
                 </div>
 
@@ -711,6 +708,101 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin: Edit/Reset Student Password Modal -->
+    <div id="adminEditStudentPasswordModal" class="fixed inset-0 z-[10001] hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-6 transition-all duration-300">
+        <div class="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[#600000] bg-[#700000] text-white shrink-0">
+                <div class="flex items-center gap-3 min-w-0 pr-2">
+                    <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#D4AF37]/40 flex items-center justify-center">
+                        <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
+                    </div>
+                    <div class="min-w-0">
+                        <h3 class="text-sm sm:text-base font-bold text-white tracking-wide truncate flex items-center gap-1.5">
+                            <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
+                            <span>Edit Student Password</span>
+                        </h3>
+                    </div>
+                </div>
+
+                <button
+                    type="button"
+                    onclick="closeAdminEditStudentPasswordModal()"
+                    aria-label="Close"
+                    class="p-1.5 rounded-lg text-amber-100/80 hover:text-white hover:bg-white/10 transition cursor-pointer shrink-0"
+                    title="Close">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 space-y-4">
+                <div id="adminEditStudentPasswordAlert" class="hidden"></div>
+
+                <div class="p-3 bg-slate-50 border border-slate-200/80 rounded-2xl">
+                    <p id="editStudentModalName" class="text-xs font-bold text-gray-900"></p>
+                    <p id="editStudentModalEmail" class="text-[11px] text-gray-500 font-mono"></p>
+                    <p id="editStudentModalLrn" class="text-[11px] text-[#700000] font-mono font-semibold mt-0.5"></p>
+                </div>
+
+                <form id="adminEditStudentPasswordForm" onsubmit="submitAdminEditStudentPassword(event)" class="space-y-4">
+                    @csrf
+                    <input type="hidden" id="edit_student_id">
+                    <input type="hidden" id="edit_student_lrn_hidden">
+
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label for="edit_student_new_password" class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                New Password <span class="text-rose-500">*</span>
+                            </label>
+                            <button
+                                type="button"
+                                onclick="fillStudentLrnAsPassword()"
+                                class="text-[11px] text-[#700000] hover:text-[#900000] font-semibold hover:underline cursor-pointer">
+                                Reset to 12-Digit LRN
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <input
+                                type="password"
+                                id="edit_student_new_password"
+                                required
+                                minlength="6"
+                                placeholder="Enter new password (min. 6 characters)"
+                                class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs pr-10">
+                            <button
+                                type="button"
+                                onclick="togglePasswordVisibility('edit_student_new_password', this)"
+                                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
+                        <button
+                            type="button"
+                            onclick="closeAdminEditStudentPasswordModal()"
+                            class="rounded-xl border border-gray-200 px-4 py-2.5 text-xs font-bold text-gray-600 hover:bg-slate-100 transition cursor-pointer">
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            id="submitAdminEditStudentPasswordBtn"
+                            class="rounded-xl bg-[#700000] hover:bg-[#850000] px-5 py-2.5 text-xs font-bold text-[#FFD700] transition shadow-md shadow-red-950/20 border border-[#FFD700]/30 cursor-pointer flex items-center gap-1.5">
+                            <span>Update Password</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1430,6 +1522,7 @@
             closeActivityLogsModal();
             closeHeaderAddStudentModal();
             closeHeaderStudentDirectoryModal();
+            closeAdminEditStudentPasswordModal();
             closeStudentChangePasswordModal();
         }
     });
@@ -1585,15 +1678,117 @@
                     <td class="py-2.5 px-3 text-right">
                         <button
                             type="button"
-                            onclick="deleteHeaderStudent(${s.id}, '${escapeHtml(s.name).replace(/'/g, "\\'")}')"
-                            class="px-2 py-1 rounded-lg text-rose-600 hover:bg-rose-50 text-[11px] font-semibold transition cursor-pointer">
-                            Delete
+                            onclick="openAdminEditStudentPasswordModal(${s.id}, '${escapeHtml(s.name).replace(/'/g, "\\'")}', '${escapeHtml(s.email).replace(/'/g, "\\'")}', '${escapeHtml(s.lrn || '').replace(/'/g, "\\'")}')"
+                            class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-[#700000] text-slate-700 hover:text-[#FFD700] text-[11px] font-semibold transition cursor-pointer inline-flex items-center gap-1 shadow-2xs">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+                            </svg>
+                            <span>Edit</span>
                         </button>
                     </td>
                 </tr>
             `).join('');
         } catch (e) {
             tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-rose-500 text-xs">Failed to load student directory.</td></tr>`;
+        }
+    }
+
+    function openAdminEditStudentPasswordModal(id, name, email, lrn) {
+        document.getElementById('edit_student_id').value = id;
+        document.getElementById('edit_student_lrn_hidden').value = lrn || '';
+        document.getElementById('editStudentModalName').textContent = name;
+        document.getElementById('editStudentModalEmail').textContent = email;
+        document.getElementById('editStudentModalLrn').textContent = lrn ? `LRN: ${lrn}` : '';
+
+        const alertBox = document.getElementById('adminEditStudentPasswordAlert');
+        if (alertBox) {
+            alertBox.innerHTML = '';
+            alertBox.classList.add('hidden');
+        }
+        const form = document.getElementById('adminEditStudentPasswordForm');
+        if (form) form.reset();
+        document.getElementById('edit_student_id').value = id;
+        document.getElementById('edit_student_lrn_hidden').value = lrn || '';
+
+        const modal = document.getElementById('adminEditStudentPasswordModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                const input = document.getElementById('edit_student_new_password');
+                if (input) input.focus();
+            }, 100);
+        }
+    }
+
+    function closeAdminEditStudentPasswordModal() {
+        const modal = document.getElementById('adminEditStudentPasswordModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    function fillStudentLrnAsPassword() {
+        const lrn = document.getElementById('edit_student_lrn_hidden').value;
+        if (lrn) {
+            const input = document.getElementById('edit_student_new_password');
+            if (input) input.value = lrn;
+        }
+    }
+
+    async function submitAdminEditStudentPassword(e) {
+        e.preventDefault();
+        const id = document.getElementById('edit_student_id').value;
+        const newPassword = document.getElementById('edit_student_new_password').value.trim();
+        const alertBox = document.getElementById('adminEditStudentPasswordAlert');
+        const btn = document.getElementById('submitAdminEditStudentPasswordBtn');
+
+        if (alertBox) {
+            alertBox.innerHTML = '';
+            alertBox.classList.add('hidden');
+        }
+
+        if (newPassword.length < 6) {
+            alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">Password must be at least 6 characters.</div>`;
+            alertBox.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        const originalBtnHtml = btn.innerHTML;
+        btn.innerHTML = `<span>Saving...</span>`;
+
+        try {
+            const token = document.getElementById('sacTopHeader')?.dataset.csrf ||
+                document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+            const res = await fetch(`/backend/admin/students/${id}/reset-password`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ new_password: newPassword })
+            });
+
+            const data = await res.json();
+            if (!res.ok || data.error) {
+                alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">${data.message || 'Failed to update password.'}</div>`;
+                alertBox.classList.remove('hidden');
+            } else {
+                alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">${data.message}</div>`;
+                alertBox.classList.remove('hidden');
+                setTimeout(() => {
+                    closeAdminEditStudentPasswordModal();
+                }, 1200);
+            }
+        } catch (err) {
+            alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">A network error occurred. Please try again.</div>`;
+            alertBox.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
         }
     }
 
