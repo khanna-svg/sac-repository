@@ -133,6 +133,10 @@ Route::middleware('sac.auth')->group(function () {
     Route::post('/backend/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead']);
     Route::post('/backend/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead']);
 
+    // Student Account Settings & Password Change
+    Route::post('/backend/student/change-password', [\App\Http\Controllers\AuthController::class, 'changePassword'])
+        ->name('student.changePassword');
+
     Route::middleware([RequireSacAdmin::class])->group(function () {
 
         // Admin Thesis Submissions Review & Moderation Queue

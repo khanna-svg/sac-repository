@@ -973,6 +973,92 @@ class AuthWorkflowTest extends TestCase
             'email' => $testStudentEmail,
         ]);
     }
+
+    public function test_student_can_change_password_and_view_profile_menu(): void
+    {
+        $studentEmail = 'pwchange.student@sac.edu.ph';
+        $studentLrn = '109988776655';
+
+        $user = User::create([
+            'name' => 'Password Test Student',
+            'email' => $studentEmail,
+            'lrn' => $studentLrn,
+            'password' => Hash::make($studentLrn),
+            'role' => 'student',
+        ]);
+
+        // 1. Verify header renders student profile SVG dropdown and Change Password modal
+        $viewRes = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+            'sac_user_name' => 'Password Test Student',
+            'sac_user_lrn' => $studentLrn,
+        ])->get('/documents');
+
+        $viewRes->assertOk();
+        $viewRes->assertSee('id="studentProfileMenuBtn"', false);
+        $viewRes->assertSee('id="studentProfileDropdown"', false);
+        $viewRes->assertSee('id="studentChangePasswordModal"', false);
+        $viewRes->assertSee('Account', false);
+        $viewRes->assertSee('Change Password', false);
+
+        // 2. Failure: Wrong current password
+        $failRes = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+        ])->postJson('/backend/student/change-password', [
+            'current_password' => 'WrongCurrentPassword123',
+            'new_password' => 'BrandNewPassword999',
+            'new_password_confirmation' => 'BrandNewPassword999',
+        ]);
+
+        $failRes->assertStatus(422);
+        $failRes->assertJsonPath('error', true);
+
+        // 3. Failure: Password confirmation mismatch
+        $mismatchRes = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+        ])->postJson('/backend/student/change-password', [
+            'current_password' => $studentLrn,
+            'new_password' => 'BrandNewPassword999',
+            'new_password_confirmation' => 'DifferentMismatchPassword999',
+        ]);
+
+        $mismatchRes->assertStatus(422);
+
+        // 4. Success: Changing password using initial 12-digit LRN
+        $successRes = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+        ])->postJson('/backend/student/change-password', [
+            'current_password' => $studentLrn,
+            'new_password' => 'BrandNewPassword999',
+            'new_password_confirmation' => 'BrandNewPassword999',
+        ]);
+
+        $successRes->assertOk();
+        $successRes->assertJsonPath('error', false);
+
+        $user->refresh();
+        $this->assertTrue(Hash::check('BrandNewPassword999', $user->password));
+
+        // 5. Success: Changing password again using the newly set password
+        $successRes2 = $this->withSession([
+            'sac_user_email' => $studentEmail,
+            'sac_user_role' => 'student',
+        ])->postJson('/backend/student/change-password', [
+            'current_password' => 'BrandNewPassword999',
+            'new_password' => 'AnotherSecurePassword888',
+            'new_password_confirmation' => 'AnotherSecurePassword888',
+        ]);
+
+        $successRes2->assertOk();
+        $successRes2->assertJsonPath('error', false);
+
+        $user->refresh();
+        $this->assertTrue(Hash::check('AnotherSecurePassword888', $user->password));
+    }
 }
 
 

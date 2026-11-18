@@ -159,6 +159,70 @@
                                 </svg>
                                 <span>View Logs</span>
                             </button>
+
+                            <div class="my-1 border-t border-slate-100"></div>
+
+                            <a
+                                href="{{ route('logout') }}"
+                                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer text-left group">
+                                <svg class="w-4 h-4 text-rose-500 group-hover:text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                                </svg>
+                                <span>Sign Out</span>
+                            </a>
+                        </div>
+                    </div>
+                @else
+                    <!-- Student Profile User SVG Button & Dropdown Menu -->
+                    <div class="relative">
+                        <button
+                            type="button"
+                            id="studentProfileMenuBtn"
+                            onclick="toggleStudentProfileDropdown(event)"
+                            title="Student Profile & Options"
+                            aria-label="Student Profile & Options"
+                            class="p-1 sm:p-1.5 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition cursor-pointer flex items-center justify-center focus:outline-none">
+                            <svg class="w-5 h-5 text-slate-600 hover:text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                            </svg>
+                        </button>
+
+                        <!-- Student Profile Dropdown -->
+                        <div
+                            id="studentProfileDropdown"
+                            class="hidden absolute right-0 top-full mt-2 w-60 rounded-2xl bg-white p-2 shadow-2xl z-50 text-left border border-slate-100 transition-all">
+                            <div class="px-3 py-2 bg-slate-50/80 rounded-xl mb-1">
+                                <p class="text-xs font-bold text-gray-900 truncate">{{ $userName }}</p>
+                                <p class="text-[11px] text-gray-500 truncate">{{ $userEmail }}</p>
+                                @if(session('sac_user_lrn'))
+                                    <p class="text-[10.5px] text-[#700000] font-mono font-semibold mt-0.5">LRN: {{ session('sac_user_lrn') }}</p>
+                                @endif
+                            </div>
+
+                            <button
+                                type="button"
+                                id="studentAccountChangePasswordBtn"
+                                onclick="openStudentChangePasswordModal(event)"
+                                class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-[#700000] transition cursor-pointer text-left group">
+                                <div class="flex items-center gap-2.5">
+                                    <svg class="w-4 h-4 text-slate-500 group-hover:text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+                                    </svg>
+                                    <span>Account</span>
+                                </div>
+                                <span class="text-[10px] text-slate-400 group-hover:text-[#700000] font-medium">Change Password</span>
+                            </button>
+
+                            <div class="my-1 border-t border-slate-100"></div>
+
+                            <a
+                                href="{{ route('logout') }}"
+                                class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition cursor-pointer text-left group">
+                                <svg class="w-4 h-4 text-rose-500 group-hover:text-rose-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                                </svg>
+                                <span>Sign Out</span>
+                            </a>
                         </div>
                     </div>
                 @endif
@@ -695,6 +759,138 @@
     </div>
 @endif
 
+<!-- Student: Change Password Modal (Global Header) -->
+<div id="studentChangePasswordModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-6 transition-all duration-300">
+    <div class="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+        <!-- Modal Header (AIRIS Maroon Style) -->
+        <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[#600000] bg-[#700000] text-white shrink-0">
+            <div class="flex items-center gap-3 min-w-0 pr-2">
+                <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#D4AF37]/40 flex items-center justify-center">
+                    <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
+                </div>
+                <div class="min-w-0">
+                    <h3 class="text-sm sm:text-base font-bold text-white tracking-wide truncate flex items-center gap-1.5">
+                        <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
+                        <span>Account Settings</span>
+                    </h3>
+                    <p class="text-[11px] sm:text-xs text-amber-100/90 truncate mt-0.5">
+                        Change your institutional account password
+                    </p>
+                </div>
+            </div>
+
+            <button
+                type="button"
+                onclick="closeStudentChangePasswordModal()"
+                aria-label="Close"
+                class="p-1.5 rounded-lg text-amber-100/80 hover:text-white hover:bg-white/10 transition cursor-pointer shrink-0"
+                title="Close">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Form Body -->
+        <div class="p-6 space-y-4">
+            <div id="studentChangePasswordAlert" class="hidden"></div>
+
+            <form id="studentChangePasswordForm" onsubmit="submitStudentChangePassword(event)" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="current_password" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Current Password <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="current_password"
+                            name="current_password"
+                            required
+                            placeholder="Enter current password or initial LRN"
+                            class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs pr-10">
+                        <button
+                            type="button"
+                            onclick="togglePasswordVisibility('current_password', this)"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-1 font-medium">If this is your first time, your initial password is your 12-digit LRN.</p>
+                </div>
+
+                <div>
+                    <label for="new_password" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        New Password <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="new_password"
+                            name="new_password"
+                            required
+                            minlength="6"
+                            placeholder="Enter new password (minimum 6 characters)"
+                            class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs pr-10">
+                        <button
+                            type="button"
+                            onclick="togglePasswordVisibility('new_password', this)"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="new_password_confirmation" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
+                        Confirm New Password <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input
+                            type="password"
+                            id="new_password_confirmation"
+                            name="new_password_confirmation"
+                            required
+                            minlength="6"
+                            placeholder="Re-enter your new password"
+                            class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs pr-10">
+                        <button
+                            type="button"
+                            onclick="togglePasswordVisibility('new_password_confirmation', this)"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end gap-3 border-t border-gray-100">
+                    <button
+                        type="button"
+                        onclick="closeStudentChangePasswordModal()"
+                        class="px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition cursor-pointer">
+                        Cancel
+                    </button>
+                    <button
+                        type="submit"
+                        id="studentChangePasswordSubmitBtn"
+                        class="px-5 py-2.5 rounded-xl bg-[#700000] text-amber-300 hover:bg-[#850000] hover:text-amber-200 text-xs font-bold transition shadow-sm cursor-pointer flex items-center gap-2">
+                        <span>Save Password</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script>
     // Header Notifications Logic
     function dismissLiveToast(toastId) {
@@ -917,7 +1113,134 @@
         if (profileDd && profileBtn && !profileDd.contains(e.target) && !profileBtn.contains(e.target)) {
             profileDd.classList.add('hidden');
         }
+
+        const studentProfileDd = document.getElementById('studentProfileDropdown');
+        const studentProfileBtn = document.getElementById('studentProfileMenuBtn');
+        if (studentProfileDd && studentProfileBtn && !studentProfileDd.contains(e.target) && !studentProfileBtn.contains(e.target)) {
+            studentProfileDd.classList.add('hidden');
+        }
     });
+
+    // Student Profile & Password Change Logic
+    function toggleStudentProfileDropdown(e) {
+        if (e) e.stopPropagation();
+        const dd = document.getElementById('studentProfileDropdown');
+        if (!dd) return;
+        dd.classList.toggle('hidden');
+    }
+
+    function openStudentChangePasswordModal(e) {
+        if (e) e.stopPropagation();
+        const dd = document.getElementById('studentProfileDropdown');
+        if (dd) dd.classList.add('hidden');
+
+        const alertBox = document.getElementById('studentChangePasswordAlert');
+        if (alertBox) {
+            alertBox.innerHTML = '';
+            alertBox.classList.add('hidden');
+        }
+        const form = document.getElementById('studentChangePasswordForm');
+        if (form) form.reset();
+
+        const modal = document.getElementById('studentChangePasswordModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                const currentInput = document.getElementById('current_password');
+                if (currentInput) currentInput.focus();
+            }, 100);
+        }
+    }
+
+    function closeStudentChangePasswordModal() {
+        const modal = document.getElementById('studentChangePasswordModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
+
+    function togglePasswordVisibility(fieldId, btn) {
+        const input = document.getElementById(fieldId);
+        if (!input) return;
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" /></svg>`;
+        } else {
+            input.type = 'password';
+            btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>`;
+        }
+    }
+
+    async function submitStudentChangePassword(e) {
+        e.preventDefault();
+        const btn = document.getElementById('studentChangePasswordSubmitBtn');
+        const alertBox = document.getElementById('studentChangePasswordAlert');
+        if (alertBox) {
+            alertBox.innerHTML = '';
+            alertBox.classList.add('hidden');
+        }
+
+        const currentPassword = document.getElementById('current_password').value;
+        const newPassword = document.getElementById('new_password').value;
+        const confirmPassword = document.getElementById('new_password_confirmation').value;
+
+        if (newPassword.length < 6) {
+            alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">New password must be at least 6 characters.</div>`;
+            alertBox.classList.remove('hidden');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">New password and confirmation do not match.</div>`;
+            alertBox.classList.remove('hidden');
+            return;
+        }
+
+        btn.disabled = true;
+        const originalBtnHtml = btn.innerHTML;
+        btn.innerHTML = `<span>Saving...</span>`;
+
+        try {
+            const token = document.getElementById('sacTopHeader')?.dataset.csrf ||
+                document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+            const response = await fetch('{{ route('student.changePassword') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword,
+                    new_password_confirmation: confirmPassword
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || data.error) {
+                const errorMsg = data.message || Object.values(data.errors || {}).flat().join('<br>') || 'Failed to change password.';
+                alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">${errorMsg}</div>`;
+                alertBox.classList.remove('hidden');
+            } else {
+                alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">${data.message || 'Password successfully updated!'}</div>`;
+                alertBox.classList.remove('hidden');
+                document.getElementById('studentChangePasswordForm').reset();
+                setTimeout(() => {
+                    closeStudentChangePasswordModal();
+                }, 1500);
+            }
+        } catch (err) {
+            alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">A network error occurred. Please try again.</div>`;
+            alertBox.classList.remove('hidden');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalBtnHtml;
+        }
+    }
 
     // Admin Profile & Activity Logs Logic
     function toggleAdminProfileDropdown(e) {
@@ -1150,6 +1473,7 @@
             closeActivityLogsModal();
             closeHeaderAddStudentModal();
             closeHeaderStudentDirectoryModal();
+            closeStudentChangePasswordModal();
         }
     });
 

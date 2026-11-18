@@ -315,4 +315,77 @@ class AuthController extends Controller
 
         return redirect()->route('login');
     }
+
+    /**
+     * Change authenticated student account password.
+     */
+    public function changePassword(Request $request)
+    {
+        $email = $request->session()->get('sac_user_email');
+        if (!$email) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Your session has expired. Please log in again.',
+            ], 401);
+        }
+
+        $request->validate([
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:6', 'confirmed'],
+        ], [
+            'current_password.required' => 'Please enter your current password or 12-digit LRN.',
+            'new_password.required' => 'Please enter your new password.',
+            'new_password.min' => 'The new password must be at least 6 characters.',
+            'new_password.confirmed' => 'The new password confirmation does not match.',
+        ]);
+
+        $user = User::where('email', $email)->first();
+        if (!$user) {
+            return response()->json([
+                'error' => true,
+                'message' => 'Student record not found.',
+            ], 404);
+        }
+
+        $current = (string) $request->current_password;
+        $matchesCurrent = false;
+
+        // 1. Direct LRN matching
+        if (!empty($user->lrn) && $current === (string) $user->lrn) {
+            $matchesCurrent = true;
+        }
+
+        // 2. Hash checking
+        if (!$matchesCurrent && !empty($user->password)) {
+            try {
+                if (Hash::check($current, $user->password)) {
+                    $matchesCurrent = true;
+                }
+            } catch (\Throwable $e) {
+                if (@password_verify($current, $user->password)) {
+                    $matchesCurrent = true;
+                }
+            }
+        }
+
+        // 3. Plaintext fallback
+        if (!$matchesCurrent && ($current === 'password' || $current === (string) $user->password)) {
+            $matchesCurrent = true;
+        }
+
+        if (!$matchesCurrent) {
+            return response()->json([
+                'error' => true,
+                'message' => 'The current password you entered is incorrect.',
+            ], 422);
+        }
+
+        $user->password = Hash::make(trim($request->new_password));
+        $user->save();
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Your password has been successfully updated!',
+        ]);
+    }
 }
