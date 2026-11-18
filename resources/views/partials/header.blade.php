@@ -622,20 +622,7 @@
                             inputmode="numeric"
                             placeholder="e.g. 107384920183"
                             class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs font-mono font-semibold">
-                        <p class="text-[11px] text-gray-400 mt-1 font-medium">Exact 12-digit DepEd/CHED LRN.</p>
-                    </div>
-
-                    <div>
-                        <label for="hdr_student_password" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1.5">
-                            Initial Password <span class="text-[10px] text-gray-400 font-normal lowercase">(optional)</span>
-                        </label>
-                        <input
-                            type="text"
-                            id="hdr_student_password"
-                            name="password"
-                            placeholder="Defaults to 12-digit LRN if left blank"
-                            class="w-full rounded-2xl border border-gray-200 bg-slate-50/70 px-4 py-2.5 text-xs sm:text-sm text-gray-900 outline-none focus:border-[#700000] focus:bg-white focus:ring-2 focus:ring-[#700000]/10 transition shadow-2xs">
-                        <p class="text-[11px] text-gray-400 mt-1 font-medium">If blank, the student can log in using their 12-digit LRN.</p>
+                        <p class="text-[11px] text-gray-400 mt-1 font-medium">Exact 12-digit LRN. This will serve as their initial login password.</p>
                     </div>
 
                     <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
@@ -1495,7 +1482,6 @@
         const name = document.getElementById('hdr_student_name').value.trim();
         const email = document.getElementById('hdr_student_email').value.trim().toLowerCase();
         const lrn = document.getElementById('hdr_student_lrn').value.trim();
-        const password = document.getElementById('hdr_student_password').value.trim();
 
         if (!email.endsWith('@sac.edu.ph')) {
             alertBox.innerHTML = `<div class="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">Institutional email must end with @sac.edu.ph</div>`;
@@ -1520,7 +1506,7 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({ name, email, lrn, password })
+                body: JSON.stringify({ name, email, lrn })
             });
 
             const data = await response.json();
