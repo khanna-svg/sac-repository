@@ -122,19 +122,12 @@ class AuthController extends Controller
                 }
             }
         } else {
-            // Automatically register new student with provided credentials
-            $cleanName = ucwords(preg_replace('/[._-]+/', ' ', explode('@', $email)[0]));
-            $isLrn = preg_match('/^\d{12}$/', $password);
-
-            $user = User::create([
-                'name' => $cleanName,
-                'email' => $email,
-                'role' => 'student',
-                'lrn' => $isLrn ? $password : null,
-                'password' => Hash::make($password !== '' ? $password : Str::random(16)),
-            ]);
-
-            $passwordMatches = true;
+            // Unregistered institutional email - advise student to contact administrator
+            return back()
+                ->withInput(['email' => $email])
+                ->withErrors([
+                    'email' => 'This institutional email is not registered in the repository. Please contact your research coordinator or administrator.',
+                ]);
         }
 
         if (!$passwordMatches) {

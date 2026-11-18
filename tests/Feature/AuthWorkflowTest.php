@@ -885,6 +885,95 @@ class AuthWorkflowTest extends TestCase
         \Illuminate\Support\Facades\DB::table('thesis_notifications')->where('user_email', $studentEmail)->delete();
         $doc->delete();
     }
+
+    /**
+     * Test that an unregistered @sac.edu.ph institutional email is rejected at login.
+     */
+    public function test_unregistered_student_email_is_blocked(): void
+    {
+        $response = $this->post('/login', [
+            'email' => 'unregistered.random.student@sac.edu.ph',
+            'password' => 'someRandomPassword123',
+        ]);
+
+        $response->assertSessionHasErrors('email');
+        $this->assertNull(session('sac_user_role'));
+        $this->assertDatabaseMissing('users', [
+            'email' => 'unregistered.random.student@sac.edu.ph',
+        ]);
+    }
+
+    /**
+     * Test admin can register a new student, activity is logged, and student can then authenticate.
+     */
+    public function test_admin_can_add_student_and_student_can_log_in(): void
+    {
+        $adminEmail = 'admin@sac.edu.ph';
+        $testStudentEmail = 'testnewbie@sac.edu.ph';
+        $testStudentName = 'Maria Clara L. Santos';
+        $testStudentLrn = '109988776655';
+
+        // Clean up beforehand if exists
+        \App\Models\User::where('email', $testStudentEmail)->delete();
+        \App\Models\AdminActivityLog::where('admin_email', $adminEmail)->where('action', 'add_student')->delete();
+
+        // 1. Admin creates student
+        $res = $this->withSession([
+            'sac_user_email' => $adminEmail,
+            'sac_user_role' => 'admin',
+            'sac_user_name' => 'SAC Admin',
+        ])->postJson('/backend/admin/students', [
+            'name' => $testStudentName,
+            'email' => $testStudentEmail,
+            'lrn' => $testStudentLrn,
+        ]);
+
+        $res->assertStatus(201);
+        $res->assertJsonPath('error', false);
+        $this->assertDatabaseHas('users', [
+            'email' => $testStudentEmail,
+            'lrn' => $testStudentLrn,
+            'role' => 'student',
+        ]);
+
+        // Verify Admin Activity Log
+        $this->assertDatabaseHas('admin_activity_logs', [
+            'admin_email' => $adminEmail,
+            'action' => 'add_student',
+        ]);
+
+        // 2. Student now successfully authenticates using their 12-digit LRN as password
+        $loginRes = $this->post('/login', [
+            'email' => $testStudentEmail,
+            'password' => $testStudentLrn,
+        ]);
+
+        $loginRes->assertRedirect(route('documents'));
+        $this->assertEquals('student', session('sac_user_role'));
+        $this->assertEquals($testStudentEmail, session('sac_user_email'));
+
+        // 3. Admin can list students
+        $listRes = $this->withSession([
+            'sac_user_email' => $adminEmail,
+            'sac_user_role' => 'admin',
+        ])->getJson('/backend/admin/students?search=testnewbie');
+
+        $listRes->assertOk();
+        $listRes->assertJsonFragment(['email' => $testStudentEmail]);
+
+        // 4. Admin deletes student
+        $createdUser = \App\Models\User::where('email', $testStudentEmail)->first();
+        $delRes = $this->withSession([
+            'sac_user_email' => $adminEmail,
+            'sac_user_role' => 'admin',
+        ])->deleteJson("/backend/admin/students/{$createdUser->id}");
+
+        $delRes->assertOk();
+        $this->assertDatabaseMissing('users', [
+            'email' => $testStudentEmail,
+        ]);
+    }
 }
+
 
 

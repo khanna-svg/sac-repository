@@ -146,6 +146,11 @@ Route::middleware('sac.auth')->group(function () {
         Route::post('/backend/admin/dismiss-policy-notice', [\App\Http\Controllers\AdminSubmissionController::class, 'dismissPolicyNotice'])->name('admin.dismissPolicyNotice');
         Route::get('/backend/admin/activity-logs', [\App\Http\Controllers\AdminActivityLogController::class, 'index'])->name('admin.activityLogs');
 
+        // Admin Student Account Management
+        Route::get('/backend/admin/students', [\App\Http\Controllers\AdminStudentController::class, 'index'])->name('admin.students.list');
+        Route::post('/backend/admin/students', [\App\Http\Controllers\AdminStudentController::class, 'store'])->name('admin.students.store');
+        Route::delete('/backend/admin/students/{id}', [\App\Http\Controllers\AdminStudentController::class, 'destroy'])->name('admin.students.destroy');
+
         Route::get('/admin/theses', function () {
             return view('admin.theses');
         })->name('admin.theses');
