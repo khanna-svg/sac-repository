@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\LoginVerificationCodeMail;
 use App\Mail\ThesisClearanceMail;
 use App\Models\Document;
 use Illuminate\Console\Command;
@@ -14,14 +15,14 @@ class TestMailDelivery extends Command
      *
      * @var string
      */
-    protected $signature = 'sac:test-email {recipient=figueroaryan@sac.edu.ph}';
+    protected $signature = 'sac:test-email {recipient=figueroaryan@sac.edu.ph} {--type=otp : Email type to send: otp or clearance}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Test sending an official clearance email to Gmail / institutional email.';
+    protected $description = 'Test sending an official clearance or 6-digit verification email to Gmail.';
 
     /**
      * Execute the console command.
@@ -48,25 +49,33 @@ class TestMailDelivery extends Command
             $this->warn("To send real emails to your Gmail, configure SMTP in .env (e.g. smtp.gmail.com).");
         }
 
-        $document = Document::whereNotNull('submitted_by_email')->latest()->first();
-        if (!$document) {
-            $document = new Document([
-                'title' => 'Sample Thesis for Clearance Email Testing',
-                'author' => 'Student Author',
-                'department' => 'itd',
-                'course_code' => 'bsit',
-                'status' => 'cleared',
-                'turnitin_similarity' => '11%',
-                'admin_notes' => 'Test email: Plagiarism and Grammarly standards satisfied. Cleared for oral defense.',
-            ]);
-        }
-
+        $type = strtolower((string) $this->option('type'));
+        $this->info("Email Type       : {$type}");
         $this->info("Attempting to dispatch test email...");
 
         try {
-            Mail::to($recipient)->send(
-                new ThesisClearanceMail($document, 'passed', '11%', 'Test clearance email from SAC Institutional Repository.')
-            );
+            if ($type === 'clearance') {
+                $document = Document::whereNotNull('submitted_by_email')->latest()->first();
+                if (!$document) {
+                    $document = new Document([
+                        'title' => 'Sample Thesis for Clearance Email Testing',
+                        'author' => 'Student Author',
+                        'department' => 'itd',
+                        'course_code' => 'bsit',
+                        'status' => 'cleared',
+                        'turnitin_similarity' => '11%',
+                        'admin_notes' => 'Test email: Plagiarism and Grammarly standards satisfied. Cleared for oral defense.',
+                    ]);
+                }
+                Mail::to($recipient)->send(
+                    new ThesisClearanceMail($document, 'passed', '11%', 'Test clearance email from SAC Institutional Repository.')
+                );
+            } else {
+                $sampleCode = str_pad((string) random_int(100000, 999999), 6, '0', STR_PAD_LEFT);
+                Mail::to($recipient)->send(
+                    new LoginVerificationCodeMail($sampleCode, $recipient, 'Ryan Figueroa')
+                );
+            }
 
             if ($mailer === 'log') {
                 $this->info("[SUCCESS] Email rendered and recorded in storage/logs/laravel.log.");

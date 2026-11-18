@@ -305,9 +305,6 @@
                                     </svg>
                                 </button>
                             </div>
-
-                            <!-- Auto-fill Status Notification -->
-                            <div id="autofillStatus" class="hidden text-xs rounded-xl px-3.5 py-2 mt-2.5 transition"></div>
                         </div>
 
                         <!-- Upload Progress Bar Container -->
@@ -560,9 +557,6 @@
             document.getElementById('previewFileSize').textContent = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
             document.getElementById('filePreviewCard').classList.remove('hidden');
             document.getElementById('filePreviewCard').classList.add('flex');
-
-            // Automatically extract Title, Author, Abstract, Department, Course
-            autoExtractMetadataFromFile(file);
         }
 
         function clearSelectedFile(e) {
@@ -570,103 +564,11 @@
             document.getElementById('pdf').value = '';
             document.getElementById('filePreviewCard').classList.add('hidden');
             document.getElementById('filePreviewCard').classList.remove('flex');
-            const statusBadge = document.getElementById('autofillStatus');
-            if (statusBadge) {
-                statusBadge.classList.add('hidden');
-            }
         }
 
-        async function autoExtractMetadataFromFile(file) {
-            if (!file) return;
-            const statusBadge = document.getElementById('autofillStatus');
-            if (statusBadge) {
-                statusBadge.className = "flex items-center gap-2 text-xs rounded-xl px-3.5 py-2 mt-2.5 bg-red-50 text-red-800 shadow-2xs transition";
-                statusBadge.innerHTML = `
-                    <svg class="w-3.5 h-3.5 animate-spin text-red-600 shrink-0" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>extracting details.. please wait..</span>
-                `;
-                statusBadge.classList.remove('hidden');
-            }
 
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                const pagesToScan = Math.min(pdf.numPages, 3);
-                let frontText = '';
 
-                for (let i = 1; i <= pagesToScan; i++) {
-                    const page = await pdf.getPage(i);
-                    const content = await page.getTextContent();
-                    const pageStr = content.items.map(item => item.str).join(' ');
-                    frontText += `\n--- PAGE ${i} ---\n` + pageStr;
-                }
 
-                if (frontText.trim().length > 30) {
-                    const res = await fetch('/backend/student/extract-metadata', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': csrfToken,
-                        },
-                        body: JSON.stringify({ text: frontText })
-                    });
-
-                    if (res.ok) {
-                        const json = await res.json();
-                        if (json.success && json.data) {
-                            const d = json.data;
-                            const titleInput = document.getElementById('title');
-                            const authorInput = document.getElementById('author');
-                            const abstractInput = document.getElementById('abstract');
-                            const deptSelect = document.getElementById('department');
-                            const courseSelect = document.getElementById('course_code');
-
-                            let filledFields = [];
-                            if (d.title) {
-                                titleInput.value = d.title;
-                                filledFields.push('Title');
-                            }
-                            if (d.author) {
-                                authorInput.value = d.author;
-                                filledFields.push('Author(s)');
-                            }
-                            if (d.department) {
-                                deptSelect.value = d.department;
-                                handleDepartmentChange();
-                                if (d.course_code) {
-                                    courseSelect.value = d.course_code;
-                                }
-                            }
-                            if (d.abstract) {
-                                abstractInput.value = d.abstract;
-                                filledFields.push('Abstract');
-                            }
-
-                            if (statusBadge && filledFields.length > 0) {
-                                statusBadge.className = "flex items-center justify-between text-xs rounded-xl px-3.5 py-2 mt-2.5 bg-emerald-50 text-emerald-800 shadow-2xs transition";
-                                statusBadge.innerHTML = `
-                                    <div class="flex items-center gap-2">
-                                        <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                                        </svg>
-                                        <span>Auto-filled ${filledFields.join(', ')} from PDF. Please verify before submitting.</span>
-                                    </div>
-                                    <button type="button" onclick="this.parentElement.classList.add('hidden')" class="text-emerald-600 hover:text-emerald-900 font-bold ml-2">✕</button>
-                                `;
-                                return;
-                            }
-                        }
-                    }
-                }
-                if (statusBadge) statusBadge.classList.add('hidden');
-            } catch (err) {
-                console.warn('PDF auto-extract skipped:', err);
-                if (statusBadge) statusBadge.classList.add('hidden');
-            }
-        }
 
         function updateProgress(percent, text) {
             const rounded = Math.round(percent);

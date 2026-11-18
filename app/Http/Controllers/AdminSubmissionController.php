@@ -217,7 +217,7 @@ class AdminSubmissionController extends Controller
 
         $quotaNote = $freeRemaining > 0
             ? "Turnitin & Grammarly Scan: Attempt {$currentAttempt} of {$maxFreeScans} used ({$freeRemaining} free " . ($freeRemaining === 1 ? 'try' : 'tries') . " remaining)."
-            : "Turnitin & Grammarly Scan: All {$maxFreeScans} free scans have been used. A re-screening fee is required for the 4th scan.";
+            : "Turnitin & Grammarly Scan: All 3 free scans have been used. Payment is required for the 4th scan.";
 
         $updateData = [
             'status' => 'resubmit',
@@ -341,7 +341,7 @@ class AdminSubmissionController extends Controller
      */
     public function purgeStaleRevisions(): int
     {
-        $cutoff = Carbon::now()->subMonths(3);
+        $cutoff = Carbon::now()->subDays(90);
 
         $staleDocuments = Document::whereNotNull('submitted_by_email')
             ->where('status', 'resubmit')

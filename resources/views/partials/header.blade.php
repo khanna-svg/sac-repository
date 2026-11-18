@@ -42,16 +42,15 @@
     $revDaysRemaining = 0;
     if ($userEmail && !in_array($userRole, ['admin', 'librarian', 'coordinator'], true)) {
         $isSubmitPage = request()->routeIs('student.submit') || request()->is('student/submit*');
-        $isDismissedCookie = (bool) request()->cookie('sac_rev_dismissed');
-        if (!session()->has('revision_notice_dismissed') && !$isDismissedCookie && !$isSubmitPage) {
+        if (!session()->has('revision_notice_dismissed') && !$isSubmitPage) {
             $studentRevisionDoc = \App\Models\Document::where('submitted_by_email', strtolower($userEmail))
                 ->where('status', 'resubmit')
                 ->latest('updated_at')
                 ->first();
             if ($studentRevisionDoc) {
                 $hasRevisionNotice = true;
-                $revDeadline = $studentRevisionDoc->updated_at ? $studentRevisionDoc->updated_at->copy()->addMonths(3) : now()->addMonths(3);
-                $revDaysRemaining = max(0, (int) now()->diffInDays($revDeadline, false));
+                $revDeadline = $studentRevisionDoc->updated_at ? $studentRevisionDoc->updated_at->copy()->addDays(90) : now()->addDays(90);
+                $revDaysRemaining = max(0, (int) ceil(now()->floatDiffInDays($revDeadline, false)));
                 $maxFreeScans = 3;
                 $currentAttempts = (int) ($studentRevisionDoc->scan_attempts ?: 1);
                 $freeScansRemaining = max(0, $maxFreeScans - $currentAttempts);
@@ -125,13 +124,10 @@
                         <!-- Profile User Dropdown -->
                         <div
                             id="adminProfileDropdown"
-                            class="hidden absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white p-2 shadow-xl border border-slate-200 z-50 text-left transition-all">
-                            <div class="px-3 py-2 border-b border-gray-100 mb-1">
+                            class="hidden absolute right-0 top-full mt-2 w-56 rounded-2xl bg-white p-2 shadow-2xl z-50 text-left transition-all">
+                            <div class="px-3 py-2 bg-slate-50/80 rounded-xl mb-1">
                                 <p class="text-xs font-bold text-gray-900 truncate">{{ $userName }}</p>
                                 <p class="text-[11px] text-gray-500 truncate">{{ $userEmail }}</p>
-                                <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-rose-50 text-[#700000] border border-rose-200">
-                                    {{ ucfirst($userRole) }}
-                                </span>
                             </div>
 
                             <button
@@ -203,39 +199,49 @@
 <div id="sacLiveToastContainer" class="fixed top-20 right-4 sm:right-6 z-[9999] flex flex-col gap-3 pointer-events-none max-w-sm sm:max-w-md w-full px-4 sm:px-0"></div>
 
 @if($hasRevisionNotice && $studentRevisionDoc)
-    <!-- Student Revision Notice Pop-up Modal -->
-    <div id="revisionNoticeModal" class="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 sm:p-6 transition-all duration-300">
+    <!-- Student Revision Notice Pop-up Modal (Responsive & Viewport-Safe) -->
+    <div id="revisionNoticeModal" class="fixed inset-0 z-[10000] overflow-y-auto flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs transition-all duration-300">
         <script>
-            if (sessionStorage.getItem('sac_revision_notice_dismissed') === '1' || (document.cookie && document.cookie.indexOf('sac_rev_dismissed=1') !== -1)) {
+            if (sessionStorage.getItem('sac_revision_notice_dismissed') === '1') {
                 const _rm = document.getElementById('revisionNoticeModal');
                 if (_rm) _rm.remove();
             }
         </script>
-        <div class="w-full max-w-lg rounded-3xl bg-white shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
+        <div class="w-full max-w-lg max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3.5rem)] my-auto rounded-3xl bg-white shadow-2xl overflow-hidden flex flex-col transform transition-all animate-in fade-in zoom-in-95 duration-200">
             
-            <!-- Top Color Accent Bar -->
-            <div class="h-2 bg-gradient-to-r from-[#700000] via-rose-600 to-amber-500"></div>
-
-            <div class="p-6 sm:p-7 space-y-5">
-                <!-- Icon & Header -->
-                <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center shrink-0 shadow-2xs">
-                        <svg class="w-6 h-6 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                        </svg>
+            <!-- Pinned Modal Header (AIRIS Maroon Style matching Picture 2) -->
+            <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[#600000] bg-[#700000] text-white shrink-0">
+                <div class="flex items-center gap-3 min-w-0 pr-2">
+                    <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#D4AF37]/40 flex items-center justify-center">
+                        <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                     </div>
-                    <div class="min-w-0 flex-1">
-                        <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">
-                            Manuscript Revision Required
+                    <div class="min-w-0">
+                        <h3 class="text-sm sm:text-base font-bold text-white tracking-wide truncate flex items-center gap-1.5">
+                            <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
+                            <span>Manuscript Revision Required</span>
                         </h3>
-                        <p class="text-xs text-gray-500 mt-0.5">
+                        <p class="text-[11px] sm:text-xs text-amber-100/90 truncate mt-0.5">
                             Your submitted research manuscript requires revisions.
                         </p>
                     </div>
                 </div>
 
+                <button
+                    type="button"
+                    onclick="dismissRevisionNoticeModal()"
+                    aria-label="Close Revision Notice"
+                    class="p-1.5 rounded-lg text-amber-100/80 hover:text-white hover:bg-white/10 transition cursor-pointer shrink-0"
+                    title="Close">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Scrollable Modal Body (Smoothly scrolls if viewport height is compact) -->
+            <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-4 space-y-3.5 overscroll-contain">
                 <!-- Manuscript Info Card -->
-                <div class="rounded-2xl bg-slate-50/90 p-4 space-y-3 shadow-2xs">
+                <div class="rounded-2xl bg-slate-50/90 p-4 space-y-2.5 shadow-2xs">
                     <div>
                         <p class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Research Title</p>
                         <h4 class="text-xs sm:text-sm font-bold text-gray-900 mt-0.5 leading-snug">
@@ -253,7 +259,7 @@
                     @endif
 
                     @if(!empty($studentRevisionDoc->admin_notes))
-                        <div class="pt-2 space-y-1">
+                        <div class="pt-1.5 space-y-1">
                             <p class="text-[10px] uppercase font-bold text-rose-800 tracking-wider">Admin Feedback</p>
                             <p class="text-xs text-gray-800 whitespace-pre-line leading-relaxed">
                                 {{ $studentRevisionDoc->admin_notes }}
@@ -263,17 +269,17 @@
                 </div>
 
                 <!-- Turnitin & Grammarly Free Scanning Quota Notice Box (100% Borderless Design) -->
-                <div class="rounded-2xl {{ $isExceededFree ? 'bg-rose-50/80' : 'bg-slate-50/90' }} p-4 sm:p-5 space-y-3 shadow-2xs">
+                <div class="rounded-2xl {{ $isExceededFree ? 'bg-rose-50/80' : 'bg-slate-50/90' }} p-4 space-y-2.5 shadow-2xs">
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2 min-w-0">
-                            <svg class="w-4 h-4 sm:w-4.5 sm:h-4.5 {{ $isExceededFree ? 'text-rose-700' : 'text-[#700000]' }} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <svg class="w-4 h-4 {{ $isExceededFree ? 'text-rose-700' : 'text-[#700000]' }} shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-2.182 7.027a9 9 0 118.232-4.492" />
                             </svg>
                             <h4 class="text-xs sm:text-sm font-bold text-gray-900 tracking-tight truncate">
                                 Turnitin &amp; Grammarly Scanning Quota
                             </h4>
                         </div>
-                        <span class="inline-flex items-center text-[11px] font-bold px-3 py-1 rounded-full {{ $isExceededFree ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-900' }} shrink-0">
+                        <span class="inline-flex items-center text-[10.5px] font-bold px-2.5 py-0.5 rounded-full {{ $isExceededFree ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-900' }} shrink-0">
                             {{ $isExceededFree ? 'Free Tries Exhausted' : "{$freeScansRemaining} of {$maxFreeScans} Free Tries Left" }}
                         </span>
                     </div>
@@ -307,9 +313,9 @@
                 </div>
 
                 <!-- Revision Deadline Box (matching option 1 borderless design) -->
-                <div class="rounded-2xl bg-amber-50/80 p-4 sm:p-5 space-y-2.5 shadow-2xs">
+                <div class="rounded-2xl bg-amber-50/80 p-4 space-y-2 shadow-2xs">
                     <div class="flex items-center gap-2">
-                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-[#b45309] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <svg class="w-4 h-4 text-[#b45309] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <h4 class="text-xs sm:text-sm font-bold text-gray-900 tracking-tight">
@@ -330,22 +336,22 @@
                         Please upload your revised manuscript before <span class="font-semibold font-inter">{{ $revDeadline->format('F d, Y') }}</span>. Unresubmitted manuscripts will be automatically deleted after the 90-day revision period.
                     </p>
                 </div>
+            </div>
 
-                <!-- Action Buttons: "Go to Upload" (Red Button) & "Dismiss" (Beside it) -->
-                <div class="pt-1 flex flex-col sm:flex-row items-center gap-2.5">
-                    <button
-                        type="button"
-                        onclick="dismissRevisionNoticeModal('{{ route('student.submit') }}')"
-                        class="w-full sm:flex-1 py-3 px-6 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
-                        Go to Upload
-                    </button>
-                    <button
-                        type="button"
-                        onclick="dismissRevisionNoticeModal()"
-                        class="w-full sm:w-auto text-center py-2.5 px-4 rounded-xl text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition whitespace-nowrap cursor-pointer">
-                        Dismiss
-                    </button>
-                </div>
+            <!-- Pinned Modal Footer (Always Visible) -->
+            <div class="shrink-0 bg-slate-50/90 px-5 sm:px-6 py-3.5 border-t border-gray-100 flex flex-col sm:flex-row items-center gap-2.5">
+                <button
+                    type="button"
+                    onclick="dismissRevisionNoticeModal('{{ route('student.submit') }}')"
+                    class="w-full sm:flex-1 py-2.5 sm:py-3 px-6 rounded-xl bg-[#700000] text-[#FFD700] hover:bg-[#850000] font-bold text-sm shadow-md hover:shadow-lg transition cursor-pointer flex items-center justify-center gap-2">
+                    Go to Upload
+                </button>
+                <button
+                    type="button"
+                    onclick="dismissRevisionNoticeModal()"
+                    class="w-full sm:w-auto text-center py-2 px-4 rounded-xl text-xs font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-200/60 transition whitespace-nowrap cursor-pointer">
+                    Dismiss
+                </button>
             </div>
         </div>
     </div>
@@ -390,23 +396,18 @@
     <!-- Admin Activity Logs Modal -->
     <div id="adminActivityLogsModal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-slate-900/60 backdrop-blur-xs p-3 sm:p-6 transition-all duration-300">
         <div class="w-full max-w-4xl max-h-[90vh] flex flex-col rounded-3xl bg-white shadow-2xl overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-200">
-            <!-- Top Gradient Bar -->
-            <div class="h-2 bg-gradient-to-r from-[#700000] via-rose-600 to-amber-500 shrink-0"></div>
-
-            <!-- Modal Header -->
-            <div class="p-5 sm:p-6 flex items-start justify-between gap-4 shrink-0 bg-slate-50/50">
-                <div class="flex items-center gap-3.5 min-w-0">
-                    <div class="w-10 h-10 rounded-2xl bg-rose-50 flex items-center justify-center shrink-0 shadow-xs">
-                        <svg class="w-5 h-5 text-[#700000]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
-                        </svg>
+            <!-- Modal Header (AIRIS Maroon Style matching Picture 2) -->
+            <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-[#600000] bg-[#700000] text-white shrink-0">
+                <div class="flex items-center gap-3 min-w-0 pr-2">
+                    <div class="w-8 h-8 rounded-xl bg-white p-1 shrink-0 shadow-sm border border-[#D4AF37]/40 flex items-center justify-center">
+                        <img src="{{ asset('images/airis-logo.webp') }}" class="w-full h-full object-contain" alt="AIRIS Logo">
                     </div>
-                    <div>
-                        <h3 class="text-base sm:text-lg font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                    <div class="min-w-0">
+                        <h3 class="text-sm sm:text-base font-bold text-white tracking-wide truncate flex items-center gap-1.5">
+                            <span class="text-[#FFD700] font-black tracking-wide font-['Outfit',sans-serif]">AIRIS</span>
                             <span>Admin Activity Logs</span>
-                            <span id="logHeaderBadge" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-semibold font-mono">0 total</span>
                         </h3>
-                        <p class="text-xs text-slate-500 mt-0.5">
+                        <p class="text-[11px] sm:text-xs text-amber-100/90 truncate mt-0.5">
                             History of administrative actions: approving, requesting revisions, archiving, editing, and restoring.
                         </p>
                     </div>
@@ -415,7 +416,8 @@
                 <button
                     type="button"
                     onclick="closeActivityLogsModal()"
-                    class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer"
+                    aria-label="Close Activity Logs"
+                    class="p-1.5 rounded-lg text-amber-100/80 hover:text-white hover:bg-white/10 transition cursor-pointer shrink-0"
                     title="Close">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -478,16 +480,7 @@
                 </div>
             </div>
 
-            <!-- Modal Footer -->
-            <div class="p-4 sm:px-6 bg-slate-50/70 flex items-center justify-between shrink-0">
-                <span id="activityLogsFooterCount" class="text-xs text-slate-500 font-medium font-inter">Showing 0 activities</span>
-                <button
-                    type="button"
-                    onclick="closeActivityLogsModal()"
-                    class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-200/70 hover:bg-slate-200 transition cursor-pointer">
-                    Close
-                </button>
-            </div>
+
         </div>
     </div>
 @endif
@@ -798,14 +791,12 @@
                 const cRev = document.getElementById('logCountRevision');
                 const cArc = document.getElementById('logCountArchive');
                 const cEd = document.getElementById('logCountEdit');
-                const hBadge = document.getElementById('logHeaderBadge');
 
                 if (cAll) cAll.textContent = data.counts.all || 0;
                 if (cApp) cApp.textContent = data.counts.approve || 0;
                 if (cRev) cRev.textContent = data.counts.revision || 0;
                 if (cArc) cArc.textContent = data.counts.archive || 0;
                 if (cEd) cEd.textContent = data.counts.edit || 0;
-                if (hBadge) hBadge.textContent = `${data.counts.all || 0} total`;
             }
 
             renderActivityLogs(data.logs || []);
@@ -821,12 +812,7 @@
 
     function renderActivityLogs(logs) {
         const body = document.getElementById('activityLogsBody');
-        const footerCount = document.getElementById('activityLogsFooterCount');
         if (!body) return;
-
-        if (footerCount) {
-            footerCount.textContent = `Showing ${logs.length} ${logs.length === 1 ? 'activity' : 'activities'}`;
-        }
 
         if (!logs || logs.length === 0) {
             body.innerHTML = `

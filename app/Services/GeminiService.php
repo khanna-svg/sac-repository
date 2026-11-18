@@ -12,7 +12,7 @@ class GeminiService
 
     protected string $embeddingModel = 'gemini-embedding-001';
 
-    protected string $generationModel = 'gemini-3.6-flash';
+    protected string $generationModel = 'gemini-3.5-flash-lite';
 
     public function __construct()
     {
@@ -145,6 +145,8 @@ class GeminiService
         $configuredModel = env('GEMINI_MODEL');
         $modelsToTry = array_values(array_unique(array_filter([
             $configuredModel,
+            'gemini-3.5-flash-lite',
+            'gemini-flash-lite-latest',
             'gemini-3.6-flash',
             'gemini-3.5-flash',
             'gemini-3.8-flash',
@@ -257,6 +259,8 @@ class GeminiService
         $configuredModel = env('GEMINI_MODEL');
         $modelsToTry = array_values(array_unique(array_filter([
             $configuredModel,
+            'gemini-3.5-flash-lite',
+            'gemini-flash-lite-latest',
             'gemini-3.6-flash',
             'gemini-3.5-flash',
             'gemini-3.8-flash',
@@ -428,7 +432,7 @@ Respond with ONLY valid JSON (no markdown formatting, no code fences, no explana
 Proposal Text:
 " . $truncated;
 
-        $modelsToTry = [$this->generationModel, 'gemini-3.7-flash', 'gemini-3.6-flash'];
+        $modelsToTry = [$this->generationModel, 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.7-flash', 'gemini-3.6-flash'];
 
         foreach (array_unique($modelsToTry) as $modelName) {
             try {
@@ -530,7 +534,7 @@ Respond with ONLY valid JSON (no markdown formatting, no code fences, no explana
 Manuscript Front Matter:
 " . $truncated;
 
-        $modelsToTry = [$this->generationModel, 'gemini-3.7-flash', 'gemini-3.6-flash'];
+        $modelsToTry = [$this->generationModel, 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.7-flash', 'gemini-3.6-flash'];
 
         foreach (array_unique($modelsToTry) as $modelName) {
             try {

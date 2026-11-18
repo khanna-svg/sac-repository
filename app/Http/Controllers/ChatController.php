@@ -983,9 +983,16 @@ class ChatController extends Controller
                 continue;
             }
 
+            $patternVal = preg_quote($kw, '/');
+            if (strtolower($kw) === 'iot') {
+                $patternVal = '(iot|internet\s+of\s+things)';
+            } elseif (strtolower($kw) === 'ai') {
+                $patternVal = '(ai|artificial\s+intelligence)';
+            }
+
             if ($isPgsql) {
                 $whereClauses[] = "(title ~* ? OR abstract ~* ? OR department ~* ? OR course_code ~* ?)";
-                $regex = '\m' . preg_quote($kw, '/') . '\M';
+                $regex = '\m' . $patternVal . '\M';
                 $bindings = array_merge($bindings, [$regex, $regex, $regex, $regex]);
             } else {
                 $whereClauses[] = "(title LIKE ? OR abstract LIKE ? OR department LIKE ? OR course_code LIKE ?)";
@@ -1023,7 +1030,9 @@ class ChatController extends Controller
             'repository', 'reposito', 'archive', 'archives', 'archived',
             'available', 'exist', 'exists', 'inside', 'here', 'there',
             'what', 'which', 'list', 'show', 'give', 'find', 'have',
-            'about', 'related', 'any', 'some', 'many', 'much', 'college', 'sac'
+            'about', 'related', 'any', 'some', 'many', 'much', 'college', 'sac',
+            'based', 'base', 'type', 'types', 'kind', 'kinds', 'title', 'titles',
+            'topic', 'topics', 'system', 'systems'
         ];
 
         $topicKeywords = array_values(array_filter($allKeywords, fn($w) => !in_array($w, $metaWords, true)));

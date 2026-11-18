@@ -35,6 +35,14 @@
     "CACHE_DRIVER": "array",
     "LOG_CHANNEL": "stderr",
     "SESSION_DRIVER": "cookie",
-    "SESSION_SECURE_COOKIE": "true"
+    "SESSION_SECURE_COOKIE": "true",
+    "MAIL_MAILER": "smtp",
+    "MAIL_HOST": "smtp.gmail.com",
+    "MAIL_PORT": "587",
+    "MAIL_USERNAME": "figueroaryan@sac.edu.ph",
+    "MAIL_PASSWORD": "rkglnaotiqadbyzt",
+    "MAIL_ENCRYPTION": "tls",
+    "MAIL_FROM_ADDRESS": "figueroaryan@sac.edu.ph",
+    "MAIL_FROM_NAME": "SArchive Thesis Repository"
   }
 }

@@ -97,58 +97,99 @@
                 </div>
             @endif
 
-            <!-- STUDENT FORM (EMAIL & LRN / PASSWORD) -->
-            <form method="POST" action="{{ route('login') }}" class="space-y-4 sm:space-y-5">
-                @csrf
-                <div class="floating-badge-group">
-                    <input 
-                        id="student_email" 
-                        name="email" 
-                        type="email" 
-                        value="{{ old('email') }}" 
-                        placeholder=" "
-                        required 
-                        autocomplete="email"
-                        class="floating-badge-input block w-full rounded-2xl border border-slate-300 bg-slate-50/70 px-4 py-3 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition-all shadow-2xs">
-                    <label 
-                        for="student_email" 
-                        class="floating-badge-label">
-                        Email
-                    </label>
-                </div>
+            @if ($pendingEmail)
+                <!-- TWO-STEP 6-DIGIT VERIFICATION CODE FORM -->
+                <div class="space-y-5">
+                    <form method="POST" action="{{ route('login.verify') }}" id="otpForm" class="space-y-5">
+                        @csrf
+                        <input type="hidden" name="code" id="full_code" value="">
 
-                <div class="floating-badge-group">
-                    <input 
-                        id="password" 
-                        name="password" 
-                        type="password" 
-                        placeholder=" " 
-                        required 
-                        autocomplete="current-password"
-                        class="floating-badge-input block w-full rounded-2xl border border-slate-300 bg-slate-50/70 px-4 pr-11 py-3 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition-all shadow-2xs">
-                    <label 
-                        for="password" 
-                        class="floating-badge-label">
-                        Password
-                    </label>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-3 text-center">
+                                Enter 6-Digit Code
+                            </label>
+                            <div class="flex items-center justify-between gap-1.5 sm:gap-2 max-w-xs sm:max-w-sm mx-auto" id="otpBoxContainer">
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]" autofocus>
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                                <input type="text" maxlength="1" inputmode="numeric" pattern="[0-9]" class="otp-box w-11 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-mono font-bold rounded-2xl border border-slate-300 bg-slate-50 focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition shadow-2xs outline-none text-[#700000]">
+                            </div>
+                        </div>
+
+                        <button 
+                            type="submit" 
+                            class="w-full rounded-2xl bg-[#700000] hover:bg-[#850000] py-3 text-xs sm:text-sm font-bold text-[#FFD700] transition shadow-md shadow-red-950/20 border border-[#FFD700]/30 flex items-center justify-center gap-2 cursor-pointer">
+                            <span>Verify and sign in</span>
+                        </button>
+                    </form>
+
+                    <div class="pt-1 flex items-center justify-between text-xs text-slate-500">
+                        <form method="POST" action="{{ route('login.resend') }}">
+                            @csrf
+                            <button type="submit" class="font-semibold text-[#700000] hover:text-[#900000] hover:underline cursor-pointer">
+                                Resend code
+                            </button>
+                        </form>
+                        <a href="{{ route('login.reset') }}" class="font-medium text-slate-500 hover:text-slate-900 transition">
+                            Use different email
+                        </a>
+                    </div>
+                </div>
+            @else
+                <!-- STUDENT FORM (EMAIL & LRN / PASSWORD) -->
+                <form method="POST" action="{{ route('login') }}" class="space-y-4 sm:space-y-5">
+                    @csrf
+                    <div class="floating-badge-group">
+                        <input 
+                            id="student_email" 
+                            name="email" 
+                            type="email" 
+                            value="{{ old('email') }}" 
+                            placeholder=" "
+                            required 
+                            autocomplete="email"
+                            class="floating-badge-input block w-full rounded-2xl border border-slate-300 bg-slate-50/70 px-4 py-3 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition-all shadow-2xs">
+                        <label 
+                            for="student_email" 
+                            class="floating-badge-label">
+                            Email
+                        </label>
+                    </div>
+
+                    <div class="floating-badge-group">
+                        <input 
+                            id="password" 
+                            name="password" 
+                            type="password" 
+                            placeholder=" " 
+                            autocomplete="current-password"
+                            class="floating-badge-input block w-full rounded-2xl border border-slate-300 bg-slate-50/70 px-4 pr-11 py-3 text-xs sm:text-sm text-slate-900 outline-none focus:bg-white focus:border-[#700000] focus:ring-2 focus:ring-[#700000]/15 transition-all shadow-2xs">
+                        <label 
+                            for="password" 
+                            class="floating-badge-label">
+                            Password
+                        </label>
+                        <button 
+                            type="button" 
+                            onclick="togglePasswordVisibility()" 
+                            title="Show/Hide Password"
+                            class="absolute right-3 top-2.5 sm:top-3 text-slate-400 hover:text-[#700000] transition p-1 cursor-pointer z-10">
+                            <svg id="passwordEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </button>
+                    </div>
+
                     <button 
-                        type="button" 
-                        onclick="togglePasswordVisibility()" 
-                        title="Show/Hide Password"
-                        class="absolute right-3 top-2.5 sm:top-3 text-slate-400 hover:text-[#700000] transition p-1 cursor-pointer z-10">
-                        <svg id="passwordEyeIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                        type="submit" 
+                        class="w-full rounded-2xl bg-[#700000] hover:bg-[#850000] py-3 text-xs sm:text-sm font-bold text-[#FFD700] transition shadow-md shadow-red-950/20 border border-[#FFD700]/30 flex items-center justify-center gap-2 cursor-pointer mt-2">
+                        <span>Sign in</span>
                     </button>
-                </div>
-
-                <button 
-                    type="submit" 
-                    class="w-full rounded-2xl bg-[#700000] hover:bg-[#850000] py-3 text-xs sm:text-sm font-bold text-[#FFD700] transition shadow-md shadow-red-950/20 border border-[#FFD700]/30 flex items-center justify-center gap-2 cursor-pointer mt-2">
-                    <span>Sign in</span>
-                </button>
-            </form>
+                </form>
+            @endif
         </main>
 
         <!-- Footer -->
@@ -158,6 +199,84 @@
     </div>
 
     <script>
+        try {
+            sessionStorage.removeItem('sac_revision_notice_dismissed');
+        } catch (e) {}
+
+        // OTP 6-Box Interaction Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const boxes = document.querySelectorAll('.otp-box');
+            const fullCodeInput = document.getElementById('full_code');
+            const otpForm = document.getElementById('otpForm');
+
+            if (boxes.length === 6) {
+                function updateFullCode() {
+                    let code = '';
+                    boxes.forEach(b => {
+                        code += (b.value || '');
+                    });
+                    if (fullCodeInput) fullCodeInput.value = code;
+                    return code;
+                }
+
+                boxes.forEach((box, index) => {
+                    box.addEventListener('input', function(e) {
+                        const val = this.value.replace(/[^0-9]/g, '');
+                        this.value = val ? val[val.length - 1] : '';
+
+                        if (this.value && index < boxes.length - 1) {
+                            boxes[index + 1].focus();
+                            boxes[index + 1].select();
+                        }
+                        updateFullCode();
+                    });
+
+                    box.addEventListener('keydown', function(e) {
+                        if (e.key === 'Backspace') {
+                            if (!this.value && index > 0) {
+                                boxes[index - 1].focus();
+                                boxes[index - 1].value = '';
+                                updateFullCode();
+                            }
+                        } else if (e.key === 'ArrowLeft' && index > 0) {
+                            boxes[index - 1].focus();
+                        } else if (e.key === 'ArrowRight' && index < boxes.length - 1) {
+                            boxes[index + 1].focus();
+                        }
+                    });
+
+                    box.addEventListener('paste', function(e) {
+                        e.preventDefault();
+                        const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim();
+                        const digits = pasteData.replace(/[^0-9]/g, '').slice(0, 6);
+                        if (digits) {
+                            digits.split('').forEach((d, i) => {
+                                if (boxes[i]) boxes[i].value = d;
+                            });
+                            const lastIndex = Math.min(digits.length, boxes.length) - 1;
+                            if (boxes[lastIndex]) boxes[lastIndex].focus();
+                            updateFullCode();
+                        }
+                    });
+                });
+
+                if (otpForm) {
+                    otpForm.addEventListener('submit', function(e) {
+                        const code = updateFullCode();
+                        if (code.length < 6) {
+                            e.preventDefault();
+                            for (let i = 0; i < boxes.length; i++) {
+                                if (!boxes[i].value) {
+                                    boxes[i].focus();
+                                    break;
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
         function togglePasswordVisibility() {
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('passwordEyeIcon');
